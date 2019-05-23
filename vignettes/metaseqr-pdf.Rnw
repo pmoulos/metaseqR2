@@ -1,0 +1,711 @@
+\documentclass[a4paper]{article}
+\usepackage[sc]{mathpazo}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{listings}
+\geometry{verbose,tmargin=2cm,bmargin=2cm,lmargin=2cm,rmargin=2cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[utf8]{inputenc}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{pdfstartview={XYZ null null 1}}
+\lstset{breaklines=true} % break long lines
+\begin{document}
+
+%\VignetteIndexEntry{RNA-Seq data analysis using mulitple statistical algorithms with metaseqR}
+%\VignetteEngine{knitr::knitr}
+
+\title{RNA-Seq data analysis using mulitple statistical algorithms with metaseqR}
+\author{Panagiotis Moulos}
+\maketitle
+
+During the past few years, a lot of R/Bioconductor packages have been developped
+for the analysis of RNA-Seq data, introducing several approaches. For example,
+packages using the negative binomial distribution to model the null hypotheses
+(\emph{DESeq}, \emph{edgeR}, \emph{NBPSeq}) or packages using Bayesian statistics
+(\emph{baySeq}, \emph{EBSeq}). In addition, packages specialized to RNA-Seq data
+normalization have also been developed (\emph{EDASeq}). The package \emph{metaseqR}
+(pronounced meta-seek-er) tries to provide an interface to several algorithms,
+similar to the recent \emph{TCC} package. However, it is much simpler to use than
+\emph{TCC}, incoporates more algorithms for normalization and statistical analysis
+and builds a full report with several interactive and non-interactive diagnostic
+plots so that the users can easily explore the results and have whatever they need
+for this part of their research in one place. The metaseqR report is one of its
+most strong points as it provides an automatically generated summary, based on the
+pipeline inputs and the results, which can be used directly as a draft in methods
+paragraph in scientific publications. It also provides a lot of diagnostic figures
+and each figure is accompanied by a small explanatory text, and a list of
+references accroding to the algorithms used in the pipeline, which can also be
+used in a scientific article. All the report components are grouped in a
+comprehensive way, with a table of contents. Most importantly, metaseqR provides
+an interface for RNA-Seq data meta-analysis by providing the ability to use
+different algorithms for the statistical testing part and combining the p-values
+using popular published methods (e.g. Fisher's method, Whitlock's method) and two
+package-specific methods (intersection, union of statistically significant results).
+In the future, more algorithms will be incorporated in the package, with more
+diagnostic plots and more examples. This initial vignette contains just this
+introductory text and reference to some examples in the package documentation,
+which we believe that at this point contains sufficient explanation to run the
+metaseqr pipeline. Throughout the rest of this document, \emph{metaseqr} refers
+to the name of the analysis pipeline while \emph{metaseqR} refers to the name of
+the package.
+
+\section{Getting started}
+
+<<init-init, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE>>=
+library(metaseqR)
+@
+
+Detailed instructions on how to run the metaseqr pipeline can be found under the
+main documentation of the metaseqR package:
+
+<<init-metaseqr, eval=FALSE, echo=TRUE, warning=FALSE>>=
+library(metaseqR)
+help(metaseqr) # or
+help(metaseqr.main)
+@
+
+Briefly, to run metaseqr you need:
+
+\begin{itemize}
+ \item A text tab delimited file in a spreadsheet like format containing at least
+    unique gene identifiers (corresponding to one of metaseqR's supported formats,
+    for the time being Ensembl)
+ \item A list of statistical contrasts for which you wish to check differential
+    expression
+ \item An internet connection so that the interactive parts of the report can be
+    properly rendered, as the report template points to external Content Delivery
+    Networks (CDNs) distributing the appropriate JavaScript
+\end{itemize}
+
+Everything else (e.g. genomic regions annotation etc.) can be handled by the
+metaseqr pipeline. Some example data are included in the package. See the related
+help pages:
+
+<<help-1, eval=FALSE, echo=TRUE>>=
+help(hg18.exon.data)
+help(mm9.gene.data)
+@
+
+\section{Running the metaseqr pipeline}
+
+Running a metaseqr pipeline instance is quite straightforward. Again, see the
+examples in the main help page. An example and the command window output follow:
+
+<<data-1, eval=TRUE, echo=TRUE>>=
+data("mm9.gene.data",package="metaseqR")
+@
+
+<<head-1, eval=TRUE, echo=TRUE>>=
+head(mm9.gene.counts)
+@
+
+<<random-1, eval=TRUE, echo=TRUE>>=
+sample.list.mm9
+@
+
+<<random-2, eval=TRUE, echo=TRUE>>=
+libsize.list.mm9
+@
+
+Following is a full example with the informative messages that are printed in the
+command window:
+
+<<example-1, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE>>=
+library(metaseqR)
+data("mm9.gene.data",package="metaseqR")
+result <- metaseqr(
+       counts=mm9.gene.counts,
+       sample.list=sample.list.mm9,
+       contrast=c("e14.5_vs_adult_8_weeks"),
+       libsize.list=libsize.list.mm9,
+       annotation="download",
+       org="mm9",
+       count.type="gene",
+       normalization="edger",
+       statistics="edger",
+       pcut=0.05,
+       fig.format=c("png","pdf"),
+       export.what=c("annotation","p.value","meta.p.value",
+          "adj.meta.p.value","fold.change"),
+       export.scale=c("natural","log2"),
+       export.values="normalized",
+       export.stats=c("mean","sd","cv"),
+       export.where="~/metaseqr_test",
+       restrict.cores=0.8,
+       gene.filters=list(
+             length=list(
+                    length=500
+             ),
+             avg.reads=list(
+                    average.per.bp=100,
+                    quantile=0.25
+             ),
+             expression=list(
+                    median=TRUE,
+                    mean=FALSE,
+                    quantile=NA,
+                    known=NA,
+                    custom=NA
+             ),
+             biotype=get.defaults("biotype.filter","mm9")
+       ),
+       out.list=TRUE
+)
+@
+
+To get a glimpse on the results, run:
+
+<<head-2, eval=TRUE, echo=TRUE>>=
+head(result[["data"]][["e14.5_vs_adult_8_weeks"]])
+@
+
+Check the HTML report generated in the output directory defined by the
+export.where argument above.
+
+Now, the same example but with more than one statistical selection algorithms, a
+different normalization, an analysis preset and filtering applied prior to
+normalization:
+
+<<example-2, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE>>=
+library(metaseqR)
+data("mm9.gene.data",package="metaseqR")
+result <- metaseqr(
+       counts=mm9.gene.counts,
+       sample.list=sample.list.mm9,
+       contrast=c("e14.5_vs_adult_8_weeks"),
+       libsize.list=libsize.list.mm9,
+       annotation="download",
+       org="mm9",
+       count.type="gene",
+       when.apply.filter="prenorm",
+       normalization="edaseq",
+       statistics=c("deseq","edger"),
+       meta.p="fisher",
+       qc.plots=c(
+             "mds","biodetection","countsbio","saturation","readnoise","filtered",
+             "correl","pairwise","boxplot","gcbias","lengthbias","meandiff",
+             "meanvar","rnacomp","deheatmap","volcano","biodist","venn"
+       ),
+       fig.format=c("png","pdf"),
+       preset="medium.normal",
+       export.where="~/metaseqr_test2",
+       out.list=TRUE
+)
+@
+
+A similar example with no filtering applied and no Venn diagram generation (not
+evaluated here):
+
+<<example-3, eval=FALSE, echo=TRUE, tidy=FALSE, message=FALSE, warning=FALSE>>=
+library(metaseqR)
+data("mm9.gene.data",package="metaseqR")
+result <- metaseqr(
+       counts=mm9.gene.counts,
+       sample.list=sample.list.mm9,
+       contrast=c("e14.5_vs_adult_8_weeks"),
+       libsize.list=libsize.list.mm9,
+       annotation="download",
+       org="mm9",
+       count.type="gene",
+       normalization="edaseq",
+       statistics=c("deseq","edger"),
+       meta.p="fisher",
+       fig.format=c("png","pdf"),
+       preset="medium.normal",
+       out.list=TRUE
+)
+@
+
+An additional example with human exon data (if you have a multiple core system,
+be very careful on how you are using the restrict.cores option and generally how
+many cores you are using with scripts purely written in R. The analysis with exon
+read data can very easily cause memory problems, so unless you have more than 64Gb
+of RAM available, consider setting restrict.cores to something like 0.2):
+
+<<example-4, eval=FALSE, echo=TRUE, tidy=FALSE>>=
+# A full example pipeline with exon counts
+data("hg19.exon.data",package="metaseqR")
+metaseqr(
+       counts=hg19.exon.counts,
+       sample.list=sample.list.hg19,
+       contrast=c("normal_vs_paracancerous","normal_vs_cancerous",
+          "normal_vs_paracancerous_vs_cancerous"),
+       libsize.list=libsize.list.hg19,
+       id.col=4,
+       annotation="download",
+       org="hg19",
+       count.type="exon",
+       normalization="edaseq",
+       statistics="deseq",
+       pcut=0.05,
+       qc.plots=c(
+             "mds","biodetection","countsbio","saturation","rnacomp","pairwise",
+             "boxplot","gcbias","lengthbias","meandiff","meanvar","correl",
+             "deheatmap","volcano","biodist","filtered"
+       ),
+       fig.format=c("png","pdf"),
+       export.what=c("annotation","p.value","adj.p.value","fold.change","stats","counts"),
+       export.scale=c("natural","log2","log10","vst"),
+       export.values=c("raw","normalized"),
+       export.stats=c("mean","median","sd","mad","cv","rcv"),
+       restrict.cores=0.8,
+       gene.filters=list(
+             length=list(
+                    length=500
+             ),
+             avg.reads=list(
+                    average.per.bp=100,
+                    quantile=0.25
+             ),
+             expression=list(
+                    median=TRUE,
+                    mean=FALSE
+             ),
+             biotype=get.defaults("biotype.filter","hg19")
+       )
+)
+@
+
+or in a more simplified version
+
+<<example-5, eval=FALSE, echo=TRUE, tidy=FALSE>>=
+# A full example pipeline with exon counts
+data("hg19.exon.data",package="metaseqR")
+metaseqr(
+       counts=hg19.exon.counts,
+       sample.list=sample.list.hg19,
+       contrast=c("normal_vs_paracancerous","normal_vs_cancerous",
+          "normal_vs_paracancerous_vs_cancerous"),
+       libsize.list=libsize.list.hg19,
+       id.col=4,
+       annotation="download",
+       org="hg19",
+       count.type="exon",
+       normalization="edaseq",
+       statistics="deseq",
+       preset="medium.normal",
+       restrict.cores=0.8
+)
+@
+
+One of the main strong points of metaseqR is the use of the area under False
+Discovery Curves to assess the performance of each statistical test with
+simulated datasets created from true datasets (e.g. your dataset). Then, the
+performance assessment can be used to construct p-value weights for each test
+and use these weights to supply the ``weight'' parameter of metaseqr when
+``meta.p'' is ``weight'' or ``whitlock'' (see the next sections for p-value
+combination methods). The following example shows how to create such weights
+(depending on the size of the dataset, it might take some time to run):
+
+<<example-6, eval=TRUE, echo=TRUE, tidy=FALSE>>=
+data("mm9.gene.data",package="metaseqR")
+multic <- check.parallel(0.8)
+weights <- estimate.aufc.weights(
+    counts=as.matrix(mm9.gene.counts[,9:12]),
+    normalization="edaseq",
+    statistics=c("edger","limma"),
+    nsim=1,N=10,ndeg=c(2,2),top=4,model.org="mm9",
+    seed=42,multic=multic,libsize.gt=1e+5
+)
+@
+
+...and the weights...
+
+<<head-3, eval=TRUE, echo=TRUE>>=
+weights
+@
+
+\section{metaseqR components}
+
+The metaseqR package includes several functions which are responsible for running
+each part of the pipeline (data reading and summarization, filtering, normalization,
+statistical analysis and meta-analysis and reporting). Although metaseqR is
+designed to run as a pipeline, where all the parameters for each individual part
+can be passed in the main function, several of the individual functions can be run
+separately so that the more experienced user can build custom pipelines. All the
+HTML help pages contain analytical documentation on how to run these functions,
+their inputs and outputs and contain basic examples. For example, runnning
+
+<<help-2, eval=FALSE, echo=TRUE>>=
+help(stat.edgeR)
+@
+
+will open the help page of the wrapper function over the edgeR statistical testing
+algorithm which contains an example of data generation, processing, up to
+statistical selection.
+
+Most of the diagnostic plots, work with simple matrices as inputs, so they can be
+easily used outside the main pipeline, as long as all the necessary arguments are
+given. It should be noted that a report can be generated only when running the
+whole metaseqr pipeline and in the current version there is no support for
+generating custom reports.
+
+A very detailed documentation on how to run metaseqr and explanation for all its
+parameters can be obtained by
+
+<<help-3, eval=FALSE, echo=TRUE>>=
+help(metaseqr)
+@
+
+\section{Details on metaseqR's components}
+
+\subsection{Data input}
+
+The metaseqR package currently supports three methods of data input:
+
+\begin{enumerate}
+    \item Aligned reads in SAM/BAM or BED format. In this case, the input files are
+    passed to the metaseqr pipeline through a simply structured tab-delimited text
+    file. This file contains in its first column unique names that are used to
+    identify each sample, the SAM/BAM/ BED file names (preferably with their full
+    path) in the second column, and the biological conditions/groups for each
+    sample/file in the third column. The columns may or may not be named, as this
+    information is not used by metaseqR. The above order (sample names, file names,
+    biological condition) is used instead. This is the preferred method of data
+    input as in this way, the analysis is streamlined within R from the beginning
+    until the end, ensuring data integrity (e.g. the compatibility of the genome
+    annotations used, something that can sometimes be broken when using external
+    read counting software). SAM/BAM files are imported through the Bioconductor
+    packages Rsamtools and GenomicRanges and BED files are imported through the
+    Bioconductor package rtracklayer. The aligned reads are converted to a read
+    counts table through facilities provided in the Bioconductor package
+    GenomicRanges. The Ensembl/UCSC/RefSeq gene or exon regions which are used to 
+    summarize the read alignments and create the final read counts table for each
+    gene or exon can be obtained either through downloading at the time of usage
+    using the Bioconductor packages biomaRt/RMySQL, or from a user-specified file.
+    \item Summarized numbers of reads for each genomic feature (gene or exon) by
+    providing a file containing the read counts table. This file should contain at
+    least: a) a column with a unique identifier for each gene/exon (currently, Ensembl,
+    UCSC and RefSeq identifiers are supported unless the required annotation elements for
+    each genomic region are embedded in the file), b) as many columns as the number
+    of samples in the experiment. Each column with sample read counts should be
+    named with a unique sample name. Optionally, the read counts file can contain
+    annotation elements for each genomic feature (gene or exon) corresponding to
+    the unique identifier column. In this case, the pipeline may be executed with
+    the annotation=``embedded'' argument and it is very useful when the user does
+    not wish to use supported annotations or the organisms under investigation is not
+    supported by metaseqR. If the user chooses to use embedded to the read counts
+    file annotation, then at least the following elements should be provided for
+    each genomic region, apart from its unique name should be provided (in
+    parenthesis next to each element, the required column name): chromosome where
+    the genomic feature is located (chromosome), starting base pair in the
+    chromosome (start), ending base pair in the chromosome (end). For best
+    performance (e.g. availability of all quality control and diagnostic plots),
+    the following annotation elements should also be provided: GC content
+    (gc\_content) for genomic features of type ``gene'', the gene model name
+    (gene\_name) for genomic features of type ``exon'', the transcribing strand of
+    each feature, denoted as ``+'' or ``-'' (strand), HUGO (or other alias) gene
+    name (gene\_name) and each genomic features biotype/biological categorization,
+    for example Ensembl categorizations like ``protein\_coding'', ``ncRNA'',
+    ``pseudogene'', etc. (biotype). In any case, if the user needs are satisfied
+    with Ensembl annotation, it is better practice not to use embedded annotation
+    in the counts file but download it or use the embedded in the package annotation
+    using the respective options.
+    \item Like case (2) but all the data mentioned in (2) are stored in an R data
+    frame object (for example, derived after a user-defined or otherwise customized
+    preprocessing).
+\end{enumerate}
+
+In any case of the above, some of the main input arguments to the pipeline can
+become mutually exclusive. For example the user cannot supply both an input read
+counts table and a file with targets including sample filenames. Details on such
+issues can be found in the package documentation.
+
+\subsection{Data filtering}
+
+Two optional data filter types are implemented in the metaseqR package, operating
+at the exon (when exon counts are requested or provided to/from the pipeline) or
+the gene level (applied after summarizing exon counts to gene counts when exon
+counts are provided, or applied on gene counts if only a gene read counts table
+is provided). It should also be noted that, like the metaseqr pipeline, these
+filters are created with only the detection of differential expression at the gene
+level and not at the exon level or the detection of differential splicing.
+
+\subsubsection{Exon filters}
+
+Currently only one exon filter is implemented in metaseqr. This filter excludes
+genes that do not have enough reads presence in a fraction of their exons. This
+fraction should not be too high so that to avoid excluding genes that are possibly
+simply differentially spliced (although metaseqR is not intended to detect
+differential splicing), nor too low so as to be able to exclude artifacts. This
+filtered was inspired by the fact that certain genes contain ``spikes'' of read
+data in their UTR regions or a couple of their exons. These spikes are usually
+artifacts that can affect the subsequent differential expression analysis. The
+exon filter has three parameters: \lstinline{exons.per.gene}, \lstinline{min.exons}
+and \lstinline{frac} and is applied as follows: if a gene has up to
+\lstinline{exons.per.gene exons}, then read presence is required in at least
+\lstinline{min.exons} of them, else read presence is required in a \lstinline{frac}
+fraction of the total exons in the gene mode. With the default values, the filter
+instructs that if a gene has up to 5 exons, read presence is required in at least
+2, else in at least 20\% of its exons, in order to be included in further analysis.
+More filters will be implemented in future versions and users are encouraged to
+propose exon filter ideas.
+
+After the determination of the genes that will be filtered from further processing
+(normalization and/or statistical analysis), a gene model expression value is
+constructed based on the sum of all exons of an annotated Ensembl gene. It should
+be noted that while this particular way of summarizing a gene expression value is
+not recommended in applications where for example, one studies differential splicing,
+differential isoform expression or differential exon usage, it is sufficient for
+most applications where only expression of a gene as a total is the goal of the
+study. Thus, it should be sufficient for a majority of related projects, where
+the researchers are interested in summarized gene expression values.
+
+\subsubsection{Gene filters}
+
+The gene filters are a set of filters applied to gene expression as this is
+manifested through the read presence on each gene and can be applied before or
+after normalization. While for some categories this is not important (e.g. gene
+length filter), for others (e.g. expression filters), the application prior to or
+post normalization is important as any expression filter must be applied to
+normalized data. In that case, metaseqr performs two rounds of normalization. The
+first round serves as a temporary normalization in order to get normalized
+expression values. The expression filters are then applied there and genes not
+passing the filters are excluded from the second and final round of normalization.
+The gene filters can be applied both when the pipeline input consists of exon read
+counts and gene read counts. Such filter can for example be verbalized to ``accept
+all genes above a certain count threshold'' or ``accept all genes with expression
+above the median of the normalized counts distribution'' or ``accept all genes
+with length above a certain threshold in kb'' or ``exclude the 'pseudogene' biotype
+from further analysis''. Currently, there are four categories of gene filters. The
+first category is a qualitative filter, specifically a gene length filter where
+genes are accepted for further analysis if they are above a certain (the filter
+parameter) kb. The second category consists of a combined qualitative/quantitative
+filter where a gene is accepted for further analysis if it has more average reads
+per x bp than the quantile of the average normalized count distribution per x bp
+in the gene body. This filter \lstinline{avg.reads} has two parameters:
+\lstinline{average.per.bp} expressing the number of base pairs for which reads
+are summarized and quantile for the quantile of the averaged normalized count
+distribution. The latter quantiles are calculated for each normalized sample and
+genes passing the filter should have an average read count larger than the maximum
+of the quantiles vector calculated above. The third category consists of a set
+of expression filters which can be applied altogether or only a subset of them.
+The expression filters are the following:
+
+\begin{enumerate}
+    \item a global median filter, where genes below the median of the global
+    normalized count distribution in all samples are not accepted for further
+    analysis (this filter has been used to distinguish between ``expressed'' and
+    ``not expressed'' genes in several cases, e.g. (Mokry et al., NAR, 2011). The
+    value of this filter is a boolean, \lstinline{TRUE} for applying this filter
+    and \lstinline{FALSE} for not applying.
+    \item a global mean filter, similar as the global median filter but using the
+    global mean.
+    \item a global quantile filter, which is the same as the previous two but using
+    a specific quantile of the total counts distribution
+    \item a filter based on the expression of genes known to be specifically expressed
+    (e.g. not expressed) under the system under investigation. In this case, a set
+    of known not-expressed genes is used to estimate an expression cutoff. This can
+    be quite useful, as the genes are filtered based on \emph{a true biological cutoff}
+    instead of a statistical cutoff. The value of this filter is a character vector
+    of HUGO gene symbols (which must be contained in the annotation, see previous
+    section). Thus, if the user intends to use this filter, it is better to instruct
+    metaseqr to download annotation on the fly or use the annotations embedded in
+    the package. Then, these genes are used to build a ``null'' expression
+    distribution. The 90\textsuperscript{th} quantile of this distribution is then
+    the expression cutoff. This filter can be combined with any other filter. The
+    user should be careful with gene names as they are case sensitive and must
+    match exactly (``Pten'' is different from ``PTEN'').
+\end{enumerate}
+
+The fourth filter category is a qualitative filter based on the biological
+categorization of each gene (for example using Ensembl biotypes). In this case,
+genes with a certain biotype (which must be contained in the annotation) are
+excluded from the analysis.
+
+\subsection{Data normalization}
+
+The metaseqR package currently supports five count data normalization algorithms
+from five different RNA-Seq analysis Bioconductor packages. Each package may
+provide additional options for normalization (e.g. more than one normalization
+algorithm present in a package, for example the NOISeq package), which can be
+controlled through normalization options (\lstinline{norm.opts} parameter) passed
+to the pipeline call. The initial normalization parameters are the default
+parameters provided by the authors of each package. Specifically, metaseqR supports
+normalization with the EDASeq package which is the default option, with the edgeR
+package, with the NOISeq package and the NBPSeq package. There is also an option
+to not normalize the data (not recommended). Popular normalization methods (e.g.
+RPKM normalization) are not directly supported as they are coded within the
+current package and they can be used by changing the normalization parameters
+passed to the pipeline. For example, RPKM normalization can be performed with the
+NOISeq package, although not currently recommended due to RPKM limitations
+discussed in several articles.
+
+Data normalization can be performed before or after data filtering. The issue of
+applying normalization to the total dataset or to a filtered instance of the
+dataset is not sufficiently treated in the relative literature and there is not
+a definite answer. Our own experience suggests that normalization is smoother and
+subsequently, the statistical analysis more accurate, when normalization is applied
+after filtering. In the case of pre-normalization filtering, a first round of
+normalization is applied as certain thresholds (e.g. gene expression thresholds)
+must be defined based on the global distributions of normalized data, otherwise,
+biases present in individual samples will cause confusion. For example, if the
+user filters data below a specific quantile of the normalized count distribution,
+if that quantile is not determined based on normalized data, it will not be
+representative of the global data distribution but it will comprise a biased
+estimation depended on the initial count distribution of the un-normalized samples.
+After the first normalization round, filters are applied and the filtered
+un-normalized data are normalized again. In the case of post-normalization filtering,
+data are firstly normalized and then filtered. In any case (pre- or
+post-normalization filtering), genes with zero counts across all samples are
+removed prior to normalization (as also suggested by most package authors).
+
+\subsection{Statistical testing}
+
+The metaseqR package currently supports six statistical testing algorithms
+developed for RNA-Seq data. The algorithms supported are the testing procedures
+in the Bioconductor packages DESeq, edgeR, NOISeq, baySeq, limma and NBPSeq. The
+arguments required for each statistical testing algorithm are passed by the metaseqr
+pipeline through the argument stat.opts (please refer to the package documentation
+for instructions on how to use the argument). The default options for each
+algorithm are the same as the corresponding default arguments used by the authors
+of each package. The default algorithm used by metaseqR is DESeq.
+
+\subsection{Meta analysis}
+
+When analyzing data with metaseqR, the user may use more than one statistical
+testing method (any combination of the six currently supported). In this case,
+metaseqR will perform meta-analysis on the p-values that will be returned from
+each of the applied statistical tests and will also report, apart from the p-value
+from each method, a combined p-value using one of the following methods:
+
+\begin{enumerate}
+    \item The Simes p-value combination method. This method uses the minimum
+    ordered p-value from all methods divided by the inverse order of the p-values.
+    The ordering is performed across the number of statistics used. This is the
+    default method.
+    \item the Fisher p-value combination meta-analysis method, implemented in the R
+    package MADAM. This is the default method.
+    \item same as (2) but using permutations, as implemented in the R package MADAM.
+    This option is quite computationally intensive and requires additional running
+    time.
+    \item the Whitlock p-value combination method, implemented in the Bioconductor
+    package survcomp. This method has the advantage of allowing weighting for each
+    methodology. In the current version of metaseqR, the weights are equal for all
+    statistical tests. For example, the user may estimate weights for his/her
+    dataset using metaseqR facilities for this purpose.
+    \item The maximum p-value returned by a set of statistical tests for the same
+    gene. This is equivalent to the “intersection” of the results derived from
+    each statistical test, returning genes which have been found as statistically
+    significant by all the statistical tests applied. The maximum p-value ensures
+    that the false positives are minimized at a (usually high) cost on the true
+    positives (statistical power).
+    \item The minimum p-value returned by a set of statistical tests for the same
+    gene. This is equivalent to the “union” of the results derived from each
+    statistical test, returning genes which have been found as statistically
+    significant by at least one of the statistical tests applied. The minimum
+    p-value ensures that the true positives are maximized at a (usually high)
+    cost on the false positives (type I error).
+    \item A weighted p-value where the weights can be either fixed (e.g. equal or
+    set by the user according to performance evidence from the literature), or
+    estimated using metaseqR's facilities for this purpose (simulation based on
+    the user data and weighting according to performance measurement on simulated
+    data). The weights must sum to 1.
+    \item A method based on permutations. This method has three variants:
+    \begin{enumerate}
+       \item In the first variant (\lstinline{dperm.min}), an initial p-value vector
+        is constructed for each gene, containing the minimum p-value resulted from
+        the applied statistical tests (more lose, see above).
+       \item In the second variant (\lstinline{dperm.max}), an initial p-value vector
+        is constructed for each gene, containing the maximum p-value resulted from
+        the applied statistical tests (more strict, see above).
+       \item In the third variant (\lstinline{dperm.weight}), an initial p-vale
+        vector is constructed for each gene, containing the convex linear combination
+        of the p-values resulted from all the statistical tests applied for each gene.
+        To construct the convex linear combination, a vector of weights is used, one
+        for each statistical test, and the sum of all weights must be 1.
+    \end{enumerate}
+    After the construction of the original combined p-value with one of the
+    aforementioned variants a permutation procedure is initialed, where nperm
+    permutations are performed across the samples of the normalized counts matrix,
+    producing nperm permuted instances of the initial dataset. Then, all the chosen
+    statistical tests are re-executed for each permutation. The final p-value is the
+    number of times that the p-value of the permuted datasets is smaller than the
+    original dataset. The p-value of the original dataset is created based on the
+    choice of one. Generally, the permutation procedure usually requires a lot of
+    time in order to yield accurate results (at least 10000 iterations especially
+    in smaller datasets). Additionally, this method will NOT work when there are no
+    replicated samples across biological conditions. In that case, the Simes method
+    or one of the others should be used.
+\end{enumerate}
+
+It should be noted that in the case of NOISeq, the significance value returned is
+not similar to the ``classic'' t-test like statistics, thus its inclusion to a
+meta-analysis should be handled and interpreted with caution. It should also be
+noted that the meta-analysis feature provided by metaseqR is currently experimental
+and does not satisfy the strict definition of ``meta-analysis'', which is the
+combination of multiple similar datasets under the same statistical methodology.
+Instead it is the use of multiple statistical tests applied to the same data so
+the results at this point are not guaranteed and should be interpreted appropriately.
+We are working on a more solid methodology for combining multiple statistical tests
+based on multiple testing correction and Monte Carlo methods.
+
+\section{References}
+
+\begin{enumerate}
+    \item Anders, S., and Huber, W. (2010). Differential expression analysis for
+    sequence count data. Genome Biol 11, R106.
+    \item Benjamini, Y., and Hochberg, Y. (1995). Controlling the False Discovery
+    Rate: A Practical and Powerful Approach to Multiple Testing. Journal of the
+    Royal Statistical Society Series B (Methodological) 57, 289-300.
+    \item Benjamini, Y., and Yekutieli, D. (2001). The control of the false discovery
+    rate in multiple testing under dependency. Annals of Statistics 26, 1165-1188.
+    \item Chen, H., and Boutros, P.C. (2011). VennDiagram: a package for the
+    generation of highly-customizable Venn and Euler diagrams in R. BMC Bioinformatics
+    12, 35.
+    \item Di, Y, Schafer, D. (2012): NBPSeq: Negative Binomial Models for RNA-Sequencing
+    Data. R package version 0.1.8, http://CRAN.R-project.org/package=NBPSeq.
+    \item Fisher, R.A. (1932). Statistical Methods for Research Workers (Edinburgh,
+    Oliver and Boyd).
+    \item Hardcastle, T.J., and Kelly, K.A. (2010). baySeq: empirical Bayesian methods
+    for identifying differential expression in sequence count data. BMC Bioinformatics
+    11, 422.
+    \item Hochberg, Y. (1988). A sharper Bonferroni procedure for multiple tests
+    of significance. Biometrika 75, 800-803.
+    \item Holm, S. (1979). A simple sequentially rejective multiple test procedure.
+    Scandinavian Journal of Statistics 6, 65-70.
+    \item Hommel, G. (1988). A stagewise rejective multiple test procedure based on
+    a modified Bonferroni test. Biometrika 75, 383-386.
+    \item Leng, N., Dawson, J.A., Thomson, J.A., Ruotti, V., Rissman, A.I., Smits,
+    B.M., Haag, J.D., Gould, M.N., Stewart, R.M., and Kendziorski, C. (2013).
+    EBSeq: an empirical Bayes hierarchical model for inference in RNA-seq experiments.
+    Bioinformatics 29, 1035-1043
+    \item Planet, E., Attolini, C.S., Reina, O., Flores, O., and Rossell, D. (2012).
+    htSeqTools: high-throughput sequencing quality control, processing and
+    visualization in R. Bioinformatics 28, 589-590.
+    \item Risso, D., Schwartz, K., Sherlock, G., and Dudoit, S. (2011). GC-content
+    normalization for RNA-Seq data. BMC Bioinformatics 12, 480.
+    \item Robinson, M.D., McCarthy, D.J., and Smyth, G.K. (2010). edgeR: a
+    Bioconductor package for differential expression analysis of digital gene
+    expression data. Bioinformatics 26, 139-140.
+    \item Schroder, M.S., Culhane, A.C., Quackenbush, J., and Haibe-Kains, B. (2011).
+    survcomp: an R/Bioconductor package for performance assessment and comparison
+    of survival models. Bioinformatics 27, 3206-3208.
+    \item Shaffer, J.P. (1995). Multiple hypothesis testing. Annual Review of Psychology
+    46, 561-576.
+    \item Simes, R. J. (1986). An improved Bonferroni procedure for multiple tests
+    of significance. Biometrika 73 (3): 751-754.
+    \item Smyth, G. (2005). Limma: linear models for microarray data. In Bioinformatics
+    and Computational Biology Solutions using R and Bioconductor, G. R., C. V.,
+    D. S., I. R., and H. W., eds. (New York, Springer), pp. 397-420.
+    \item Storey, J.D., and Tibshirani, R. (2003). Statistical significance for
+    genomewide studies. Proc Natl Acad Sci U S A 100, 9440-9445.
+    \item Tarazona, S., Garcia-Alcalde, F., Dopazo, J., Ferrer, A., and Conesa, A.
+    (2011). Differential expression in RNA-seq: a matter of depth. Genome Res 21,
+    2213-2223.
+    \item Whitlock, M.C. (2005). Combining probability from independent tests: the
+    weighted Z-method is superior to Fisher's approach. J Evol Biol 18, 1368-1373.
+\end{enumerate}
+
+\section{R session information}
+
+<<session-info, eval=TRUE, echo=FALSE>>=
+sessionInfo()
+@
+
+\end{document}

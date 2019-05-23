@@ -1,0 +1,2 @@
+hg19.exon.data: hg19.exon.counts libsize.list.hg19 sample.list.hg19
+mm9.gene.data: libsize.list.mm9 mm9.gene.counts sample.list.mm9

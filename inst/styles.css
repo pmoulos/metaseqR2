@@ -1,0 +1,416 @@
+body
+{
+    background-color: #D0DBFF;
+    line-height: 1.7em;
+    font-family: Verdana, Arial, Helvetica, sans-serif; 
+    font-size: 0.8em; 
+    font-weight: normal; 
+    color: #0E2B8A; 
+    text-decoration: none;
+    margin: 0px;
+}
+
+img
+{
+	width: 100%;
+	display: block;
+}
+
+ul
+{
+	margin: 0.2em;
+	padding-left: 2.5em;
+}
+
+ul ul
+{
+	margin: 0.2em;
+	padding-left: 2em;
+}
+
+table.headContainer
+{
+    background-color: #D0DBFF;
+    width: 100%;
+    padding: 0px;
+    border-width: 0px;
+    border-collapse: collapse;   
+}
+
+table.menuContainer
+{
+	font-size: 1.2em;
+	background-color: #4C6AD0;
+	width: 100%;
+	padding: 0px;
+	border-width: 0px;
+	border-collapse: collapse;
+}
+
+td.menuCell
+{ 
+    background-color: #4C6AD0;
+    border-color: #0E2B8A;
+    width: 14%;
+    padding: 2px;
+    border-width : 0px;
+    border-style: none;
+    color: #F7F7F7;
+    font-size: 1.1em;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;    
+}
+
+td.menuCell:hover
+{
+    background-color: #2655EE;
+}
+
+td.menuCell a
+{
+    color: #F7F7F7;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-decoration: none;
+    position: relative;
+    bottom: 2px;
+}
+
+td.menuCell a:hover
+{  
+    color: #92ACFF;
+}
+
+table.mainContainer
+{
+    background-color: #D0DBFF;
+    width: 100%;
+    height: 90%;
+    padding: 0px;
+    border-width: 0px;
+    border-collapse: collapse;
+}
+
+td.mainContainer
+{
+    width: 80%;
+    height: 90%;
+    padding: 10px;
+    border-width: 0px;
+    vertical-align: top; 
+}
+
+td.leftContainer
+{
+	width: 15%;
+	min-width: 160px;
+	height: 90%;
+	padding: 5px;
+	padding-top: 15px;
+	vertical-align: top;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #002FCB; 
+	border-left: 0px;
+	border-right: 1px;
+	border-top: 0px;
+	border-bottom: 0px;
+}
+
+td.rightContainer
+{
+    width: 5%;
+    height: 90%;
+    padding: 5px;
+    border-width: 0px;
+    vertical-align: top;    
+}
+
+td.footer
+{
+    background-color: #4C6AD0;
+    border-color: #0E2B8A;
+    border-width : 1px;
+    border-style: solid;
+    text-align: center;
+    height: 5%;
+    color: #F7F7F7;
+    font-size: 0.9em; 
+    font-weight: normal;
+}
+
+td.footer a
+{
+    color: #F7F7F7;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+td.footer a:hover
+{  
+    color: #92ACFF;
+}
+
+.tocul
+{
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+.tocul ul, .tocul ul ul
+{
+	margin: 0;
+	padding-left: 0.5em;
+	list-style-type: none;
+}
+
+.tocli, .tocli li, .tocli li li
+{
+	padding: 0;
+	margin: 0;
+	list-style-type: none;
+}
+
+.tocli a
+{
+	color: #001F86;
+	font-weight: bold;
+}
+
+.datatable
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 0.9em; 
+	font-weight: normal; 
+	color: #0E2B8A; 
+	text-decoration: none;
+	width: 100%;
+	/*table-layout: fixed;*/
+}
+
+.volcano
+{
+	width: 640px;
+	height: 800px;
+	margin: auto;
+}
+
+.imageContainerRect
+{
+	width: 80%;
+	height: 60%;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 25px;
+	margin-bottom: 25px;
+}
+
+.imageContainerSq
+{
+	width: 80%;
+	height: 80%;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 25px;
+	margin-bottom: 25px;
+}
+
+.figureHint
+{
+	width: 80%;
+	margin: auto;
+	text-align: justify;
+}
+
+.innerTable
+{
+    /*width: 100%;*/
+    border-width: 0px;
+    border-spacing: 0px;
+    /*font-size: 0.8em;*/
+}
+
+.innerCell
+{
+    padding: 5px;
+    vertical-align: middle;
+    /*border-width: 1px;
+    border-style: dashed;*/
+}
+
+.anchor
+{
+	font-size: 0.8em; 
+    font-weight: normal; 
+    /*color: #7D1010;*/
+    letter-spacing: 0.7px;
+    text-decoration:none;
+}
+
+.text 
+{ 
+    font-family: Verdana, Arial, Helvetica, sans-serif; 
+    font-size: 0.9em; 
+    font-weight: normal; 
+    color: #0E2B8A;
+    line-height: 1.2em; 
+}
+
+.title 
+{  
+    font-family: Verdana, Arial, Helvetica, sans-serif; 
+    font-size: 1.3em; 
+    font-weight: bold; 
+    color: #061D67;
+    letter-spacing: 1px;
+}
+
+.subtitle 
+{  
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 1.2em; 
+	font-weight: bold;
+	font-style: italic; 
+	letter-spacing: 1px;
+}
+
+.figCaption
+{  
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 1.1em; 
+	font-weight: bold;
+	font-style: italic; 
+	letter-spacing: 1px;
+	text-align: center;
+}
+
+.pageTitle 
+{  
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+    font-size: 1.5em;
+    color: #0E2B8A;
+    letter-spacing: 2px;
+}
+
+a 
+{
+    color: #4C6AD0; 
+    text-decoration: underline
+}
+
+a:hover 
+{  
+    color: #00259D; 
+}
+
+#contents.fixed>div
+{
+	position:fixed;
+	top:0;
+}
+
+#summary_log_container
+{
+	font-family: "Courier New", Courier, monospace;
+	font-size: 0.9em;
+	height: 400px;
+	overflow-y: scroll;
+}
+
+p.MsoNormal {
+	mso-style-parent: "";
+	margin-bottom: .0001pt;
+	font-size: 12.0pt;
+	font-family: "Times New Roman";
+	margin-left: 0cm;
+	margin-right: 0cm;
+	margin-top: 0cm
+}
+
+.clearFix:after { /* for modern browsers */
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+.clearFix { /* for IE7/Win */
+	min-height: 1px;
+}
+
+* html .clearFix { /* for IE5-6/Win */
+	height: 1px;
+}
+
+* html>body .clearFix { /* for IE5/Mac */
+	height: auto;
+	display: inline-block;
+}
+
+.wrapped table,.wrapped td {
+	border: 0;
+	border-collapse: collapse;
+	padding: 0;
+	background-position: 0px;
+}
+
+.tooltip-class
+{
+	display: none;
+	background-color: #FFFBD0;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #AD1700;
+	padding: 5px;
+	font-size: 0.8em;
+	width: 500px;
+	opacity: 1.0;
+	z-index: 998;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.tooltip-class.top {}
+
+.tooltip-class.bottom {}
+
+.tooltip-class.right {}
+
+.tooltip-class.left {}
+
+table.popup
+{
+	table-layout:fixed;
+	width: 100%;
+	border-style: none;
+	padding: 0px;
+	border-collapse: collapse;
+}
+
+td.popup
+{
+	padding: 3px;
+	font-size: 0.9em;
+	line-height: 1em;
+	text-align: left;
+	vertical-align: middle;
+	border-style: dotted;
+	border-color: #909090;
+	border-width: 1px;
+}
+
+.ui-autocomplete 
+{
+	position: relative;	
+	max-height: 180px;
+	max-width: 15em;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-right: 20px;
+	font-family: Arial Unicode MS, Arial, sans-serif;
+    font-size: 0.8em;
+}

@@ -1,0 +1,14 @@
+bibentry("Article",
+        title="Systematic integration of RNA-Seq statistical algorithms for accurate detection of differential gene expression patterns",
+        author="Panagiotis Moulos and Pantelis Hatzis",
+        year="2014",
+        note="(Version 1.5.14)",
+        url="http://nar.oxfordjournals.org/content/early/2014/12/01/nar.gku1273.abstract",
+        journal = "Nucleic Acids Research",
+        textVersion =
+        paste("Moulos, P. and Hatzis P. (2014). ",
+                "Systematic integration of RNA-Seq statistical algorithms for accurate detection of differential gene expression patterns ",
+                "Nucleic Acids Research, 10.1093/nar/gku1273 .",
+                "Available from http://nar.oxfordjournals.org/content/early/2014/12/01/nar.gku1273.abstract",
+                sep=""),
+        mheader = "To cite metaseqR in publications use:")
