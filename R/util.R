@@ -206,34 +206,6 @@ getWeights2 <- function(org=c("human","chimpanzee","mouse","fruitfly",
     )
 }
 
-#' Default parameters for several metaseqr functions
-#'
-#' This function returns a list with the default settings for each filtering,
-#' statistical and normalization algorithm included in the metaseqR package.
-#' See the documentation of the main function and the documentation of each
-#' statistical and normalization method for details.
-#'
-#' @param what a keyword determining the procedure for which to fetch the default
-#' settings according to method parameter. It can be one of \code{"normalization"},
-#' \code{"statistics"}, \code{"geneFilter"}, \code{"exonFilter"} or
-#' \code{"biotype.filter"}. 
-#' @param method the supported algorithm included in metaseqR for which to fetch
-#' the default settings. When \code{what} is \code{"normalization"}, method is one
-#' of \code{"edaseq"}, \code{"deseq"}, \code{"edger"}, \code{"noiseq"} or
-#' \code{"nbpseq"}. When \code{what} is \code{"statistics"}, method is one of
-#' \code{"deseq"}, \code{"edger"}, \code{"noiseq"}, \code{"bayseq"}, \code{"limma"}
-#' or \code{"nbpseq"}. When \code{method} is \code{"biotype.filter"}, \code{what}
-#' is the input organism (see the main \code{\link{metaseqr}} help page for a list
-#' of supported organisms).
-#' @return A list with default setting that can be used directly in the call of
-#' metaseqr.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' normArgs.edaseq <- getDefaults("normalization","edaseq")
-#' statArgs.edger <- getDefaults("statistics","edger")
-#'}
 getDefaults <- function(what,method=NULL) {
     if (what %in% c("normalization","statistics") && is.null(method))
         stopwrap("The method argument must be provided when what is ",
@@ -692,43 +664,6 @@ getDefaults <- function(what,method=NULL) {
     )
 }
 
-#' Validate normalization and statistical algorithm arguments
-#'
-#' This function checks and validates the arguments passed by the user to the
-#' normalization and statistics algorithms supported by metaseqR. As these are
-#' given into lists and passed to the algorithms, the list members must be checked
-#' for \code{NULL}, valid names etc. This function performs these checks and
-#' ignores any invalid arguments.
-#'
-#' @param normalization a keyword determining the normalization strategy to be
-#' performed by metaseqR. See \code{\link{metaseqr}} main help page for details.
-#' @param statistics the statistical tests to be performed by metaseqR. See
-#' \code{\link{metaseqr}} main help page for details.
-#' @param normArgs the user input list of normalization arguments. See
-#' \code{\link{metaseqr}} main help page for details.
-#' @param statArgs the user input list of statistical test arguments. See
-#' \code{\link{metaseqr}} main help page for details.
-#' @return A list with two members (\code{normArgs}, \code{statArgs}) with valid
-#' arguments to be used as user input for the algorithms supported by metaseqR.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' normalization <- "edaseq"
-#' statistics <- "edger"
-#' normArgs <- getDefaults("normalization","edaseq")
-#' statArgs <- getDefaults("statistics","deseq")
-#' # Will return as is
-#' val <- validateAlgArgs(normalization,statistics,normArgs,statArgs)
-#' val$normArgs
-#' val$statArgs
-#' # but...
-#' statArgs <- c(statArgs,my.irrelevant.arg=999)
-#' val <- validateAlgArgs(normalization,statistics,normArgs,statArgs)
-#' # irrelevant argument will be removed
-#' val$normArgs
-#' val$statArgs
-#'}
 validateAlgArgs <- function(normalization,statistics,normArgs,statArgs) {
     if (normalization=="each") {
         if (!is.null(normArgs)) {
@@ -906,38 +841,6 @@ validateAlgArgs <- function(normalization,statistics,normArgs,statArgs) {
     return(list(normArgs=normArgs,statArgs=statArgs))
 }
 
-#' Validate list parameters for several metaseqR functions
-#'
-#' This function validates the arguments passed by the user to the normalization,
-#' statistics and filtering algorithms supported by metaseqR. As these are given
-#' into lists and passed to the algorithms, the list member names must be valid
-#' algorithm arguments for the pipeline not to crash. This function performs these
-#' checks and ignores any invalid arguments.
-#'
-#' @param what a keyword determining the procedure for which to validate arguments.
-#' It can be one of \code{"normalization"}, \code{"statistics"}, \code{"geneFilter"},
-#' \code{"exonFilter"} or \code{"biotype.filter"}.
-#' @param method the normalization/statistics/filtering algorithm included in
-#' metaseqR for which to validate user input. When \code{what} is
-#' \code{"normalization"}, method is one of \code{"edaseq"}, \code{"deseq"},
-#' \code{"edger"}, \code{"noiseq"} or \code{"nbpseq"}. When \code{what} is
-#' \code{"statistics"}, method is one of \code{"deseq"}, \code{"edger"},
-#' \code{"noiseq"}, \code{"bayseq"}, \code{"limma"} or \code{"nbpseq"}. When
-#' \code{method} is \code{"biotype.filter"}, \code{what} is the input organism
-#' (see the main \code{\link{metaseqr}} help page for a list of supported organisms).
-#' @param argList the user input list of arguments.
-#' @return A list with valid arguments to be used as user input in the algorithms
-#' supported by metaseqR.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' normArgs.edger <- list(method="TMM",refColumn=NULL,
-#'   logratioTrim=0.3,sumTrim=0.05,doWeighting=TRUE,
-#'   Bcutoff=-1e10,p=0.75)
-#' # Bcutoff does not exist, will throw a warning and ignore it.
-#' normArgs.edger <- validateListArgs("normalization","edger",normArgs.edger)
-#'}
 validateListArgs <- function(what,method=NULL,argList) {
     what <- tolower(what)
     checkTextArgs("what",what,c("normalization","statistics","geneFilter",
@@ -1250,19 +1153,6 @@ validateListArgs <- function(what,method=NULL,argList) {
     )
 }
 
-#' Group together a more strict biotype filter
-#'
-#' Returns a list with TRUE/FALSE according to the biotypes that are going to be
-#' filtered in a more strict way than the defaults. This is a helper function for
-#' the analysis presets of metaseqR. Internal use only.
-#'
-#' @param org one of the supported organisms.
-#' @return A list of booleans, one for each biotype.
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' sf <- getStrictBiofilter("hg18")
-#'}
 getStrictBiofilter <- function(org) {
     switch(org,
         hg18 = {
@@ -1541,30 +1431,6 @@ getStrictBiofilter <- function(org) {
     )
 }
 
-#' Return several analysis options given an analysis preset
-#'
-#' This is a helper function which returns a set of metaseqr pipeline options,
-#' grouped together according to a preset keyword. It is intended mostly for
-#' internal use.
-#'
-#' @param preset preset can be one of \code{"all_basic"}, \code{"all_normal"},
-#' \code{"all_full"}, \code{"medium_basic"}, \code{"medium_normal"},
-#' @param org one of the supported organisms. See \code{\link{metaseqr}} main
-#' help page.
-#' \code{"medium_full"}, \code{"strict_basic"}, \code{"strict_normal"} or
-#' \code{"strict_full"}, each of which control the strictness of the analysis and
-#' the amount of data to be exported. For an explanation of the presets, see the
-#' main \code{\link{metaseqr}} help page.
-#' @return A named list with names \code{exonFilters}, \code{geneFilters},
-#' \code{pcut}, \code{exportWhat}, \code{exportScale}, \code{exportValues} and
-#' \code{exportStats}, each of which correspond to an element of the metaseqr
-#' pipeline.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' strict.preset <- getPresetOpts("strict_basic","mm9")
-#'}
 getPresetOpts <- function(preset,org) {
     # Override filter rules and maybe normArgs and statArgs
     switch(preset,
@@ -1809,90 +1675,30 @@ getPresetOpts <- function(preset,org) {
     return(presetOpts)
 }
 
-#' Calculates fold changes
-#'
-#' Returns a matrix of fold changes based on the requested contrast, the list of
-#' all samples and the data matrix which is produced by the metaseqr workflow. For
-#' details on the \code{contrast}, \code{sampleList} and \code{logOffset}
-#' parameters, see the main usage page of metaseqr. This function is intended
-#' mostly for internal use but can also be used independently.
-#'
-#' @param contrast the vector of requested statistical comparison contrasts.
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param data.matrix a matrix of gene expression data whose column names are the
-#' same as the sample names included in the sample list.
-#' @param logOffset a number to be added to each element of data matrix in order
-#' to avoid Infinity on log type data transformations.
-#' @return A matrix of fold change ratios, treatment to control, as these are
-#' parsed from contrast.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' fc <- makeFoldChange("Control_vs_Treatment",list(Control=c("C1","C2"),
-#'   Treatment=c("T1","T2")),data.matrix)
-#'}
-makeFoldChange <- function(contrast,sampleList,data.matrix,logOffset=1) {
+makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
-    #f (!is.matrix(data.matrix) || !is.data.frame(data.matrix)) { # Vector, nrow=1
-    #    nn <- names(data.matrix)
-    #    data.matrix <- t(as.matrix(data.matrix))
-    #    colnames(data.matrix) <- nn
-    #}
-    fold.mat <- matrix(0,nrow(data.matrix),length(conds)-1)
+    foldMat <- matrix(0,nrow(dataMatrix),length(conds)-1)
     for (i in 2:length(conds)) { # First condition is ALWAYS reference
-        samples.nom <- sampleList[[conds[i]]]
-        samples.denom <- sampleList[[conds[1]]]
-        nom <- data.matrix[,match(samples.nom,colnames(data.matrix)),drop=FALSE]
-        denom <- data.matrix[,match(samples.denom,colnames(data.matrix)),
+        samplesNom <- sampleList[[conds[i]]]
+        samplesDenom <- sampleList[[conds[1]]]
+        nom <- dataMatrix[,match(samplesNom,colnames(dataMatrix)),drop=FALSE]
+        denom <- dataMatrix[,match(samplesDenom,colnames(dataMatrix)),
             drop=FALSE]
         if (!is.matrix(nom)) nom <- as.matrix(nom) # Cover the case with no replicates...
         if (!is.matrix(denom)) denom <- as.matrix(denom)
-        mean.nom <- apply(nom,1,mean)
-        mean.denom <- apply(denom,1,mean)
-        #mean.nom <- ifelse(mean.nom==0,logOffset,mean.nom)
-        if (any(mean.nom==0)) mean.nom <- mean.nom + logOffset
-        #mean.denom <- ifelse(mean.denom==0,logOffset,mean.denom)
-        if (any(mean.denom==0)) mean.denom <- mean.denom + logOffset
-        fold.mat[,i-1] <- mean.nom/mean.denom
+        meanNom <- apply(nom,1,mean)
+        meanDenom <- apply(denom,1,mean)
+        #meanNom <- ifelse(meanNom==0,logOffset,meanNom)
+        if (any(meanNom==0)) meanNom <- meanNom + logOffset
+        #meanDenom <- ifelse(meanDenom==0,logOffset,meanDenom)
+        if (any(meanDenom==0)) meanDenom <- meanDenom + logOffset
+        foldMat[,i-1] <- meanNom/meanDenom
     }
-    rownames(fold.mat) <- rownames(data.matrix)
-    colnames(fold.mat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
-    return(fold.mat)
+    rownames(foldMat) <- rownames(dataMatrix)
+    colnames(foldMat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
+    return(foldMat)
 }
 
-#' Calculates average expression for an MA plot
-#'
-#' Returns a matrix of average expressions (A in MA plot) based on the requested 
-#' contrast, the list of all samples and the data matrix which is produced by 
-#' the metaseqr workflow. For details on the \code{contrast}, \code{sampleList} 
-#' and \code{logOffset} parameters, see the main usage page of metaseqr. 
-#' This function is intended mostly for internal use but can also be used 
-#' independently.
-#'
-#' @param contrast the vector of requested statistical comparison contrasts.
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param data.matrix a matrix of gene expression data whose column names are the
-#' same as the sample names included in the sample list.
-#' @param logOffset a number to be added to each element of data matrix in order
-#' to avoid Infinity on log type data transformations.
-#' @return A matrix of fold change ratios, treatment to control, as these are
-#' parsed from contrast.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' a <- makeAvgExpression("Control_vs_Treatment",list(Control=c("C1","C2"),
-#'   Treatment=c("T1","T2")),data.matrix)
-#'}
 makeAvgExpression <- function(contrast,sampleList,data.matrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
     a.mat <- matrix(0,nrow(data.matrix),length(conds)-1)
@@ -1914,28 +1720,6 @@ makeAvgExpression <- function(contrast,sampleList,data.matrix,logOffset=1) {
     return(a.mat)
 }
 
-
-#' HTML report helper
-#'
-#' Returns a character matrix with html formatted table cells. Essentially, it
-#' converts the input data to text and places them in a <td></td> tag set.
-#' Internal use.
-#'
-#' @param mat the data matrix (numeric or character)
-#' @param type the type of data in the matrix (\code{"numeric"} or
-#' \code{"character"}).
-#' @param digits the number of digits on the right of the decimal points to pass
-#' to \code{\link{formatC}}. It has meaning when \code{type="numeric"}.
-#' @return A character matrix with html formatted cells.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' the.cells <- makeHtmlCells(data.matrix)
-#'}
 makeHtmlCells <- function(mat,type="numeric",digits=3) {
     if (type=="numeric")
         tmp <- format(mat,digits=digits)
@@ -1947,52 +1731,12 @@ makeHtmlCells <- function(mat,type="numeric",digits=3) {
     return(tmp)
 }
 
-#' HTML report helper
-#'
-#' Returns a character vector with html formatted rows. Essentially, it collapses
-#' every row of a matrix to a single character and puts a <tr></tr> tag set around.
-#' It is meant to be applied to the output of \code{\link{makeHtmlCells}}.
-#' Internal use.
-#'
-#' @param mat the data matrix, usually the output of \code{\link{makeHtmlCells}}
-#' function.
-#' @return A character vector with html formatted rows of a matrix.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' the.cells <- makeHtmlCells(data.matrix)
-#' the.rows <- makeHtmlRows(the.cells)
-#'}
 makeHtmlRows <- function(mat) {
     tmp <- apply(mat,1,paste,collapse="")
     tmp <- paste("<tr>",tmp,"</tr>",sep="")
     return(tmp)
 }
 
-#' HTML report helper
-#'
-#' Returns a character vector with an html formatted table head row. Essentially,
-#' it collapses the input row to a single character and puts a <th></th> tag set
-#' around. It is meant to be applied to the output of \code{\link{makeHtmlCells}}.
-#' Internal use.
-#'
-#' @param h the colnames of a matrix or data frame, usually as output of
-#' \code{\link{makeHtmlCells}} function.
-#' @return A character vector with html formatted header of a matrix.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' the.cells <- makeHtmlCells(data.matrix)
-#' the.header <- makeHtmlHeader(the.cells[1,])
-#'}
 makeHtmlHeader <- function(h) {
     tmp <- paste("<th>",h,"</th>",sep="")
     tmp <- paste(tmp,collapse="")
@@ -2000,58 +1744,11 @@ makeHtmlHeader <- function(h) {
     return(tmp)
 }
 
-#' HTML report helper
-#'
-#' Returns a character vector with an html formatted table. Essentially, it
-#' collapses the input rows to a single character and puts a <tbody></tbody>
-#' tag set around. It is meant to be applied to the output of
-#' \code{\link{makeHtmlRows}}. Internal use.
-#'
-#' @param mat the character vector produced by \code{\link{makeHtmlRows}}.
-#' @return A character vector with the body of mat formatted in html.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' the.cells <- makeHtmlCells(data.matrix)
-#' the.header <- makeHtmlHeader(the.cells[1,])
-#' the.rows <- makeHtmlRows(the.cells)
-#' the.body <- makeHtmlBody(the.rows)
-#'}
 makeHtmlBody <- function(mat) {
     tmp <- paste(mat,collapse="")
     return(tmp)
 }
 
-#' HTML report helper
-#'
-#' Returns a character vector with a fully html formatted table. Essentially, it
-#' binds the outputs of \code{\link{makeHtmlCells}}, \code{\link{makeHtmlRows}},
-#' \code{\link{makeHtmlHeader}} and \code{\link{makeHtmlBody}} to the final
-#' table and optionally assigns an id attribute. The above functions are meant to
-#' format a data table so as it can be rendered by external tools such as
-#' DataTables.js during a report creation. It is meant for internal use.
-#'
-#' @param b the table body as produced by \code{\link{makeHtmlBody}}.
-#' @param h the table header as produced by \code{\link{makeHtmlHeader}}.
-#' @param id the table id attribute.
-#' @return A fully formatted html table.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' the.cells <- makeHtmlCells(data.matrix)
-#' the.header <- makeHtmlHeader(the.cells[1,])
-#' the.rows <- makeHtmlRows(the.cells)
-#' the.body <- makeHtmlBody(the.rows)
-#' the.table <- makeHtmlTable(the.body,the.header,id="my_table")
-#'}
 makeHtmlTable <- function(b,h=NULL,id=NULL) {
     if (!is.null(id))
         html <- paste("<table id=\"",id,"\" class=\"datatable\">",sep="")
@@ -2063,36 +1760,6 @@ makeHtmlTable <- function(b,h=NULL,id=NULL) {
     return(html)
 }    
 
-#' Calculates several transformation of counts
-#'
-#' Returns a list of transformed (normalized) counts, based on the input count
-#' matrix data.matrix. The data transformations are passed from the
-#' \code{exportScale} parameter and the output list is named accordingly. This
-#' function is intended mostly for internal use but can also be used independently.
-#'
-#' @param data.matrix the raw or normalized counts matrix. Each column represents
-#' one input sample.
-#' @param exportScale a character vector containing one of the supported data
-#' transformations (\code{"natural"}, \code{"log2"}, \code{"log10"},\code{"vst"}).
-#' See also the main help page of metaseqr.
-#' @param scf a scaling factor for the reads of each gene, for example the sum of
-#' exon lengths or the gene length. Devided by each read count when 
-#' \code{exportScale="rpgm"}. It provides an RPKM-like measure but not the
-#' actual RPKM as this normalization is not supported.
-#' @param logOffset a number to be added to each element of data.matrix in order
-#' to avoid Infinity on log type data transformations.
-#' @return A named list whose names are the elements in exportScale. Each list
-#' member is the respective transformed data matrix.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' tr <- makeTransformation(data.matrix,c("log2","vst"))
-#' head(tr$vst)
-#'}
 makeTransformation <- function(data.matrix,exportScale,
     scf=NULL,logOffset=1) {
     mat <- vector("list",length(exportScale))
@@ -2124,33 +1791,6 @@ makeTransformation <- function(data.matrix,exportScale,
     return(mat)
 }
 
-#' Calculates several statistices on read counts
-#'
-#' Returns a matrix of statistics calculated for a set of given samples. Internal
-#' use.
-#'
-#' @param samples a set of samples from the dataset under processing. They should
-#' match sample names from \code{sampleList}. See also the main help page of
-#' \code{\link{metaseqr}}.
-#' @param dataList a list containing natural or transformed data, typically an
-#' output from \code{\link{makeTransformation}}.
-#' @param stat the statistics to calculate. Can be one or more of \code{"mean"},
-#' \code{"median"}, \code{"sd"}, \code{"mad"}, \code{"cv"}, \code{"rcv"}. See also
-#' the main help page of \code{\link{metaseqr}}.
-#' @param exportScale the output transformations used as input also to
-#' \code{\link{makeTransformation}}.
-#' @return A matrix of statistics calculated based on the input sample names. The
-#' different data transformnations are appended columnwise.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' tr <- makeTransformation(data.matrix,c("log2","vst"))
-#' st <- makeStat(c("C1","C2"),tr,c("mean","sd"),c("log2","vst"))
-#'}
 makeStat <- function(samples,dataList,stat,exportScale) {
     stat.result <- vector("list",length(exportScale))
     names(stat.result) <- exportScale
@@ -2212,33 +1852,6 @@ makeStat <- function(samples,dataList,stat,exportScale) {
     return(do.call("cbind",stat.result))
 }
 
-#' Results output build helper
-#'
-#' Returns a list of matrices based on the export scales that have been chosen
-#' from the main function and a subset of samples based on the sample names
-#' provided in the \code{sampleList} argument of the main \code{\link{metaseqr}}
-#' function. Internal use.
-#'
-#' @param samples a set of samples from the dataset under processing. They should
-#' match sample names from \code{sampleList}. See also the main help page of
-#' \code{\link{metaseqr}}.
-#' @param dataList a list containing natural or transformed data, typically an
-#' output from \code{\link{makeTransformation}}.
-#' @param exportScale the output transformations used as input also to
-#' \code{\link{makeTransformation}}.
-#' @return A named list whose names are the elements in \code{exportScale}.
-#' Each list member is the respective sample subest data matrix.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data.matrix <- round(1000*matrix(runif(400),100,4))
-#' rownames(data.matrix) <- paste("gene_",1:100,sep="")
-#' colnames(data.matrix) <- c("C1","C2","T1","T2")
-#' tr <- makeTransformation(data.matrix,c("log2","vst"))
-#' mm <- makeMatrix(c("C1","T1"),tr,"log2")
-#' head(tr$vst)
-#'}
 makeMatrix <- function(samples,dataList,exportScale="natural") {
     mat <- vector("list",length(exportScale))
     names(mat) <- exportScale
@@ -2254,34 +1867,6 @@ makeMatrix <- function(samples,dataList,exportScale="natural") {
     return(do.call("cbind",mat))
 }
 
-#' Create contrast lists from contrast vectors
-#'
-#' Returns a list, properly structured to be used within the \code{stat.*}
-#' functions of the metaseqr package. See the main documentation for the structure
-#' of this list and the example below. This function is mostly for internal use,
-#' as the \code{stat.*} functions can be supplied directly with the contrasts
-#' vector which is one of the main \code{\link{metaseqr}} arguments.
-#'
-#' @param contrast a vector of contrasts in the form "ConditionA_vs_ConditionB" 
-#' or "ConditionA_
-#' vs_ConditionB_vs_ConditionC_vs_...".
-#' In case of Control vs Treatment designs, the Control condition should ALWAYS
-#' be the first.
-#' @param sampleList the list of samples in the experiment. See also the main
-#' help page of \code{\link{metaseqr}}.
-#' @return A named list whose names are the contrasts and its members are named 
-#' vectors, where the names are the sample names and the
-#' actual vector members are the condition names. See the example.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' sampleList <- list(Control=c("C1","C2"),TreatmentA=c("TA1","TA2"),
-#'   TreatmentB=c("TB1","TB2"))
-#' contrast <- c("Control_vs_TreatmentA","Control_vs_TreatmentA_vs_TreatmentB"),
-#' cl <- makeContrastList(contrast,sampleList)
-#' cl
-#'}
 makeContrastList <- function(contrast,sampleList) {
     # Construction
     contrastList <- vector("list",length(contrast))
@@ -2301,29 +1886,6 @@ makeContrastList <- function(contrast,sampleList) {
     return(contrastList)
 }
 
-#' Creates sample list from file
-#'
-#' Create the main sample list from an external file.
-#'
-#' @param input a tab-delimited file structured as follows: the first line of the
-#' external tab delimited file should contain column names (names are not important).
-#' The first column MUST contain UNIQUE sample names and the second column MUST
-#' contain the biological condition where each of the samples in the first column
-#' should belong to.
-#' @param type one of \code{"simple"} or \code{"targets"} to indicate if the input
-#' is a simple two column text file or the targets file used to launch the main
-#' analysis pipeline.
-#' @return A named list whose names are the conditions of the experiments and its
-#' members are the samples belonging to each condition.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' targets <- data.frame(sample=c("C1","C2","T1","T2"),
-#'   condition=c("Control","Control","Treatment","Treatment"))
-#' write.table(targets,file="targets.txt",sep="\t",row.names=FALSE,quote="")
-#' sampleList <- make.sampleList("targets.txt")
-#'}
 makeSampleList <- function(input,type=c("simple","targets")) {
     if (missing(input) || !file.exists(input))
         stopwrap("File to make sample list from should be a valid existing ",
@@ -2349,14 +1911,6 @@ makeSampleList <- function(input,type=c("simple","targets")) {
     return(sampleList)
 }
 
-#' Project path constructor
-#'
-#' Create the main metaseqr project path. Internal use only.
-#'
-#' @param path The desired project path. Can be NULL for auto-generation.
-#' @param f The input counts table file.
-#' @return A list with project path elements.
-#' @author Panagiotis Moulos
 makeProjectPath <- function(path,f=NULL) {
     if (is.na(path) || is.null(path)) {
         if (!is.data.frame(f) && !is.null(f) && !is.list(f) && file.exists(f)) {
@@ -2391,14 +1945,6 @@ makeProjectPath <- function(path,f=NULL) {
     return(projectPath)
 }
 
-#' Project path constructor helper
-#'
-#' Helper for \code{makeProjectPath}. Internal use only.
-#'
-#' @param mainPath The desired project path.
-#' @return A named list whose names are the conditions of the experiments and its
-#' members are the samples belonging to each condition.
-#' @author Panagiotis Moulos
 makePathStruct <- function(mainPath) {
     projectPath <- list(
         main=mainPath,
@@ -2417,34 +1963,12 @@ makePathStruct <- function(mainPath) {
     return(projectPath)
 }
 
-#' Intitialize output list
-#'
-#' Initializes metaseqr R output. Internal use only.
-#'
-#' @param con The contrasts.
-#' @return An empty named list.
-#' @author Panagiotis Moulos
 makeExportList <- function(con) {
     f <- vector("list",length(con))
     names(f) <- con
     return(f)
 }
 
-#' Optimize rectangular grid plots
-#'
-#' Returns a vector for an optimized m x m plot grid to be used with e.g.
-#' \code{par(mfrow)}. m x m is as close as possible to the input n. Of course,
-#' there will be empty grid positions if n < m x m.
-#'
-#' @param n An integer, denoting the total number of plots to be created.
-#' @return A 2-element vector with the dimensions of the grid.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' g1 <- makeGrid(16) # Returns c(4,4)
-#' g2 <- makeGrid(11) # Returns c(4,3)
-#'}
 makeGrid <- function(n) {
     m <- 0
     while (n > m*m)
@@ -2463,14 +1987,6 @@ makeGrid <- function(n) {
     return(c(m,k))
 }
 
-#' Initializer of report messages
-#'
-#' Initializes metaseqr report template messages output. Internal use only.
-#'
-#' @param lang The language of the report. For now, only english (\code{"en"})
-#' is supported.
-#' @return An named list with messages for each input option.
-#' @author Panagiotis Moulos
 makeReportMessages <- function(lang) {
     switch(lang,
         en = {
@@ -3233,17 +2749,6 @@ makeReportMessages <- function(lang) {
     return(messages)
 }
 
-#' Interactive volcano plot helper
-#'
-#' Creates a list which contains the data series of a scatterplot, to be used for
-#' serialization with highcharts JavaScript plotting.
-#' framework. Internal use only.
-#'
-#' @param x The x coordinates (should be a named vector!).
-#' @param y The y coordinates.
-#' @param a Alternative names for each point.
-#' @return A list that is later serialized to JSON.
-#' @author Panagiotis Moulos
 makeHighchartsPoints <- function(x,y,a=NULL) {
     if (length(x)>0) {
         n <- names(x)
@@ -3273,21 +2778,6 @@ makeHighchartsPoints <- function(x,y,a=NULL) {
     return(stru)
 }
 
-#' Create a class vector
-#'
-#' Creates a class vector from a sample list. Internal to the \code{stat.*} functions.
-#' Mostly internal use.
-#'
-#' @param sampleList the list containing condition names and the samples under 
-#' each condition.
-#' @return A vector of condition names.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dont'run{
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' clv <- asClassVector(sampleList)
-#'}
 asClassVector <- function(sampleList) {
     classes <- vector("list",length(sampleList))
     names(classes) <- names(sampleList)
@@ -3298,44 +2788,10 @@ asClassVector <- function(sampleList) {
     return(classes)
 }
 
-#' Argument getter
-#'
-#' Get argument(s) from a list of arguments, e.g. normalization arguments.
-#'
-#' @param argList the initial list of a method's (e.g. normalization) arguments.
-#' Can be created with the \code{\link{getDefaults}}
-#' function.
-#' @param argName the argument name inside the argument list to fetch its value.
-#' @return The argument sub-list.
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' normList <- getDefaults("normalization","egder")
-#' a <- getArg(normList,c("main.method","logratioTrim"))
-#'}
 getArg <- function(argList,argName) {
     return(argList[argName])
 }
 
-#' Argument setter
-#'
-#' Set argument(s) to a list of arguments, e.g. normalization arguments.
-#'
-#' @param argList the initial list of a method's (e.g. normalization) arguments.
-#' Can be created with the \code{\link{getDefaults}}
-#' function.
-#' @param argName a named list with names the new arguments to be set, and mebers
-#' the values to be set or a vector of argument
-#' names. In this case, \code{argValue} must be supplied.
-#' @param argValue when \code{argName} is a vector of argument names, the values
-#' corresponding to these arguments.
-#' @return the \code{argList} with the changed \code{argValue} for \code{argName}.
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' normList <- getDefaults("normalization","egder")
-#' setArg(normList,list(main.method="glm",logratioTrim=0.4))
-#'}
 setArg <- function(argList,argName,argValue=NULL) {
     if (is.list(argName))
         argList[names(argName)] <- argName
@@ -3352,15 +2808,6 @@ setArg <- function(argList,argName,argValue=NULL) {
     return(argList)
 }
 
-#' Multiple testing correction helper
-#'
-#' A wrapper around the \code{\link{p.adjust}} function to include also the qvalue
-#' adjustment procedure from the qvalue package.
-#' Internal use.
-#'
-#' @param p a vector of p-values.
-#' @param m the adjustment method. See the help of \code{\link{p.adjust}}.
-#' @author Panagiotis Moulos
 wpAdjust <- function(p,m) {
     if (m=="qvalue")
         return(qvalue(p))
@@ -3390,52 +2837,13 @@ cmclapply <- function(...,rc) {
         return(lapply(...))
 }
 
-#' Filtering helper
-#'
-#' Low score filtering function. Internal use.
-#'
-#' @param x a data numeric matrix.
-#' @param f a threshold.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data("mm9.geneData",package="metaseqR")
-#' counts <- as.matrix(mm9.geneCounts[,9:12])
-#' f <- filterLow(counts,median(counts))
-#'}
 filterLow <- function(x,f) { return(all(x<=f)) }
 
-#' Filtering helper
-#'
-#' High score filtering function. Internal use.
-#'
-#' @param x a data numeric matrix.
-#' @param f a threshold.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data("mm9.geneData",package="metaseqR")
-#' counts <- as.matrix(mm9.geneCounts[,9:12])
-#' f <- filterHigh(counts,median(counts))
-#'}
 filterHigh <- function(x,f) { return(all(x>=f)) }
 
-#' Message displayer
-#'
-#' Displays a message during execution of the several functions. Internal use.
-#'
-#' @param ... a vector of elements that compose the display message.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' i <- 1
-#' disp("Now running iteration ",i,"...")
-#'}
 disp <- function(...) {
-    verbose <- get("VERBOSE",envir=metaEnv)
+    #verbose <- get("VERBOSE",envir=metaEnv)
+    verbose <- TRUE
     if (!is.null(verbose) && verbose) {
         message("\n",...,appendLF=FALSE)
     }

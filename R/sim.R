@@ -1,54 +1,3 @@
-#' Estimate AUFC weights
-#'
-#' This function automatically estimates weights for the \code{"weight"} and
-#' \code{"dperm_weight"} options of metaseqR for combining p-values from multiple
-#' statistical tests. It creates simulated dataset based on real data and then
-#' performs statistical analysis with metaseqR several times in order to derive
-#' False Discovery Curves. Then, the average areas under the false discovery curves
-#' are used to construct weights for each algorithm, according to its performance
-#' when using simulated data.
-#'
-#' @param counts the real raw counts table from which the simulation parameters
-#' will be estimated. It must not be normalized and must contain only integer
-#' counts, without any other annotation elements and unique gene identifiers as
-#' the rownames attribute.
-#' @param normalization same as \code{normalization} in \code{link{metaseqr}}.
-#' @param statistics same as \code{statistics} in \code{link{metaseqr}}.
-#' @param nsim the number of simulations to perform to estimate the weights. It
-#' default to 10.
-#' @param N the number of genes to produce. See \code{link{makeSimDataSd}}.
-#' @param samples a vector with 2 integers, which are the number of samples for
-#' each condition (two conditions currently supported).
-#' @param ndeg a vector with 2 integers, which are the number of differentially
-#' expressed genes to be produced. The first element is the number of up-regulated
-#' genes while the second is the number of down-regulated genes.
-#' @param fcBasis the minimum fold-change for deregulation.
-#' @param top the top \code{top} best ranked (according to p-value) to use, to
-#' calculate area under the false discovery curve.
-#' @param modelOrg the organism from which the data are derived. It must be one
-#' of \code{\link{metaseqr}} supported organisms.
-#' @param seed a number to be used as seed for reproducible simulations. Defaults
-#' to \code{NULL} (NOT reproducible results!).
-#' @param drawFpc draw the averaged false discovery curves? Default to \code{FALSE}.
-#' @param multic whether to run in parallel (if package \code{parallel} is present
-#' or not.
-#' @param ... Further arguments to be passed to \code{\link{estimateSimParams}}.
-#' @value A vector of weights to be used in \link{\code{metaseqr}} with the
-#' \code{weights} option.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data("mm9.geneData",package="metaseqR")
-#' multic <- checkParallel(0.8)
-#' weights <- estimateAufcWeights(
-#'   counts=as.matrix(mm9.geneCounts[,9:12]),
-#'   normalization="edaseq",
-#'   statistics=c("deseq","edger"),
-#'   nsim=3,N=100,ndeg=c(10,10),top=10,modelOrg="mm9",
-#'   seed=100,multic=multic,libsizeGt=1e+5
-#' )
-#'}
 estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
     N=10000,samples=c(3,3),ndeg=c(500,500),top=500,modelOrg="mm9",fcBasis=1.5,
     seed=NULL,drawFpc=FALSE,rc=NULL,...) {
@@ -165,26 +114,6 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
     return(weightAufc)
 }
 
-#' Create simulated counts using TCC package
-#'
-#' This function creates simulated RNA-Seq gene expression datasets using the
-#' \code{simulateReadCounts} function from the Bioconductor
-#' package TCC and it adds simulated annoation elements. For further information
-#' please consult the TCC package documentation. Note that the produced data are
-#' based in an Arabidopsis dataset.
-#'
-#' @param ... parameters to the \code{simulateReadCounts} function.
-#' @return A list with the following members: \code{simdata} holding the simulated
-#' dataset complying with metaseqr requirements, and \code{simparam} holding the
-#' simulation parameters (see TCC documentation).
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' dd <- make.simData(Ngene=10000,PDEG=0.2,DEG.assign=c(0.9,0.1),
-#'   DEG.foldchange=c(5,5),replicates=c(3,3))
-#' head(dd$simdata)
-#'}
 makeSimDataTcc <- function(...) {
     if (suppressWarnings(!require(TCC)))
         stopwrap("Bioconductor package TCC is required to create simulated data!")
@@ -214,54 +143,6 @@ makeSimDataTcc <- function(...) {
     return(list(simdata=simData,simparam=tcc$simulation))
 }
 
-#' Create simulated counts using the Soneson-Delorenzi method
-#'
-#' This function creates simulated RNA-Seq gene expression datasets using the
-#' method presented in (Soneson and Delorenzi, BMC Bioinformatics, 2013). For the
-#' time being, it creates only simulated datasets with two conditions.
-#'
-#' @param N the number of genes to produce.
-#' @param param a named list with negative binomial parameter sets to sample from.
-#' The first member is the mean parameter to sample from (\code{muHat}} and the
-#' second the dispersion (\code{phiHat}). This list can be created with the
-#' \code{\link{estimateSimParams}} function.
-#' @param samples a vector with 2 integers, which are the number of samples for
-#' each condition (two conditions currently supported).
-#' @param ndeg a vector with 2 integers, which are the number of differentially
-#' expressed genes to be produced. The first element is the number of up-regulated
-#' genes while the second is the number of down-regulated genes.
-#' @param fcBasis the minimum fold-change for deregulation.
-#' @param libsizeRange a vector with 2 numbers (generally small, see the default),
-#' as they are multiplied with \code{libsizeMag}.
-#' These numbers control the library sized of the synthetic data to be produced.
-#' @param libsizeMag a (big) number to multiply the \code{libsizeRange} to
-#' produce library sizes.
-#' @param modelOrg the organism from which the real data are derived from. It
-#' must be one of the supported organisms (see the main \code{\link{metaseqr}}
-#' help page). It is used to sample real values for GC content.
-#' @param simLengthBias a boolean to instruct the simulator to create genes
-#' whose read counts is proportional to their length. This is achieved by sorting
-#' in increasing order the mean parameter of the negative binomial distribution
-#' (and the dispersion according to the mean) which will cause an increasing gene
-#' count length with the sampling. The sampled lengths are also sorted so that in
-#' the final gene list, shorter genes have less counts as compared to the longer
-#' ones. The default is FALSE.
-#' @param seed a seed to use with random number generation for reproducibility.
-#' @return A named list with two members. The first member (\code{simdata})
-#' contains the synthetic dataset 
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' # File "bottomly_read_counts.txt" from the ReCount database
-#' download.file("http://bowtie-bio.sourceforge.net/recount/countTables/bottomly_count_table.txt",
-#'   destfile="~/bottomly_count_table.txt")
-#' N <- 10000
-#' parList <- estimateSimParams("~/bottomly_read_counts.txt")
-#' sim <- makeSimDataSd(N,parList)
-#' synth.data <- sim$simdata
-#' true.deg <- which(sim$truedeg!=0)
-#'}
 makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     fcBasis=1.5,libsizeRange=c(0.7,1.4),libsizeMag=1e+7,modelOrg=NULL,
     simLengthBias=FALSE,seed=NULL) {
@@ -401,46 +282,6 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     return(list(simdata=cbind(simData,sim1,sim2),truedeg=v))
 }
 
-#' Estimate negative binomial parameters from real data
-#'
-#' This function reads a read counts table containing real RNA-Seq data (preferebly
-#' with more than 20 samples so as to get as much accurate as possible estimations)
-#' and calculates a population of count means and dispersion parameters which can
-#' be used to simulate an RNA-Seq dataset with synthetic genes by drawing from a
-#' negative binomial distribution. This function works in the same way as described
-#' in (Soneson and Delorenzi, BMC Bioinformatics, 2013) and (Robles et al., BMC
-#' Genomics, 2012).
-#'
-#' @param realCounts a text tab-delimited file with real RNA-Seq data. The file
-#' should strictly contain a unique gene name (e.g. Ensembl accession) in the
-#' first column and all other columns should contain read counts for each gene.
-#' Each column must be named with a unique sample identifier. See examples in the
-#' ReCount database \link{http://bowtie-bio.sourceforge.net/recount/}.
-#' @param libsizeGt a library size below which samples are excluded from parameter
-#' estimation (default: 3000000).
-#' @param rowmeansGt a row means (mean counts over samples for each gene) below
-#' which genes are excluded from parameter estimation (default: 5).
-#' @param eps the tolerance for the convergence of \code{\link{optimize}} function.
-#' Defaults to 1e-11.
-#' @param restrict.cores in case of parallel optimization, the fraction of the
-#' available cores to use.
-#' @param seed a seed to use with random number generation for reproducibility.
-#' @param draw boolean to determine whether to plot the estimated simulation
-#' parameters (mean and dispersion) or not. Defaults to \code{FALSE} (do not draw
-#' a mean-dispersion scatterplot).
-#' @return A named list with two members: \code{muHat} which contains negative
-#' binomial mean estimates and \code{phiHat} which contains dispersion.
-#' estimates
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' # Dowload locally the file "bottomly_count_table.txt" from the ReCount datbase
-#' download.file("http://bowtie-bio.sourceforge.net/recount/countTables/bottomly_count_table.txt",
-#'   destfile="~/bottomly_count_table.txt")
-#' # Estimate simulation parameters
-#' parList <- estimateSimParams("~/bottomly_count_table.txt")
-#'}
 estimateSimParams <- function(realCounts,libsizeGt=3e+6,rowmeansGt=5,
     eps=1e-11,rc=NULL,seed=42,draw=FALSE) {
     if (is.data.frame(realCounts))
@@ -496,27 +337,6 @@ estimateSimParams <- function(realCounts,libsizeGt=3e+6,rowmeansGt=5,
     return(list(muHat=muHat[phiInd],phiHat=phiHat))
 }
 
-#' Downsample read counts
-#'
-#' This function downsamples the library sizes of a read counts table to the lowest
-#' library size, according to the methdology used in  (Soneson and Delorenzi,
-#' BMC Bioinformatics, 2013).
-#'
-#' @param counts the read counts table which is subjected to downsampling.
-#' @param seed random seed for reproducible downsampling.
-#' @return The downsampled counts matrix.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' # Dowload locally the file "bottomly_read_counts.txt" from
-#' # the ReCount database
-#' download.file(paste("http://bowtie-bio.sourceforge.net/",
-#'   "recount/countTables/bottomly_count_table.txt",sep=""),
-#'  destfile="~/bottomly_count_table.txt")
-#' M <- as.matrix(read.delim("~/bottomly_count_table.txt",row.names=1))
-#' D <- downsampleCounts(M)
-#'}
 downsampleCounts <- function(counts,seed=42) {
     libSizes <- apply(counts,2,sum)
     targetSize <- min(libSizes)
@@ -543,20 +363,6 @@ downsampleCounts <- function(counts,seed=42) {
     return(dcounts)
 }
 
-#' MLE dispersion estimate
-#'
-#' MLE function used to estimate negative binomial dispersions from real RNA-Seq
-#' data, as in (Soneson and Delorenzi, BMC Bioinformatics, 2013) and (Robles et al.,
-#' BMC Genomics, 2012). Internal use.
-#'
-#' @param phi the parameter to be optimized.
-#' @param y count samples used to perform the optimization.
-#' @return objective function value.
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' # Not yet available
-#'}
 mlfo <- function(phi,y) {
     N <- length(y)
     mu <- mean(y)
@@ -564,29 +370,6 @@ mlfo <- function(phi,y) {
         sum(y*log(mu*phi/(1+mu*phi))) - (N/phi)*log(1+mu*phi))
 }
 
-#' Create counts matrix permutations
-#'
-#' This function creates a permuted read counts matrix based on the \code{contrast}
-#' argument (to define new virtual contrasts of the same number) and on the
-#' \code{sampleList} to derive the number of samples for each virtual condition.
-#' It is a helper for the \code{\link{metaPerm}} function.
-#'
-#' @param counts the gene read counts matrix.
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrast the contrasts vector. See the main \code{\link{metaseqr}} help
-#' page.
-#' @param repl the same as the replace argument in \code{\link{sample}} function.
-#' @return A list with three members: the matrix of permuted per sample read counts,
-#' the virtual sample list and the virtual contrast to be used with the \code{stat.*}
-#' functions.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' data("mm9.geneData",package="metaseqR")
-#' per <- makePermutation(mm9.geneCounts,sampleList.mm9,"e14.5_vs_adult_8_weeks")
-#'}
 makePermutation <- function(counts,sampleList,contrast,repl=FALSE) {
     cnts <- strsplit(contrast,"_vs_")[[1]]
     virtualContrast <- paste(paste("VirtCond",1:length(cnts),sep=""),
@@ -613,41 +396,6 @@ makePermutation <- function(counts,sampleList,contrast,repl=FALSE) {
         contrast=virtualContrast))
 }
 
-#' Calculate the ratio TP/(FP+FN)
-#'
-#' This function calculates the ratio of True Positives to the sum of False
-#' Positives and False Negatives given a matrix of p-values (one for each
-#' statistical test used) and a vector of ground truth (DE or non-DE). This
-#' function serves as a method evaluation helper.
-#'
-#' @param truth the ground truth differential expression vector. It should contain
-#' only zero and non-zero elements, with zero denoting non-differentially expressed
-#' genes and non-zero, differentially expressed genes. Such a vector can be obtained
-#' for example by using the \code{\link{makeSimDataSd}} function, which creates
-#' simulated RNA-Seq read counts based on real data. It MUST be named with gene
-#' names, the same as in \code{p}.
-#' @param p a p-value matrix whose rows correspond to each element in the
-#' \code{truth} vector. If the matrix has a \code{colnames} attribute, a legend
-#' will be added to the plot using these names, else a set of column names will
-#' be auto-generated. \code{p} can also be a list or a data frame. In any case,
-#' each row (or element) MUST be named with gene names (the same as in \code{truth}).
-#' @param sig a significance level (0 < \code{sig} <=1).
-#' @return A named list with two members. The first member is a data frame with
-#' the numbers used to calculate the TP/(FP+FN) ratio and the second member is
-#' the ratio TP/(FP+FN) for each statistical test.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' p1 <- 0.001*matrix(runif(300),100,3)
-#' p2 <- matrix(runif(300),100,3)
-#' p <- rbind(p1,p2)
-#' rownames(p) <- paste("gene",1:200,sep="_")
-#' colnames(p) <- paste("method",1:3,sep="_")
-#' truth <- c(rep(1,40),rep(-1,40),rep(0,10),rep(1,10),rep(2,10),rep(0,80))
-#' names(truth) <- rownames(p)
-#' otr <- calcOtr(truth,p)
-#'}
 calcOtr <- function(truth,p,sig=0.05) {
     if (is.list(p))
         pmat <- do.call("cbind",p)
@@ -676,41 +424,6 @@ calcOtr <- function(truth,p,sig=0.05) {
     return(list(result=result,otr=otr))
 }
 
-#' Calculate the F1-score
-#'
-#' This function calculates the F1 score (2*(precision*recall/precision+racall)
-#' or 2*TP/(2*TP+FP+FN) given a matrix of p-values (one for each statistical test
-#' used) and a vector of ground truth (DE or non-DE). This function serves as a
-#' method evaluation helper.
-#'
-#' @param truth the ground truth differential expression vector. It should contain
-#' only zero and non-zero elements, with zero denoting non-differentially expressed
-#' genes and non-zero, differentially expressed genes. Such a vector can be obtained
-#' for example by using the \code{\link{makeSimDataSd}} function, which creates
-#' simulated RNA-Seq read counts based on real data. It MUST be named with gene
-#' names, the same as in \code{p}.
-#' @param p a p-value matrix whose rows correspond to each element in the
-#' \code{truth} vector. If the matrix has a \code{colnames} attribute, a legend
-#' will be added to the plot using these names, else a set of column names will
-#' be auto-generated. \code{p} can also be a list or a data frame. In any case,
-#' each row (or element) MUST be named with gene names (the same as in \code{truth}).
-#' @param sig a significance level (0 < \code{sig} <=1).
-#' @return A named list with two members. The first member is a data frame with
-#' the numbers used to calculate the F1-score and the second member is the
-#' F1-score for each statistical test.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' p1 <- 0.001*matrix(runif(300),100,3)
-#' p2 <- matrix(runif(300),100,3)
-#' p <- rbind(p1,p2)
-#' rownames(p) <- paste("gene",1:200,sep="_")
-#' colnames(p) <- paste("method",1:3,sep="_")
-#' truth <- c(rep(1,40),rep(-1,40),rep(0,10),rep(1,10),rep(2,10),rep(0,80))
-#' names(truth) <- rownames(p)
-#' f1 <- calcF1Score(truth,p)
-#'}
 calcF1Score <- function(truth,p,sig=0.05) {
     if (is.list(p))
         pmat <- do.call("cbind",p)

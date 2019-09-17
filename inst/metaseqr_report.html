@@ -80,42 +80,42 @@
                                     cat("<li class=\"tocli\"><a href=\"#summary_analysis_log\">Run log</a></li>")
                                 #cat("</ul></li></ul>")
                                 cat("</ul></div>")
-                                if (exists("fig.raw") || exists("fig.unorm") || exists("fig.norm") || exists("fig.other")) {
+                                if (exists("figRaw") || exists("figUnorm") || exists("figNorm") || exists("figOther")) {
                                     cat("<h5>Figures</h5>")
                                     cat("<div><ul class=\"tocul\">")
                                     #cat("<ul class=\"tocul\">")
                                     cat("<li class=\"tocli\"><a href=\"#figures\">Figures</a><ul>")
-                                    if (!is.null(fig.raw$mds))
+                                    if (!is.null(figRaw$mds))
                                         cat("<li class=\"tocli\"><a href=\"#figures_mds\">MDS</a></li>")
-                                    if (!is.null(fig.raw$biodetection))
+                                    if (!is.null(figRaw$biodetection))
                                         cat("<li class=\"tocli\"><a href=\"#figures_biodetection\">Biotype detection</a></li>")
-                                    if (!is.null(fig.raw$countsbio))
+                                    if (!is.null(figRaw$countsbio))
                                         cat("<li class=\"tocli\"><a href=\"#figures_countsbio\">Biotype counts</a></li>")
-                                    if (!is.null(fig.raw$saturation))
+                                    if (!is.null(figRaw$saturation))
                                         cat("<li class=\"tocli\"><a href=\"#figures_saturation\">Biotype saturation</a></li>")
-                                    if (!is.null(fig.raw$readnoise))
+                                    if (!is.null(figRaw$readnoise))
                                         cat("<li class=\"tocli\"><a href=\"#figures_readnoise\">Reads noise</a></li>")
-                                    if (!is.null(fig.raw$correl))
+                                    if (!is.null(figRaw$correl))
                                         cat("<li class=\"tocli\"><a href=\"#figures_correl\">Correlation plots</a></li>")
-                                    if (!is.null(fig.raw$pairwise))
+                                    if (!is.null(figRaw$pairwise))
                                         cat("<li class=\"tocli\"><a href=\"#figures_pairwise\">Pairwise scatterplots</a></li>")
-                                    if (!is.null(fig.raw$rnacomp))
+                                    if (!is.null(figRaw$rnacomp))
                                         cat("<li class=\"tocli\"><a href=\"#figures_rnacomp\">RNA composition</a></li>")
-                                    if (!is.null(fig.unorm$boxplot) || !is.null(fig.norm$boxplot))
+                                    if (!is.null(figUnorm$boxplot) || !is.null(figNorm$boxplot))
                                         cat("<li class=\"tocli\"><a href=\"#figures_boxplot\">Boxplots</a></li>")
-                                    if (!is.null(fig.unorm$gcbias) || !is.null(fig.norm$gcbias))
+                                    if (!is.null(figUnorm$gcbias) || !is.null(figNorm$gcbias))
                                         cat("<li class=\"tocli\"><a href=\"#figures_gcbias\">GC-bias</a></li>")
-                                    if (!is.null(fig.unorm$lengthbias) || !is.null(fig.norm$lengthbias))
+                                    if (!is.null(figUnorm$lengthbias) || !is.null(figNorm$lengthbias))
                                         cat("<li class=\"tocli\"><a href=\"#figures_lengthbias\">Length bias</a></li>")
-                                    if (!is.null(fig.unorm$meandiff) || !is.null(fig.norm$meandiff))
+                                    if (!is.null(figUnorm$meandiff) || !is.null(figNorm$meandiff))
                                         cat("<li class=\"tocli\"><a href=\"#figures_meandiff\">Mean-difference</a></li>")
-                                    if (!is.null(fig.unorm$meanvar) || !is.null(fig.norm$meanvar))
+                                    if (!is.null(figUnorm$meanvar) || !is.null(figNorm$meanvar))
                                         cat("<li class=\"tocli\"><a href=\"#figures_meanvar\">Mean-variance</a></li>")
-                                    if (!is.null(fig.other$filtered))
+                                    if (!is.null(figOther$filtered))
                                         cat("<li class=\"tocli\"><a href=\"#figures_filtered\">Filtered ",trans.level,"s</a></li>",sep="")
-                                    if (!is.null(fig.stat$volcano)) {
+                                    if (!is.null(figStat$volcano)) {
                                         cat("<li class=\"tocli\"><a href=\"#figures_filtered\">Volcano plots</a><ul>")
-                                        nn <- names(fig.stat$volcano)
+                                        nn <- names(figStat$volcano)
                                         counter <- 1
                                         for (n in nn) {
                                             cat("<li class=\"tocli\"><a href=\"#volcano_",counter,"\">",n,"</a></li>",sep="")
@@ -123,9 +123,9 @@
                                         }
                                         cat("</ul></li>")
                                     }
-                                    if (!is.null(fig.stat$deheatmap)) {
+                                    if (!is.null(figStat$deheatmap)) {
                                         cat("<li class=\"tocli\"><a href=\"#figures_heatmap\">DEG heatmaps</a><ul>")
-                                        nn <- names(fig.stat$deheatmap)
+                                        nn <- names(figStat$deheatmap)
                                         counter <- 1
                                         for (n in nn) {
                                             cat("<li class=\"tocli\"><a href=\"#deheatmap_",counter,"\">",n,"</a></li>",sep="")
@@ -133,21 +133,21 @@
                                         }
                                         cat("</ul></li>")
                                     }
-                                    if (!is.null(fig.stat$biodist)) {
+                                    if (!is.null(figStat$biodist)) {
                                         cat("<li class=\"tocli\"><a href=\"#figures_biodist\">DEG biotypes</a><ul>")
-                                        nn <- names(fig.stat$biodist)
+                                        nn <- names(figStat$biodist)
                                         counter <- 1
                                         for (n in nn) {
-                                            if (fig.stat$biodist[[n]] != "error") {
+                                            if (figStat$biodist[[n]] != "error") {
                                                 cat("<li class=\"tocli\"><a href=\"#biodist_",counter,"\">",n,"</a></li>",sep="")
                                                 counter <- counter + 1
                                             }
                                         }
                                         cat("</ul></li>")
                                     }
-                                    if (!is.null(fig.venn$venn)) {
+                                    if (!is.null(figVenn$venn)) {
                                         cat("<li class=\"tocli\"><a href=\"#figures_venn\">Venn diagrams</a><ul>")
-                                        nn <- names(fig.venn$venn)
+                                        nn <- names(figVenn$venn)
                                         counter <- 1
                                         for (n in nn) {
                                             cat("<li class=\"tocli\"><a href=\"#venn_",counter,"\">",n,"</a></li>",sep="")

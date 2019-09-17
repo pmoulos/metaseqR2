@@ -129,17 +129,6 @@ mdsToJSON <- function(obj,jl=c("highcharts")) {
     return(json)
 }
 
-#' Biodetection counts plot JSON exporter for the metaseqR package
-#'
-#' Non-exportable JSON exporter for \code{\link{diaplot.noiseq}}.
-#'
-#' @param obj A list holding boxplot data. See \code{\link{diaplot.noiseq}}.
-#' @param by Can be \code{"sample"} to create biotypes boxplots per sample or
-#' \code{"biotype"} to create samples boxplots per biotype.
-#' @param jl JavaScript charting library to export. Currently only \code{"highcharts"}
-#' supported.
-#' @return A JSON string.
-#' @author Panagiotis Moulos
 countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts")) {
     by <- tolower(by[1])
     jl <- tolower(jl[1])
@@ -632,15 +621,6 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts")) {
     }
 }
 
-#' Biodetection barplot JSON exporter for the metaseqR package
-#'
-#' Non-exportable JSON exporter for \code{\link{diaplot.noiseq}}.
-#'
-#' @param obj A list holding boxplot data. See \code{\link{diaplot.noiseq}}.
-#' @param jl JavaScript charting library to export. Currently only \code{"highcharts"}
-#' supported.
-#' @return A JSON string.
-#' @author Panagiotis Moulos
 bioDetectionToJSON <- function(obj,jl=c("highcharts")) {
     jl <- tolower(jl[1])
     samples <- obj$samples
@@ -837,17 +817,6 @@ bioDetectionToJSON <- function(obj,jl=c("highcharts")) {
     return(json)
 }
 
-#' Biotype saturation plot JSON exporter for the metaseqR package
-#'
-#' Non-exportable JSON exporter for \code{\link{diaplot.noiseq}}.
-#'
-#' @param obj A list holding boxplot data. See \code{\link{diaplot.noiseq}}.
-#' @param by Can be \code{"sample"} to create biotypes boxplots per sample or
-#' \code{"biotype"} to create samples boxplots per biotype.
-#' @param jl JavaScript charting library to export. Currently only \code{"highcharts"}
-#' supported.
-#' @return A JSON string.
-#' @author Panagiotis Moulos
 bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
     jl=c("highcharts")) {
     
@@ -1101,16 +1070,6 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
     }
 }
 
-
-#' Read noise plot JSON exporter for the metaseqR package
-#'
-#' Non-exportable JSON exporter for \code{\link{diagplotNoiseq}}.
-#'
-#' @param obj A list holding plot data. See \code{\link{diaplot.noiseq}}.
-#' @param jl JavaScript charting library to export. Currently only \code{"highcharts"}
-#' supported.
-#' @return A JSON string.
-#' @author Panagiotis Moulos
 readNoiseToJSON <- function(obj,jl=c("highcharts"),seed=42) {
     jl <- tolower(jl[1])
     d <- obj$user
@@ -1232,15 +1191,6 @@ readNoiseToJSON <- function(obj,jl=c("highcharts"),seed=42) {
     return(json)
 }
 
-#' Boxplots JSON exporter for the metaseqR package
-#'
-#' Non-exportable JSON exporter for \code{\link{diaplot.boxplot}}.
-#'
-#' @param obj A list holding boxplot data. See \code{\link{diaplot.boxplot}}.
-#' @param jl JavaScript charting library to export. Currently only \code{"highcharts"}
-#' supported.
-#' @return A JSON string.
-#' @author Panagiotis Moulos
 boxplotToJSON <- function(obj,jl=c("highcharts")) {
     jl <- tolower(jl[1])
     b <- obj$plot
@@ -1479,15 +1429,6 @@ boxplotToJSON <- function(obj,jl=c("highcharts")) {
     return(unquote_js_fun(json))
 }
 
-#' GC/length bias plot JSON exporter for the metaseqR package
-#'
-#' Non-exportable JSON exporter for \code{\link{diagplotEdaseq}}.
-#'
-#' @param obj A list holding plot data. See \code{\link{diaplot.noiseq}}.
-#' @param jl JavaScript charting library to export. Currently only \code{"highcharts"}
-#' supported.
-#' @return A JSON string.
-#' @author Panagiotis Moulos
 biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1) {
     jl <- tolower(jl[1])
     counts <- round(nat2log(obj$user$counts),3)
@@ -1616,16 +1557,6 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1) {
     return(json)
 }
 
-#' Filtered genes barplot JSON exporter for the metaseqR package
-#'
-#' Non-exportable JSON exporter for \code{\link{diaplot.filtered}}.
-#'
-#' @param obj A list holding plot data. See \code{\link{diaplot.filered}}.
-#' @param by Either \code{"chromosome"} or \code{"biotype"}
-#' @param jl JavaScript charting library to export. Currently only \code{"highcharts"}
-#' supported.
-#' @return A JSON string.
-#' @author Panagiotis Moulos
 filteredToJSON <- function(obj,by=c("chromosome","biotype"),
     jl=c("highcharts")) {
     
@@ -1801,15 +1732,6 @@ filteredToJSON <- function(obj,by=c("chromosome","biotype"),
     return(json)
 }
 
-#' Volcano JSON exporter for the metaseqR package
-#'
-#' Non-exportable JSON exporter for \code{\link{diagplotVolcano}}.
-#'
-#' @param obj A list holding volcano plot data. See \code{\link{diaplot.volcano}}.
-#' @param jl JavaScript charting library to export. Currently only \code{"highcharts"}
-#' supported.
-#' @return A JSON string.
-#' @author Panagiotis Moulos
 volcanoToJSON <- function(obj,jl=c("highcharts")) {
     jl <- tolower(jl[1])
     f <- obj$x

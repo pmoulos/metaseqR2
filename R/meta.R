@@ -1,44 +1,3 @@
-#' Meta-analysis using several RNA-Seq statistics
-#'
-#' This function calculates the combined p-values when multiple statistical algorithms
-#' are applied to the input dataset. It is a helper and it requires very specific 
-#' arguments so it should not be used individually.
-#'
-#' @param cpList a named list whose names are the contrasts requested from metaseqR.
-#' Each member is a p-value matrix whose colnames are the names of the statistical
-#' tests applied to the data. See the main \code{\link{metaseqr}} help page.
-#' @param metaP the p-value combination method to use. See the main 
-#' \code{\link{metaseqr}} help page.
-#' @param counts the normalized and possibly filtered read counts matrix. See the
-#' main \code{\link{metaseqr}} help page.
-#' @param sampleList the list containing condition names and the samples under
-#' each condition. See the main \code{\link{metaseqr}} help page.
-#' @param statistics the statistical algorithms used in metaseqr. See the main 
-#' \code{\link{metaseqr}} help page.
-#' @param statArgs the parameters for each statistical argument. See the main
-#' \code{\link{metaseqr}} help page.
-#' @param libsizeList a list with library sizes. See the main \code{\link{metaseqr}}
-#' and the \code{stat.*} help pages.
-#' @param nperm the number of permutations (Monte Carlo simulations) to perform.
-#' @param weight a numeric vector of weights for each statistical algorithm.
-#' @param reprod create reproducible permutations. Ideally one would want to create
-#' the same set of indices for a given dataset so as to create reproducible p-values.
-#' If \code{reprod=TRUE}, a fixed seed is used by \code{metaPerm} for all the
-#' datasets analyzed with \code{metaseqr}. If \code{reprod=FALSE}, then the
-#' p-values will not be reproducible, although statistical significance is not
-#' expected to change for a large number of resambling. Finally, \code{reprod}
-#' can be a numeric vector of seeds with the same length as \code{nperm} so that
-#' the user can supply his/her own seeds.
-#' @param multic use multiple cores to execute the premutations. This is an
-#' external parameter and implies the existence of parallel package in the execution
-#' environment. See the main \code{\link{metaseqr}} help page.
-#' @return A named list with combined p-values. The names are the contrasts and
-#' the list members are combined p-value vectors, one for each contrast.
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' # This function is not exported
-#'}
 metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
     "dperm_min","dperm_max","dperm_weight","fperm","whitlock","minp","maxp",
     "weight","pandora","none"),counts,sampleList,statistics,statArgs,
@@ -215,59 +174,6 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
     return(sumpList)
 }
 
-#' Permutation tests for meta-analysis
-#'
-#' This function performs permutation tests in order to derive a meta p-value by
-#' combining several of the statistical algorithms of metaseqr. This is probably
-#' the most accurate way of combining multiple statistical algorithms for RNA-Seq
-#' data, as this issue is different from the classic interpretation of the term
-#' "meta-analysis" which implies the application of the same statistical test on
-#' different datasets treating the same subject/experiment. For other methods, see
-#' also the main \code{\link{metaseqr}} help page. You should keep in mind that
-#' the permutation procedure can take a long time, even when executed in parallel.
-#'
-#' @param counts a normalized read counts table, one row for each gene, one column
-#' for each sample.
-#' @param sampleList the list containing condition names and the samples under
-#' each condition. See the main \code{\link{metaseqr}} help page.
-#' @param contrast the contrasts to be tested by each statistical algorithm. See
-#' the main \code{\link{metaseqr}} help page.
-#' @param statistics the statistical algorithms used in metaseqr. See the main
-#' \code{\link{metaseqr}} help page.
-#' @param statArgs the parameters for each statistical algorithm. See the main
-#' \code{\link{metaseqr}} help page.
-#' @param libsizeList a list with library sizes. See the main \code{\link{metaseqr}}
-#' and the \code{stat.*} help pages.
-#' @param nperm the number of permutations (Monte Carlo simulations) to perform.
-#' @param weight a numeric vector of weights for each statistical algorithm.
-#' @param select how to select the initial vector of p-values. It can be \code{"min"}
-#' to select the minimum p-value for each gene (more conservative), \code{"max"}
-#' to select the maximum p-value for each gene (less conservative), \code{"weight"}
-#' to apply the weights to the p-value vector for each gene and derive a weighted
-#' p-value.
-#' @param replace same as the \code{replace} argument in the \code{\link{sample}}
-#' function. Implies bootstraping or simple resampling without replacement. It can
-#' also be \code{"auto"}, to determine bootstraping or not with the following rule:
-#' if \code{ncol(counts)<=6} \code{replace=FALSE else} \code{replace=TRUE}. This
-#' protects from the case of having zero variability across resampled conditions.
-#' In such cases, most statistical tests would crash.
-#' @param multic use multiple cores to execute the premutations. This is an 
-#' external parameter and implies the existence of parallel package in the
-#' execution environment. See the main \code{\link{metaseqr}} help page.
-#' @param reprod create reproducible permutations. Ideally one would want to
-#' create the same set of indices for a given dataset so as to create reproducible
-#' p-values. If \code{reprod=TRUE}, a fixed seed is used by \code{metaPerm} for
-#' all the datasets analyzed with \code{metaseqr}. If \code{reprod=FALSE}, then
-#' the p-values will not be reproducible, although statistical significance is not
-#' expected to change for a large number of resambling. Finally, \code{reprod} can
-#' be a numeric vector of seeds with the same length as \code{nperm} so that the
-#' user can supply his/her own seeds.
-#' @return A vector of meta p-values
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' # This function is not exported
-#'}
 metaPerm <- function(contrast,counts,sampleList,statistics,statArgs,
     libsizeList,nperm=10000,weight=rep(1/ncol(counts),ncol(counts)),
     select=c("min","max","weight"),replace="auto",reprod=TRUE,rc=NULL) {
@@ -316,27 +222,6 @@ metaPerm <- function(contrast,counts,sampleList,statistics,statArgs,
     return(do.call("cbind",pp))
 }
 
-#' Permutation tests helper
-#'
-#' This function performs the statistical test for each permutation. Internal use
-#' only.
-#'
-#' @param x a virtual list with the random seed and the permutation index.
-#' @param co the counts matrix.
-#' @param sl the sample list.
-#' @param cnt the contrast name.
-#' @param s the statistical algorithms.
-#' @param sa the parameters for each statistical algorithm.
-#' @param ll a list with library sizes.
-#' @param r same as the \code{replace} argument in the \code{\link{sample}} function.
-#' @param el min, max or weight.
-#' @param w the weights when \code{el="weight"}.
-#' @return A matrix of p-values.
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' # This function is not exported
-#'}
 metaWorker <- function(x,co,sl,cnt,s,r,sa,ll,el,w) {
     set.seed(x$seed)
     disp("    running permutation #",x$prog)
@@ -401,21 +286,6 @@ metaWorker <- function(x,co,sl,cnt,s,r,sa,ll,el,w) {
     return(pIter)
 }
 
-#' Combine p-values with Simes' method
-#'
-#' This function combines p-values from the various statistical tests supported by
-#' metaseqR using the Simes' method (see reference in the main \code{\link{metasqr}}
-#' help page or in the vignette).
-#'
-#' @param p a p-value matrix (rows are genes, columns are statistical tests).
-#' @return A vector of combined p-values.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' p <- matrix(runif(300),100,3)
-#' pc <- combineSimes(p)
-#'}
 combineSimes <- function(p) {
     ze <- which(p==0)
     if (length(ze)>0)
@@ -426,21 +296,6 @@ combineSimes <- function(p) {
     return(min(c(s,1)))
 }
 
-#' Combine p-values with Bonferroni's method
-#'
-#' This function combines p-values from the various statistical tests supported by
-#' metaseqR using the Bonferroni's method (see reference in the main
-#' \code{\link{metasqr}} help page or in the vignette).
-#'
-#' @param p a p-value matrix (rows are genes, columns are statistical tests).
-#' @return A vector of combined p-values.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' p <- matrix(runif(300),100,3)
-#' pc <- combineBonferroni(p)
-#'}
 combineBonferroni <- function(p) {
     ze <- which(p==0)
     if (length(ze)>0)
@@ -449,21 +304,6 @@ combineBonferroni <- function(p) {
     return(min(c(1,b)))
 }
 
-#' Combine p-values using weights
-#'
-#' This function combines p-values from the various statistical tests supported by
-#' metaseqR using p-value weights.
-#'
-#' @param p a p-value matrix (rows are genes, columns are statistical tests).
-#' @param w a weights vector, must sum to 1.
-#' @return A vector of combined p-values.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' p <- matrix(runif(300),100,3)
-#' pc <- combineWeight(p,w=c(0.2,0.5,0.3))
-#'}
 combineWeight <- function(p,w) {
     ze <- which(p==0)
     if (length(ze)>0)
@@ -471,36 +311,8 @@ combineWeight <- function(p,w) {
     return(prod(p^w))
 }
 
-#' Combine p-values using the minimum p-value
-#'
-#' This function combines p-values from the various statistical tests supported by
-#' metaseqR by taking the minimum p-value.
-#'
-#' @param p a p-value matrix (rows are genes, columns are statistical tests).
-#' @return A vector of combined p-values.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' p <- matrix(runif(300),100,3)
-#' pc <- combine.min(p)
-#'}
 combineMinp <- function(p) { return(min(p)) }
 
-#' Combine p-values using the maximum p-value
-#'
-#' This function combines p-values from the various statistical tests supported by
-#' metaseqR by taking the maximum p-value.
-#'
-#' @param p a p-value matrix (rows are genes, columns are statistical tests).
-#' @return A vector of combined p-values.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' p <- matrix(runif(300),100,3)
-#' pc <- combine.max(p)
-#'}
 combineMaxp <- function(p) { return(max(p)) }
 
 # Copied from ex-CRAN package MADAM and exported. The man pages are copied from

@@ -1,156 +1,3 @@
-getUcscUtr <- function(org,refdb="ucsc") {
-    org <- tolower(org[1])
-    refdb <- tolower(refdb[1])
-    checkTextArgs("org",org,getSupportedOrganisms(),multiarg=FALSE)
-    checkTextArgs("refdb",refdb,getSupportedUcscDbs())
-    
-    if (!requireNamespace("GenomicFeatures"))
-		stop("Bioconductor package GenomicFeatures is required!")
-    
-    httpBase <- paste("http://hgdownload.soe.ucsc.edu/goldenPath/",
-        getUcscOrganism(org),"/database/",sep="")
-    tableUtr <- getUcscTableNameUtr(org,refdb) # Need one table
-    message("  Retrieving table ",tableUtr," for 3'UTR annotation generation ",
-        "from ",refdb," for ",org)
-    download.file(paste(httpBase,tableUtr,sep=""),file.path(tempdir(),
-        paste(tableUtr,".txt.gz",sep="")),quiet=TRUE)
-    
-    # Do the conversion stuff. AS there is no easy way to check if genePredToGtf
-    # exists in the system, we should download it on the fly (once for the 
-    # session). If no Linux machine, then problem.
-    genePredToGtf <- file.path(tempdir(),"genePredToGtf")
-    if (!file.exists(file.path(tempdir(),"genePredToGtf"))) {
-        message("  Retrieving genePredToGtf tool")
-        download.file(
-        "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/genePredToGtf",
-            genePredToGtf,quiet=TRUE
-        )
-        system(paste("chmod 775",genePredToGtf))
-    }
-    
-    # Then do the conversion... No need for windows case as Kent tools do not
-    # work in Windows anyway
-    gtfFile <- file.path(tempdir(),paste(tableUtr,".gtf",sep=""))
-    message("  Converting ",tableUtr," to GTF")
-    if (refdb == "ucsc") {
-        command <- paste(
-            "zcat ",file.path(tempdir(),paste(tableUtr,".txt.gz",sep=""))," | ",
-            "cut -f1-10 - | ",genePredToGtf," file stdin ",gtfFile," -source=",
-            tableUtr," -utr",sep=""
-        )
-        system(command)
-        
-        # Then make TxDb through makeTxDbFromGFF and transform to data frame
-        # to return later
-        message("  Importing GTF ",tableUtr," as TxDb")
-        txdb <- makeTxDbFromGFF(gtfFile)
-        utrList <- threeUTRsByTranscript(txdb,use.names=TRUE)
-        utrGr <- unlist(utrList)
-        utrGr$transcript_id <- names(utrGr)
-        utrTmp <- as.data.frame(unname(utrGr))
-        keep <- c("seqnames","start","end","transcript_id","exon_rank","strand")
-        utr <- utrTmp[,keep]
-        utr$gene_id <- utr$transcript_id
-    }
-    else if (refdb == "refseq") {
-        command <- paste(
-            "zcat ",file.path(tempdir(),paste(tableUtr,".txt.gz",sep=""))," | ",
-            "cut -f2- | ",genePredToGtf," file stdin ",gtfFile," -source=",
-            tableUtr," -utr",sep=""
-        )
-        system(command)
-        
-        # Then make TxDb through makeTxDbFromGFF and transform to data frame
-        # to return later
-        message("  Importing GTF ",tableUtr," as TxDb")
-        txdb <- makeTxDbFromGFF(gtfFile)
-        utrList <- threeUTRsByTranscript(txdb,use.names=TRUE)
-        utrGr <- unlist(utrList)
-        utrGr$transcript_id <- names(utrGr)
-        utrTmp <- as.data.frame(unname(utrGr))
-        keep <- c("seqnames","start","end","transcript_id","exon_rank","strand")
-        utr <- utrTmp[,keep]
-        
-		# Import again the GTF with rtracklayer to create the names map
-		message("  Importing GTF ",tableUtr," as GTF to make id map")
-		desiredColumns <- c("type","gene_id","transcript_id","exon_id",
-		 "gene_name","gene_biotype")
-		gr <- import(gtfFile,format="gtf",colnames=desiredColumns,
-			feature.type=GenomicFeatures:::GFF_FEATURE_TYPES)
-		grdf <- as.data.frame(gr)
-		grdf <- grdf[grdf$type=="exon",]
-		map <- grdf[,c("transcript_id","gene_id")]
-		
-		# Remove total duplicates (e.g. exons mapping to multiple gns, trns)
-		dgt <- which(duplicated(map))
-		if (length(dgt) > 0)
-			map <- map[-dgt,]
-		geneIds <- map$gene_id
-		names(geneIds) <- map$transcript_id
-		utr$gene_id <- geneIds[utr$transcript_id]
-    }
-    
-    return(utr)
-}
-
-#~ importCustomGtf <- function() {
-#~      ########################################################################
-#~      # The folowing chunk belongs to a more generic custom GTF importing
-#~      # function. UCSC GTFs do not have gene names and biotypes
-        
-#~      # Import again the GTF with rtracklayer to create the names map
-#~      message("  Importing GTF ",tableUtr," as GTF to make id map")
-#~      desiredColumns <- c("type","gene_id","transcript_id","exon_id",
-#~          "gene_name","gene_biotype")
-#~      gr <- import(gtfFile,format="gtf",colnames=desiredColumns,
-#~          feature.type=GenomicFeatures:::GFF_FEATURE_TYPES)
-#~      grdf <- as.data.frame(gr)
-#~      grdf <- grdf[grdf$type=="exon",]
-
-#~      # Need to map gene ids to names and biotypes. We need a collapsed 
-#~      # structure exon_id - transcript_id - gene_id - gane_name - biotype
-#~      message("  Making ",tableUtr," id map")
-#~      hasGeneName <- hasBiotype <- FALSE
-#~      if (!all(is.na(grdf$gene_name)) && !all(is.na(grdf$gene_biotype))) {
-#~          map <- grdf[,c("exon_id","transcript_id","gene_id","gene_name",
-#~              "gene_biotype")]
-#~          names(map)[5] <- "biotype"
-#~          hasGeneName <- hasBiotype <- TRUE
-#~      }
-#~      else if (all(is.na(grdf$gene_name)) && !all(is.na(grdf$gene_biotype))) {
-#~          map <- grdf[,c("exon_id","transcript_id","gene_id","gene_name")]
-#~          map$biotype <- rep("gene",nrow(map))
-#~          hasGeneName <- TRUE
-#~      }
-#~      else if (!all(is.na(grdf$gene_name)) && all(is.na(grdf$gene_biotype))) {
-#~          map <- grdf[,c("exon_id","transcript_id","gene_id","gene_id",
-#~              "gene_biotype")]
-#~          names(map)[3:5] <- c("gene_id","gene_name","biotype")
-#~          hasBiotype <- TRUE
-#~      }
-#~      else {
-#~          map <- grdf[,c("exon_id","transcript_id","gene_id","gene_id",
-#~              "gene_id")]
-#~          map$biotype <- rep("gene",nrow(map))
-#~          names(map)[3:4] <- c("gene_id","gene_name")
-#~      }
-
-#~      # The map is not of very much use if there are no gene names and
-#~      # biotypes... The only true usage is gene_id to plug into utrs...
-#~      # If has both gene name and biotype, then ok, otherwise we will have to
-#~      # download or load annotations on the fly.
-#~      # Let's  use it for map gene_id to transcript_id at first
-#~      submap <- map[,c("transcript_id","gene_id")]
-#~      # Remove total duplicates (e.g. exons mapping to multiple gns, trns)
-#~      dgt <- which(duplicated(submap))
-#~      if (length(dgt) > 0)
-#~          submap <- submap[-dgt,]
-#~      geneIds <- submap$gene_id
-#~      names(geneIds) <- submap$transcript_id
-#~      utr$gene_id <- geneIds[utr$transcript_id]
-#~      ########################################################################
-#~ }
-
 getUcscTableNameUtr <- function(org,refdb) {
     switch(refdb,
         ucsc = {
@@ -235,23 +82,6 @@ getUcscTableNameUtr <- function(org,refdb) {
     )
 }
 
-#' Download annotation from UCSC servers, according to organism and source
-#'
-#' Directly downloads UCSC and RefSeq annotation files from UCSC servers to be
-#' used with metaseqR. This functionality is used when the package RMySQL is not
-#' available for some reason, e.g. Windows machines.
-#'
-#' @param org one of metaseqR supported organisms.
-#' @param type either \code{"gene"} or \code{"exon"}.
-#' @param refdb one of \code{"ucsc"} or \code{"refseq"} to use the UCSC or RefSeq
-#' annotation sources respectively.
-#' @return A data frame with annotation elements.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' db.file <- get.ucsc.file("hg18","gene","ucsc")
-#'}
 getUcscDbl <- function(org,refdb="ucsc") {
     org <- tolower(org[1])
     refdb <- tolower(refdb[1])
@@ -288,24 +118,6 @@ getUcscDbl <- function(org,refdb="ucsc") {
     return(dbTmp)
 }
 
-#' Get SQLite UCSC table defintions, according to organism and source
-#'
-#' Creates a list of UCSC Genome Browser database tables and their SQLite
-#' definitions with the purpose of creating a temporary SQLite database to be 
-#' used used with metaseqR. This functionality is used when the package RMySQL 
-#' is not available for some reason, e.g. Windows machines.
-#'
-#' @param org one of metaseqR supported organisms.
-#' @param type either \code{"gene"} or \code{"exon"}.
-#' @param refdb one of \code{"ucsc"} or \code{"refseq"} to use the UCSC or RefSeq
-#' annotation sources respectively.
-#' @return A list with SQLite table definitions.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' db.tabledefs <- get.ucsc.tables("hg18","gene","ucsc")
-#'}
 getUcscTabledef <- function(org,refdb="ucsc",what="queries") {
     org <- tolower(org[1])
     refdb <- tolower(refdb[1])
@@ -323,21 +135,6 @@ getUcscTabledef <- function(org,refdb="ucsc",what="queries") {
 	)
 }
 
-#' Create SQLite UCSC table template defintions
-#'
-#' Returns an SQLIte table template defintion, according to  UCSC Genome Browser 
-#' database table schemas. This functionality is used when the package RMySQL 
-#' is not available for some reason, e.g. Windows machines. Internal use only.
-#'
-#' @param tab name of UCSC database table.
-#' @param what \code{"queries"} for SQLite table definitions or \code{"fields"}
-#' for table column names.
-#' @return An SQLite table definition.
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' db.table.tmpl <- get.ucsc.tbl.tpl("knownCanonical")
-#'}
 getUcscTblTpl <- function(tab,what="queries") {
     if (what=="queries") {
         switch(tab,
@@ -565,24 +362,6 @@ getUcscTblTpl <- function(tab,what="queries") {
     }
 }
 
-#' Return queries for the UCSC Genome Browser database, according to organism and
-#' source
-#'
-#' Returns an SQL query to be used with a connection to the UCSC Genome Browser
-#' database and fetch metaseqR supported organism annotations. This query is
-#' constructed based on the data source and data type to be returned.
-#'
-#' @param org one of metaseqR supported organisms.
-#' @param type either \code{"gene"} or \code{"exon"}.
-#' @param refdb one of \code{"ucsc"} or \code{"refseq"} to use the UCSC or RefSeq
-#' annotation sources respectively.
-#' @return A valid SQL query.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' db.query <- get.ucsc.query("hg18","gene","ucsc")
-#'}
 getUcscQuery <- function(org,type,refdb="ucsc") {
     type <- tolower(type[1])
     org <- tolower(org[1])
@@ -999,19 +778,21 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 .getUcscQueryUcscGene <- function(org) {
     switch(org,
         hg18 = {
-            return(paste("SELECT refFlat.chrom AS `chromosome`,",
-				"refFlat.txStart AS `start`,",
-				"refFlat.txEnd AS `end`,",
-				"refFlat.name AS `gene_id`,",
+            return(paste("SELECT knownCanonical.chrom AS `chromosome`,",
+				"`chromStart` AS `start`,",
+				"`chromEnd` AS `end`,",
+				"`transcript` AS `gene_id`,",
 				"0 AS `gc_content`,",
-				"refFlat.strand AS `strand`,",
+				"knownGene.strand AS `strand`,",
 				"`geneName` AS `gene_name`,",
 				"'NA' AS `biotype`",
-				"FROM `refFlat` INNER JOIN `knownToRefSeq`",
-				"ON refFlat.name=knownToRefSeq.value",
-				"INNER JOIN `knownCanonical`",
-				"ON knownToRefSeq.name=knownCanonical.transcript",
-				"GROUP BY refFlat.name",
+				"FROM `knownCanonical` INNER JOIN `knownGene`",
+				"ON knownCanonical.transcript=knownGene.name",
+				"INNER JOIN `knownToRefSeq`",
+				"ON knownCanonical.transcript=knownToRefSeq.name",
+				"INNER JOIN `refFlat`",
+				"ON knownToRefSeq.value=refFlat.name",
+				"GROUP BY gene_id",
 				"ORDER BY `chromosome`,`start`"))
         },
         hg19 = {
@@ -1038,19 +819,21 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
         },
         hg38 = {
 			# Should have been like hg19 but it's like hg18
-            return(paste("SELECT refFlat.chrom AS `chromosome`,",
-				"refFlat.txStart AS `start`,",
-				"refFlat.txEnd AS `end`,",
-				"refFlat.name AS `gene_id`,",
+            return(paste("SELECT knownCanonical.chrom AS `chromosome`,",
+				"`chromStart` AS `start`,",
+				"`chromEnd` AS `end`,",
+				"`transcript` AS `gene_id`,",
 				"0 AS `gc_content`,",
-				"refFlat.strand AS `strand`,",
+				"knownGene.strand AS `strand`,",
 				"`geneName` AS `gene_name`,",
 				"'NA' AS `biotype`",
-				"FROM `refFlat` INNER JOIN `knownToRefSeq`",
-				"ON refFlat.name=knownToRefSeq.value",
-				"INNER JOIN `knownCanonical`",
-				"ON knownToRefSeq.name=knownCanonical.transcript",
-				"GROUP BY refFlat.name",
+				"FROM `knownCanonical` INNER JOIN `knownGene`",
+				"ON knownCanonical.transcript=knownGene.name",
+				"INNER JOIN `knownToRefSeq`",
+				"ON knownCanonical.transcript=knownToRefSeq.name",
+				"INNER JOIN `refFlat`",
+				"ON knownToRefSeq.value=refFlat.name",
+				"GROUP BY gene_id",
 				"ORDER BY `chromosome`,`start`"))
         },
         mm9 = {
@@ -1076,25 +859,42 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
-            return(paste("SELECT knownCanonical.chrom AS `chromosome`,",
+            #return(paste("SELECT knownCanonical.chrom AS `chromosome`,",
+			#	"`chromStart` AS `start`,",
+			#	"`chromEnd` AS `end`,",
+			#	"`transcript` AS `gene_id`,",
+			#	"0 AS `gc_content`,",
+			#	"knownGene.strand AS `strand`,",
+			#	"`geneName` AS `gene_name`,",
+			#	"`source` AS `biotype`",
+			#	"FROM `knownCanonical` INNER JOIN `knownGene`", 
+			#	"ON knownCanonical.transcript=knownGene.name",
+			#	"INNER JOIN `knownToRefSeq`", 
+			#	"ON knownCanonical.transcript=knownToRefSeq.name",
+			#	"INNER JOIN `knownToEnsembl`",
+			#	"ON knownCanonical.transcript=knownToEnsembl.name",
+			#	"INNER JOIN `ensemblSource`",
+			#	"ON knownToEnsembl.value=ensemblSource.name",
+			#	"INNER JOIN `refFlat`",
+			#	"ON knownToRefSeq.value=refFlat.name",
+			#	"GROUP BY `gene_id`",
+			#	"ORDER BY `chromosome`,`start`"))
+			## No Ensembl source...
+			return(paste("SELECT knownCanonical.chrom AS `chromosome`,",
 				"`chromStart` AS `start`,",
 				"`chromEnd` AS `end`,",
 				"`transcript` AS `gene_id`,",
 				"0 AS `gc_content`,",
 				"knownGene.strand AS `strand`,",
 				"`geneName` AS `gene_name`,",
-				"`source` AS `biotype`",
-				"FROM `knownCanonical` INNER JOIN `knownGene`", 
+				"'NA' AS `biotype`",
+				"FROM `knownCanonical` INNER JOIN `knownGene`",
 				"ON knownCanonical.transcript=knownGene.name",
-				"INNER JOIN `knownToRefSeq`", 
+				"INNER JOIN `knownToRefSeq`",
 				"ON knownCanonical.transcript=knownToRefSeq.name",
-				"INNER JOIN `knownToEnsembl`",
-				"ON knownCanonical.transcript=knownToEnsembl.name",
-				"INNER JOIN `ensemblSource`",
-				"ON knownToEnsembl.value=ensemblSource.name",
 				"INNER JOIN `refFlat`",
 				"ON knownToRefSeq.value=refFlat.name",
-				"GROUP BY `gene_id`",
+				"GROUP BY gene_id",
 				"ORDER BY `chromosome`,`start`"))
         },
         rn5 = {
@@ -1114,7 +914,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         rn6 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1133,7 +933,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         dm3 = {
             return(paste("SELECT flyBaseCanonical.chrom AS `chromosome`,",
@@ -1177,7 +977,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`", 
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer7 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1196,7 +996,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"INNER JOIN `ensemblSource`",
 			"ON ensemblToGeneName.name=ensemblSource.name",
 			"GROUP BY `gene_name`",
-			"ORDER BY `chromosome`,`start`)"))
+			"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer10 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1215,31 +1015,32 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer11 = {
+			warning("No UCSC Genome annotation for Danio rerio v11! Will use ",
+                "RefSeq instead...",immediate.=TRUE)
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
 				"`gc_content`,`strand`,`gene_name`,`biotype` FROM",
 				"(SELECT MAX(`txEnd` - `txStart`) AS `width`,",
-				"mgcGenes.chrom AS `chromosome`,",
+				"refFlat.chrom AS `chromosome`,",
 				"`txStart` AS `start`,",
 				"`txEnd` AS `end`,",
-				"mgcGenes.name AS `gene_id`,",
+				"refFlat.name AS `gene_id`,",
 				"0 AS `gc_content`,",
-				"mgcGenes.strand AS `strand`,",
-				"`name2` AS `gene_name`,",
+				"refFlat.strand AS `strand`,",
+				"`geneName` AS `gene_name`,",
 				"`source` AS `biotype`",
-				"FROM `mgcGenes` INNER JOIN `ensemblToGeneName`", 
-				"ON mgcGenes.name2=ensemblToGeneName.value",
+				"FROM `refFlat` INNER JOIN `ensemblToGeneName`", 
+				"ON refFlat.geneName=ensemblToGeneName.value",
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         pantro4 = {
-            warning("No UCSC Genome annotation for Pan ",
-                "troglodytes v4! Will use RefSeq instead...",
-                immediate.=TRUE)
+            warning("No UCSC Genome annotation for Pan troglodytes v4! Will ",
+                "use RefSeq instead...",immediate.=TRUE)
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
 				"`gc_content`,`strand`,`gene_name`,`biotype` FROM",
 				"(SELECT MAX(`txEnd` - `txStart`) AS `width`,",
@@ -1256,7 +1057,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         pantro5 = {
             warning("No UCSC Genome annotation for Pan ",
@@ -1278,7 +1079,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         susscr3 = {
             warning("No UCSC Genome annotation for Sus ",
@@ -1300,7 +1101,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         susscr11 = {
             warning("No UCSC Genome annotation for Sus ",
@@ -1322,7 +1123,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         equcab2 = {
             warning("No UCSC Genome annotation for Equus ",
@@ -1344,7 +1145,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         }
     )
 }
@@ -1352,7 +1153,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 .getUcscQueryRefseqGene <- function(org) {
     switch(org,
         hg18 = {
-            return(paste("SELECT  refFlat.chrom AS `chromosome`,",
+            return(paste("SELECT refFlat.chrom AS `chromosome`,",
 				"refFlat.txStart AS `start`,",
 				"refFlat.txEnd AS `end`,",
 				"refFlat.name AS `gene_id`,",
@@ -1425,22 +1226,36 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
-            return(paste("SELECT refFlat.chrom AS `chromosome`,",
+            #return(paste("SELECT refFlat.chrom AS `chromosome`,",
+			#	"refFlat.txStart AS `start`,",
+			#	"refFlat.txEnd AS `end`,",
+			#	"refFlat.name AS `gene_id`,",
+			#	"0 AS `gc_content`,",
+			#	"refFlat.strand AS `strand`,",
+			#	"`geneName` AS `gene_name`,",
+			#	"`source` AS `biotype`",
+			#	"FROM `refFlat` INNER JOIN `knownToRefSeq`",
+			#	"ON refFlat.name=knownToRefSeq.value",
+			#	"INNER JOIN `knownCanonical`",
+			#	"ON knownToRefSeq.name=knownCanonical.transcript",
+			#	"INNER JOIN `knownToEnsembl`",
+			#	"ON knownCanonical.transcript=knownToEnsembl.name",
+			#	"INNER JOIN `ensemblSource`",
+			#	"ON knownToEnsembl.value=ensemblSource.name",
+			#	"GROUP BY refFlat.name",
+			#	"ORDER BY `chromosome`,`start`"))
+			return(paste("SELECT  refFlat.chrom AS `chromosome`,",
 				"refFlat.txStart AS `start`,",
 				"refFlat.txEnd AS `end`,",
 				"refFlat.name AS `gene_id`,",
 				"0 AS `gc_content`,",
 				"refFlat.strand AS `strand`,",
 				"`geneName` AS `gene_name`,",
-				"`source` AS `biotype`",
+				"'NA' AS `biotype`",
 				"FROM `refFlat` INNER JOIN `knownToRefSeq`",
 				"ON refFlat.name=knownToRefSeq.value",
 				"INNER JOIN `knownCanonical`",
 				"ON knownToRefSeq.name=knownCanonical.transcript",
-				"INNER JOIN `knownToEnsembl`",
-				"ON knownCanonical.transcript=knownToEnsembl.name",
-				"INNER JOIN `ensemblSource`",
-				"ON knownToEnsembl.value=ensemblSource.name",
 				"GROUP BY refFlat.name",
 				"ORDER BY `chromosome`,`start`"))
         },
@@ -1461,7 +1276,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         rn6 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1480,7 +1295,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         dm3 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1499,7 +1314,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         dm6 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1518,7 +1333,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer7 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1537,7 +1352,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer10 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1556,7 +1371,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer11 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1575,7 +1390,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         pantro4 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1594,7 +1409,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         pantro5 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1613,7 +1428,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         susscr3 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1632,7 +1447,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         susscr11 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1651,7 +1466,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         equcab2 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
@@ -1670,7 +1485,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         }
     )
 }
@@ -1678,19 +1493,21 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 .getUcscQueryUcscExon <- function(org) {
     switch(org,
         hg18 = {
-            return(paste("SELECT refFlat.chrom AS `chromosome`,",
-				"refFlat.exonStarts AS `start`,",
-				"refFlat.exonEnds AS `end`,",
-				"refFlat.name AS `exon_id`,",
-				"refFlat.strand AS `strand`,",
-				"refFlat.name AS `transcript_id`,",
+            return(paste("SELECT knownGene.chrom AS `chromosome`,",
+				"knownGene.exonStarts AS `start`,",
+				"knownGene.exonEnds AS `end`,",
+				"knownGene.name AS `exon_id`,",
+				"knownGene.strand AS `strand`,",
+				"`transcript` AS `gene_id`,",
 				"`geneName` AS `gene_name`,",
 				"'NA' AS `biotype`",
-				"FROM `refFlat` INNER JOIN `knownToRefSeq`" ,
-				"ON refFlat.name=knownToRefSeq.value",
-				"INNER JOIN `knownCanonical`" ,
-				"ON knownToRefSeq.name=knownCanonical.transcript",
-				"GROUP BY `exon_id`",
+				"FROM `knownGene` INNER JOIN `knownCanonical`", 
+				"ON knownGene.name=knownCanonical.transcript",
+				"INNER JOIN `knownToRefSeq`",
+				"ON knownCanonical.transcript=knownToRefSeq.name",
+				"INNER JOIN `refFlat`",
+				"ON knownToRefSeq.value=refFlat.name",
+				"GROUP BY knownGene.name",
 				"ORDER BY `chromosome`,`start`"))
         },
         hg19 = {
@@ -1757,22 +1574,39 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
-            return(paste("SELECT knownGene.chrom AS `chromosome`,",
+            #return(paste("SELECT knownGene.chrom AS `chromosome`,",
+			#	"knownGene.exonStarts AS `start`,",
+			#	"knownGene.exonEnds AS `end`,",
+			#	"knownGene.name AS `exon_id`,",
+			#	"knownGene.strand AS `strand`,",
+			#	"`transcript` AS `gene_id`,",
+			#	"`geneName` AS `gene_name`,",
+			#	"`source` AS `biotype`",
+			#	"FROM `knownGene` INNER JOIN `knownCanonical`",
+			#	"ON knownGene.name=knownCanonical.transcript",
+			#	"INNER JOIN `knownToRefSeq`",
+			#	"ON knownCanonical.transcript=knownToRefSeq.name",
+			#	"INNER JOIN `knownToEnsembl`",
+			#	"ON knownCanonical.transcript=knownToEnsembl.name",
+			#	"INNER JOIN `ensemblSource`",
+			#	"ON knownToEnsembl.value=ensemblSource.name",
+			#	"INNER JOIN `refFlat`",
+			#	"ON knownToRefSeq.value=refFlat.name",
+			#	"GROUP BY knownGene.name",
+			#	"ORDER BY `chromosome`,`start`"))
+			## No Ensembl source...
+			return(paste("SELECT knownGene.chrom AS `chromosome`,",
 				"knownGene.exonStarts AS `start`,",
 				"knownGene.exonEnds AS `end`,",
 				"knownGene.name AS `exon_id`,",
 				"knownGene.strand AS `strand`,",
 				"`transcript` AS `gene_id`,",
 				"`geneName` AS `gene_name`,",
-				"`source` AS `biotype`",
-				"FROM `knownGene` INNER JOIN `knownCanonical`",
+				"'NA' AS `biotype`",
+				"FROM `knownGene` INNER JOIN `knownCanonical`", 
 				"ON knownGene.name=knownCanonical.transcript",
 				"INNER JOIN `knownToRefSeq`",
 				"ON knownCanonical.transcript=knownToRefSeq.name",
-				"INNER JOIN `knownToEnsembl`",
-				"ON knownCanonical.transcript=knownToEnsembl.name",
-				"INNER JOIN `ensemblSource`",
-				"ON knownToEnsembl.value=ensemblSource.name",
 				"INNER JOIN `refFlat`",
 				"ON knownToRefSeq.value=refFlat.name",
 				"GROUP BY knownGene.name",
@@ -1801,7 +1635,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"mgcGenes.chrom AS `chromosome`,",
 				"`exonStarts` AS `start`,",
 				"`exonEnds` AS `end`,",
-				"mgcGenes.strand AS `strand`,",
 				"mgcGenes.name AS `exon_id`,",
 				"mgcGenes.strand AS `strand`,",
 				"mgcGenes.name AS `gene_id`,",
@@ -1812,7 +1645,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`" ,
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         dm3 = {
             return(paste("SELECT flyBaseCanonical.chrom AS `chromosome`,",
@@ -1820,7 +1653,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"flyBaseGene.exonEnds AS `end`,",
 				"`transcript` AS `exon_id`,",
 				"flyBaseGene.strand AS `strand`,",
-				"`transcript` AS `transcript_id`,",
+				"`transcript` AS `gene_id`,",
 				"`geneName` AS `gene_name`,",
 				"`source` AS `biotype`",
 				"FROM `flyBaseCanonical` INNER JOIN `flyBaseGene` ON",
@@ -1833,7 +1666,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"ON ensemblToGeneName.value=refFlat.geneName",
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
-				"GROUP BY `transcript_id`",
+				"GROUP BY `gene_id`",
 				"ORDER BY `chromosome`,`start`"))
         },
         dm6 = {
@@ -1856,7 +1689,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer7 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -1865,7 +1698,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"mgcGenes.chrom AS `chromosome`,",
 				"`exonStarts` AS `start`,",
 				"`exonEnds` AS `end`,",
-				"mgcGenes.strand AS `strand`,",
 				"mgcGenes.name AS `exon_id`,",
 				"mgcGenes.strand AS `strand`,",
 				"mgcGenes.name AS `gene_id`,",
@@ -1876,7 +1708,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer10 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -1885,7 +1717,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"mgcGenes.chrom AS `chromosome`,",
 				"`exonStarts` AS `start`,",
 				"`exonEnds` AS `end`,",
-				"mgcGenes.strand AS `strand`,",
 				"mgcGenes.name AS `exon_id`,",
 				"mgcGenes.strand AS `strand`,",
 				"mgcGenes.name AS `gene_id`,",
@@ -1896,32 +1727,32 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer11 = {
+			warning("No UCSC Genome annotation for Danio rerio v11! Will use ",
+                "RefSeq instead...",immediate.=TRUE)
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
 				"`strand`,`gene_id`,`gene_name`,`biotype` FROM",
 				"(SELECT MAX(`txEnd` - `txStart`) AS `width`,",
-				"mgcGenes.chrom AS `chromosome`,",
-				"`exonStarts` AS `start`,",
-				"`exonEnds` AS `end`,",
-				"mgcGenes.strand AS `strand`,",
-				"mgcGenes.name AS `exon_id`,",
-				"mgcGenes.strand AS `strand`,",
-				"mgcGenes.name AS `gene_id`,",
-				"`name2` AS `gene_name`,",
+				"refFlat.chrom AS `chromosome`,",
+				"refFlat.exonStarts AS `start`,",
+				"refFlat.exonEnds AS `end`,",
+				"refFlat.name AS `exon_id`,",
+				"refFlat.strand AS `strand`,",
+				"refFlat.name AS `gene_id`,",
+				"`geneName` AS `gene_name`,",
 				"`source` AS `biotype`",
-				"FROM `mgcGenes` INNER JOIN `ensemblToGeneName`",
-				"ON mgcGenes.name2=ensemblToGeneName.value",
+				"FROM `refFlat` INNER JOIN `ensemblToGeneName`", 
+				"ON ensemblToGeneName.value=refFlat.geneName",
 				"INNER JOIN `ensemblSource`",
-				"ON ensemblToGeneName.name=ensemblSource.name",
+				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         pantro4 = {
-            warning("No UCSC Genome annotation for Pan ",
-                "troglodytes v4! Will use RefSeq instead...",
-                immediate.=TRUE)
+            warning("No UCSC Genome annotation for Pan troglodytes v4! Will ",
+                "use RefSeq instead...",immediate.=TRUE)
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
 				"`strand`,`gene_id`,`gene_name`,`biotype` FROM",
 				"(SELECT MAX(`txEnd` - `txStart`) AS `width`,",
@@ -1938,7 +1769,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         pantro5 = {
             warning("No UCSC Genome annotation for Pan ",
@@ -1960,7 +1791,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         susscr3 = {
             warning("No UCSC Genome annotation for Sus ",
@@ -1982,7 +1813,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         susscr11 = {
             warning("No UCSC Genome annotation for Sus ",
@@ -2004,7 +1835,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         equcab2 = {
             warning("No UCSC Genome annotation for Equus ",
@@ -2026,7 +1857,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         }
     )
 }
@@ -2039,6 +1870,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"refFlat.exonEnds  AS `end`,",
 				"refFlat.name AS `exon_id`,",
 				"refFlat.strand AS `strand`,",
+				"refFlat.name AS `gene_id`,",
 				"`geneName` AS `gene_name`,",
 				"'NA' AS `biotype`",
 				"FROM `refFlat` INNER JOIN `knownToRefSeq`",
@@ -2054,6 +1886,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"refFlat.exonEnds  AS `end`,",
 				"refFlat.name AS `exon_id`,",
 				"refFlat.strand AS `strand`,",
+				"refFlat.name AS `gene_id`,",
 				"`geneName` AS `gene_name`,",
 				"`source` AS `biotype`",
 				"FROM `refFlat` INNER JOIN `knownToRefSeq`", 
@@ -2074,6 +1907,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"refFlat.exonEnds  AS `end`,",
 				"refFlat.name AS `exon_id`,",
 				"refFlat.strand AS `strand`,",
+				"refFlat.name AS `gene_id`,",
 				"`geneName` AS `gene_name`,",
 				"'NA' AS `biotype`",
 				"FROM `refFlat` INNER JOIN `knownToRefSeq`", 
@@ -2089,6 +1923,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"refFlat.exonEnds  AS `end`,",
 				"refFlat.name AS `exon_id`,",
 				"refFlat.strand AS `strand`,",
+				"refFlat.name AS `gene_id`,",
 				"`geneName` AS `gene_name`,",
 				"`source` AS `biotype`",
 				"FROM `refFlat` INNER JOIN `knownToRefSeq`",
@@ -2103,21 +1938,36 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
-            return(paste("SELECT refFlat.chrom AS `chromosome`,",
+            #return(paste("SELECT refFlat.chrom AS `chromosome`,",
+			#	"refFlat.exonStarts AS `start`,",
+			#	"refFlat.exonEnds  AS `end`,",
+			#	"refFlat.name AS `exon_id`,",
+			#	"refFlat.strand AS `strand`,",
+			#	"refFlat.name AS `gene_id`,",
+			#	"`geneName` AS `gene_name`,",
+			#	"`source` AS `biotype`",
+			#	"FROM `refFlat` INNER JOIN `knownToRefSeq`", 
+			#	"ON refFlat.name=knownToRefSeq.value",
+			#	"INNER JOIN `knownCanonical`",
+			#	"ON knownToRefSeq.name=knownCanonical.transcript",
+			#	"INNER JOIN `knownToEnsembl`",
+			#	"ON knownCanonical.transcript=knownToEnsembl.name",
+			#	"INNER JOIN `ensemblSource`",
+			#	"ON knownToEnsembl.value=ensemblSource.name",
+			#	"GROUP BY refFlat.name",
+			#	"ORDER BY `chromosome`,`start`"))
+			return(paste("SELECT refFlat.chrom AS `chromosome`,",
 				"refFlat.exonStarts AS `start`,",
 				"refFlat.exonEnds  AS `end`,",
 				"refFlat.name AS `exon_id`,",
 				"refFlat.strand AS `strand`,",
+				"refFlat.name AS `gene_id`,",
 				"`geneName` AS `gene_name`,",
-				"`source` AS `biotype`",
+				"'NA' AS `biotype`",
 				"FROM `refFlat` INNER JOIN `knownToRefSeq`", 
 				"ON refFlat.name=knownToRefSeq.value",
 				"INNER JOIN `knownCanonical`",
 				"ON knownToRefSeq.name=knownCanonical.transcript",
-				"INNER JOIN `knownToEnsembl`",
-				"ON knownCanonical.transcript=knownToEnsembl.name",
-				"INNER JOIN `ensemblSource`",
-				"ON knownToEnsembl.value=ensemblSource.name",
 				"GROUP BY refFlat.name",
 				"ORDER BY `chromosome`,`start`"))
         },
@@ -2138,7 +1988,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         rn6 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2157,7 +2007,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         dm3 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2176,7 +2026,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         dm6 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2195,7 +2045,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer7 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2214,7 +2064,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer10 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2233,7 +2083,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         danrer11 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2252,7 +2102,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         pantro4 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2271,7 +2121,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         pantro5 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2290,7 +2140,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         susscr3 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2309,7 +2159,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         susscr11 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2328,7 +2178,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         },
         equcab2 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
@@ -2347,7 +2197,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name", 
 				"GROUP BY `gene_name`",
-				"ORDER BY `chromosome`,`start`)"))
+				"ORDER BY `chromosome`,`start`) AS tmp"))
         }
     )
 }
@@ -2424,22 +2274,36 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
-            return(paste("SELECT knownGene.chrom AS `chromosome`,",
+            #return(paste("SELECT knownGene.chrom AS `chromosome`,",
+			#	"knownGene.txStart AS `start`,",
+			#	"knownGene.txEnd AS `end`,",
+			#	"knownGene.name AS `transcript_id`,",
+			#	"knownGene.strand AS `strand`,",
+			#	"`geneName` AS `gene_name`,",
+			#	"`source` AS `biotype`",
+			#	"FROM `knownGene` INNER JOIN `knownToRefSeq`", 
+			#	"ON knownGene.name=knownToRefSeq.name",
+			#	"INNER JOIN `knownToEnsembl`",
+			#	"ON knownGene.name=knownToEnsembl.name",
+			#	"INNER JOIN `ensemblSource`",
+			#	"ON knownToEnsembl.value=ensemblSource.name",
+			#	"INNER JOIN `refFlat` ON",
+			#	"knownToRefSeq.value=refFlat.name",
+			#	"GROUP BY `transcript_id`",
+			#	"ORDER BY `chromosome`,`start`"))
+			## No ensemblSource...
+			return(paste("SELECT knownGene.chrom AS `chromosome`,",
 				"knownGene.txStart AS `start`,",
 				"knownGene.txEnd AS `end`,",
 				"knownGene.name AS `transcript_id`,",
 				"knownGene.strand AS `strand`,",
 				"`geneName` AS `gene_name`,",
-				"`source` AS `biotype`",
-				"FROM `knownGene` INNER JOIN `knownToRefSeq`", 
+				"'NA' AS `biotype`",
+				"FROM `knownGene` INNER JOIN `knownToRefSeq`",
 				"ON knownGene.name=knownToRefSeq.name",
-				"INNER JOIN `knownToEnsembl`",
-				"ON knownGene.name=knownToEnsembl.name",
-				"INNER JOIN `ensemblSource`",
-				"ON knownToEnsembl.value=ensemblSource.name",
-				"INNER JOIN `refFlat` ON",
-				"knownToRefSeq.value=refFlat.name",
-				"GROUP BY `transcript_id`",
+				"INNER JOIN `refFlat`",
+				"ON knownToRefSeq.value=refFlat.name",
+				"GROUP BY knownGene.name",
 				"ORDER BY `chromosome`,`start`"))
         },
         rn5 = {
@@ -2540,15 +2404,17 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"ORDER BY `chromosome`,`start`"))
         },
         danrer11 = {
-            return(paste("SELECT mgcGenes.chrom AS `chromosome`,",
-				"`txStart` AS `start`,",
-				"`txEnd` AS `end`,",
-				"mgcGenes.name AS `transcript_id`,",
-				"mgcGenes.strand AS `strand`,",
-				"`name2` AS `gene_name`,",
+			warning("No UCSC Genome annotation for Danio rerio v11! Will use ",
+                "RefSeq instead...",immediate.=TRUE)
+            return(paste("SELECT refFlat.chrom AS `chromosome`,",
+				"refFlat.txStart AS `start`,",
+				"refFlat.txEnd AS `end`,",
+				"refFlat.name AS `transcript_id`,",
+				"refFlat.strand AS `strand`,",
+				"`geneName` AS `gene_name`,",
 				"`source` AS `biotype`",
-				"FROM `mgcGenes` INNER JOIN `ensemblToGeneName`", 
-				"ON mgcGenes.name2=ensemblToGeneName.value",
+				"FROM `refFlat` INNER JOIN `ensemblToGeneName`", 
+				"ON refFlat.geneName=ensemblToGeneName.value",
 				"INNER JOIN `ensemblSource`",
 				"ON ensemblToGeneName.name=ensemblSource.name",
 				"GROUP BY `transcript_id`",
@@ -2650,12 +2516,11 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 .getUcscQueryRefseqTranscript <- function(org) {
     switch(org,
         hg18 = {
-            return(paste("SELECT  refFlat.chrom AS `chromosome`,",
+            return(paste("SELECT refFlat.chrom AS `chromosome`,",
 				"refFlat.txStart AS `start`,",
 				"refFlat.txEnd AS `end`,",
 				"refFlat.name AS `transcript_id`,",
 				"refFlat.strand AS `strand`,",
-				"refFlat.name AS `gene_id`",
 				"`geneName` AS `gene_name`,",
 				"'NA' AS `biotype`",
 				"FROM `refFlat` INNER JOIN `knownToRefSeq`",
@@ -2684,11 +2549,10 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
         },
         hg38 = {
 			# Should be the same as hg19 but is as hg18
-            return(paste("SELECT  refFlat.chrom AS `chromosome`,",
+            return(paste("SELECT refFlat.chrom AS `chromosome`,",
 				"refFlat.txStart AS `start`,",
 				"refFlat.txEnd AS `end`,",
-				"refFlat.name AS `gene_id`,",
-				"0 AS `gc_content`,",
+				"refFlat.name AS `transcript_id`,",
 				"refFlat.strand AS `strand`,",
 				"`geneName` AS `gene_name`,",
 				"'NA' AS `biotype`",
@@ -2696,7 +2560,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"ON refFlat.name=knownToRefSeq.value",
 				"INNER JOIN `knownCanonical`",
 				"ON knownToRefSeq.name=knownCanonical.transcript",
-				"ORDER BY `chromosome`,`start`"))
+				"ORDER BY `chromosome`, `start`"))
         },
         mm9 = {
             return(paste("SELECT refFlat.chrom AS `chromosome`,",
@@ -2717,22 +2581,34 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 				"ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
-            return(paste("SELECT refFlat.chrom AS `chromosome`,",
+            #return(paste("SELECT refFlat.chrom AS `chromosome`,",
+			#	"refFlat.txStart AS `start`,",
+			#	"refFlat.txEnd AS `end`,",
+			#	"refFlat.name AS `transcript_id`,",
+			#	"refFlat.strand AS `strand`,",
+			#	"`geneName` AS `gene_name`,",
+			#	"`source` AS `biotype`",
+			#	"FROM `refFlat` INNER JOIN `knownToRefSeq`",
+			#	"ON refFlat.name=knownToRefSeq.value",
+			#	"INNER JOIN `knownCanonical`",
+			#	"ON knownToRefSeq.name=knownCanonical.transcript",
+			#	"INNER JOIN `knownToEnsembl`",
+			#	"ON knownCanonical.transcript=knownToEnsembl.name",
+			#	"INNER JOIN `ensemblSource`",
+			#	"ON knownToEnsembl.value=ensemblSource.name",
+			#	"ORDER BY `chromosome`,`start`"))
+			return(paste("SELECT refFlat.chrom AS `chromosome`,",
 				"refFlat.txStart AS `start`,",
 				"refFlat.txEnd AS `end`,",
 				"refFlat.name AS `transcript_id`,",
 				"refFlat.strand AS `strand`,",
 				"`geneName` AS `gene_name`,",
-				"`source` AS `biotype`",
+				"'NA' AS `biotype`",
 				"FROM `refFlat` INNER JOIN `knownToRefSeq`",
 				"ON refFlat.name=knownToRefSeq.value",
 				"INNER JOIN `knownCanonical`",
 				"ON knownToRefSeq.name=knownCanonical.transcript",
-				"INNER JOIN `knownToEnsembl`",
-				"ON knownCanonical.transcript=knownToEnsembl.name",
-				"INNER JOIN `ensemblSource`",
-				"ON knownToEnsembl.value=ensemblSource.name",
-				"ORDER BY `chromosome`,`start`"))
+				"ORDER BY `chromosome`, `start`"))
         },
         rn5 = {
             return(paste("SELECT refFlat.chrom AS `chromosome`,",
@@ -2958,4 +2834,278 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 	name <- paste(org,"_",refdb,".sqlite",sep="")
 	file.copy(dbTmp,file.path(to,name),recursive=TRUE)
 	return()
+}
+
+.localTblDef <- function() {
+	return(list(
+		enable_fkey="PRAGMA foreign_keys=1;",
+		content=paste(
+			"CREATE TABLE IF NOT EXISTS content (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"source TEXT,",
+			"organism TEXT,",
+			"version INTEGER,",
+			"type TEXT,",
+			"user INTEGER",
+			");"
+		),
+		seqinfo=paste(
+			"CREATE TABLE IF NOT EXISTS seqinfo (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"chromosome TEXT,",
+			"length INTEGER,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		active_length=paste(
+			"CREATE TABLE IF NOT EXISTS active_length (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"name TEXT,",
+			"length INTEGER,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		gene=paste(
+			"CREATE TABLE IF NOT EXISTS gene (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"chromosome TEXT,",
+			"start INTEGER,",
+			"end INTEGER,",
+			"gene_id TEXT,",
+			"gc_content REAL,",
+			"strand TEXT,",
+			"gene_name TEXT,",
+			"biotype TEXT,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		transcript=paste(
+			"CREATE TABLE IF NOT EXISTS transcript (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"chromosome TEXT,",
+			"start INTEGER,",
+			"end INTEGER,",
+			"transcript_id TEXT,",
+			"gene_id TEXT,",
+			"strand TEXT,",
+			"gene_name TEXT,",
+			"biotype TEXT,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		exon=paste(
+			"CREATE TABLE IF NOT EXISTS exon (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"chromosome TEXT,",
+			"start INTEGER,",
+			"end INTEGER,",
+			"exon_id TEXT,",
+			"gene_id TEXT,",
+			"strand TEXT,",
+			"gene_name TEXT,",
+			"biotype TEXT,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		utr=paste(
+			"CREATE TABLE IF NOT EXISTS utr (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"chromosome TEXT,",
+			"start INTEGER,",
+			"end INTEGER,",
+			"transcript_id TEXT,",
+			"gene_id TEXT,",
+			"strand TEXT,",
+			"gene_name TEXT,",
+			"biotype TEXT,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		summarized_transcript=paste(
+			"CREATE TABLE IF NOT EXISTS summarized_transcript (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"chromosome TEXT,",
+			"start INTEGER,",
+			"end INTEGER,",
+			"transcript_id TEXT,",
+			"gene_id TEXT,",
+			"strand TEXT,",
+			"gene_name TEXT,",
+			"biotype TEXT,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		summarized_exon=paste(
+			"CREATE TABLE IF NOT EXISTS summarized_exon (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"chromosome TEXT,",
+			"start INTEGER,",
+			"end INTEGER,",
+			"exon_id TEXT,",
+			"gene_id TEXT,",
+			"strand TEXT,",
+			"gene_name TEXT,",
+			"biotype TEXT,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		summarized_3utr=paste(
+			"CREATE TABLE IF NOT EXISTS summarized_3utr (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"chromosome TEXT,",
+			"start INTEGER,",
+			"end INTEGER,",
+			"transcript_id TEXT,",
+			"gene_id TEXT,",
+			"strand TEXT,",
+			"gene_name TEXT,",
+			"biotype TEXT,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		summarized_3utr_transcript=paste(
+			"CREATE TABLE IF NOT EXISTS summarized_3utr_transcript (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"chromosome TEXT,",
+			"start INTEGER,",
+			"end INTEGER,",
+			"transcript_id TEXT,",
+			"gene_id TEXT,",
+			"strand TEXT,",
+			"gene_name TEXT,",
+			"biotype TEXT,",
+			#"source TEXT,",
+			#"organism TEXT,",
+			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		)
+	))
+}
+
+.makeAnnotationQuerySet <- function(t,i,j=NULL) {
+	mainQuery <- paste("SELECT * FROM ",t," WHERE content_id=",i,sep="")
+	seqInfoQuery <- paste("SELECT * FROM seqinfo WHERE content_id=",i,sep="")
+	activeQuery <- NULL
+	if (t == "summarized_exon" && !is.null(j))
+		activeQuery <- paste("SELECT * FROM active_length WHERE content_id=",
+			j,sep="")
+	return(list(
+		main=mainQuery,
+		seqinfo=seqInfoQuery,
+		active=activeQuery
+	))
+}
+
+.insertContent <- function(con,o,s,v,t,u=0) {
+	query <- paste(
+		"INSERT INTO content (source, organism, version, type, user) ",
+		"VALUES (",paste("'",s,"', ","'",o,"', ",v,", '",t,"', ",u,sep=""),")",
+		sep=""
+	)
+	nr <- dbExecute(con,query)
+	return(nr)
+}
+
+.browseContent <- function(con) {
+	return(dbGetQuery(con,"SELECT * FROM content"))
+}
+
+.browseUserContent <- function(con) {
+	return(dbGetQuery(con,"SELECT * FROM content WHERE user=1"))
+}
+
+.annotationExists <- function(con,o,s,v=NULL,t=NULL,out=c("tf","nr","id")) {
+	out <- out[1]
+	query <- paste("SELECT _id FROM content WHERE source='",s,
+		"' AND organism='",o,"'",sep="")
+	if (!is.null(v))
+		query <- paste(query," AND version=",v,sep="")
+	if (!is.null(t))
+		query <- paste(query," AND type='",t,"'",sep="")
+	res <- dbGetQuery(con,query)
+	if (out == "tf")
+		return(nrow(res) > 0)
+	else if (out=="nr")
+		return(nrow(res))
+	else if (out == "id") {
+		if (nrow(res) > 0)
+			return(res[1,1])
+	}
+}
+
+.dropAnnotation <- function(con,o,s,v,t) {
+	# At least organism must exist
+	if (missing(o))
+		stop("At least an organism name must be provided for deletion!")
+	# A basic deletion query based on organism. Since the content table is
+	# connected with the rest through foreing keys, deletion from there should
+	# be enough.
+	query <- paste("DELETE FROM content WHERE organism='",o,"'",sep="")
+	# Augment according to given arguments.
+	if (!missing(s))
+		query <- paste(query," AND source='",s,"'",sep="")
+	if (!missing(v))
+		query <- paste(query," AND version=",v,sep="")
+	if (!missing(t))
+		query <- paste(query," AND type='",t,"'",sep="")
+	# Execute
+	nr <- dbExecute(con,query)
+	return(nr)
+}
+
+.installedVersions <- function(con,o,s) {
+	query <- paste(
+		"SELECT version FROM content WHERE source='",s,"' AND organism='",o,"'",
+		sep=""
+	)
+	res <- dbGetQuery(con,query)
+	if (nrow(res) > 0)
+		return(as.numeric(res[,1]))
+	else
+		return(NA)
+}
+
+.existingOrganisms <- function(con) {
+	query <- paste(
+		"SELECT version FROM content WHERE source='",s,"' AND organism='",o,"'",
+		sep=""
+	)
 }

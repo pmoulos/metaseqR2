@@ -1,43 +1,10 @@
-#' Filter gene expression based on exon counts
-#'
-#' This function performs the gene expression filtering based on exon read counts 
-# and a set of exon filter rules. For more details see the main help pages of 
-#' \code{\link{metaseqr}}.
-#'
-#' @param theCounts a named list created with the \code{\link{construct.gene.model}} 
-#' function. See its help page for details.
-#' @param geneData an annotation data frame usually obtained with 
-#' \code{\link{getAnnotation}} containing the unique gene accession identifiers.
-#' @param sampleList the list containing condition names and the samples under 
-#' each condition.
-#' @param exonFilters a named list with exon filters and their parameters. See 
-#' the main help page of \code{\link{metaseqr}} for details.
-#' @param restrict.cores in case of parallel execution of several subfunctions, 
-#' the fraction of the available cores to use. In some cases if all available 
-#' cores are used (\code{restrict.cores=1} and the system does not have sufficient 
-#' RAM, the running machine might significantly slow down.
-#' @return a named list with two members. The first member (\code{result} is a 
-#' named list whose names are the exon filter names and its members are the filtered 
-#' rownames of \code{geneData}. The second member is a matrix of binary flags 
-#' (0 for non-filtered, 1 for filtered) for each gene. The rownames of the flag 
-#' matrix correspond to gene ids.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' data("hg19.exonData",package="metaseqR")
-#' exonCounts <- hg19.exonCounts
-#' geneData <- getAnnotation("hg19","gene")
-#' sampleList <- sampleList.hg19
-#' exonFilters <- getDefaults("exonFilter")
-#' theCounts <- construct.gene.model(exonCounts,sampleList,geneData)
-#' filter.results <- filterExons(theCounts,geneData,sampleList,exonFilters)
-#'}
 filterExons <- function(theCounts,geneData,sampleList,exonFilters,rc=0.8) {
     exonFilterResult <- vector("list",length(exonFilters))
     names(exonFilterResult) <- names(exonFilters)
-    flags <- matrix(0,nrow(geneData),1)
-    rownames(flags) <- rownames(geneData)
+    #flags <- matrix(0,nrow(geneData),1)
+    #rownames(flags) <- rownames(geneData)
+    flags <- matrix(0,length(geneData),1)
+    rownames(flags) <- names(geneData)
     colnames(flags) <- c("MAE")
     theGenes <- as.character(geneData$gene_id)
     if (!is.null(exonFilters)) {
@@ -52,20 +19,37 @@ filterExons <- function(theCounts,geneData,sampleList,exonFilters,rc=0.8) {
                         pass[[n]] <- theGenes
                         names(pass[[n]]) <- theGenes
                         pass[[n]] <- cmclapply(theCounts[[n]],function(x,f) {
-                            if (length(x$count) == 1)
-                                if (x$count[1]!=0)
+                            #if (length(x$count) == 1)
+                            #    if (x$count[1]!=0)
+                            #        return(FALSE)
+                            #    else
+                            #        return(TRUE)
+                            #else if (length(x$count) > 1 &&
+                            #    length(x$count) <= f$exonsPerGene)
+                            #    if (length(which(x$count!=0)) >= f$minExons)
+                            #        return(FALSE)
+                            #    else
+                            #        return(TRUE)
+                            #else
+                            #    if (length(which(x$count!=0)) >=
+                            #        ceiling(length(x$count)*f$frac))
+                            #        return(FALSE)
+                            #    else
+                            #        return(TRUE)
+                            if (length(x) == 1)
+                                if (x[1]!=0)
                                     return(FALSE)
                                 else
                                     return(TRUE)
-                            else if (length(x$count) > 1 &&
-                                length(x$count) <= f$exonsPerGene)
-                                if (length(which(x$count!=0)) >= f$minExons)
+                            else if (length(x) > 1 &&
+                                length(x) <= f$exonsPerGene)
+                                if (length(which(x!=0)) >= f$minExons)
                                     return(FALSE)
                                 else
                                     return(TRUE)
                             else
-                                if (length(which(x$count!=0)) >=
-                                    ceiling(length(x$count)*f$frac))
+                                if (length(which(x!=0)) >=
+                                    ceiling(length(x)*f$frac))
                                     return(FALSE)
                                 else
                                     return(TRUE)
@@ -85,37 +69,6 @@ filterExons <- function(theCounts,geneData,sampleList,exonFilters,rc=0.8) {
     return(list(result=exonFilterResult,flags=flags))
 }
 
-#' Filter gene expression based on gene counts
-#'
-#' This function performs the gene expression filtering based on gene read counts 
-#' and a set of gene filter rules. For more details see the main help pages of 
-#' \code{\link{metaseqr}}.
-#'
-#' @param geneCounts a matrix of gene counts, preferably after the normalization 
-#' procedure.
-#' @param geneData an annotation data frame usually obtained with 
-#' \code{\link{getAnnotation}} containing the unique gene accession identifiers.
-#' @param geneFilters a named list with gene filters and their parameters. See 
-#' the main help page of \code{\link{metaseqr}} for details.
-#' @return a named list with three members. The first member (\code{result} is a 
-#' named list whose names are the gene filter names and its members are the 
-#' filtered rownames of \code{geneData}. The second member (\code{cutoff} is a 
-#' named list whose names are the gene filter names and its members are the cutoff 
-#' values corresponding to each filter. The third member is a matrix of binary
-#' flags (0 for non-filtered, 1 for filtered) for each gene. The rownames of the 
-#' flag matrix correspond to gene ids.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' data("mm9.geneData",package="metaseqR")
-#' geneCounts <- mm9.geneCounts
-#' sampleList <- mm9.sampleList
-#' geneCounts <- normalizeEdger(as.matrix(geneCounts[,9:12]),sampleList)
-#' geneData <- getAnnotation("mm9","gene")
-#' geneFilters <- getDefaults("geneFilter","mm9")
-#' filter.results <- filterGenes(geneCounts,geneData,geneFilters)
-#'}
 filterGenes <- function(geneCounts,geneData,geneFilters,sampleList) {
     geneFilterResult <- geneFilterCutoff <- vector("list",
         length(geneFilters))
