@@ -1,8 +1,6 @@
 filterExons <- function(theCounts,geneData,sampleList,exonFilters,rc=0.8) {
     exonFilterResult <- vector("list",length(exonFilters))
     names(exonFilterResult) <- names(exonFilters)
-    #flags <- matrix(0,nrow(geneData),1)
-    #rownames(flags) <- rownames(geneData)
     flags <- matrix(0,length(geneData),1)
     rownames(flags) <- names(geneData)
     colnames(flags) <- c("MAE")
@@ -82,13 +80,12 @@ filterGenes <- function(geneCounts,geneData,geneFilters,sampleList) {
         switch(gf,
             length = { # This is real gene length independently of exons
                 if (!is.null(geneFilters$length)) {
-                    geneFilterResult$length <- rownames(geneData)[which(
-                        geneData$end - geneData$start <
-                            geneFilters$length$length
+                    geneFilterResult$length <- names(geneData)[which(
+                        width(geneData) < geneFilters$length$length
                     )]
                     geneFilterCutoff$length <- geneFilters$length$length
                     flags[intersect(geneFilterResult$length,
-                        rownames(geneCounts)),"LN"] <- 1
+                        names(geneCounts)),"LN"] <- 1
                     disp("  Threshold below which ignored: ",
                         geneFilters$length$length)
                 }
@@ -101,14 +98,14 @@ filterGenes <- function(geneCounts,geneData,geneFilters,sampleList) {
                     if (!is.null(len))
                         len <- len[rownames(geneCounts)]
                     else {
-                        gg <- geneData[rownames(geneCounts),]
-                        len <- gg$end - gg$start
+                        gg <- geneData[rownames(geneCounts)]
+                        len <- width(gg)
                     }
                     avgMat <- sweep(geneCounts,1,
                         len/geneFilters$avgReads$averagePerBp,"/")
                     qua <- max(apply(avgMat,2,quantile,
                         geneFilters$avgReads$quantile))
-                    geneFilterResult$avgReads <- rownames(geneData)[which(
+                    geneFilterResult$avgReads <- names(geneData)[which(
                         apply(avgMat,1,filterLow,qua))]
                     geneFilterCutoff$avgReads <- qua
                     flags[intersect(geneFilterResult$avgReads,
@@ -206,7 +203,7 @@ filterGenes <- function(geneCounts,geneData,geneFilters,sampleList) {
                     filterInd <- vector("list",length(filterOut))
                     names(filterInd) <- filterOut
                     for (bt in filterOut)
-                        filterInd[[bt]] <- rownames(geneData)[which(
+                        filterInd[[bt]] <- names(geneData)[which(
                             geneData$biotype==bt)]
                     geneFilterResult$biotype <- Reduce("union",filterInd)
                     geneFilterCutoff$biotype <- paste(filterOut,

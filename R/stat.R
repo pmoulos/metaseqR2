@@ -688,6 +688,15 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
+    if (!is.null(geneData) && is(geneData,"GenomicRanges")) {
+		gl <- NULL
+		if (!is.null(attr(geneData,"geneLength")))
+			gl <- attr(geneData,"geneLength")
+		geneData <- as.data.frame(geneData)
+		geneData <- geneData[,c(1:3,6,7,5,8,9)]
+		if (!is.null(gl))
+			attr(geneData,"geneLength") <- gl
+	}
     if (is.null(geneData)) {
         gcContent <- NULL
         chromosome <- NULL

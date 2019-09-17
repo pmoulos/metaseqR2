@@ -39,7 +39,7 @@
 #'   start=starts,end=ends,gene_id=rownames(data.matrix),gc_content=gc
 #' )
 #' norm.data.matrix <- normalizeEdaseq(data.matrix,sampleList,geneData=geneData)
-#' diagplotBoxplot(norm.data.matrix,sampleList)
+#' diagplotBoxplot(norm.data.matrix,sampleList)      
 #'}
 normalizeEdaseq <- function(geneCounts,sampleList,normArgs=NULL,
     geneData=NULL,output=c("matrix","native")) {
@@ -47,6 +47,15 @@ normalizeEdaseq <- function(geneCounts,sampleList,normArgs=NULL,
         normArgs <- getDefaults("normalization","edaseq")
     if (!is.matrix(geneCounts))
         geneCounts <- as.matrix(geneCounts)
+	if (!is.null(geneData) && is(geneData,"GenomicRanges")) {
+		gl <- NULL
+		if (!is.null(attr(geneData,"geneLength")))
+			gl <- attr(geneData,"geneLength")
+		geneData <- as.data.frame(geneData)
+		geneData <- geneData[,c(1:3,6,7,5,8,9)]
+		if (!is.null(gl))
+			attr(geneData,"geneLength") <- gl
+	}
     if (!is.null(geneData) && is.null(attr(geneData,"geneLength")))
         attr(geneData,"geneLength") <- rep(1,nrow(geneCounts))
     output <- tolower(output[1])
@@ -302,6 +311,15 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
     output <- tolower(output[1])
     checkTextArgs("output",output,c("matrix","native"))
     classes <- asClassVector(sampleList)
+    if (!is.null(geneData) && is(geneData,"GenomicRanges")) {
+		gl <- NULL
+		if (!is.null(attr(geneData,"geneLength")))
+			gl <- attr(geneData,"geneLength")
+		geneData <- as.data.frame(geneData)
+		geneData <- geneData[,c(1:3,6,7,5,8,9)]
+		if (!is.null(gl))
+			attr(geneData,"geneLength") <- gl
+	}
     if (is.null(geneData)) {
         nsObj <- NOISeq::readData(
             data=geneCounts,

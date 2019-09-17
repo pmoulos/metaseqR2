@@ -53,6 +53,11 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     otherPlots <- c("filtered")
     vennPlots <- c("venn")
     files <- list()
+    
+    if (is(annotation,"GenomicRanges")) {
+		annotation <- as.data.frame(annotation)
+		annotation <- annotation[,c(1:3,6,7,5,8,9)]
+	}
 
     for (p in plotType) {
         disp("  Plotting ",p,"...")

@@ -200,7 +200,25 @@ checkPackages <- function(m,p) {
         backArgs$backDetected <- TRUE
         backArgs$mixDetected <- FALSE
         backArgs$args <- args[oldInCall]
-       return(backArgs)
+        
+        # If old call contains id.col, gc.col, name.col or bt.col, these must be
+        # grouped. We define anyway and fill them as needed.
+        backArgs$args$embedCols <- list(
+			idCol=NA,
+			gcCol=NA,
+			nameCol=NA,
+			btCol=NA
+        )
+        if ("id.col" %in% oldInCall)
+			backArgs$args$embedCols$idCol <- args$id.col
+		if ("gc.col" %in% oldInCall)
+			backArgs$args$embedCols$gcCol <- args$gc.col
+		if ("name.col" %in% oldInCall)
+			backArgs$args$embedCols$nameCol <- args$name.col
+		if ("bt.col" %in% oldInCall)
+			backArgs$args$embedCols$btCol <- args$bt.col
+        
+        return(backArgs)
     }
     else
         return(list(backDetected=FALSE,mixDetected=FALSE,args=NULL))
@@ -209,7 +227,21 @@ checkPackages <- function(m,p) {
 .backwardsMapOld2New <- function() {
     oldArgNames <- .getBackwardsValidArgs()
     newArgNames <- .getValidArgs()
+    
+    # The main differences are: i) there is no gene.file in the new args,
+    # ii) the idCol, gcCol, nameCol and btCol arguments are within embedCols
     map <- list()
+    
+    # 1. Remove "id.col","gc.col","name.col","bt.col" from old arguments so as
+    # to group them. Remove also gene.file.
+    r1 <- match(c("id.col","gc.col","name.col","bt.col","gene.file"),
+		oldArgNames)
+    oldArgNames <- oldArgNames[-r1]
+    # 2. Remove embedCols from new arguments as they can't be mapped directly
+    r2 <- match("embedCols",newArgNames)
+    newArgNames <- newArgNames[-r2]
+    
+    # We can now map
     map[oldArgNames] <- newArgNames
     return(map)
 }
@@ -217,8 +249,8 @@ checkPackages <- function(m,p) {
 .getValidArgs <- function() {
     return(c(
         "counts","sampleList","excludeList","fileType","path","contrast",
-        "libsizeList","embedCols","annotation","geneFile","org","transLevel",
-        "countType","utrFlank","exonFilters","geneFilters","whenApplyFilter",
+        "libsizeList","embedCols","annotation","org","transLevel","countType",
+        "utrFlank","exonFilters","geneFilters","whenApplyFilter",
         "normalization","normArgs","statistics","statArgs","adjustMethod",
         "metaP","weight","nperm","reprod","pcut","logOffset","preset","qcPlots",
         "figFormat","outList","exportWhere","exportWhat","exportScale",

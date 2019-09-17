@@ -1,23 +1,28 @@
 buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
     sampleList,cnt,statistics,
     rawList,normList,
-    pMat=matrix(NA,nrow(geneData),length(statistics)),
-    adjpMat=matrix(NA,nrow(geneData),length(statistics)),
-    sumP=rep(NA,nrow(geneData)),
-    adjSumP=rep(NA,nrow(geneData)),
+    pMat=matrix(NA,length(geneData),length(statistics)),
+    adjpMat=matrix(NA,length(geneData),length(statistics)),
+    sumP=rep(NA,length(geneData)),
+    adjSumP=rep(NA,length(geneData)),
     exportWhat=c("annotation","p_value","adj_p_value","meta_p_value",
         "adj_meta_p_value","fold_change","stats","counts","flags"),
     exportScale=c("natural","log2","log10","rpgm","vst"),
     exportValues=c("raw","normalized"),
     exportStats=c("mean","median","sd","mad","cv","rcv"),
-    logOffset=1,report=TRUE) {    
+    logOffset=1,report=TRUE) {
+	if (is(geneData,"GenomicRanges")) {
+		geneData <- as.data.frame(geneData)
+		geneData <- geneData[,c(1:3,6,7,5,8,9)]
+	}
+		
     if (is.null(colnames(pMat)))
         colnames(pMat) <- statistics
     if (is.null(adjpMat))
         adjpMat=matrix(NA,nrow(geneData),length(statistics))
     if (is.null(colnames(adjpMat)))
         colnames(adjpMat) <- statistics
-
+	
     export <- data.frame(row.names=rownames(geneData))
     if (report) exportHtml <- as.matrix(export)
     theNames <- character(0)
