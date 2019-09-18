@@ -3,8 +3,11 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     "countsbio","saturation","readnoise","rnacomp","correl","pairs","boxplot",
     "gcbias","lengthbias","meandiff","meanvar","deheatmap","volcano","biodist",
     "filtered","venn"),isNorm=FALSE,output="x11",path=NULL,...) {
-    # annotation should have the format internally created here... This function
-    # can be used outside so it must be checked at some point...
+    if (is(object,"GenomicRanges")) {
+		object <- as.data.frame(object)
+		object <- object[,c(1:3,6,7,5,8,9)]
+		colnames(object)[1] <- "chromosome"
+	}
     if (!is.matrix(object) && !is.data.frame(object))
         stopwrap("object argument must be a matrix or data frame!")
     if (is.null(annotation) && any(plotType %in% c("biodetection",
@@ -33,6 +36,13 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
         path <- getwd()
     if (is.data.frame(object) && !("filtered" %in% plotType)) 
         object <- as.matrix(object)
+    
+    if (is(annotation,"GenomicRanges")) {
+		annotation <- as.data.frame(annotation)
+		annotation <- annotation[,c(1:3,6,7,5,8,9)]
+		colnames(annotation)[1] <- "chromosome"
+	}
+    
     if (any(plotType %in% c("biodetection","countsbio","saturation",
         "rnacomp","biodist","readnoise")))
         covars <- list(
@@ -54,11 +64,6 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     vennPlots <- c("venn")
     files <- list()
     
-    if (is(annotation,"GenomicRanges")) {
-		annotation <- as.data.frame(annotation)
-		annotation <- annotation[,c(1:3,6,7,5,8,9)]
-	}
-
     for (p in plotType) {
         disp("  Plotting ",p,"...")
         if (p %in% rawPlots && !isNorm) {

@@ -99,6 +99,11 @@ metaseqr <- function(
             " or new metaseqR2 arguments (e.g. sampleList)! Not both!")
     if (backCheckedArgs$backDetected) {
         argMap <- .backwardsMapOld2New()
+        # Check what happens with the new argument embedCols
+        if (!is.null(backCheckedArgs$args$embedCols)) {
+			embedCols <- backCheckedArgs$args$embedCols
+			backCheckedArgs$args$embedCols <- NULL
+		}
         for (n in names(backCheckedArgs$args))
             assign(argMap[[n]],eval(backCheckedArgs$args[[n]]))
         # There are some nested arguments that also need correction
@@ -321,7 +326,8 @@ metaseqr <- function(
 
     checkTextArgs("fileType",fileType,c("auto","sam","bam","bed"),
         multiarg=FALSE)
-    if (!is.null(annotation) && !file.exists(annotation))
+    if (!is.null(annotation) && !is.list(annotation) 
+		&& !file.exists(annotation))
 		checkTextArgs("annotation",annotation,"embedded",multiarg=FALSE)
 	if (!.userOrg(org,localDb) && is.null(annotation))
 		checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5","rn6",
@@ -395,7 +401,8 @@ metaseqr <- function(
     # Check the case of embedded annotation, not given gc and gene name columns
     # Checks about countType have been performed before
     if (!is.null(annotation) && annotation == "embedded") {
-        if (is.na(embedCols$gcCol) && countType=="gene")
+        if (is.na(embedCols$gcCol) && countType=="gene" 
+			&& normalization=="edaseq")
             stopwrap("The column that contains the gene GC content ",
                 "(\"embedCols$gcCol\") argument is required when ",
                 "\"annotation\" is \"embedded\"!")
@@ -418,7 +425,7 @@ metaseqr <- function(
                 "Biotype filters and certain plots will not be available...")
             geneFilters$biotype=NULL
             toRemove <- match(c("biodetection","countsbio","saturation",
-                "biodist","filtered"),qcPlots)
+                "biodist","filtered","rnacomp","readnoise"),qcPlots)
             noMatch <- which(is.na(toRemove))
             if (length(noMatch)>0)
                 toRemove <- toRemove[-noMatch]
@@ -688,6 +695,7 @@ metaseqr <- function(
         # provided
         if (!fromPrevious) {
 			# Load exon annotation
+			disp("Loading exon annotation...")
 			exonData <- tryCatch(loadAnnotation(org,refdb,level=transLevel,
 				type=countType,version=version,db=localDb,summarized=TRUE,
 				rc=restrictCores),
@@ -819,6 +827,7 @@ metaseqr <- function(
         # We need to load the utr annotation and see what counts have been
         # provided
         if (!fromPrevious) {
+			disp("Loading 3' UTR annotation...")
 			transcriptData <- tryCatch(loadAnnotation(org,refdb,
 				level=transLevel,type=countType,version=version,
 				summarized=TRUE,rc=restrictCores),error=function(e) {
@@ -1310,7 +1319,7 @@ metaseqr <- function(
             theDead <- setdiff(theDead,theZeroNames)
         
         # All method specific objects are row-index subsettable
-        if (length(theDead)>0) {
+        if (length(theDead) > 0) {
             # Store the filtered for later export or some stats
             geneCountsDead <- tempMatrix[theDead,]
             geneCountsUnnorm <- geneCountsUnnorm[theDead,]
@@ -1600,8 +1609,10 @@ metaseqr <- function(
     if (exportCountsTable) {
 		geneDataExprExp <- as.data.frame(geneDataExpr)
 		geneDataExprExp <- geneDataExprExp[,c(1:3,6,7,5,8,9)]
+		colnames(geneDataExprExp)[1] <- "chromosome"
 		geneDataFilteredExp <- as.data.frame(geneDataFiltered)
 		geneDataFilteredExp <- geneDataFilteredExp[,c(1:3,6,7,5,8,9)]
+		colnames(geneDataFilteredExp)[1] <- "chromosome"
         disp("Exporting and compressing normalized read counts table to ",
             file.path(PROJECT_PATH[["lists"]],"normalized_counts_table.txt"))
         expo <- cbind(
@@ -1697,7 +1708,6 @@ metaseqr <- function(
         rawList <- NULL
     if ("flags" %in% exportWhat)
         goodFlags <- flags[rownames(normGenesExpr),]
-        # Panos saved in goodFlags all NON-filtered genes so as take only them 
     else
         goodFlags <- NULL
 

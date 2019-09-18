@@ -28,6 +28,15 @@ read2count <- function(targets,annotation,fileType=targets$type,
 	else
 		annotationGr <- annotation
     
+    # Determine internal count type
+    if (length(grep("MET",annotation$transcript_id[1])) > 0
+		|| length(grep("MEU",annotation$transcript_id[1])) > 0)
+		countType <- "utr"
+	else if (length(grep("MEX",annotation$transcript_id[1])) > 0)
+		countType <- "exon"
+	else
+		countType <- "gene"
+    
     # If the count type is "exon", we must reduce overlapping exons belonging to
     # multiple transcripts, so as to avoid inflating the final read count when
     # summing all exons. Included here mostly for backwards compatibility, until

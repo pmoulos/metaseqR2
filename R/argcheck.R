@@ -19,19 +19,19 @@ checkTextArgs <- function(argName,argValue,argList,multiarg=FALSE) {
     else {
         argSave <- argValue[1]
         argValue <- tolower(argValue[1])
-        # An exception must be added for annotation because it can be an external 
-        # file too
-        if (argName=="annotation") { 
-            if (!(argValue %in% argList) && !file.exists(argSave))
-                stopwrap("\"",argName,"\""," parameter must be one of ",
-                    paste(paste("\"",argList,sep=""),collapse="\", "),
-                        "\" or an existing file!")
-        }
-        else {
+        # An exception must be added for annotation because it can be an  
+        # external file too
+        #if (argName=="annotation") { 
+        #    if (!(argValue %in% argList) && !file.exists(argSave))
+        #        stopwrap("\"",argName,"\""," parameter must be one of ",
+        #            paste(paste("\"",argList,sep=""),collapse="\", "),
+        #                "\" or an existing file!")
+        #}
+        #else {
             if (!(argValue %in% argList))
                 stopwrap("\"",argName,"\""," parameter must be one of ",
                     paste(paste("\"",argList,sep=""),collapse="\", "),"\"!")
-        }
+        #}
     }
 }
 
@@ -209,14 +209,22 @@ checkPackages <- function(m,p) {
 			nameCol=NA,
 			btCol=NA
         )
-        if ("id.col" %in% oldInCall)
+        if ("id.col" %in% oldInCall) {
 			backArgs$args$embedCols$idCol <- args$id.col
-		if ("gc.col" %in% oldInCall)
+			backArgs$args$id.col <- NULL
+		}
+		if ("gc.col" %in% oldInCall) {
 			backArgs$args$embedCols$gcCol <- args$gc.col
-		if ("name.col" %in% oldInCall)
+			backArgs$args$gc.col <- NULL
+		}
+		if ("name.col" %in% oldInCall) {
 			backArgs$args$embedCols$nameCol <- args$name.col
-		if ("bt.col" %in% oldInCall)
+			backArgs$args$name.col <- NULL
+		}
+		if ("bt.col" %in% oldInCall) {
 			backArgs$args$embedCols$btCol <- args$bt.col
+			backArgs$args$bt.col <- NULL
+		}
         
         return(backArgs)
     }

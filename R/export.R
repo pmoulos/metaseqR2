@@ -1,10 +1,16 @@
 buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
     sampleList,cnt,statistics,
     rawList,normList,
-    pMat=matrix(NA,length(geneData),length(statistics)),
-    adjpMat=matrix(NA,length(geneData),length(statistics)),
-    sumP=rep(NA,length(geneData)),
-    adjSumP=rep(NA,length(geneData)),
+    pMat=if (is(geneData,"GenomicRanges")) 
+		matrix(NA,length(geneData),length(statistics))
+		else matrix(NA,nrow(geneData),length(statistics)),
+    adjpMat=if (is(geneData,"GenomicRanges"))
+		matrix(NA,length(geneData),length(statistics))
+		else matrix(NA,nrow(geneData),length(statistics)),
+    sumP=if (is(geneData,"GenomicRanges")) rep(NA,length(geneData))
+		else rep(NA,nrow(geneData)),
+    adjSumP=if (is(geneData,"GenomicRanges")) rep(NA,length(geneData))
+		else rep(NA,nrow(geneData)),
     exportWhat=c("annotation","p_value","adj_p_value","meta_p_value",
         "adj_meta_p_value","fold_change","stats","counts","flags"),
     exportScale=c("natural","log2","log10","rpgm","vst"),
