@@ -26,20 +26,20 @@
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' diagplotBoxplot(data.matrix,sampleList)
+#' diagplotBoxplot(dataMatrix,sampleList)
 #'
-#' lengths <- round(1000*runif(nrow(data.matrix)))
-#' starts <- round(1000*runif(nrow(data.matrix)))
+#' lengths <- round(1000*runif(nrow(dataMatrix)))
+#' starts <- round(1000*runif(nrow(dataMatrix)))
 #' ends <- starts + lengths
-#' gc <- runif(nrow(data.matrix))
+#' gc <- runif(nrow(dataMatrix))
 #' geneData <- data.frame(
-#'   chromosome=c(rep("chr1",nrow(data.matrix)/2),rep("chr2",nrow(data.matrix)/2)),
-#'   start=starts,end=ends,gene_id=rownames(data.matrix),gc_content=gc
+#'   chromosome=c(rep("chr1",nrow(dataMatrix)/2),rep("chr2",nrow(dataMatrix)/2)),
+#'   start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc
 #' )
-#' norm.data.matrix <- normalizeEdaseq(data.matrix,sampleList,geneData=geneData)
-#' diagplotBoxplot(norm.data.matrix,sampleList)      
+#' norm.dataMatrix <- normalizeEdaseq(dataMatrix,sampleList,geneData=geneData)
+#' diagplotBoxplot(norm.dataMatrix,sampleList)      
 #'}
 normalizeEdaseq <- function(geneCounts,sampleList,normArgs=NULL,
     geneData=NULL,output=c("matrix","native")) {
@@ -132,12 +132,12 @@ normalizeEdaseq <- function(geneCounts,sampleList,normArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' diagplotBoxplot(data.matrix,sampleList)
+#' diagplotBoxplot(dataMatrix,sampleList)
 #'
-#' norm.data.matrix <- normalizeDeseq(data.matrix,sampleList)
-#' diagplotBoxplot(norm.data.matrix,sampleList)
+#' norm.dataMatrix <- normalizeDeseq(dataMatrix,sampleList)
+#' diagplotBoxplot(norm.dataMatrix,sampleList)
 #'}
 normalizeDeseq <- function(geneCounts,sampleList,normArgs=NULL,
     output=c("matrix","native")) {
@@ -179,12 +179,12 @@ normalizeDeseq <- function(geneCounts,sampleList,normArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' diagplotBoxplot(data.matrix,sampleList)
+#' diagplotBoxplot(dataMatrix,sampleList)
 #'
-#' norm.data.matrix <- normalizeDeseq2(data.matrix,sampleList)
-#' diagplotBoxplot(norm.data.matrix,sampleList)
+#' norm.dataMatrix <- normalizeDeseq2(dataMatrix,sampleList)
+#' diagplotBoxplot(norm.dataMatrix,sampleList)
 #'}
 normalizeDeseq2 <- function(geneCounts,sampleList,normArgs=NULL,
     output=c("matrix","native")) {
@@ -231,12 +231,12 @@ normalizeDeseq2 <- function(geneCounts,sampleList,normArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' diagplotBoxplot(data.matrix,sampleList)
+#' diagplotBoxplot(dataMatrix,sampleList)
 #'
-#' norm.data.matrix <- normalizeEdger(data.matrix,sampleList)
-#' diagplotBoxplot(norm.data.matrix,sampleList)
+#' norm.dataMatrix <- normalizeEdger(dataMatrix,sampleList)
+#' diagplotBoxplot(norm.dataMatrix,sampleList)
 #'}
 normalizeEdger <- function(geneCounts,sampleList,normArgs=NULL,
     output=c("matrix","native")) {
@@ -289,20 +289,20 @@ normalizeEdger <- function(geneCounts,sampleList,normArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' diagplotBoxplot(data.matrix,sampleList)
+#' diagplotBoxplot(dataMatrix,sampleList)
 #'
-#' lengths <- round(1000*runif(nrow(data.matrix)))
-#' starts <- round(1000*runif(nrow(data.matrix)))
+#' lengths <- round(1000*runif(nrow(dataMatrix)))
+#' starts <- round(1000*runif(nrow(dataMatrix)))
 #' ends <- starts + lengths
-#' gc=runif(nrow(data.matrix)),
+#' gc=runif(nrow(dataMatrix)),
 #' geneData <- data.frame(
-#'   chromosome=c(rep("chr1",nrow(data.matrix)/2),rep("chr2",nrow(data.matrix)/2)),
-#'   start=starts,end=ends,gene_id=rownames(data.matrix),gc_content=gc
+#'   chromosome=c(rep("chr1",nrow(dataMatrix)/2),rep("chr2",nrow(dataMatrix)/2)),
+#'   start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc
 #' )
-#' norm.data.matrix <- normalizeNoiseq(data.matrix,sampleList,geneData)
-#' diagplotBoxplot(norm.data.matrix,sampleList)
+#' norm.dataMatrix <- normalizeNoiseq(dataMatrix,sampleList,geneData)
+#' diagplotBoxplot(norm.dataMatrix,sampleList)
 #'}
 normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
     geneData=NULL,logOffset=1,output=c("matrix","native")) {
@@ -409,12 +409,12 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' diagplotBoxplot(data.matrix,sampleList)
+#' diagplotBoxplot(dataMatrix,sampleList)
 #'
-#' norm.data.matrix <- normalizeNbpseq(data.matrix,sampleList)
-#' diagplotBoxplot(norm.data.matrix,sampleList)
+#' norm.dataMatrix <- normalizeNbpseq(dataMatrix,sampleList)
+#' diagplotBoxplot(norm.dataMatrix,sampleList)
 #'}
 normalizeNbpseq <- function(geneCounts,sampleList,normArgs=NULL,
     libsizeList=NULL,output=c("matrix","native")) {
@@ -477,12 +477,12 @@ normalizeNbpseq <- function(geneCounts,sampleList,normArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' diagplotBoxplot(data.matrix,sampleList)
+#' diagplotBoxplot(dataMatrix,sampleList)
 #'
-#' norm.data.matrix <- normalizeAbsseq(data.matrix,sampleList)
-#' diagplotBoxplot(norm.data.matrix,sampleList)
+#' norm.dataMatrix <- normalizeAbsseq(dataMatrix,sampleList)
+#' diagplotBoxplot(norm.dataMatrix,sampleList)
 #'}
 normalizeAbsseq <- function(geneCounts,sampleList,normArgs=NULL,
     output=c("matrix","native")) {
@@ -526,12 +526,12 @@ normalizeAbsseq <- function(geneCounts,sampleList,normArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sample.list <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' diagplot.boxplot(data.matrix,sample.list)
+#' diagplot.boxplot(dataMatrix,sample.list)
 #'
-#' norm.data.matrix <- normalize.absseq(data.matrix,sample.list)
-#' diagplot.boxplot(norm.data.matrix,sample.list)
+#' norm.dataMatrix <- normalize.absseq(dataMatrix,sample.list)
+#' diagplot.boxplot(norm.dataMatrix,sample.list)
 #'}
 normalizeDss <- function(geneCounts,sampleList,normArgs=NULL,
     output=c("matrix","native")) {

@@ -24,11 +24,11 @@
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 #' contrast <- "A_vs_B"
-#' norm.data.matrix <- normalizeDeseq(data.matrix,sampleList)
-#' p <- statDeseq(norm.data.matrix,sampleList,contrast)
+#' norm.dataMatrix <- normalizeDeseq(dataMatrix,sampleList)
+#' p <- statDeseq(norm.dataMatrix,sampleList,contrast)
 #'}
 statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     #if (is.null(normArgs) && class(object)=="DGEList")
@@ -166,11 +166,11 @@ statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
 #' @examples
 #' \dontrun{
 #' require(DESeq2)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 #' contrast <- "A_vs_B"
-#' norm.data.matrix <- normalizeDeseq2(data.matrix,sampleList)
-#' p <- statDeseq2(norm.data.matrix,sampleList,contrast)
+#' norm.dataMatrix <- normalizeDeseq2(dataMatrix,sampleList)
+#' p <- statDeseq2(norm.dataMatrix,sampleList,contrast)
 #'}
 
 statDeseq2 <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
@@ -348,11 +348,11 @@ statDeseq2 <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 #' contrast <- "A_vs_B"
-#' norm.data.matrix <- normalizeEdger(data.matrix,sampleList)
-#' p <- statEdger(norm.data.matrix,sampleList,contrast)
+#' norm.dataMatrix <- normalizeEdger(dataMatrix,sampleList)
+#' p <- statEdger(norm.dataMatrix,sampleList,contrast)
 #'}
 statEdger <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
@@ -550,11 +550,11 @@ statEdger <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 #' contrast <- "A_vs_B"
-#' norm.data.matrix <- normalizeEdger(data.matrix,sampleList)
-#' p <- statLimma(norm.data.matrix,sampleList,contrast)
+#' norm.dataMatrix <- normalizeEdger(dataMatrix,sampleList)
+#' p <- statLimma(norm.dataMatrix,sampleList,contrast)
 #'}
 statLimma <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
@@ -663,19 +663,19 @@ statLimma <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 #' contrast <- "A_vs_B"
-#' lengths <- round(1000*runif(nrow(data.matrix)))
-#' starts <- round(1000*runif(nrow(data.matrix)))
+#' lengths <- round(1000*runif(nrow(dataMatrix)))
+#' starts <- round(1000*runif(nrow(dataMatrix)))
 #' ends <- starts + lengths
-#' gc=runif(nrow(data.matrix)),
+#' gc=runif(nrow(dataMatrix)),
 #' geneData <- data.frame(
-#'   chromosome=c(rep("chr1",nrow(data.matrix)/2),rep("chr2",nrow(data.matrix)/2)),
-#'   start=starts,end=ends,gene_id=rownames(data.matrix),gc_content=gc
+#'   chromosome=c(rep("chr1",nrow(dataMatrix)/2),rep("chr2",nrow(dataMatrix)/2)),
+#'   start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc
 #' )
-#' norm.data.matrix <- normalizeNoiseq(data.matrix,sampleList,geneData)
-#' p <- statNoiseq(norm.data.matrix,sampleList,contrast,geneData=geneData)
+#' norm.dataMatrix <- normalizeNoiseq(dataMatrix,sampleList,geneData)
+#' p <- statNoiseq(norm.dataMatrix,sampleList,contrast,geneData=geneData)
 #'}
 statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     geneData=NULL,logOffset=1) {
@@ -890,11 +890,11 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 #' contrast <- "A_vs_B"
-#' norm.data.matrix <- normalizeEdaseq(data.matrix,sampleList,geneData)
-#' p <- statBayseq(norm.data.matrix,sampleList,contrast)
+#' norm.dataMatrix <- normalizeEdaseq(dataMatrix,sampleList,geneData)
+#' p <- statBayseq(norm.dataMatrix,sampleList,contrast)
 #'}
 statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     libsizeList=NULL) {
@@ -1013,11 +1013,11 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 #' contrast <- "A_vs_B"
-#' norm.data.matrix <- normalizeNbpseq(data.matrix,sampleList)
-#' p <- statNbpseq(norm.data.matrix,sampleList,contrast)
+#' norm.dataMatrix <- normalizeNbpseq(dataMatrix,sampleList)
+#' p <- statNbpseq(norm.dataMatrix,sampleList,contrast)
 #'}
 statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     libsizeList=NULL) {
@@ -1233,11 +1233,11 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 #' contrast <- "A_vs_B"
-#' norm.data.matrix <- normalizeDeseq(data.matrix,sampleList)
-#' p <- statAbsseq(norm.data.matrix,sampleList,contrast)
+#' norm.dataMatrix <- normalizeDeseq(dataMatrix,sampleList)
+#' p <- statAbsseq(norm.dataMatrix,sampleList,contrast)
 #'}
 
 statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
@@ -1578,11 +1578,11 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
 #' @examples
 #' \dontrun{
 #' require(DESeq)
-#' data.matrix <- counts(makeExampleCountDataSet())
+#' dataMatrix <- counts(makeExampleCountDataSet())
 #' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 #' contrast <- "A_vs_B"
-#' norm.data.matrix <- normalizeDeseq(data.matrix,sampleList)
-#' p <- statDss(norm.data.matrix,sampleList,contrast)
+#' norm.dataMatrix <- normalizeDeseq(dataMatrix,sampleList)
+#' p <- statDss(norm.dataMatrix,sampleList,contrast)
 #'}
 
 statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {

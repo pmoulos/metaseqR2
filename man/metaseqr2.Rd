@@ -1,9 +1,8 @@
-\name{metaseqr}
-\alias{metaseqr}
-\alias{metaseqr.main}
-\title{The main metaseqr pipeline}
+\name{metaseqr2}
+\alias{metaseqr2}
+\title{The main metaseqr2 pipeline}
 \usage{
-    metaseqr(counts, sampleList, excludeList = NULL,
+    metaseqr2(counts, sampleList, excludeList = NULL,
         fileType = c("auto", "sam", "bam", "bed"),
         path = NULL, contrast = NULL, libsizeList = NULL,
         embedCols = list(idCol = 4, gcCol = NA, nameCol = NA, 
@@ -46,7 +45,7 @@
             "meandiff", "meanvar", "rnacomp", "deheatmap", 
             "volcano", "biodist"),
         figFormat = c("png", "jpg", "tiff", "bmp", "pdf", "ps"),
-        outList = FALSE, exportWhere = NA,
+        outListre = FALSE, exportWhere = NA,
         exportWhat = c("annotation", "p_value", "adj_p_value", 
             "meta_p_value", "adj_meta_p_value", "fold_change", 
             "stats", "counts","flags"),
@@ -119,13 +118,13 @@
     file and certain required metadata. See Details for a full
     description.}
     
-    \item{org}{the supported organisms by \code{metaseqr} or
+    \item{org}{the supported organisms by \code{metaseqr2} or
     a user-named organism which has been imported to the 
     database. See Details for more information.} 
 
     \item{refdb}{the reference annotation repository from
     which to retrieve annotation elements to use with
-    metaseqr. It can be one of \code{"ensembl"} (default),
+    metaseqr2. It can be one of \code{"ensembl"} (default),
     \code{"ucsc"} or \code{"refseq"} or a user based one 
     (similar to the \code{org} argument).}
     
@@ -185,7 +184,7 @@
     \code{normalization}.}
 
     \item{statistics}{one or more statistical analyses to be
-    performed by the metaseqr pipeline. It can be one or more
+    performed by the metaseqr2 pipeline. It can be one or more
     of \code{"deseq"} (default) to conduct statistical
     test(s) implemented in the DESeq package, \code{"edger"}
     to conduct statistical test(s) implemented in the edgeR
@@ -360,7 +359,7 @@
     \item{verbose}{print informative messages during
     execution? Defaults to \code{TRUE}.}
 
-    \item{runLog}{write a log file of the \code{metaseqr}
+    \item{runLog}{write a log file of the \code{metaseqr2}
     run using package log4r. Defaults to \code{TRUE}. The
     filename will be auto-generated.}
     
@@ -386,12 +385,12 @@
     results but in HTML formatted tables.
 }
 \description{
-    This function is the main metaseqr workhorse and
-    implements the main metaseqr workflow which performs data
+    This function is the main metaseqr2 workhorse and
+    implements the main metaseqr2 workflow which performs data
     read, filtering, normalization and statistical selection,
     creates diagnostic plots and exports the results and a
-    report if requested. The metaseqr function is responsible
-    for assembling all the steps of the metaseqr pipeline
+    report if requested. The metaseqr2 function is responsible
+    for assembling all the steps of the metaseqr2 pipeline
     which i) reads the input gene or exon read count table
     ii) performs prelimininary filtering of data by removing
     chrM and other non-essential information for a typical
@@ -415,13 +414,13 @@
     the resulting differentially expressed gene list in text
     tab-delimited format viii) creates a set of diagnostic
     plots either available in the aforementioned packages or
-    metaseqr specific ones and ix) creates a comprehensive
+    metaseqr2 specific ones and ix) creates a comprehensive
     HTML report which summarizes the run information, the
     results and the diagnostic plots. Certain diagnostic
     plots (e.g. the volcano plot) can be interactive with the
     use of the external Highcharts
     (http://www.highcharts.com) JavaScript library for
-    interactive graphs. Although the inputs to the metaseqr
+    interactive graphs. Although the inputs to the metaseqr2
     workflow are many, in practice, setting only very few of
     them and accepting the defaults as the rest can result in
     quite comprehensible results for mainstream organisms
@@ -447,7 +446,7 @@
         mandatory (co-ordinates and accessions). If they are 
         not present, the pipeline will not run. If additional 
         elements are not present (e.g. GC content or biotypes), 
-        certain features of metaseqr will not be available. 
+        certain features of metaseqr2 will not be available. 
         For example, EDASeq normalization will not be 
         performed based on a GC content covariate but based 
         on gene length which is not what the authors of
@@ -520,7 +519,7 @@
     \code{"ConditionA_vs_ConditionB_vs_ConditionC")}. The
     first element of pairwise contrasts (e.g. "ConditionA"
     above) MUST be the control condition or any reference
-    that ConditionB is checked against. metaseqr uses this
+    that ConditionB is checked against. metaseqr2 uses this
     convention to properly calculate fold changes.
     
     Regarding \code{embedCols}, this list must contain four
@@ -555,7 +554,7 @@
         be available.
 	}
 	
-	Regarding annotation instructs metaseqr where to find the
+	Regarding annotation instructs metaseqr2 where to find the
     annotation for the given counts file. It can be one of i)
     \code{"download"} (default) for automatic downloading of
     the annotation for the organism specified by the org
@@ -648,7 +647,7 @@
     as to create reproducible p-values. If 
     \code{reprod=TRUE}, a fixed seed is used by 
     \code{"meta_perm"} for all the datasets analyzed with 
-    \code{metaseqr}. If \code{reprod=FALSE}, then the 
+    \code{metaseqr2}. If \code{reprod=FALSE}, then the 
     p-values will not be reproducible, although statistical 
     significance is not expected to change for a large 
     number of resamplings. Finally, \code{reprod} can be 
@@ -714,7 +713,7 @@
     organism of interest, or according to the user's GTF. 
     If you are not sure about the source of your counts file or 
     do not know how to produce it, it's better to start from the 
-    original BAM/BED files (metaseqr will use the
+    original BAM/BED files (metaseqr2 will use the
     \code{\link{read2count}} function to create a counts
     file). Keep in mind that in the case of BED files, the
     performance will be significantly lower and the overall
@@ -733,7 +732,7 @@
     are not checked for validity so be careful to supply with
     correct names otherwise the pipeline will crash or at the
     best case scenario, will ignore the filters. Also note
-    that when you are supplying metaseqr wtih an exon counts
+    that when you are supplying metaseqr2 wtih an exon counts
     table, gene annotation is always downloaded so please be
     sure to have a working internet connection. In addition
     to the above, if you have a multiple core system, be very
@@ -752,7 +751,7 @@
     \code{org}, \code{refdb} and \code{version} options.
 
     Please note that the \strong{meta-analysis} feature
-    provided by metaseqr does not satisfy the strict definition 
+    provided by metaseqr2 does not satisfy the strict definition 
     of "meta-analysis", which is the combination of multiple 
     similar datasets under the same statistical methodology. 
     Instead it is the use of mulitple statistical tests applied 
@@ -773,13 +772,13 @@
     more than x reads" or "accept genes where there is read
     presence in at least m/n exons, n being the total exons
     of the gene". Such filters are NOT meant for detecting
-    differential splicing as also the whole metaseqr
+    differential splicing as also the whole metaseqr2
     pipeline, thus they should not be used in that context.
     The \code{exonFilters} argument is a named list of
     filters, where the names are the filter names and the
     members are the filter parameters (named lists with
     parameter name, parameter value). See the usage of the
-    \code{metaseqr} function for an example of how these
+    \code{metaseqr2} function for an example of how these
     lists are structured. The supported exon filters in the
     current version are: i) \code{minActiveExons} which
     implements a filter for demanding m out of n exons of a
@@ -795,7 +794,7 @@
     exons, in order to be accepted. More filters will be
     implemented in future versions and users are encouraged
     to propose exon filter ideas to the author by mail. See
-    \code{metaseqr} usage for the defaults. Set
+    \code{metaseqr2} usage for the defaults. Set
     \code{exonFilters=NULL} to not apply any exon filtering.
 }
 
@@ -820,9 +819,9 @@
     \code{avg.reads} which implements a filter where a gene
     is accepted for further analysis if it has more average
     reads than the \code{quantile} of the average count
-    distribution per \code{average.per.bp} base pairs. In
+    distribution per \code{averagePerBp} base pairs. In
     summary, the reads of each gene are averaged per
-    \code{average.per.bp} based on each gene's length (in
+    \code{averagePerBp} based on each gene's length (in
     case of exons, input the "gene's length" is the sum of
     the lengths of exons) and the \code{quantile} quantile of
     the average counts distribution is calculated for each
@@ -867,9 +866,9 @@
     function. v) \code{presence} where in this case, a gene
     is further considered for statistical testing if 
     \code{frac} (x100 for a percentage value) have more
-    than \code{min.count} reads across all samples
-    (\code{per.condition=FALSE}) or across the samples
-    of each condition (\code{per.condition=TRUE}).
+    than \code{minCount} reads across all samples
+    (\code{perCondition=FALSE}) or across the samples
+    of each condition (\code{perCondition=TRUE}).
 }
 
 \section{Normalization parameters}{
@@ -892,15 +891,15 @@
     NBPSeq package documentation for further details. For the
     rest of the algorithms, the parameter names are the same
     as the names used in the respective packages. For
-    examples, please use the \code{\link{get.defaults}}
+    examples, please use the \code{\link{getDefaults}}
     function.
 }
 
 \section{Statistics parameters}{
     The statistics parameters as passed to statistical
-    algorithms in metaseqr, exactly with the same way as the
+    algorithms in metaseqr2, exactly with the same way as the
     normalization parametes above. In this case, there is one
-    more layer in list nesting. Thus, \code{stat.args} is a
+    more layer in list nesting. Thus, \code{statArgs} is a
     named list whose names are the names the algorithms used
     (see the \code{statistics} parameter). Each member is
     another named list,with parameters to be used for each
@@ -911,44 +910,35 @@
     NBPSeq for these parameters. There are a few exceptions
     in parameter names: In case of \code{statistics="edger"},
     apart from the rest of the edgeR statistical testing
-    arguments, there is the argument \code{main.method} which
+    arguments, there is the argument \code{mainMethod} which
     can be either \code{"classic"} or \code{"glm"}, again
     defining whether the binomial test or GLMs will be used
     for statistical testing. For examples, please use the
-    \code{\link{get.defaults}} function. When
+    \code{\link{getDefaults}} function. When
     \code{statistics="nbpseq"}, apart from the rest arguments
     of the NBPSeq functions \code{estimate.disp} and
     \code{estimate.dispersion}, there is the argument
-    \code{main.method} which can be \code{"nbpseq"} or
+    \code{mainMethod} which can be \code{"nbpseq"} or
     \code{"nbsmyth"}. This argument determines the parameters
     to be used by the \code{estimate.dispersion} function or
     by the \code{estimate.disp} function to estimate RNA-Seq
     count dispersions. The difference between the two is that
     they constitute different starting points for the two
     workflows in the package NBPSeq. The first worklfow (with
-    \code{main.method="nbpseq"} and the
+    \code{mainMethod="nbpseq"} and the
     \code{estimate.dispersion} function is NBPSeq package
     specific, while the second (with
-    \code{main.method="nbsmyth"} and the \code{estimate.disp}
+    \code{mainMethod="nbsmyth"} and the \code{estimate.disp}
     function is similar to the workflow of the edgeR package.
     For additional information regarding the statistical
     testing in NBPSeq, please consult the documentation of
-    the NBPSeq package. \strong{Additinally, please note that
-    there is currently a problem with the NBPSeq package and
-    the workflow that is specific to the NBPSeq package. The
-    problem has to do with function exporting as there are
-    certain functions which are not recognized from the
-    package internally. For this reason and until it is
-    fixed, only the Smyth workflow will be available with the
-    NBPSeq package (thus}
-    \code{stat.args$main.method="nbpseq"} \strong{ will not
-    be available)!}
+    the NBPSeq package.
 }
 
 \section{Presets}{
     The analysis presets are a set of keywords (only one can
     be used) that predefine some of the parameters of the
-    metaseqr pipeline. For the time being they are quite
+    metaseqr2 pipeline. For the time being they are quite
     simple and they control i) the strictness of filtering
     and statistical thresholding with three basic levels
     ("all", "medium", "strict") and ii) the data columns that
@@ -957,223 +947,240 @@
     exported. These keywords can be combined with a dot in
     the middle (e.g. \code{"all.basic"} to define an analysis
     preset. When using analysis presets, the following
-    argumentsof metaseqr are overriden: \code{exon.filters},
-    \code{gene.filters}, \code{pcut}, \code{export.what},
-    \code{export.scale}, \code{export.values},
-    \code{exon.stats}. If you want to explicitly control the
+    argumentsof metaseqr2 are overriden: \code{exonFilters},
+    \code{geneFilters}, \code{pcut}, \code{exportWhat},
+    \code{exportScale}, \code{exportValues},
+    \code{exonStats}. If you want to explicitly control the
     above arguments, the \code{preset} argument should be set
     to \code{NULL} (default). Following is a synopsis of the
     different presets and the values of the arguments they
-    moderate: \itemize{ \item \code{"all.basic"}: use all
-    genes (do not filter) and export all genes and basic
-    annotation and statistics elements. In this case, the
-    above described arguments become: \itemize{ \item
-    \code{exon.filters=NULL} \item \code{gene.filters=NULL}
-    \item \code{pcut=1} \item
-    \code{export.what=c("annotation","p.value","adj.p.value","meta.p.value",} 
-    \code{"adj.meta.p.value","fold.change")} \item
-    \code{export.scale=c("natural","log2")} \item
-    \code{export.values=c("normalized")} \item
-    \code{export.stats=c("mean")} } \item
-    \code{"all.normal"}: use all genes (do not filter) and
-    export all genes and normal annotation and statistics
-    elements. In this case, the above described arguments
-    become: \itemize{ \item \code{exon.filters=NULL} \item
-    \code{gene.filters=NULL} \item \code{pcut=1} \item
-    \code{export.what=c("annotation","p.value","adj.p.value","meta.p.value",} 
-    \code{"adj.meta.p.value","fold.change","stats","counts")}
-    \item \code{export.scale=c("natural","log2")} \item
-    \code{export.values=c("normalized")} \item
-    \code{export.stats=c("mean","sd","cv")} } In this case,
-    the above described arguments become: \itemize{ \item
-    \code{exon.filters=NULL} \item \code{gene.filters=NULL}
-    \item \code{pcut=1} \item
-    \code{export.what=c("annotation","p.value","adj.p.value","meta.p.value",} 
-    \code{"adj.meta.p.value","fold.change","stats","counts")}
-    \item
-    \code{export.scale=c("natural","log2","log10","vst")}
-    \item \code{export.values=c("raw","normalized")} \item
-    \code{export.stats=c("mean","median","sd","mad","cv","rcv")}
-    } \item \code{"medium.basic"}: apply a medium set of
-    filters and and export statistically significant genes
-    and basic annotation and statistics elements. In this
-    case, the above described arguments become: \itemize{
-    \item
-    \code{exon.filters=list(min.active.exons=list(exons.per.gene=5,min.exons=2,frac=1/5))} 
-    \item \code{gene.filters=list(length=list(length=500),} 
-    \code{avg.reads=list(average.per.bp=100,quantile=0.25),} 
-    \code{expression=list(median=TRUE,mean=FALSE,quantile=NA,known=NA,custom=NA),} 
-    \code{biotype=get.defaults("biotype.filter",org[1]))}
-    \item \code{pcut=0.05} \item
-    \code{export.what=c("annotation","p.value","adj.p.value","meta.p.value",} 
-    \code{"adj.meta.p.value","fold.change")} \item
-    \code{export.scale=c("natural","log2")} \item
-    \code{export.values=c("normalized")} \item
-    \code{export.stats=c("mean")} } \item
-    \code{"medium.normal"}: apply a medium set of filters and
+    moderate: 
+    \itemize{ 
+        \item \code{"all_basic"}: use all genes (do not filter)
+        and export all genes and basic annotation and statistics 
+        elements. In this case, the above described arguments become: 
+        \itemize{ 
+            \item \code{exonFilters=NULL} 
+            \item \code{geneFilters=NULL}
+            \item \code{pcut=1} 
+            \item \code{exportWhat=c("annotation","p_value",}
+            \code{"adj_p_value","meta_p_value",}
+            \code{"adj_meta_p_value","fold_change")} 
+            \item \code{exportScale=c("natural","log2")} 
+            \item \code{exportValues=c("normalized")} 
+            \item \code{exportStats=c("mean")} 
+        } 
+        \item \code{"all_normal"}: use all genes (do not filter) 
+        and export all genes and normal annotation and statistics
+        elements. In this case, the above described arguments
+        become: 
+        \itemize{ 
+            \item \code{exonFilters=NULL} 
+            \item \code{geneFilters=NULL} 
+            \item \code{pcut=1} 
+            \item \code{exportWhat=c("annotation","p_value",}
+		    \code{"adj_p_value","meta_p_value",} 
+            \code{"adj_meta_p_value","fold_change","stats",}
+            \code{"counts")}
+            \item \code{exportScale=c("natural","log2")} 
+            \item \code{exportValues=c("normalized")} 
+            \item \code{exportStats=c("mean","sd","cv")} 
+       } 
+       \item \code{"all_full"}: use all genes (do not filter) 
+       and export all genes and all annotation and statistics
+       elements. In this case, the above described arguments 
+       become: 
+       \itemize{ 
+           \item \code{exonFilters=NULL} 
+           \item \code{geneFilters=NULL}
+           \item \code{pcut=1} 
+           \item \code{exportWhat=c("annotation","p_value",
+           "adj_p_value","meta_p_value",} 
+           \code{"adj_meta_p_value","fold_change","stats","counts")}
+           \item \code{exportScale=c("natural","log2","log10","vst")}
+           \item \code{exportValues=c("raw","normalized")} 
+           \item \code{exportStats=c("mean","median","sd","mad",
+           "cv","rcv")}
+    } 
+    \item \code{"medium_basic"}: apply a medium set of filters
+    and and export statistically significant genes and basic
+    annotation and statistics elements. In this case, the above
+    above described arguments become: 
+    \itemize{
+        \item \code{exonFilters=list(minActiveExons=}
+        \code{list(exonsPerGene=5,minExons=2,frac=1/5))} 
+        \item \code{geneFilters=list(length=list(length=500),} 
+        \code{avgReads=list(averagePerBp=100,quantile=0.25),} 
+        \code{expression=list(median=TRUE,mean=FALSE,quantile=NA,}
+        \code{known=NA,custom=NA),} 
+        \code{biotype=getDefaults("biotypeFilter",org[1]))}
+        \item \code{pcut=0.05} 
+        \item \code{exportWhat=c("annotation","p_value",}
+        \code{"adj_p_value","meta_p_value",} 
+        \code{"adj_meta_p_value","fold_change")} 
+        \item \code{exportScale=c("natural","log2")} 
+        \item \code{exportValues=c("normalized")} 
+        \item \code{exportStats=c("mean")} 
+    } 
+    \item \code{"medium_normal"}: apply a medium set of filters 
     and export statistically significant genes and normal
     annotation and statistics elements. In this case, the
-    above described arguments become: \itemize{ \item
-    \code{exon.filters=list(min.active.exons=list(exons.per.gene=5,min.exons=2,frac=1/5))} 
-    \item \code{gene.filters=list(length=list(length=500),} 
-    \code{avg.reads=list(average.per.bp=100,quantile=0.25),} 
-    \code{expression=list(median=TRUE,mean=FALSE,quantile=NA,known=NA,custom=NA),} 
-    \code{biotype=get.defaults("biotype.filter",org[1]))}
-    \item \code{pcut=0.05} \item
-    \code{export.what=c("annotation","p.value","adj.p.value","meta.p.value",} 
-    \code{"adj.meta.p.value","fold.change","stats","counts")}
-    \item \code{export.scale=c("natural","log2")} \item
-    \code{export.values=c("normalized")} \item
-    \code{export.stats=c("mean","sd","cv")} } and statistics
-    elements. In this case, the above described arguments
-    become: \itemize{ \item
-    \code{exon.filters=list(min.active.exons=list(exons.per.gene=5,min.exons=2,frac=1/5))} 
-    \item \code{gene.filters=list(length=list(length=500),} 
-    \code{avg.reads=list(average.per.bp=100,quantile=0.25),} 
-    \code{expression=list(median=TRUE,mean=FALSE,quantile=NA,known=NA,custom=NA),} 
-    \code{biotype=get.defaults("biotype.filter",org[1]))}
-    \item \code{pcut=0.05} \item
-    \code{export.what=c("annotation","p.value","adj.p.value","meta.p.value",} 
-    \code{"adj.meta.p.value","fold.change","stats","counts")}
-    \item
-    \code{export.scale=c("natural","log2","log10","vst")}
-    \item \code{export.values=c("raw","normalized")} \item
-    \code{export.stats=c("mean","median","sd","mad","cv","rcv")}
-    } \item \code{"strict.basic"}: apply a strict set of
-    filters and and export statistically significant genes
-    and basic annotation and statistics elements. In this
-    case, the above described arguments become: \itemize{
-    \item
-    \code{exon.filters=list(min.active.exons=list(exons.per.gene=4,min.exons=2,frac=1/4))} 
-    \item \code{gene.filters=list(length=list(length=750),} 
-    \code{avg.reads=list(average.per.bp=100,quantile=0.5),} 
-    \code{expression=list(median=TRUE,mean=FALSE,quantile=NA,known=NA,custom=NA),} 
-    \code{biotype=get.defaults("biotype.filter",org[1]))}
-    \item \code{pcut=0.01} \item
-    \code{export.what=c("annotation","p.value","adj.p.value","meta.p.value",} 
-    \code{"adj.meta.p.value","fold.change")} \item
-    \code{export.scale=c("natural","log2")} \item
-    \code{export.values=c("normalized")} \item
-    \code{export.stats=c("mean")} } \item
-    \code{"strict.normal"}: apply a strict set of filters and
+    above described arguments become: 
+    \itemize{ 
+        \item \code{exonFilters=list(minActiveExons=}
+        \code{list(exonsPerGene=5,minExons=2,frac=1/5))} 
+        \item \code{geneFilters=list(length=list(length=500),} 
+        \code{avgReads=list(averagePerBp=100,quantile=0.25),} 
+        \code{expression=list(median=TRUE,mean=FALSE,}
+        \code{quantile=NA,known=NA,custom=NA),} 
+        \code{biotype=getDefaults("biotypeFilter",org[1]))}
+        \item \code{pcut=0.05} 
+        \item \code{export.what=c("annotation","p_value",}
+        \code{"adj_p_value","meta_p_value",} 
+        \code{"adj_meta_p_value","fold_change",}
+        \code{"stats","counts")}
+        \item \code{exportScale=c("natural","log2")} 
+        \item \code{exportValues=c("normalized")} 
+        \item \code{exportStats=c("mean","sd","cv")} 
+    } 
+    \item \code{"medium_full"}: apply a medium set of filters 
+    and export statistically significant genes and full
+    annotation and statistics elements. In this case, the
+    above described arguments become: 
+    \itemize{ 
+        \item \code{exonFilters=list(minActiveExons=}
+        \code{list(exonsPerGene=5,minExons=2,frac=1/5))} 
+        \item \code{geneFilters=list(length=list(length=500),} 
+        \code{avgReads=list(averagePerBp=100,quantile=0.25),} 
+        \code{expression=list(median=TRUE,mean=FALSE,}
+        \code{quantile=NA,known=NA,custom=NA),} 
+        \code{biotype=getDefaults("biotypeFilter",org[1]))}
+        \item \code{pcut=0.05} 
+        \item \code{exportWhat=c("annotation","p_value",}
+        \code{"adj_p_value","meta_p_value",} 
+        \code{"adj_meta_p_value","fold_change",}
+        \code{"stats","counts")}
+        \item \code{exportScale=c("natural","log2","log10",}
+        \code{"vst")}
+        \item \code{exportValues=c("raw","normalized")} 
+        \item \code{exportStats=c("mean","median","sd","mad",}
+        \code{"cv","rcv")}
+    } 
+    \item \code{"strict_basic"}: apply a strict set of filters
+    and and export statistically significant genes and basic
+    annotation and statistics elements. In this case, the
+    above described arguments become: 
+    \itemize{
+        \item \code{exonFilters=list(minActiveExons=}
+        \code{list(exonsPerGene=4,minExons=2,frac=1/4))} 
+        \item \code{geneFilters=list(length=list(length=750),} 
+        \code{avgReads=list(averagePerBp=100,quantile=0.5),} 
+        \code{expression=list(median=TRUE,mean=FALSE,}
+        \code{quantile=NA,known=NA,custom=NA),} 
+        \code{biotype=getDefaults("biotypeFilter",org[1]))}
+        \item \code{pcut=0.01} 
+        \item \code{exportWhat=c("annotation","p_value",}
+        \code{"adj_p_value","meta.p.value",} 
+        \code{"adj_meta_p_value","fold_change")} 
+        \item \code{exportScale=c("natural","log2")} 
+        \item \code{exportValues=c("normalized")} 
+        \item \code{exportStats=c("mean")} 
+    } 
+    \item \code{"strict_normal"}: apply a strict set of filters 
     and export statistically significant genes and normal
     annotation and statistics elements. In this case, the
-    above described arguments become: \itemize{ \item
-    \code{exon.filters=list(min.active.exons=list(exons.per.gene=4,min.exons=2,frac=1/4))} 
-    \item \code{gene.filters=list(length=list(length=750),} 
-    \code{avg.reads=list(average.per.bp=100,quantile=0.5),} 
-    \code{expression=list(median=TRUE,mean=FALSE,quantile=NA,known=NA,custom=NA),} 
-    \code{biotype=get.defaults("biotype.filter",org[1]))}
-    \item \code{pcut=0.01} \item
-    \code{export.what=c("annotation","p.value","adj.p.value","meta.p.value",} 
-    \code{"adj.meta.p.value","fold.change","stats","counts")}
-    \item \code{export.scale=c("natural","log2")} \item
-    \code{export.values=c("normalized")} \item
-    \code{export.stats=c("mean","sd","cv")} } and statistics
-    elements. In this case, the above described arguments
-    become: \itemize{ \item
-    \code{exon.filters=list(min.active.exons=list(exons.per.gene=4,min.exons=2,frac=1/4))} 
-    \item \code{gene.filters=list(length=list(length=750),} 
-    \code{avg.reads=list(average.per.bp=100,quantile=0.5),} 
-    \code{expression=list(median=TRUE,mean=FALSE,quantile=NA,known=NA,custom=NA),} 
-    \code{biotype=get.defaults("biotype.filter",org[1]))}
-    \item \code{pcut=0.01} \item
-    \code{export.what=c("annotation","p.value","adj.p.value","meta.p.value",} 
-    \code{"adj.meta.p.value","fold.change","stats","counts")}
-    \item
-    \code{export.scale=c("natural","log2","log10","vst")}
-    \item \code{export.values=c("raw","normalized")} \item
-    \code{export.stats=c("mean","median","sd","mad","cv","rcv")}
+    above described arguments become: 
+    \itemize{ 
+        \item \code{exonFilters=list(minActiveExons=}
+        \code{list(exonsPerGene=4,minExons=2,frac=1/4))} 
+        \item \code{geneFilters=list(length=list(length=750),} 
+        \code{avgReads=list(averagePerBp=100,quantile=0.5),} 
+        \code{expression=list(median=TRUE,mean=FALSE,}
+        \code{quantile=NA,known=NA,custom=NA),} 
+        \code{biotype=getDefaults("biotypeFilter",org[1]))}
+        \item \code{pcut=0.01} 
+        \item \code{exportWhat=c("annotation","p_value",}
+        \code{"adj_p_value","meta_p_value",} 
+        \code{"adj_meta_p_value","fold_change",}
+        \code{"stats","counts")}
+        \item \code{exportScale=c("natural","log2")} 
+        \item \code{exportValues=c("normalized")} 
+        \item \code{exportStats=c("mean","sd","cv")} 
+   } 
+   \item \code{"strict_full"}: apply a strict set of filters 
+    and export statistically significant genes and full
+    annotation and statistics elements. In this case, the
+    above described arguments become:
+    \itemize{ 
+        \item \code{exonFilters=list(minActiveExons=}
+        \code{list(exonsPerGene=4,minExons=2,frac=1/4))} 
+        \item \code{geneFilters=list(length=list(length=750),} 
+        \code{avgReads=list(averagePerBp=100,quantile=0.5),} 
+        \code{expression=list(median=TRUE,mean=FALSE,}
+        \code{quantile=NA,known=NA,custom=NA),} 
+        \code{biotype=getDefaults("biotypeFilter",org[1]))}
+        \item \code{pcut=0.01} 
+        \item \code{exportWhat=c("annotation","p_value",}
+        \code{"adj_p_value","meta_p_value",} 
+        \code{"adj_meta_p_value","fold_change",}
+        \code{"stats","counts")}
+        \item \code{exportScale=c("natural","log2","log10",}
+        \code{"vst")}
+        \item \code{exportValues=c("raw","normalized")} 
+        \item \code{exportStats=c("mean","median","sd","mad",}
+        \code{"cv","rcv")}
     } }
 }
 \examples{
 \donttest{
-# An example pipeline with exon counts
-data("hg19.exon.data",package="metaseqR")
-metaseqr(
- counts=hg19.exon.counts,
- sample.list=list(normal="normal",paracancerous="paracancerous",cancerous="cancerous"),
- contrast=c("normal_vs_paracancerous","normal_vs_cancerous",
-        "normal_vs_paracancerous_vs_cancerous"),
- libsize.list=libsize.list.hg19,
- id.col=4,
- annotation="download",
- org="hg19",
- count.type="exon",
- normalization="edaseq",
- statistics="deseq",
- pcut=0.05,
- qc.plots=c("mds", "biodetection", "countsbio", "saturation", "rnacomp", 
-        "boxplot", "gcbias", "lengthbias", "meandiff", "readnoise","meanvar", 
-        "readnoise", "deheatmap", "volcano", "biodist", "filtered"),
- fig.format=c("png","pdf"),
- export.what=c("annotation","p.value","adj.p.value","fold.change","stats",
-        "counts"),
- export.scale=c("natural","log2","log10","vst"),
- export.values=c("raw","normalized"),
- export.stats=c("mean","median","sd","mad","cv","rcv"),
- restrict.cores=0.8,
- gene.filters=list(
-     length=list(
-         length=500
-     ),
-     avg.reads=list(
-         average.per.bp=100,
-         quantile=0.25
-     ),
-     expression=list(
-         median=TRUE,
-         mean=FALSE
-     ),
-     biotype=get.defaults("biotype.filter","hg18")
- )
-)
-
 # An example pipeline with gene counts
 data("mm9.gene.data",package="metaseqR")
-result <- metaseqr(
- counts=mm9.gene.counts,
- sample.list=list(e14.5=c("e14.5_1","e14.5_2"), adult_8_weeks=c("a8w_1","a8w_2")),
- contrast=c("e14.5_vs_adult_8_weeks"),
- libsize.list=libsize.list.mm9,
- annotation="download",
- org="mm9",
- count.type="gene",
- normalization="edger",
- statistics=c("deseq","edger","noiseq"),
- meta.p="fisher",
- pcut=0.05,
- fig.format=c("png","pdf"),
- export.what=c("annotation","p.value","meta.p.value","adj.meta.p.value",
-        "fold.change"),
- export.scale=c("natural","log2"),
- export.values="normalized",
- export.stats=c("mean","sd","cv"),
- export.where=getwd(),
- restrict.cores=0.8,
- gene.filters=list(
-     length=list(
-         length=500
-     ),
-     avg.reads=list(
-            average.per.bp=100,
-            quantile=0.25
-     ),
-     expression=list(
-            median=TRUE,
-            mean=FALSE,
-            quantile=NA,
-            known=NA,
-            custom=NA
-     ),
-     biotype=get.defaults("biotype.filter","mm9")
- ),
- out.list=TRUE
+result <- metaseqr2(
+  counts=mm9.gene.counts,
+  sampleList=list(
+    e14.5=c("e14.5_1","e14.5_2"),
+    adult_8_weeks=c("a8w_1","a8w_2")
+  ),
+  contrast=c("e14.5_vs_adult_8_weeks"),
+  libsizeList=libsize.list.mm9,
+  annotation="embedded",
+  org="mm9",
+  countType="gene",
+  normalization="edger",
+  statistics=c("deseq","edger","noiseq"),
+  metaP="fisher",
+  pcut=0.05,
+  figFormat=c("png","pdf"),
+  exportWhere=tempdir(),
+  exportWhat=c("annotation","p_value","meta_p_value",
+    "adj_meta_p_value","fold_change"),
+  exportScale=c("natural","log2"),
+  exportValues="normalized",
+  exportStats=c("mean","sd","cv"),
+  exportWhere=getwd(),
+  restrictCores=0.8,
+  geneFilters=list(
+    length=list(
+      length=500
+    ),
+    avgReads=list(
+      averagePerBp=100,
+      quantile=0.25
+    ),
+    expression=list(
+      median=TRUE,
+	  mean=FALSE,
+	  quantile=NA,
+	  known=NA,
+	  custom=NA
+    ),
+    biotype=getDefaults("biotypeFilter","mm9")
+  ),
+   outList=TRUE
 )
 head(result$data[["e14.5_vs_adult_8_weeks"]])
 }
 }
 \author{
-    Panagiotis Moulos
+  Panagiotis Moulos
 }
-

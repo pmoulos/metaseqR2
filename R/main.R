@@ -1,4 +1,4 @@
-metaseqr <- function(
+metaseqr2 <- function(
     counts,
     sampleList,
     excludeList=NULL,
@@ -329,12 +329,30 @@ metaseqr <- function(
     if (!is.null(annotation) && !is.list(annotation) 
 		&& !file.exists(annotation))
 		checkTextArgs("annotation",annotation,"embedded",multiarg=FALSE)
-	if (!.userOrg(org,localDb) && is.null(annotation))
-		checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5","rn6",
-			"dm3","dm6","danrer7","pantro4","susscr3","tair10","equcab2"),
-			multiarg=FALSE)
-	if (!.userRefdb(refdb,localDb) && is.null(annotation))
-		checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),multiarg=FALSE)
+	if (is.character(localDb) && file.exists(localDb)) {
+		if (!.userOrg(org,localDb) && is.null(annotation))
+			checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5",
+				"rn6","dm3","dm6","danrer7","pantro4","susscr3","tair10",
+				"equcab2"),multiarg=FALSE)
+	}
+	else {
+		# So only some annotations can be fetched on-the-fly
+		if (is.null(annotation)) 
+			checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5",
+				"rn6","dm3","dm6","danrer7","pantro4","susscr3","tair10",
+				"equcab2"),multiarg=FALSE)
+	}
+	if (is.character(localDb) && file.exists(localDb)) {
+		if (!.userRefdb(refdb,localDb) && is.null(annotation))
+			checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),
+				multiarg=FALSE)
+	}
+	else {
+		# So only some annotations can be fetched on-the-fly
+		if (is.null(annotation)) 
+			checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),
+				multiarg=FALSE)
+	}
     checkTextArgs("transLevel",transLevel,c("gene","transcript","exon"),
         multiarg=FALSE)
     checkTextArgs("countType",countType,c("gene","exon","utr"),

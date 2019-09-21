@@ -1699,14 +1699,14 @@ makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     return(foldMat)
 }
 
-makeAvgExpression <- function(contrast,sampleList,data.matrix,logOffset=1) {
+makeAvgExpression <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
-    a.mat <- matrix(0,nrow(data.matrix),length(conds)-1)
+    a.mat <- matrix(0,nrow(dataMatrix),length(conds)-1)
     for (i in 2:length(conds)) { # First condition is ALWAYS reference
         samples.nom <- sampleList[[conds[i]]]
         samples.denom <- sampleList[[conds[1]]]
-        nom <- data.matrix[,match(samples.nom,colnames(data.matrix))]
-        denom <- data.matrix[,match(samples.denom,colnames(data.matrix))]
+        nom <- dataMatrix[,match(samples.nom,colnames(dataMatrix))]
+        denom <- dataMatrix[,match(samples.denom,colnames(dataMatrix))]
         if (!is.matrix(nom)) nom <- as.matrix(nom) # Cover the case with no replicates...
         if (!is.matrix(denom)) denom <- as.matrix(denom)
         mean.nom <- apply(nom,1,mean)
@@ -1715,7 +1715,7 @@ makeAvgExpression <- function(contrast,sampleList,data.matrix,logOffset=1) {
         if (any(mean.denom==0)) mean.denom <- mean.denom + logOffset
         a.mat[,i-1] <- 0.5*(log2(mean.nom)+log2(mean.denom))
     }
-    rownames(a.mat) <- rownames(data.matrix)
+    rownames(a.mat) <- rownames(dataMatrix)
     colnames(a.mat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
     return(a.mat)
 }
@@ -1760,31 +1760,31 @@ makeHtmlTable <- function(b,h=NULL,id=NULL) {
     return(html)
 }    
 
-makeTransformation <- function(data.matrix,exportScale,
+makeTransformation <- function(dataMatrix,exportScale,
     scf=NULL,logOffset=1) {
     mat <- vector("list",length(exportScale))
     names(mat) <- exportScale
-    if (!is.matrix(data.matrix)) data.matrix <- as.matrix(data.matrix)
-    if (is.null(scf)) scf <- rep(1,nrow(data.matrix))
+    if (!is.matrix(dataMatrix)) dataMatrix <- as.matrix(dataMatrix)
+    if (is.null(scf)) scf <- rep(1,nrow(dataMatrix))
     for (scl in exportScale) {
         switch(scl,
             natural = {
-                mat[[scl]] <- data.matrix
+                mat[[scl]] <- dataMatrix
             },
             log2 = {
-                mat[[scl]] <- nat2log(data.matrix,base=2,off=logOffset)
+                mat[[scl]] <- nat2log(dataMatrix,base=2,off=logOffset)
             },
             log10 = {
-                mat[[scl]] <- nat2log(data.matrix,base=10,off=logOffset)
+                mat[[scl]] <- nat2log(dataMatrix,base=10,off=logOffset)
             },
             vst = {
-                fit <- vsn2(data.matrix,verbose=FALSE)
-                mat[[scl]] <- predict(fit,newdata=data.matrix)
+                fit <- vsn2(dataMatrix,verbose=FALSE)
+                mat[[scl]] <- predict(fit,newdata=dataMatrix)
             },
             rpgm = {
-                mat[[scl]] <- data.matrix
-                for (i in 1:ncol(data.matrix))
-                    mat[[scl]][,i] <- data.matrix[,i]/scf
+                mat[[scl]] <- dataMatrix
+                for (i in 1:ncol(dataMatrix))
+                    mat[[scl]][,i] <- dataMatrix[,i]/scf
             }
         )
     }

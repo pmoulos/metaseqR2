@@ -1,5 +1,5 @@
 read2count <- function(targets,annotation,fileType=targets$type,
-    transLevel="gene",utrFlank=500,interFeature=FALSE,rc=NULL) {
+    transLevel="gene",utrFlank=250,interFeature=FALSE,rc=NULL) {
     if (missing(targets))
         stopwrap("You must provide the targets argument!")
     if (missing(annotation))
