@@ -66,7 +66,7 @@ importFrom("log4r",level)
 importFrom("log4r",logfile)
 importFrom("log4r",warn)
 
-export(metaseqr)
+export(metaseqr2)
 export(buildAnnotationDatabase)
 export(buildCustomAnnotation)
 export(loadAnnotation)
