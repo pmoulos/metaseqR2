@@ -1,0 +1,11 @@
+---
+title: "Building an annotation database for metaseqR2"
+author: "Panagiotis Moulos"
+date: "`r BiocStyle::doc_date()`"
+output: 
+  BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Building an annotation database for metaseqR2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---

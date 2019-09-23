@@ -1,0 +1,67 @@
+---
+title: "Usage of the metaseqR2 package"
+author: "Panagiotis Moulos"
+date: "`r BiocStyle::doc_date()`"
+output: 
+  BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{RNA-Seq data analysis using mulitple statistical algorithms with metaseqR2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+RNA-Seq data analysis using mulitple statistical algorithms with metaseqR2
+================================================================================
+
+During the past years, a lot of packages have been developed for the analysis of 
+RNA-Seq data, introducing several approaches. Many of them live in Bioconductor. 
+Furthermore, different statistical approaches and heuristics are used in a
+continuous effort to improve overall accuracy. Such approaches include packages
+using the negative binomial distribution to model the null hypotheses (*DESeq*, 
+*DESeq2*, *edgeR*, *NBPSeq*, "ABSSeq"), packages using Bayesian statistics 
+(*baySeq*, *EBSeq*) or more hybrid solutions (*NOISeq*, *voom*). In addition, 
+packages specialized to RNA-Seq data normalization have also been developed 
+(*EDASeq*, *RUVSeq*). The first version of the *metaseqR* package (pronounced 
+meta-seek-er) provided an interface to several algorithms for normalization and 
+statistical analysis and at the same time provided PANDORA, a novel p-value 
+combination method. PANDORA
+metaseqR2, is the continuation of metaseqR is much simpler to use than
+\emph{TCC}, incoporates more algorithms for normalization and statistical analysis
+and builds a full report with several interactive and non-interactive diagnostic
+plots so that the users can easily explore the results and have whatever they need
+for this part of their research in one place. The metaseqR report is one of its
+most strong points as it provides an automatically generated summary, based on the
+pipeline inputs and the results, which can be used directly as a draft in methods
+paragraph in scientific publications. It also provides a lot of diagnostic figures
+and each figure is accompanied by a small explanatory text, and a list of
+references accroding to the algorithms used in the pipeline, which can also be
+used in a scientific article. All the report components are grouped in a
+comprehensive way, with a table of contents. Most importantly, metaseqR provides
+an interface for RNA-Seq data meta-analysis by providing the ability to use
+different algorithms for the statistical testing part and combining the p-values
+using popular published methods (e.g. Fisher's method, Whitlock's method) and two
+package-specific methods (intersection, union of statistically significant results).
+In the future, more algorithms will be incorporated in the package, with more
+diagnostic plots and more examples. This initial vignette contains just this
+introductory text and reference to some examples in the package documentation,
+which we believe that at this point contains sufficient explanation to run the
+metaseqr pipeline. Throughout the rest of this document, \emph{metaseqr} refers
+to the name of the analysis pipeline while \emph{metaseqR} refers to the name of
+the package.
+
+
+## Getting started
+
+```{r load-library echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+library(metaseqR2)
+```
+
+Detailed instructions on how to run the metaseqr pipeline can be found under the
+main documentation of the metaseqR2 package:
+
+```{r init-metaseqr, eval=FALSE, echo=TRUE, warning=FALSE}
+help(metaseqr2)
+```
+
+Briefly, to run metaseqr2 you need:
+
