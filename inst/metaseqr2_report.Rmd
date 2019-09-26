@@ -1,5 +1,5 @@
 ---
-title: "metaseqR2 report"
+title: "metaseqR<sup>2</sup> report"
 date: "`r Sys.Date()`"
 output:
   rmdformats::material:
@@ -14,6 +14,28 @@ output:
     use_bookdown: false
 ---
 
+<style>
+p {
+    margin: 0 0 10px;
+    text-align: justify;
+}
+
+.header-panel {
+    background-color: #0E2B8A;
+    min-height: 144px;
+    position: relative;
+    z-index: 3;
+}
+
+#summary_log_container {
+	font-family: "Courier New", Courier, monospace;
+	font-size: 0.9em;
+	height: 400px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	overflow-wrap: normal;
+}
+</style>
 
 ```{r knitr_init, echo=FALSE, cache=FALSE}
 library(knitr)
@@ -28,10 +50,849 @@ opts_chunk$set(
 	tidy=TRUE,
 	comment=NA,
 	message=FALSE,
-	warning=FALSE
+	warning=FALSE,
+	results="asis",
+	eval=TRUE
 )
 opts_knit$set(width=75)
 ```
 
+# Summary {.tabset .tabset-pills}
 
+## Analysis summary
 
+### Analysis summary
+
+```{r summary_analysis_summary}
+if (fromRaw) {
+    cat("The raw ",fileType," files, one for each RNA-Seq sample, were ",
+        "summarized to ")
+    if (transLevel == "gene") {
+        if (countType=="exon")
+            cat("an exon ") 
+        else if (countType=="gene")
+            cat("a gene ")
+        else if (countType=="utr") 
+            cat("a 3'UTR ")
+	}
+	else if (transLevel=="transcript") {
+		if (countType=="exon")
+			cat("an exon ")
+		else if (countType=="utr")
+			cat("a 3'UTR ")
+	}
+	else if (transLevel=="exon") {
+		if (countType=="exon")
+			cat("an exon ")
+	}
+	cat("read counts table, ")
+	if (fileType=="bam" || fileType=="sam")
+		cat("using the Bioconductor package GenomicRanges. ")
+	else if (fileType=="bed")
+		cat("using the Bioconductor packages rtracklayer and GenomicRanges. ")
+	cat("In the final read counts table, each row represented ")
+	if (countType=="exon") cat("one exon, ") 
+	    else if 
+	(countType=="gene") 
+	    cat("one gene, ")
+	cat("each column one RNA-Seq sample and each cell, the corresponding ",
+	    "read counts associated with each row and column.")
+}
+
+if (countType == "exon") {
+    if (!is.null(exonFilters)) {
+	    cat("The exon read counts were filtered for artifacts that could",
+		    "affect the subsequent normalization and statistical testing",
+		    "procedures as follows: ")
+		msgExonFiltersMinActiveExons <- NULL
+		if (!is.null(exonFilters$minActiveExons)) {
+			msgExonFiltersMinActiveExons <- paste(
+				"if an annotated ",transLevel," had up to ", 
+				exonFilters$minActiveExons$exonsPerGene," exons, read ",
+				"presence was required in at least ",
+				exonFilters$minActiveExons$minExons," of the exons, else if ", 
+				"an annotated ",transLevel," had more than ",
+				exonFilters$minActiveExons$exonsPerGene," exons, then read ",
+				"presence was required in at least ",
+				exonFilters$minActiveExons$frac,
+				"x&lceil;E&rceil; exons, where &lceil;<sup>.</sup>&rceil; is ",
+				"the <em>ceiling</em> mathematical function. The application ",
+				"of this filter resulted in the exclusion of ",
+				length(exonFilterResult$minActiveExons)," ",transLevel,
+				"s from further analysis. ",sep=""
+			)
+		}
+		cat(msgExonFiltersMinActiveExons,sep=", ")
+		cat("The total number of ",transLevel,"s excluded due to the ",
+		    "application of exon filters was ",
+		     sum(as.numeric(sapply(exonFilterResult,length))),". ",sep="")
+	}
+	cat("The final read counts for each ",transLevel," model were calculated",
+	    "as the sums of their exon reads, creating a ",transLevel," counts",
+	    "table where each row corresponded to an Ensembl",transLevel,
+	    " model and each column corresponded to an RNA-Seq sample. ")
+}
+
+cat("The ",transLevel," counts table was normalized for inherent systematic ",
+    "or experimental biases (e.g. sequencing depth, ",transLevel," length, ",
+    "GC content bias etc. using the Bioconductor package ",
+     reportMessages$norm[[normalization]]," after removing ",transLevel,
+    "s that had zero counts over all the RNA-Seq samples (",length(theZeros),
+     " ",transLevel,"s). The output of the normalization algorithm ",sep="")
+cat("was a table with normalized counts, which can be used for differential",
+    "expression analysis with statistical algorithms developed specifically",
+    "for count data. ")
+    
+if (!is.null(geneFilters)) {
+	cat("Prior to the statistical testing procedure, the ",transLevel," read ",
+	"counts were filtered for possible artifacts that could affect the ",
+	"subsequent statistical testing procedures. Genes/transcripts presenting ",
+	"any of the following were excluded from further analysis: ")
+	
+	latinNumbered <- c("i)","ii)","iii)","iv)","v)","vi)","vii)","viii)","ix)",
+		"x)","xi)","xii)","xiii)","xiv)","xv)")
+	counter <- 0
+	msgGeneFiltersLength <- msgGeneFiltersExpressionMedian <- 
+		msgGeneFiltersExpressionMean <- msgGeneFiltersExpressionQuantile <-
+		msgGeneFiltersExpressionKnown <- msgGeneFiltersExpressionCustom <-
+		msgGeneFiltersBiotype <- msgGeneFiltersAvgReads <- 
+		msgGeneFiltersPresence <- NULL
+	if (!is.null(geneFilters$length)) {
+		counter <- counter + 1
+		msgGeneFiltersLength <- paste(
+			latinNumbered[counter]," ",transLevel,"s with length less than ", geneFilters$length$length," (",length(geneFilterResult$length),
+			" genes)",sep=""
+		)
+	}
+	if (!is.null(geneFilters$avgReads)) {
+		counter <- counter + 1
+		msgGeneFiltersAvgReads <- paste(
+			latinNumbered[counter]," ",transLevel,"s whose average reads per ",
+			geneFilters$avgReads$averagePerBp," bp was less than the ",
+			100*geneFilters$avgReads$quantile,"<sup>th</sup> quantile of the ",
+			"total normalized distribution of average reads per ",
+			geneFilters$avgReads$averagePerBp,"bp (",
+			length(geneFilterResult$averagePerBp)," ",transLevel,"s with ",
+			"cutoff value ",round(geneFilterCutoff$avgReads,digits=5)," ",
+			"average reads per ",geneFilters$avgReads$averagePerBp," bp)",sep=""
+		)
+	}
+	if (!is.null(geneFilters$expression)) {
+		if (!is.null(geneFilters$expression$median) 
+		    && geneFilters$expression$median) {
+			counter <- counter + 1
+			msgGeneFiltersExpressionMedian <- paste(
+				latinNumbered[counter]," ",transLevel,"s with read counts ",
+				"below the median read counts of the total normalized count ",
+				"distribution (",length(geneFilterResult$expression$median)," ",
+				transLevel,"s with cutoff value ",
+				geneFilterCutoff$expression$median," normalized read counts)",
+				sep=""
+			)
+		}
+		if (!is.null(geneFilters$expression$mean) 
+		    && geneFilters$expression$mean) {
+			counter <- counter + 1
+			msgGeneFiltersExpressionMean <- paste(
+				latinNumbered[counter]," ",transLevel,"s with read counts ",
+				"below the mean read counts of the total normalized counts ",
+				"distribution (",length(geneFilterResult$expression$mean)," ",
+				transLevel,"s with cutoff value ",
+				geneFilterCutoff$expression$mean," normalized read counts)",
+				sep=""
+			)
+		}
+		if (!is.null(geneFilters$expression$quantile) 
+		    && !is.na(geneFilters$expression$quantile)) {
+			counter <- counter + 1
+			msgGeneFiltersExpressionQuantile <- paste(
+				latinNumbered[counter]," ",transLevel,"s with read counts ",
+				"below the ",100*geneFilters$expression$quantile,
+				"<sup>th</sup> quantile of the normalized counts distribution ",
+				"(",length(geneFilterResult$expression$quantile)," ",transLevel,
+				"s with cutoff value ",geneFilterCutoff$expression$quantile," ",
+				"normalized read counts)",sep=""
+			)
+		}
+		if (!is.null(geneFilters$expression$known) 
+		    && !is.na(geneFilters$expression$known)) {
+			counter <- counter + 1
+			msgGeneFiltersExpressionKnown <- paste(
+				latinNumbered[counter]," ",transLevel,"s with read counts ",
+				"below the 90<sup>th</sup> quantile of the counts of the ",
+				"following ",transLevel,"s, known to not being expressed from ",
+				"the related literature: ",
+				paste(geneFilters$expression$known,collapse=", "),
+				"(",length(geneFilterResult$expression$known)," ",transLevel,
+				"s with cutoff value",geneFilterCutoff$expression$known,
+				" normalized read counts)",sep=""
+			)
+		}
+		if (!is.null(geneFilters$expression$custom) 
+		    && !is.na(geneFilters$expression$custom)) {
+			counter <- counter + 1
+			msgGeneFiltersExpressionCustom <- paste(
+				latinNumbered[counter]," genes not passing the user defined ",
+				"filter provided to the metaseqr pipeline (",
+				length(geneFilterResult$expression$custom)," ",transLevel,
+				"s with cutoff value",geneFilterCutoff$expression$custom,")",
+				sep=""
+			)
+		}
+	}
+	if (!is.null(geneFilters$biotype)) {
+		counter <- counter + 1
+		msgGeneFiltersBiotype <- paste(
+			latinNumbered[counter]," ",transLevel,"s whose biotype matched ",
+			"the following: ",
+			paste(
+			    names(geneFilters$biotype)[which(unlist(geneFilters$biotype))],
+			    collapse=", "
+			),
+			" (",length(geneFilterResult$biotype)," ",transLevel,"s)",sep=""
+		)
+	}
+	if (!is.null(geneFilters$presence)) {
+		counter <- counter + 1
+		msgGeneFiltersPresence <- paste(
+			latinNumbered[counter]," ",transLevel,"s where ",
+			geneFilters$presence$frac*100,"% of samples were not above ",
+			geneFilters$presence$minCount," counts (",
+			length(geneFilterResult$presence)," ",transLevel,"s)",sep=""
+		)
+		if (geneFilters$presence$perCondition)
+		    msgGeneFiltersPresence <- 
+			    paste(msgGeneFiltersPresence," condition-wise",sep="")
+		else
+		    msgGeneFiltersPresence <- 
+			    paste(msgGeneFiltersPresence," across all samples",sep="")
+	}
+	
+	cat(msgGeneFiltersLength,msgGeneFiltersAvgReads,
+	    msgGeneFiltersExpressionMedian,msgGeneFiltersExpressionMean,
+		msgGeneFiltersExpressionQuantile,msgGeneFiltersExpressionKnown,
+		msgGeneFiltersExpressionCustom,msgGeneFiltersBiotype,
+		msgGeneFiltersPresence,sep=", ")
+	cat(". The total number of ",transLevel,"s excluded due to the ",
+	    "application of ",transLevel," filters was ",
+	    sum(as.numeric(sapply(geneFilterResult,length))),". ",sep="")
+	cat("The total (unified) number of ",transLevel,"s  excluded due to the ",
+	    "application of all filters was ",length(theZeros) + length(theDead),
+	    ". ",sep="")
+}
+
+cat("The resulting ",transLevel," counts table was subjected to differential ",
+	"expression analysis for the contrasts ",
+	paste(gsub("_vs_"," versus ",contrast),collapse=", "),sep="")
+if (length(statistics)>1) {
+	cat(" using the Bioconductor packages ",paste(unlist(
+	    reportMessages$stat[statistics],use.names=FALSE),collapse=", "),". ",
+	    sep="")
+	if (metaP!="none") {
+		cat("In order to combine the statistical significance from multiple ",
+		    "algorithms and perform meta-analysis, the ")
+		    cat(reportMessages$meta[[metaP]],"method was applied. ")
+	}
+} else {
+	cat(" using the Bioconductor package ",reportMessages$stat[[statistics]],
+	    ". ",sep="")
+}
+
+if (!is.na(pcut))
+	if (pcut==1) plasm <- 0.05 else plasm <- pcut
+
+cat("The final numbers of differentially expressed ",transLevel,"s were (per ",
+    "contrast): ",sep="")
+msgContrast <- character(length(contrast))
+names(msgContrast) <- contrast
+
+for (cnt in contrast) {
+	if (!is.na(pcut) && length(which(sumpList[[cnt]]<plasm))==0) {
+		msgContrast[cnt] <- paste(
+		    "for the contrast ",gsub("_vs_"," versus ",cnt),
+		    ", no differentially expressed ",transLevel,"s were found",
+			" with a p-value threshold of ",plasm,sep=""
+		)
+	} else if (is.na(pcut)) {
+		msgContrast[cnt] <- paste(
+		    "for the contrast ",gsub("_vs_"," versus ",cnt),
+		    ", no statistical threshold defined",sep=""
+		)
+	} else {
+		if (adjustMethod != "none") {
+			addTextP <- paste(
+			    " (",length(which(p.adjust(sumpList[[cnt]],
+			    adjustMethod)<plasm)),")",sep=""
+			)
+			hasFdrText <- " (FDR or adjusted p-value)"
+		}
+		else
+			addTextP <- hasFdrText <- NULL
+		if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
+			tmp <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
+			    sumpList[[cnt]]<plasm),,drop=FALSE],logOffset))
+			if (adjustMethod != "none") {
+				areThere <- which(p.adjust(sumpList[[cnt]],adjustMethod)<plasm)
+				if (length(areThere) > 0) {
+					if (length(areThere)==1) {
+						tmpF <- log2(makeFoldChange(cnt,sampleList,
+						    normGenesExpr[areThere,,drop=FALSE],logOffset))
+						addTextFu <- 
+						    paste(" (",length(which(tmpF>=1)),")",sep="")
+						addTextFd <- 
+						    paste(" (",length(which(tmpF<=-1)),")",sep="")
+						addTextFn <- 
+						    paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+					}
+					else {
+						tmpF <- log2(makeFoldChange(cnt,sampleList,
+						    normGenesExpr[areThere,,drop=FALSE],logOffset))
+						addTextFu <- 
+						    paste(" (",length(which(tmpF>=1)),")",sep="")
+						addTextFd <- 
+						    paste(" (",length(which(tmpF<=-1)),")",sep="")
+						addTextFn <- 
+						    paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+					}
+				}
+				else
+					addTextFu <- addTextFd <- addTextFn <- NULL
+			}
+			else
+				addTextFu <- addTextFd <- addTextFn <- NULL
+			msgContrast[cnt] <- paste(
+			    "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
+			    length(which(sumpList[[cnt]]<plasm)),addTextP,
+			    " statistically significant ",transLevel,"s were found with ",
+			    "a p-value",hasFdrText," threshold of ",plasm," and of these, ",
+			    length(which(tmp>=1)),addTextFu," were up-regulated, ",
+			    length(which(tmp<=-1)),addTextFd," were down-regulated and ",
+			    length(which(abs(tmp)<1)),addTextFn," were not ",
+			    "differentially expressed according to an absolute fold ",
+			    "change cutoff value of 1 in log<sub>2</sub> scale",sep=""
+			)
+		}
+		else
+			msgContrast[cnt] <- paste(
+			    "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
+			    length(which(sumpList[[cnt]]<plasm)),addTextP,
+			    " differentially expressed ",transLevel,"s were found with ",
+			    "a p-value",hasFdrText," threshold of ",plasm," at least in ",
+			    "one condition",sep=""
+			)
+	}
+}
+cat(paste(msgContrast,collapse=", "))
+cat(". Literature references for all the algorithms used can be found at the ",
+    "end of this report.")
+```
+
+## Input options
+
+### Input options
+
+**Read counts file:** 
+```{r summary_input_options_1}
+cat(countsName)
+```
+
+**Conditions:** 
+```{r summary_input_options_2}
+cat(paste(names(sampleList),collapse=", "))
+```
+
+**Samples included:** 
+```{r summary_input_options_3}
+cat(paste(unlist(sampleList),collapse=", "))
+```
+
+**Samples excluded:** 
+```{r summary_input_options_4}
+if (!is.null(excludeList) && !is.na(excludeList)) {
+	cat(paste(unlist(excludeList),collapse=", ")) 
+} else {
+	cat("none")
+}
+
+```
+
+**Requested contrasts:** 
+```{r summary_input_options_5}
+cat(paste(contrast,collapse=", "))
+```
+
+**Library sizes:**
+```{r summary_input_options_6}
+if (!is.null(libsizeList)) {
+	cat("<ul>")
+	for (n in names(libsizeList)) 
+	    cat("<li>",paste("<em>",n,"</em>: ",libsizeList[[n]],sep=""),"</li>")
+	cat("</ul>")
+} else {
+    cat("not available")
+}
+```
+
+**Organism:** 
+```{r summary_input_options_7}
+cat(reportMessages$org[[org]])
+```
+
+**Annotation source:** 
+```{r summary_input_options_8}
+cat(reportMessages$refdb[[refdb]])
+```
+
+**Count type:** 
+```{r summary_input_options_9}
+cat(countType)
+```
+
+```{r summary_input_options_10}
+if (countType=="utr" && utrFlank>0) {
+	cat("<strong>3' UTR flanking :</strong> ",utrFlank)
+}
+```
+
+**Exon filters:**
+```{r summary_input_options_11}
+if (!is.null(exonFilters)) {
+	cat(paste(names(exonFilters),collapse=", "),"</br>")
+	for (ef in names(exonFilters)) {
+		cat("<ul>")
+		cat("<li><em><span style=\"font-size:1em\">",ef,"</span></em><ul>",
+			sep="")
+		for (efp in names(exonFilters[[ef]])) {
+			if (length(exonFilters[[ef]][[efp]]) == 1 
+				&& is.function(exonFilters[[ef]][[efp]]))
+				cat("<li>custom function</li>")
+			else if (length(exonFilters[[ef]][[efp]]) == 1)
+				cat("<li>",paste(efp,exonFilters[[ef]][[efp]],sep=": "),
+					"</li>",sep="")
+			else if (length(exonFilters[[ef]][[efp]]) > 1)
+				cat("<li>",paste(efp,paste(exonFilters[[ef]][[efp]],
+					collapse=", "),sep=": "),"</li>",sep="")
+		}
+		cat("</ul></li></ul>")
+	}
+} else {
+	cat("none applied")
+}
+```
+
+```{r summary_input_options_12}
+if (!is.null(preset))
+	cat("<strong>Analysis preset:</strong>",reportMessages$preset[[preset]])
+```
+
+**Gene filters:**
+```{r summary_input_options_13}
+if (!is.null(geneFilters)) {
+	cat(paste(names(geneFilters),collapse=", "),"</br>")
+	for (gf in names(geneFilters)) {
+		cat("<ul>")
+		cat("<li><em><span style=\"font-size:1em\">",gf,"</span></em><ul>",
+		    sep="")
+		for (gfp in names(geneFilters[[gf]])) {
+			if (length(geneFilters[[gf]][[gfp]]) == 1 
+			    && is.function(geneFilters[[gf]][[gfp]]))
+				cat("<li>custom function</li>")
+			else if (length(geneFilters[[gf]][[gfp]]) == 1)
+				cat("<li>",paste(gfp,geneFilters[[gf]][[gfp]],sep=": "),"</li>",
+				    sep="")
+			else if (length(geneFilters[[gf]][[gfp]]) > 1)
+				cat("<li>",paste(gfp,paste(geneFilters[[gf]][[gfp]],
+					collapse=", "),sep=": "),"</li>",sep="")
+		}
+		cat("</ul></li></ul>")
+	}
+} else {
+	cat("none applied")
+}
+```
+
+**Filter application:** 
+```{r summary_input_options_14}
+cat(reportMessages$whenfilter[[whenApplyFilter]])
+```
+
+**Normalization algorithm:** 
+```{r summary_input_options_15}
+cat(reportMessages$norm[[normalization]])
+```
+
+**Normalization arguments:**
+```{r summary_input_options_16}
+if (!is.null(normArgs)) {
+	if (normalization == "each") {
+		for (n in names(normArgs)) {
+			cat("<strong>Statistical arguments for",
+				reportMessages$norm[[n]],": </strong>",
+				paste(names(normArgs[[n]]),collapse=", "))
+			if (length(normArgs[[n]]) > 0) {
+				cat("<ul>")
+				for (na in names(normArgs[[n]])) {
+					if (length(normArgs[[n]][[na]]) == 1 
+					    && is.function(normArgs[[n]][[na]])) {
+						cat("<li>",na,": ",
+						    as.character(substitute(normArgs[[na]])),
+						"</li>",sep="")
+					} else if (length(normArgs[[n]][[na]]) == 1) {
+						cat("<li>",paste(na,normArgs[[n]][[na]],sep=": "),
+						    "</li>")
+					} else if (length(normArgs[[n]][[na]]) > 1) {
+						cat("<li>",paste(na,paste(normArgs[[n]][[na]],
+							collapse=", "),sep=": "),"</li>")
+					}
+				}
+				cat("</ul>")
+			}
+			else cat("not available or not required")
+		}
+	}
+	else {
+		cat(paste(names(normArgs),collapse=", "),"</br>")
+		cat("<ul>")
+		for (na in names(normArgs)) {
+			if (length(normArgs[[na]])==1 && is.function(normArgs[[na]])) {
+				cat("<li>",as.character(substitute(normArgs[[na]])),"</li>",
+					sep="")
+			} else if (length(normArgs[[na]]) == 1) {
+				cat("<li>",paste(na,normArgs[[na]],sep=": "),"</li>")
+			}
+			else if (length(normArgs[[na]]) > 1) {
+				cat("<li>",paste(na,paste(normArgs[[na]],collapse=", "),
+					sep=": "),"</li>")
+			}
+		}
+		cat("</ul>")
+	}
+} else {
+	cat("not available")
+}
+```
+
+**Statistical algorithm(s):** 
+```{r summary_input_options_17}
+cat(paste(unlist(reportMessages$stat[statistics],use.names=FALSE),
+	collapse=", "))
+```
+
+```{r summary_input_options_18}
+if (!is.null(statArgs)) {
+	for (s in names(statArgs)) {
+		cat("<strong>Statistical arguments for ",reportMessages$stat[[s]],
+			": </strong>",paste(names(statArgs[[s]]),collapse=", "),sep="")
+		if (length(statArgs[[s]]) > 0) {
+			cat("<ul>")
+			for (sa in names(statArgs[[s]])) {
+				if (length(statArgs[[s]][[sa]]) == 1 
+				    && is.function(statArgs[[s]][[sa]])) {
+					cat("<li>",sa,": ",as.character(substitute(statArgs[[na]])),
+					    "</li>",sep="")
+				} else if (length(statArgs[[s]][[sa]])==1) {
+					cat("<li>",paste(sa,statArgs[[s]][[sa]],sep=": "),"</li>")
+				} else if (length(statArgs[[s]][[sa]])>1) {
+					cat("<li>",paste(sa,paste(statArgs[[s]][[sa]],
+						collapse=", "),sep=": "),"</li>")
+				}
+			}
+			cat("</ul>")
+		} else {
+			cat("not available or not required</br>")
+		}
+	}
+} else {
+	cat("<strong>Statistical arguments not available</strong>")
+}
+```
+
+**Meta-analysis method:** 
+```{r summary_input_options_19}
+cat(reportMessages$meta[[metaP]])
+```
+
+**Multiple testing correction:** 
+```{r summary_input_options_20}
+cat(reportMessages$adjust[[tolower(adjustMethod)]])
+```
+
+**p-value threshold:** 
+```{r summary_input_options_21}
+if (!is.na(pcut)) cat(pcut) else cat("not available")
+```
+
+**Logarithmic tranformation offset: ** 
+```{r summary_input_options_22}
+cat(logOffset)
+```
+
+**Analysis preset:** 
+```{r summary_input_options_23}
+if (!is.null(preset)) cat(preset) else ("not available")
+```
+
+**Quality control plots:**
+```{r summary_input_options_24}
+cat(paste(unlist(reportMessages$plots[qcPlots],use.names=FALSE),collapse=", "))
+```
+
+**Figure format:** 
+```{r summary_input_options_25}
+    cat(paste(figFormat,collapse=", "))
+```
+
+**Output directory:** 
+```{r summary_input_options_26}
+if (!is.na(exportWhere)) cat(exportWhere) else cat("default")
+```
+
+**Output data:** 
+```{r summary_input_options_27}
+cat(paste(unlist(reportMessages$export[exportWhat],use.names=FALSE),
+	collapse=", "))
+```
+
+**Output scale(s):** 
+```{r summary_input_options_28}
+cat(paste(unlist(reportMessages$export[exportScale],use.names=FALSE),
+	collapse=", "))
+```
+
+**Output values:** 
+```{r summary_input_options_29}
+cat(paste(unlist(reportMessages$export[exportValues],use.names=FALSE),
+	collapse=", "))
+```
+
+**Output statistics:**
+```{r summary_input_options_30}
+cat(paste(unlist(reportMessages$export[exportStats],use.names=FALSE),
+	collapse=", "))
+```
+
+**Total run time:**
+```{r summary_input_options_31}
+cat(execTime)
+```
+
+## Filtering
+
+<h3>Filtered 
+```{r summary_filtered_what_1}
+cat(transLevel,"s",sep="")
+``` 
+</h3>
+
+**Number of filtered**
+```{r summary_filtered_what_2}
+cat("<strong>",transLevel,"s: </strong>",sep="")
+```
+```{r summary_filtered_howmany_1}
+cat(length(theZeros) + length(theDead))
+```
+*which is the **union** of*
+
+* Filtered because of zero reads:
+```{r summary_filtered_howmany_2}
+cat(length(theZeros))
+```
+* Filtered because of exon filters:
+```{r summary_filtered_howmany_3}
+cat(sum(as.numeric(sapply(exonFilterResult,length))))
+if (sum(as.numeric(sapply(exonFilterResult,length))) != 0) {
+	cat("<em> which is the <strong>union</strong> of</em>")
+	cat("<ul>")
+	for (n in names(exonFilterResult)) {
+		cat("<li>",n,": ",length(exonFilterResult[[n]]),"</li>")
+	}
+	cat("</ul>")
+}
+```
+* Filtered because of gene filters:
+```{r summary_filtered_howmany_4}
+cat(length(unique(unlist(geneFilterResult))))
+```
+*which is the **union** of*
+```{r summary_filtered_howmany_5}
+cat("<ul>")
+for (n in names(geneFilterResult)) {
+	if (!is.list(geneFilterResult[[n]])) {
+		if (!is.null(geneFilterResult[[n]]))
+			cat("<li>",n,": ",length(unlist(geneFilterResult[[n]])),
+				" genes with filter cutoff value ",geneFilterCutoff[[n]],
+				"</li>",sep="")
+	}
+	else {
+		cat("<li>",n,": ",length(unlist(geneFilterResult[[n]])),
+			" ",transLevel,"s further decomposed to (filter name, filtered ",
+			transLevel,"s, filter cutoff):</li>",sep="")
+		cat("<ul>")
+		for (nn in names(geneFilterResult[[n]])) {
+			if (!is.null(geneFilterResult[[n]][[nn]]))
+				cat("<li>",nn,": ",length(unlist(geneFilterResult[[n]][[nn]])),
+				" ",transLevel,"s with filter cutoff value ",
+				paste(geneFilterCutoff[[n]][[nn]],collapse=", "),"</li>",sep="")
+		}
+		cat("</ul>")
+	}
+}
+cat("</ul>")
+```
+
+## Differential expression
+
+<h3>Differentially expressed 
+```{r summary_de_what_1}
+cat(transLevel,"s",sep="")
+``` 
+</h3>
+
+**Number of differentially expressed **
+```{r summary_de_what_2}
+cat("<strong>",transLevel,"s per contrast: </strong>",sep="")
+if (!is.na(pcut) && pcut==1)
+    cat("The p-value cutoff during the analysis was set to 1 so as to ",
+	    "retrieve the total ",transLevel," list which passed the filtering ",
+		"procedure. Each ",transLevel," in the list is accompanied by its ",
+		"statistical scores (p-value, FDR, etc.)")
+
+cat("<ul>")
+for (cnt in contrast) {
+	cat("<li><strong>",cnt,": </strong>",sep="")
+	if (!is.na(pcut) && length(which(sumpList[[cnt]]<pcut)) == 0) {
+		cat("no differentially expressed ",transLevel,"s","</li>",sep="")
+	} else if (is.na(pcut)) {
+		cat("no statistical threshold defined","</li>")
+	} else {
+		if (!is.na(pcut) && pcut==1)
+			plasm <- 0.05
+		else
+			plasm <- pcut
+		if (adjustMethod!="none") {
+			addTextP <- paste("(",length(which(p.adjust(sumpList[[cnt]],
+			    adjustMethod) < plasm)),")",sep="")
+			hasFdrText <- "(FDR or adjusted p-value)"
+		}
+		else
+			addTextP <- hasFdrText <- NULL
+		if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
+			tmpP <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
+			    sumpList[[cnt]] < plasm),,drop=FALSE],logOffset))
+			if (adjustMethod != "none") {
+				areThere <- which(p.adjust(sumpList[[cnt]],adjustMethod)<plasm)
+				if (length(areThere)>0) {
+					if (length(areThere) == 1) {
+						tmpF <- log2(makeFoldChange(cnt,sampleList,
+						    normGenesExpr[areThere,,drop=FALSE],logOffset))
+						addTextFu <- 
+						    paste(" (",length(which(tmpF>=1)),")",sep="")
+						addTextFd <- 
+						    paste(" (",length(which(tmpF<=-1)),")",sep="")
+						addTextFn <- 
+						    paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+					}
+					else {
+						tmpF <- log2(makeFoldChange(cnt,sampleList,
+						    normGenesExpr[areThere,,drop=FALSE],logOffset))
+						addTextFu <- 
+						    paste(" (",length(which(tmpF>=1)),")",sep="")
+						addTextFd <- 
+						    paste(" (",length(which(tmpF<=-1)),")",sep="")
+						addTextFn <- 
+						    paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+					}
+				} else {
+					addTextFu <- addTextFd <- addTextFn <- NULL
+				}
+			} else {
+				addTextFu <- addTextFd <- addTextFn <- NULL
+			}
+			cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
+			    " statistically significant ",transLevel,"s of which ",
+			    length(which(tmpP>=1)),addTextFu," up regulated, ",
+			    length(which(tmpP<=-1)),addTextFd," down regulated and ",
+			    length(which(abs(tmpP)<1)),addTextFn," not differentially ",
+			    "expressed according to a p-value ",hasFdrText," threshold of ",
+			    plasm," and an absolute fold change cutoff value of 1 in ",
+			    "log<sub>2</sub> scale.",sep="")
+		} else {
+			cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
+			    " statistically significant, differentially expressed in at",
+			    " least one condition at a p-value ",hasFdrText,
+			    " threshold of ",plasm,".",sep="")
+		}
+		if (length(statistics)>1 && metaP != "none") {
+			cat(" These numbers refer to the combined analysis performed by ",
+			    "metaseqR2. Per statistical algorithm, the differentially ",
+			    "expressed ",transLevel,"s are:",sep="")
+			cat("<ul>")
+			for (s in statistics) {
+				cat("<li><em>",reportMessages$stat[[s]],": </em>",sep="")
+				if (adjustMethod!="none") {
+					addTextP <- paste("(",length(which(p.adjust(
+					    cpList[[cnt]][,s],adjustMethod)<plasm)),")",sep="")
+					hasFdrText <- "(FDR or adjusted p-value)"
+				} else {
+					addTextP <- hasFdrText <- NULL
+				}
+				if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
+					tmpP <- log2(makeFoldChange(cnt,sampleList,
+					    normGenesExpr[which(cpList[[cnt]][,s]<plasm),,
+					    drop=FALSE],logOffset))
+					if (adjustMethod != "none") {
+						tmpF <- log2(makeFoldChange(cnt,sampleList,
+						    normGenesExpr[which(p.adjust(cpList[[cnt]][,s],
+						    adjustMethod)<plasm),,drop=FALSE],logOffset))
+						addTextFu <- 
+						    paste("(",length(which(tmpF>=1)),")",sep="")
+						addTextFd <- 
+						    paste("(",length(which(tmpF<=-1)),")",sep="")
+						addTextFn <- 
+						    paste("(",length(which(abs(tmpF)<1)),")",sep="")
+					} else {
+						addTextFu <- addTextFd <- addTextFn <- NULL
+					}
+					cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
+					    " statistically significant ",transLevel,"s of which ",
+					    length(which(tmpP>=1))," ",addTextFu," up regulated, ",
+						length(which(tmpP<=-1)),addTextFd," down regulated ",
+						"and ",length(which(abs(tmpP)<1))," ",addTextFn,
+						" not differentially expressed according to a p-value ",
+						hasFdrText," threshold of ",plasm," and an absolute ",
+						"fold change cutoff value of 1 in log<sub>2</sub> ",
+						"scale.",sep="")
+				} else {
+					cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
+					    " statistically significant, differentially expressed ",
+					    "in at least one condition at a p-value ",hasFdrText,
+					    " threshold of ",plasm,".",sep="")
+				}
+				cat("</li>")
+			}
+			cat("</ul>")
+		}
+	}
+}
+cat("</ul>")
+```
+
+## Run log
+
+```{r summary_run_log}
+if (runLog) {
+	cat("<h3>Run log</h3>")
+	cat("<div id=\"summary_log_container\">")
+	logString <- paste(readLines(file.path(PROJECT_PATH$logs,
+	    "metaseqr_run.log")),collapse="---EOL---")
+	logString <- gsub("\\$","->",logString)
+	cat(gsub("---EOL---","</br>",logString))
+	cat("</div>")
+} else {
+	cat("<h4>No logging requested</h4>")
+}
+```
+
+# Figures
+
+## Analysis figures

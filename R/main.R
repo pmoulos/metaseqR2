@@ -213,7 +213,7 @@ metaseqr2 <- function(
     assign("VERBOSE",verbose,envir=metaEnv)
     if (runLog)
         logger <- create.logger(logfile=file.path(PROJECT_PATH$logs,
-            "metaseqr_runLog"),level=2,logformat="%d %c %m")
+            "metaseqr_run.log"),level=2,logformat="%d %c %m")
     else
         logger <- NULL
     assign("LOGGER",logger,envir=metaEnv)
@@ -2015,18 +2015,21 @@ metaseqr2 <- function(
     ############################################################################
     
     if (report) {
+		disp("Creating HTML report...")
 		
-		#render(
+		execTime <- elap2human(TB)
+		TEMP <- environment()
+		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-		#	output_file="index.html",
-		#   output_dir=file.path(PROJECT_PATH$main,
+			input="/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			output_file="index.html",
+		    output_dir=PROJECT_PATH$main,
 		#	output_format="html_document",
-		##	params=list(result=result),
-		#   envir=TEMP,
-		#	encoding="UTF-8"
-		#)
-		
-        disp("Creating HTML report...")
+		#	params=list(result=result),
+			envir=TEMP,
+			encoding="UTF-8"
+		)
+        
         if (!is.null(qcPlots)) {
             # First create zip archives of the figures
             disp("Compressing figures...")
@@ -2056,73 +2059,73 @@ metaseqr2 <- function(
             figRaw <- figUnorm <- figNorm <- figStat <- figOther <-
                 figVenn <- NULL
 
-        if (tolower(reportTemplate)=="default") {
-            if (exists("TEMPLATE")) {
-                reportTemplate=list(
-                    html=file.path(TEMPLATE,"metaseqr_report.html"),
-                    css=file.path(TEMPLATE,"styles.css"),
-                    logo=file.path(TEMPLATE,"logo.png"),
-                    loader=file.path(TEMPLATE,"loader.gif")
-                )
-            }
-            else
-                reportTemplate=list(html=NULL,css=NULL,logo=NULL,
-                    loader=NULL)
-        }
+        #if (tolower(reportTemplate)=="default") {
+        #    if (exists("TEMPLATE")) {
+        #        reportTemplate=list(
+        #            html=file.path(TEMPLATE,"metaseqr_report.html"),
+        #            css=file.path(TEMPLATE,"styles.css"),
+        #            logo=file.path(TEMPLATE,"logo.png"),
+        #            loader=file.path(TEMPLATE,"loader.gif")
+        #        )
+        #    }
+        #    else
+        #        reportTemplate=list(html=NULL,css=NULL,logo=NULL,
+        #            loader=NULL)
+        #}
 
-        if (!is.null(reportTemplate$html)) {
-            if (file.exists(reportTemplate$html)) {
-                template <- reportTemplate$html
-                hasTemplate <- TRUE
-            }
-            else {
-                warnwrap(paste("The template file",reportTemplate$html,
-                    "was not ","found! The HTML report will NOT be generated."))
-                hasTemplate <- FALSE
-            }
-        }
-        else {
-            warnwrap(paste("The report option was enabled but no template ",
-                "file is provided! The HTML report will NOT be generated."))
-            has.template <- FALSE
-        }
-        if (!is.null(reportTemplate$css)) {
-            if (file.exists(reportTemplate$css))
-                file.copy(from=reportTemplate$css,to=PROJECT_PATH$media)
-            else
-                warnwrap(paste("The stylesheet file",reportTemplate$css,
-                    "was not ","found! The HTML report will NOT be styled."))
-        }
-        else
-            warnwrap(paste("The report stylesheet file was not provided! The ",
-                "HTML report will NOT be styled."))
-        if (!is.null(reportTemplate$logo)) {
-            if (file.exists(reportTemplate$logo))
-                file.copy(from=reportTemplate$logo,to=PROJECT_PATH$media)
-            else
-                warnwrap(paste("The report logo image",reportTemplate$logo,
-                    "was not found!"))
-        }
-        else
-            warnwrap(paste("The report logo image was not provided!"))
-        if (!is.null(reportTemplate$loader)) {
-            if (file.exists(reportTemplate$loader))
-                file.copy(from=reportTemplate$loader,to=PROJECT_PATH$media)
-            else
-                warnwrap(paste("The report logo image",reportTemplate$loader,
-                    "was not found!"))
-        }
-        else
-            warnwrap(paste("The report loader image was not provided!"))
-        if (has.template) {
-            execTime <- elap2human(TB)
-            TEMP <- environment()
-            brew(
-                file=reportTemplate$html,
-                output=file.path(PROJECT_PATH$main,"index.html"),
-                envir=TEMP
-            )
-        }
+        #if (!is.null(reportTemplate$html)) {
+        #    if (file.exists(reportTemplate$html)) {
+        #        template <- reportTemplate$html
+        #        hasTemplate <- TRUE
+        #    }
+        #    else {
+        #        warnwrap(paste("The template file",reportTemplate$html,
+        #            "was not ","found! The HTML report will NOT be generated."))
+        #        hasTemplate <- FALSE
+        #    }
+        #}
+        #else {
+        #    warnwrap(paste("The report option was enabled but no template ",
+        #        "file is provided! The HTML report will NOT be generated."))
+        #    hasTemplate <- FALSE
+        #}
+        #if (!is.null(reportTemplate$css)) {
+        #    if (file.exists(reportTemplate$css))
+        #        file.copy(from=reportTemplate$css,to=PROJECT_PATH$media)
+        #    else
+        #        warnwrap(paste("The stylesheet file",reportTemplate$css,
+        #            "was not ","found! The HTML report will NOT be styled."))
+        #}
+        #else
+        #    warnwrap(paste("The report stylesheet file was not provided! The ",
+        #        "HTML report will NOT be styled."))
+        #if (!is.null(reportTemplate$logo)) {
+        #    if (file.exists(reportTemplate$logo))
+        #        file.copy(from=reportTemplate$logo,to=PROJECT_PATH$media)
+        #    else
+        #        warnwrap(paste("The report logo image",reportTemplate$logo,
+        #            "was not found!"))
+        #}
+        #else
+        #    warnwrap(paste("The report logo image was not provided!"))
+        #if (!is.null(reportTemplate$loader)) {
+        #    if (file.exists(reportTemplate$loader))
+        #        file.copy(from=reportTemplate$loader,to=PROJECT_PATH$media)
+        #    else
+        #        warnwrap(paste("The report logo image",reportTemplate$loader,
+        #            "was not found!"))
+        #}
+        #else
+        #    warnwrap(paste("The report loader image was not provided!"))
+        #if (hasTemplate) {
+        #    execTime <- elap2human(TB)
+        #    TEMP <- environment()
+        #    brew(
+        #        file=reportTemplate$html,
+        #        output=file.path(PROJECT_PATH$main,"index.html"),
+        #        envir=TEMP
+        #    )
+        #}
     }
 
     ############################################################################

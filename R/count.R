@@ -49,8 +49,10 @@ read2count <- function(targets,annotation,fileType=targets$type,
     if (countType == "utr" && utrFlank > 0) {
 		disp("Flanking transcript 3' UTRs per ",utrFlank,"bp...")
 		w <- width(annotationGr)
-		annotationGr <- promoters(annotationGr,upstream=utrFlank,downstream=0)
-		annotationGr <- resize(annotationGr,width=w+2*utrFlank)
+		#annotationGr <- promoters(annotationGr,upstream=utrFlank,downstream=0)
+		#annotationGr <- resize(annotationGr,width=w+2*utrFlank)
+		annotationGr <- resize(annotationGr,width=utrFlank,fix="end")
+		annotationGr <- resize(annotationGr,width=2*utrFlank,fix="start")
 	}
 	
     # Continue
@@ -97,6 +99,7 @@ read2count <- function(targets,annotation,fileType=targets$type,
             gc(verbose=FALSE)
             return(list(counts=counts,libsize=libsize))
         },sampleFiles,rc=rc)
+        disp("  Finished counting!")
     }
     else if (fileType %in% c("sam","bam")) {
         if (fileType=="sam")
@@ -190,6 +193,7 @@ read2count <- function(targets,annotation,fileType=targets$type,
             gc(verbose=FALSE)
             return(list(counts=counts,libsize=libsize))
         },sampleFiles,paired,stranded,rc=rc)
+        disp("  Finished counting!")
     }
     for (i in 1:length(retVal)) {
         counts[,i] <- retVal[[i]]$counts

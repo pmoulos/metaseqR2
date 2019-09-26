@@ -24,31 +24,53 @@ packages specialized to RNA-Seq data normalization have also been developed
 (*EDASeq*, *RUVSeq*). The first version of the *metaseqR* package (pronounced 
 meta-seek-er) provided an interface to several algorithms for normalization and 
 statistical analysis and at the same time provided PANDORA, a novel p-value 
-combination method. PANDORA
-metaseqR2, is the continuation of metaseqR is much simpler to use than
-\emph{TCC}, incoporates more algorithms for normalization and statistical analysis
-and builds a full report with several interactive and non-interactive diagnostic
-plots so that the users can easily explore the results and have whatever they need
-for this part of their research in one place. The metaseqR report is one of its
-most strong points as it provides an automatically generated summary, based on the
-pipeline inputs and the results, which can be used directly as a draft in methods
-paragraph in scientific publications. It also provides a lot of diagnostic figures
-and each figure is accompanied by a small explanatory text, and a list of
-references accroding to the algorithms used in the pipeline, which can also be
-used in a scientific article. All the report components are grouped in a
-comprehensive way, with a table of contents. Most importantly, metaseqR provides
-an interface for RNA-Seq data meta-analysis by providing the ability to use
-different algorithms for the statistical testing part and combining the p-values
-using popular published methods (e.g. Fisher's method, Whitlock's method) and two
-package-specific methods (intersection, union of statistically significant results).
-In the future, more algorithms will be incorporated in the package, with more
-diagnostic plots and more examples. This initial vignette contains just this
-introductory text and reference to some examples in the package documentation,
-which we believe that at this point contains sufficient explanation to run the
-metaseqr pipeline. Throughout the rest of this document, \emph{metaseqr} refers
-to the name of the analysis pipeline while \emph{metaseqR} refers to the name of
-the package.
+combination method. PANDORA successfully combines several statistical algorithms 
+by weighting their outcomes according to their performance with realistically 
+simulated data sets generated from real data. Using simulated as well as real 
+data, it was shown that PANDORA improves the overall detection of differentially
+expressed genes by reducing false hits while maintaining true positives. To our
+knowledge, PANDORA remains the only fully functional method proposing this 
+combinatorial approach for the analysis of RNA-Seq data.
 
+metaseqR2, is the continuation of metaseqR. While it has been (at times)
+heavily refactored, it still offers the same functionalities with as much
+backwards compatibility as possible. Like metaseqR, metaseqR2, incoporates 
+several algorithms for normalization and statistical analysis. In particular, we
+extended the offered algorithms with *DESeq2*, *ABSSeq* and *DSS*. metaseqR2, 
+like metaseqR also builds a full report with several interactive and 
+non-interactive diagnostic plots so that the users can easily explore the 
+results and have whatever they need for this part of their research in one 
+place. The report has been modernized and remains one of its strongest points as
+it provides an automatically generated summary, based on the pipeline inputs and 
+the results, which can be used directly as a draft in methods paragraph in 
+scientific publications. It also provides a lot of diagnostic figures and each 
+figure is accompanied by a small explanatory text, and a list of references 
+according to the algorithms used in the pipeline. metaseqR2 continues to provide 
+an interface for RNA-Seq data meta-analysis by providing the ability to use 
+different algorithms for the statistical testing part and combining the p-values
+using popular published methods (e.g. Fisher's method, Whitlock's method) and 
+two package-specific methods (intersection, union of statistically significant 
+results) and of course PANDORA.
+
+Another major difference as compared to the older metaseqR package is the 
+annotation system that is adopted by metaseqR2. More specifically, metaseqR2
+introduces the ```buildAnnotationDatabase``` function which builds a local
+SQLite database with the supported by metaseqR annotations as well as additional
+versions added in the current package. ```buildAnnotationDatabase```, given a
+short and comprehensive number of arguments, automatically downloads, processes
+and imports to a portable database, all annotation types required by the
+```metaseqr2``` pipeline. Therefore, the user neither has to embed or download
+the required annotation each time. But most importantly, with the current 
+package, the user is able also to provide an own GTF file with custom annotation
+elements that are the imported to the metaseqR2 database and annotation system
+and can be used for the respective analyses.
+
+Apart from ```buildAnnotationDatabase```, there also other major additions 
+(such) as improved analysis for 3'UTR mRNA sequencing (Lexogen Quant-Seq 
+protocol) which can be found towards the end of this page. 
+
+Throughout the rest of this document, ```metaseqr2``` refers to the name of the  
+analysis pipeline while *metaseqR* refers to the name of the package.
 
 ## Getting started
 
@@ -64,4 +86,3 @@ help(metaseqr2)
 ```
 
 Briefly, to run metaseqr2 you need:
-

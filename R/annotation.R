@@ -583,7 +583,7 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 		stop("R package RSQLite is required to load annotation from database!")
 	
 	############################################################################
-	db <- "/media/raid/tmp/metaseqR2/test_ann/annotation.sqlite"
+	#db <- "/media/raid/tmp/metaseqR2/test_ann/annotation.sqlite"
 	############################################################################
 	
 	level <- level[1]
@@ -699,7 +699,7 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 
 .loadAnnotationOnTheFly <- function(genome,refdb,level,type,rc=NULL) {
 	message("Retrieving genome information for ",genome," from ",refdb)
-	sf <- getSeqInfo(genome)
+	sf <- getSeqInfo(genome,asSeqinfo=TRUE)
 	
 	switch(level,
 		gene = {
@@ -744,9 +744,9 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 						keep.extra.columns=TRUE,
 						seqnames.field="chromosome"
 					)
-					message("Merging 3' UTRs for ",genme," from ",refdb)
+					message("Merging 3' UTRs for ",genome," from ",refdb)
 					annGr <- reduceTranscripts(tmpGr)
-					names(annGr) <- as.character(annGr$gene_id)
+					names(annGr) <- as.character(annGr$transcript_id)
 				}
 			)
 		},
@@ -1234,7 +1234,14 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
 
     chrsExp <- paste("^",getValidChrs(org),"$",sep="",collapse="|")
     if (type=="gene") {
-        bm <- getBM(attributes=getGeneAttributes(org),mart=mart)
+		bm <- tryCatch(
+			getBM(attributes=getGeneAttributes(org),mart=mart),
+			error=function(e) {
+				message("Caught error: ",e)
+				.myGetBM(attributes=getGeneAttributes(org),mart=mart)
+			},
+			finally=""
+        )
         ann <- data.frame(
             chromosome=paste("chr",bm$chromosome_name,sep=""),
             start=bm$start_position,
@@ -1251,7 +1258,14 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
         rownames(ann) <- ann$gene_id
     }
     else if (type=="transcript") {
-        bm <- getBM(attributes=getTranscriptAttributes(org),mart=mart)
+		bm <- tryCatch(
+			getBM(attributes=getTranscriptAttributes(org),mart=mart),
+			error=function(e) {
+				message("Caught error: ",e)
+				.myGetBM(attributes=getTranscriptAttributes(org),mart=mart)
+			},
+			finally=""
+        )
         ann <- data.frame(
             chromosome=paste("chr",bm$chromosome_name,sep=""),
             start=bm$transcript_start,
@@ -1787,8 +1801,12 @@ getHost <- function(org,ver=NULL) {
     
     ea <- biomaRt::listEnsemblArchives()
     i <- grep(as.character(ver),ea[,"version"])
-    if (length(i) > 0)
-        return(ea[i,"url"])
+    if (length(i) > 0) {
+		if (ea[i,"current_release"] == "*")
+			return("http://www.ensembl.org")
+		else
+			return(ea[i,"url"])
+	}
     else
         return(NULL)
 }
