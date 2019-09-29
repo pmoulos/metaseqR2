@@ -333,6 +333,7 @@ diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
             cex=0.7)
         grid()
         graphicsClose(output)
+        return(fil)
     }
     else {
         # Create output object
@@ -353,11 +354,63 @@ diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
             user=NULL
         )
         json <- mdsToJSON(obj)
-        fil <- file.path(path,"mds.json")
-        disp("Writing ",fil)
-        write(json,fil)
+        return(json)
+        #fil <- file.path(path,"mds.json")
+        #disp("Writing ",fil)
+        #write(json,fil)
     }
-    return(fil)
+}
+
+.diagplotMdsGg <- function(x,sampleList,method="spearman",logIt=TRUE,...) {
+    classes <- as.factor(asClassVector(sampleList))
+    design <- as.numeric(classes)
+    if (ncol(x)<3) {
+        warnwrap("MDS plot cannot be created with less than 3 samples! ",
+            "Skipping...")
+        return("MDS plot cannot be created with less than 3 samples!")
+    }
+    if (logIt)
+        y <- nat2log(x,base=2)
+    else
+        y <- x
+    d <- as.dist(0.5*(1-cor(y,method=method)))
+    mdsObj <- cmdscale(d,eig=TRUE,k=2)
+    
+    xr <- diff(range(min(mdsObj$points[,1]),max(mdsObj$points[,1])))
+    yr <- diff(range(min(mdsObj$points[,2]),max(mdsObj$points[,2])))
+    xlims <- c(min(mdsObj$points[,1])-xr/10,max(mdsObj$points[,1])+xr/10)
+    ylims <- c(min(mdsObj$points[,2])-yr/10,max(mdsObj$points[,2])+yr/10)
+	
+	plotData <- data.frame(
+		x=mdsObj$points[,1],
+		y=mdsObj$points[,2],
+		Condition=classes
+	)
+	rownames(plotData) <- colnames(x)
+	
+	mds <- ggplot() +
+		geom_point(data=plotData,mapping=aes(x=x,y=y,colour=Condition,
+			shape=Condition),size=4) +
+		xlim(xlims[1],xlims[2]) + 
+		ylim(ylims[1],ylims[2]) +
+		ggtitle("MDS plot") +
+		xlab("\nPrincipal coordinate 1") +
+		ylab("Principal coordinate 2\n") +
+		theme_bw() +
+		theme(axis.title.x=element_text(size=12,face="bold"),
+			axis.title.y=element_text(size=12,face="bold"),
+			axis.text.x=element_text(size=11,face="bold"),
+			axis.text.y=element_text(size=11,face="bold"),
+			strip.text.x=element_text(size=11,face="bold"),
+			strip.text.y=element_text(size=11,face="bold"),
+			legend.position="bottom",
+			legend.title=element_text(size=10,face="bold"),
+			legend.text=element_text(size=9),
+			legend.key=element_blank()) +
+		geom_text(data=plotData,mapping=aes(x=x,y=y,
+			label=rownames(plotData)),size=4,hjust=-0.15,vjust=0)
+	return(mds)
+    #return(fil)
 }
 
 diagplotPairs <- function(x,output="x11",path=NULL,...) {    
@@ -647,10 +700,12 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                     if (output %in% c("pdf","ps","x11"))
                         graphicsOpen(output,fil[samples[i]],width=9,height=7)
                     else
-                        graphicsOpen(output,fil[samples[i]],width=1024,height=768)
+                        graphicsOpen(output,fil[samples[i]],width=1024,
+							height=768)
                     explo.plot(diagplotData,samples=i)
                     graphicsClose(output)
                 }
+                return(fil)
             }
             else {
                 diagplotDataSave = NOISeq::dat2save(diagplotData)
@@ -668,14 +723,16 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                    user=list(plotdata=diagplotDataSave,covars=covars)
                 )
                 json <- bioDetectionToJSON(obj)
-                fil <- character(length(samples))
-                names(fil) <- samples
-                for (i in 1:length(samples)) {
-                    fil[samples[i]] <- file.path(path,
-                        paste(whichPlot,"_",samples[i],".json",sep=""))
-                    disp("Writing ",fil[samples[i]])
-                    write(json[[i]],fil[samples[i]])
-                }
+                names(json) <- samples
+                #fil <- character(length(samples))
+                #names(fil) <- samples
+                #for (i in 1:length(samples)) {
+                #    fil[samples[i]] <- file.path(path,
+                #        paste(whichPlot,"_",samples[i],".json",sep=""))
+                #    disp("Writing ",fil[samples[i]])
+                #    write(json[[i]],fil[samples[i]])
+                #}
+                return(json)
             }
         },
         countsbio = {
@@ -696,6 +753,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                     explo.plot(diagplotData,samples=i,plottype="boxplot")
                     graphicsClose(output)
                 }
+                return(fil)
             }
             else {
                 colnames(x) <- unlist(sampleList)
@@ -713,36 +771,48 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                    user=list(counts=nat2log(x),covars=covars)
                 )
                 # Write JSON by sample
-                fil <- vector("list",2)
-                names(fil) <- c("sample","biotype")
-                fil[["sample"]] <- character(length(samples))
-                names(fil[["sample"]]) <- samples
+                #fil <- vector("list",2)
+                #names(fil) <- c("sample","biotype")
+                #fil[["sample"]] <- character(length(samples))
+                #names(fil[["sample"]]) <- samples
+                jsonList <- vector("list",2)
+                names(jsonList) <- c("sample","biotype")
+                jsonList[["sample"]] <- vector("list",length(samples))
+                names(jsonList[["sample"]]) <- samples
                 bts <- unique(as.character(obj$user$covars$biotype))
-                fil[["biotype"]] <- character(length(bts))
-                names(fil[["biotype"]]) <- bts
-                json <- countsBioToJSON(obj,by="sample")
-                for (i in 1:length(samples)) {
-                    fil[["sample"]][samples[i]] <- file.path(path,
-                        paste(whichPlot,"_",samples[i],".json",sep=""))
-                    disp("Writing ",fil[["sample"]][samples[i]])
-                    write(json[[i]],fil[["sample"]][samples[i]])
-                }
-                json <- countsBioToJSON(obj,by="biotype")
-                for (i in 1:length(bts)) {
-                    fil[["biotype"]][bts[i]] <- file.path(path,
-                        paste(whichPlot,"_",bts[i],".json",sep=""))
-                    disp("Writing ",fil[["biotype"]][bts[i]])
-                    write(json[[i]],fil[["biotype"]][bts[i]])
-                }
+                #fil[["biotype"]] <- character(length(bts))
+                #names(fil[["biotype"]]) <- bts
+                jsonList[["biotype"]] <- vector("list",length(bts))
+                #json <- countsBioToJSON(obj,by="sample")
+                jsonList[["sample"]] <- countsBioToJSON(obj,by="sample")
+                #for (i in 1:length(samples)) {
+                #    fil[["sample"]][samples[i]] <- file.path(path,
+                #        paste(whichPlot,"_",samples[i],".json",sep=""))
+                #    disp("Writing ",fil[["sample"]][samples[i]])
+                #    write(json[[i]],fil[["sample"]][samples[i]])
+                #}
+                #json <- countsBioToJSON(obj,by="biotype")
+                jsonList[["biotype"]] <- countsBioToJSON(obj,by="biotype")
+                names(jsonList[["biotype"]]) <- bts
+                #names(json) <- samples
+                #for (i in 1:length(bts)) {
+                #    fil[["biotype"]][bts[i]] <- file.path(path,
+                #        paste(whichPlot,"_",bts[i],".json",sep=""))
+                #    disp("Writing ",fil[["biotype"]][bts[i]])
+                #    write(json[[i]],fil[["biotype"]][bts[i]])
+                #}
+                return(jsonList)
             }
         },
         saturation = {
             # For 10 saturation points
             diagplotData <- NOISeq::dat(localObj,k=0,ndepth=9,type=whichPlot)
             d2s <- NOISeq::dat2save(diagplotData)
-            if (output != "json")
+            if (output != "json") {
                 fil <- diagplotNoiseqSaturation(d2s,output,covars$biotype,
                     path=path)
+                return(fil)
+			}
             else {
                 samples <- unlist(sampleList)
                 obj <- list(
@@ -759,26 +829,33 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                    user=list(plotdata=d2s)
                 )
                 # Write JSON by sample
-                fil <- vector("list",2)
-                names(fil) <- c("sample","biotype")
-                fil[["sample"]] <- character(length(samples))
-                names(fil[["sample"]]) <- samples
-                json <- bioSaturationToJSON(obj,by="sample")
-                for (i in 1:length(samples)) {
-                    fil[["sample"]][samples[i]] <- file.path(path,
-                        paste(whichPlot,"_",samples[i],".json",sep=""))
-                    disp("Writing ",fil[["sample"]][samples[i]])
-                    write(json[[i]],fil[["sample"]][samples[i]])
-                }
-                json <- bioSaturationToJSON(obj,by="biotype")
-                fil[["biotype"]] <- character(length(json))
-                names(fil[["biotype"]]) <- names(json)
-                for (n in names(json)) {
-                    fil[["biotype"]][n] <- file.path(path,
-                        paste(whichPlot,"_",n,".json",sep=""))
-                    disp("Writing ",fil[["biotype"]][n])
-                    write(json[[n]],fil[["biotype"]][n])
-                }
+                #fil <- vector("list",2)
+                #names(fil) <- c("sample","biotype")
+                #fil[["sample"]] <- character(length(samples))
+                #names(fil[["sample"]]) <- samples
+                jsonList <- vector("list",2)
+                names(jsonList) <- c("sample","biotype")
+                #json <- bioSaturationToJSON(obj,by="sample")
+                jsonList[["sample"]] <- bioSaturationToJSON(obj,by="sample")
+                names(jsonList[["sample"]]) <- samples
+                #for (i in 1:length(samples)) {
+                #    fil[["sample"]][samples[i]] <- file.path(path,
+                #        paste(whichPlot,"_",samples[i],".json",sep=""))
+                #    disp("Writing ",fil[["sample"]][samples[i]])
+                #    write(json[[i]],fil[["sample"]][samples[i]])
+                #}
+                #json <- bioSaturationToJSON(obj,by="biotype")
+                jsonList[["biotype"]] <- bioSaturationToJSON(obj,by="biotype")
+                #names(jsonList[["sample"]]) <- samples
+                #fil[["biotype"]] <- character(length(json))
+                #names(fil[["biotype"]]) <- names(json)
+                #for (n in names(json)) {
+                #    fil[["biotype"]][n] <- file.path(path,
+                #        paste(whichPlot,"_",n,".json",sep=""))
+                #    disp("Writing ",fil[["biotype"]][n])
+                #    write(json[[n]],fil[["biotype"]][n])
+                #}
+                return(jsonList)
             }
         },
         rnacomp = {

@@ -2021,7 +2021,8 @@ metaseqr2 <- function(
 		TEMP <- environment()
 		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-			input="/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		#	input="/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			input="C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			output_file="index.html",
 		    output_dir=PROJECT_PATH$main,
 		#	output_format="html_document",

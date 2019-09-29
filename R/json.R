@@ -14,7 +14,7 @@ mdsToJSON <- function(obj,jl=c("highcharts")) {
     xlim <- obj$xlim
     ylim <- obj$ylim
     samples <- obj$samples
-    cols <- getColorScheme()
+    cols <- .getColorScheme()
     
     # Construct series
     counter <- 0
@@ -52,9 +52,8 @@ mdsToJSON <- function(obj,jl=c("highcharts")) {
                 "<strong>Principal coordinate 1: </strong>{point.x}<br>",
                 "<strong>Principal coordinate 2: </strong>{point.y}",sep="")
                 
-                json <- toJSON(
-                    list(
-                        chart=list(
+                json <- toJSON(list(
+                    chart=list(
                         type="scatter",
                         zoomType="xy"
                     ),
@@ -122,8 +121,7 @@ mdsToJSON <- function(obj,jl=c("highcharts")) {
                         )
                     ),
                     series=unname(series)
-                )
-            )
+                ))
         }
     )
     return(json)
@@ -206,7 +204,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts")) {
     }
     
     if (by=="sample") {
-        cols <- getColorScheme(length(biotypes))
+        cols <- .getColorScheme(length(biotypes))
         box.list <- json <- vector("list",length(samplenames))
         names(box.list) <- names(json) <- samplenames
         for (n in samplenames) {
@@ -406,10 +404,10 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts")) {
                 }
             )
         }
-        return(unquote_js_fun(json))
+        return(.unquote_js_fun(json))
     }
     else if (by=="biotype") {
-        cols <- getColorScheme(length(samples))
+        cols <- .getColorScheme(length(samples))
         box.list <- json <- vector("list",length(biotypes))
         names(box.list) <- names(json) <- biotypes
         for (b in biotypes) {
@@ -617,7 +615,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts")) {
                 }
             )
         }
-        return(unquote_js_fun(json))
+        return(.unquote_js_fun(json))
     }
 }
 
@@ -637,7 +635,7 @@ bioDetectionToJSON <- function(obj,jl=c("highcharts")) {
     abu <- which(plotdata$genome>7)
     nabu <- which(plotdata$genome<=7)
     
-    cols <- getColorScheme()
+    cols <- .getColorScheme()
     json <- vector("list",length(samplenames))
     names(json) <- samplenames
     for (n in samplenames) {
@@ -845,7 +843,7 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
             nabu <- ord$ix[3:length(ord$ix)]
             names(nabu) <- names(ord$x[3:length(ord$x)])
     
-            cols <- getColorScheme(ncol(plotdata[[n]])-1)
+            cols <- .getColorScheme(ncol(plotdata[[n]])-1)
             counter <- 1
             
             global.series <- list(
@@ -976,7 +974,7 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
         for (b in biotypes) {
             series <- vector("list",length(plotdata))
             names(series) <- samplenames
-            cols <- getColorScheme(length(samplenames))
+            cols <- .getColorScheme(length(samplenames))
             counter <- 0
             for (s in names(series)) {
                 counter <- counter + 1
@@ -1090,7 +1088,7 @@ readNoiseToJSON <- function(obj,jl=c("highcharts"),seed=42) {
     if (is.list(samples))
         samplenames <- unlist(samples)
     
-    cols <- getColorScheme(length(samplenames))
+    cols <- .getColorScheme(length(samplenames))
     
     # Construct series
     counter <- 0
@@ -1215,7 +1213,7 @@ boxplotToJSON <- function(obj,jl=c("highcharts")) {
         nams <- unlist(name,use.names=FALSE)
         grouped <- TRUE
     }
-    cols <- getColorScheme()
+    cols <- .getColorScheme()
     
     # Data series
     d <- as.data.frame(round(b$stat,3))
@@ -1426,7 +1424,7 @@ boxplotToJSON <- function(obj,jl=c("highcharts")) {
             )
         }
     )
-    return(unquote_js_fun(json))
+    return(.unquote_js_fun(json))
 }
 
 biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1) {
@@ -1454,7 +1452,7 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1) {
         else
             samplenames <- colnames(counts)
         samples <- list(Samples=nams)
-        cols <- getColorScheme(length(samples))
+        cols <- .getColorScheme(length(samples))
     }
     else if (is.list(samples)) { # Is sampleList
         samplenames <- unlist(samples,use.names=FALSE)
@@ -1564,7 +1562,7 @@ filteredToJSON <- function(obj,by=c("chromosome","biotype"),
     by <- tolower(by[1])
     filtered <- obj$user$filtered
     total <- obj$user$total
-    cols <- getColorScheme(2)
+    cols <- .getColorScheme(2)
     
     if (by=="chromosome") {
         chr <- table(as.character(filtered$chromosome))
@@ -1940,9 +1938,9 @@ volcanoToJSON <- function(obj,jl=c("highcharts")) {
     return(json)
 }
 
-unquote_js_fun <- function(js) {
+.unquote_js_fun <- function(js) {
     if (is.list(js))
-        js <- lapply(js,unquote_js_fun)
+        js <- lapply(js,.unquote_js_fun)
     else {
         op <- gregexpr(pattern="function",js)
         cl <- gregexpr(pattern="}\\\"",js)
@@ -1958,8 +1956,8 @@ unquote_js_fun <- function(js) {
     return(js)
 }
 
-getGroupColorScheme <- function(group) {
-    cols <- getColorScheme(length(group))
+.getGroupColorScheme <- function(group) {
+    cols <- .getColorScheme(length(group))
     classes <- as.factor(asClassVector(group))
     design <- as.numeric(classes)
     return(lapply(cols,function(x,classes,design) {
@@ -1967,11 +1965,11 @@ getGroupColorScheme <- function(group) {
     },classes,design))
 }
 
-getColorScheme <- function(n=NULL) {
+.getColorScheme <- function(n=NULL) {
     if (missing(n) || is.null(n))
-        return(getColors())
+        return(.getColors())
     else {
-        cols <- getColors()
+        cols <- .getColors()
         if (n > length(cols$fill)) {
             cols$fill <- rep(cols$fill,length.out=n)
             cols$border <- rep(cols$border,length.out=n)
@@ -1982,7 +1980,7 @@ getColorScheme <- function(n=NULL) {
     }
 }
 
-getColors <- function() {
+.getColors <- function() {
     return(list(
         fill=c("#CD0000","#00CD00","#0000EE","#FFD700","#87CEEB","#CD8500",
             "#DEB887","#FF0000","#0000FF","#00FF00","#FFA500","#A9A9A9",

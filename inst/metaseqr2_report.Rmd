@@ -1,6 +1,7 @@
 ---
 title: "metaseqR<sup>2</sup> report"
-date: "`r Sys.Date()`"
+subtitle: "`r basename(PROJECT_PATH$main)`"
+date: "`r format(Sys.time(), '%d/%m/%Y')`"
 output:
   rmdformats::material:
     fig_width: 7
@@ -14,6 +15,12 @@ output:
     use_bookdown: false
 ---
 
+<script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
+<script type="text/javascript" src="https://code.highcharts.com/highcharts-more.js"></script>
+<script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript" src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+<script type="text/javascript" src="https://code.highcharts.com/modules/export-data.js"></script>
+
 <style>
 p {
     margin: 0 0 10px;
@@ -25,6 +32,22 @@ p {
     min-height: 144px;
     position: relative;
     z-index: 3;
+}
+
+.header-panel h1.subtitle {
+    font-size: 16px;
+	font-weight: 600;
+}
+
+.figure-hint {
+	text-align: justify;
+	font-size: 0.9em;
+}
+
+.hc-rect-small {
+	width: 640px;
+	height: 640px;
+	margin: auto;
 }
 
 #summary_log_container {
@@ -55,6 +78,31 @@ opts_chunk$set(
 	eval=TRUE
 )
 opts_knit$set(width=75)
+```
+
+```{r report_init}
+# Initialize some variables used throughout the report
+covarsRaw <- covarsStat <- NULL
+if (any(qcPlots %in% c("biodetection","countsbio","saturation","rnacomp",
+	"readnoise"))) {
+	covarsRaw <- list(
+		data=geneCounts,
+		length=width(geneData),
+		gc=as.numeric(geneData$gc_content),
+		chromosome=data.frame(
+			chromosome=as.character(seqnames(geneData)),
+			start=start(geneData),
+			end=end(geneData)
+		),
+		factors=data.frame(class=asClassVector(sampleList)),
+		biotype=as.character(geneData$biotype),
+		gene_name=as.character(geneData$gene_name)
+	)
+}
+
+if ("biodist" %in% qcPlots) {
+	covarsStat <- NULL
+}
 ```
 
 # Summary {.tabset .tabset-pills}
@@ -877,7 +925,12 @@ for (cnt in contrast) {
 cat("</ul>")
 ```
 
-## Run log
+## Command
+
+The command used will be displayed here
+
+
+## `r if (runLog) 'Run log'`
 
 ```{r summary_run_log}
 if (runLog) {
@@ -893,6 +946,121 @@ if (runLog) {
 }
 ```
 
-# Figures
+# Quality control
 
-## Analysis figures
+## Quality control figures {.tabset .tabset-pills}
+
+The following figures summarize the quality conrol steps and assessment 
+performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
+by an explanatory text. Many figures are interactive wih additional controls on
+the top right of the figure.
+
+### `r if ("mds" %in% qcPlots) 'MDS'` 
+
+```{r analysis_figures_mds}
+if ("mds" %in% qcPlots) {
+	json <- diagplotMds(geneCounts,sampleList,output="json")
+	
+	cat("<h4><strong>Multidimensional scaling</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$mds,
+	    "</br></br></div>",sep="")
+	cat("<div class=\"hc-rect-small\" id=\"mds_container\"></div>",sep="")
+	cat("<script>$('#mds_container').highcharts(",json,");</script>",sep="")
+}
+```
+
+### `r if ("biodetection" %in% qcPlots) 'Biodetection'`
+
+```{r analysis_figures_biodetection}
+if ("biodetection" %in% qcPlots) {
+	log <- capture.output({
+		json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+			whichPlot="biodetection",output="json")
+	})
+	
+	cat("<h4><strong>Biotype detection</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
+	    "</br></br></div>",sep="")
+	counter <- 0
+	for (s in unlist(sampleList)) {
+		counter <- counter + 1
+		cat("<div class=\"hc-rect-small\" id=\"biodetection_container_",counter,
+		    "\"></div>",sep="")
+		cat("<script>$('#biodetection_container_",counter,"').highcharts(",
+		    json[[s]],");</script>",sep="")
+		cat("</br>")
+	}
+}
+```
+
+### `r if ("countsbio" %in% qcPlots) 'Biocounts'`
+
+```{r analysis_figures_countsbio}
+if ("countsbio" %in% qcPlots) {
+	jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+			whichPlot="countsbio",output="json")
+			
+	#print(jsonList[[1]][[1]])
+	
+	cat("<h4><strong>Biotype detection</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
+	    "</br></br></div>",sep="")
+	
+	cat("<h4><em>Biotypes within samples</em></h4>")
+	counter <- 0
+	for (s in unlist(sampleList)) {
+		counter <- counter + 1
+		cat("<div class=\"hc-rect-small\" id=\"countsbio_sample_container_",
+		    counter,"\"></div>",sep="")
+		cat("<script>$('#countsbio_sample_container_",counter,"').highcharts(",
+		    jsonList[["sample"]][[s]],");</script>",sep="")
+		cat("</br>")
+	}
+	
+	cat("<h4><em>Biotype representation across samples</em></h4>")
+	counter <- 0
+	for (b in names(jsonList[["biotype"]])) {
+		counter <- counter + 1
+		cat("<div class=\"hc-rect-small\" id=\"countsbio_biotype_container_",
+		    counter,"\"></div>",sep="")
+		cat("<script>$('#countsbio_biotype_container_",counter,"').highcharts(",
+		    jsonList[["biotype"]][[b]],");</script>",sep="")
+		cat("</br>")
+	}
+}
+```
+
+### `r if ("saturation" %in% qcPlots) 'Saturation'`
+
+```{r analysis_figures_saturation}
+if ("saturation" %in% qcPlots) {
+	jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+			whichPlot="saturation",output="json")
+			
+	cat("<h4><strong>Read and biotype saturation</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$saturation,
+	    "</br></br></div>",sep="")
+	
+	cat("<h4><em>Read saturation per biotype for all samples</em></h4>")
+	counter <- 0
+	for (s in unlist(sampleList)) {
+		counter <- counter + 1
+		cat("<div class=\"hc-rect-small\" id=\"saturation_sample_container_",
+		    counter,"\"></div>",sep="")
+		cat("<script>$('#saturation_sample_container_",counter,"').highcharts(",
+		    jsonList[["sample"]][[s]],");</script>",sep="")
+		cat("</br>")
+	}
+	
+	cat("<h4><em>Read saturation per sample for all biotypes</em></h4>")
+	counter <- 0
+	for (b in names(jsonList[["biotype"]])) {
+		counter <- counter + 1
+		cat("<div class=\"hc-rect-small\" id=\"saturation_biotype_container_",
+		    counter,"\"></div>",sep="")
+		cat("<script>$('#saturation_biotype_container_",counter,"').highcharts(",
+		    jsonList[["biotype"]][[b]],");</script>",sep="")
+		cat("</br>")
+	}
+}
+```
