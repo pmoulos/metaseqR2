@@ -885,6 +885,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 cdplot(D,main="RNA-Seq reads noise")
                 grid()
                 graphicsClose(output)
+                return(fil)
             }
             else {
                 colnames(D$data2plot)[2:ncol(D$data2plot)] <- 
@@ -903,9 +904,10 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                     user=D$data2plot
                 )
                 json <- readNoiseToJSON(obj)
-                fil <- file.path(path,paste(whichPlot,".json",sep=""))
-                disp("Writing ",fil)
-                write(json,fil)
+                #fil <- file.path(path,paste(whichPlot,".json",sep=""))
+                #disp("Writing ",fil)
+                #write(json,fil)
+                return(json)
             }
         },
         biodist = { # We have to fake a noiseq object
@@ -1353,6 +1355,8 @@ diagplotFiltered <- function(x,y,output="x11",path=NULL,...) {
             border="yellow3",yaxt="n",xaxt="n",font=2,add=TRUE)
         
         graphicsClose(output)
+        
+        return(fil)
     }
     else {
         obj <- list(
@@ -1368,16 +1372,19 @@ diagplotFiltered <- function(x,y,output="x11",path=NULL,...) {
             altnames=NULL,
             user=list(filtered=x,total=y)
         )
-        fil <- list(chromosome=NULL,biotype=NULL)
-        json <- filteredToJSON(obj,by="chromosome")
-        fil$chromosome <- file.path(path,"filtered_genes_chromosome.json")
-        write(json,fil$chromosome)
-        json <- filteredToJSON(obj,by="biotype")
-        fil$biotype <- file.path(path,"filtered_genes_biotype.json")
-        write(json,fil$biotype)
+        #fil <- list(chromosome=NULL,biotype=NULL)
+        jsonList <- vector("list",2)
+        names(jsonList) <- c("chromosome","biotype")
+        #json <- filteredToJSON(obj,by="chromosome")
+        #fil$chromosome <- file.path(path,"filtered_genes_chromosome.json")
+        #write(json,fil$chromosome)
+        jsonList[["chromosome"]] <- filteredToJSON(obj,by="chromosome")
+        #json <- filteredToJSON(obj,by="biotype")
+        jsonList[["biotype"]] <- filteredToJSON(obj,by="biotype")
+        #fil$biotype <- file.path(path,"filtered_genes_biotype.json")
+        #write(json,fil$biotype)
+        return(jsonList)
     }
-
-    return(fil)
 }
 
 diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,

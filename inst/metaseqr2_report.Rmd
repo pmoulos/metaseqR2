@@ -1000,8 +1000,6 @@ if ("countsbio" %in% qcPlots) {
 	jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 			whichPlot="countsbio",output="json")
 			
-	#print(jsonList[[1]][[1]])
-	
 	cat("<h4><strong>Biotype detection</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
 	    "</br></br></div>",sep="")
@@ -1062,5 +1060,94 @@ if ("saturation" %in% qcPlots) {
 		    jsonList[["biotype"]][[b]],");</script>",sep="")
 		cat("</br>")
 	}
+}
+```
+
+### `r if ("readnoise" %in% qcPlots) 'Reads noise'` 
+
+```{r analysis_figures_readsnoise}
+if ("readnoise" %in% qcPlots) {
+	json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+			whichPlot="readnoise",output="json")
+	
+	cat("<h4><strong>RNA_Seq reads noise</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$readnoise,
+	    "</br></br></div>",sep="")
+	cat("<div class=\"hc-rect-small\" id=\"readsnoise_container\"></div>",
+		sep="")
+	cat("<script>$('#readsnoise_container').highcharts(",json,");</script>",
+		sep="")
+}
+```
+
+### `r if ("correl" %in% qcPlots) 'Correlation'` 
+
+```{r analysis_figures_correl}
+if ("correl" %in% qcPlots) {
+	cat("<h4><strong>Pairwise sample correlations</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$correl,
+	    "</br></br></div>",sep="")
+	#cat("<div class=\"hc-rect-small\" id=\"correl_container\"></div>",
+	#	sep="")
+	corMat <- cor(geneCounts)
+    if (!is.null(colnames(geneCounts)))
+        colnames(corMat) <- colnames(geneCounts)
+    
+	n <- dim(corMat)[1]
+	labs <- matrix(NA,n,n)
+	for (i in 1:n)
+		for (j in 1:n)
+			labs[i,j] <- sprintf("%.2f",corMat[i,j])
+	if (n <= 5)
+		notecex <- 1.2
+	else if (n > 5 & n < 10)
+		notecex <- 0.9
+	else
+		notecex <- 0.7
+	#heatmap.2(cor.mat,col=colorRampPalette(c("yellow","grey","blue")),
+	#	revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,cellnote=labs,
+	#	keysize=1,density.info="density",notecex=notecex,cexCol=0.9,
+	#	cexRow=0.9,font.lab=2)
+	heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,cellnote=labs,
+		colors=colorRampPalette(c("yellow","grey","blue")),
+		k_col=length(sampleList),k_row=length(sampleList)) %>%
+		layout(width=640,height=480)
+}
+```
+
+### `r if ("pairwise" %in% qcPlots) 'Pairwise'` 
+
+```{r analysis_figures_pairwise}
+if ("pairwise" %in% qcPlots) {
+	cat("<h4><strong>Pairwise sample pairwiseations</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
+	    "</br></br></div>",sep="")
+	#cat("<div class=\"hc-rect-small\" id=\"pairwise_container\"></div>",
+	#	sep="")
+	#cat("<script>$('#pairwise_container').highcharts(",json,");</script>",
+	#	sep="")
+}
+```
+
+### `r if ("filtered" %in% qcPlots) 'Filtered'` 
+
+```{r analysis_figures_filtered}
+if ("filtered" %in% qcPlots) {
+	jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,output="json")
+	
+	cat("<h4><strong>Chromosome and biotype distribution of filtered ",
+		transLevel,"s</strong></h4>",sep="")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$filtered,
+	    "</br></br></div>",sep="")
+	cat("<h4>Chromosome distribution of filtered",transLevel,"s</h4>",sep="")
+	cat("<div class=\"hc-rect-small\" id=\"chromosome_distr_container\"></div>",
+		sep="")
+	cat("<script>$('#chromosome_distr_container').highcharts(",
+		jsonList[["chromosome"]],");</script>",sep="")
+	cat("<h4>Biotype distribution of filtered ",transLevel,"s</h4>",sep="")
+	cat("<div class=\"hc-rect-small\" id=\"biotype_distr_container\"></div>",
+		sep="")
+	cat("<script>$('#biotype_distr_container').highcharts(",
+		jsonList[["biotype"]],");</script>",sep="")
 }
 ```
