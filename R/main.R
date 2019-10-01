@@ -91,6 +91,9 @@ metaseqr2 <- function(
     progressFun=NULL,
     ...
 ) {
+	# Save function call for report
+	FUN_CALL <- deparse(sys.call())
+	
     # Check for older argument names and adjust
     args <- as.list(match.call())
     backCheckedArgs <- .backwardsConvertArgs(args)
@@ -201,6 +204,10 @@ metaseqr2 <- function(
                 "Please specify (BAM or BED)..."))
         fromRaw <- TRUE
     }
+    
+    # If report requested, RSQLite must be present
+    if (report && !require(RSQLite))
+		stop("R package RSQLite is required to build metaseqR reports!")
     
     # Initialize environmental variables
     HOME <- system.file(package="metaseqR")
@@ -2004,6 +2011,113 @@ metaseqr2 <- function(
                     plotType=intersect(qcPlots,plots$venn),
                     output=fig,path=PROJECT_PATH$statistics)
         }
+        
+        # And now, write the serialized JSON to a temporary SQLite database
+        # to be used to render the interactive charts
+        if (report) {
+			# Help data
+			covarsRaw <- covarsStat <- NULL
+			if (any(qcPlots %in% c("biodetection","countsbio","saturation",
+				"rnacomp","readnoise")))
+				covarsRaw <- list(
+					data=geneCounts,
+					length=width(geneData),
+					gc=as.numeric(geneData$gc_content),
+					chromosome=data.frame(
+						chromosome=as.character(seqnames(geneData)),
+						start=start(geneData),
+						end=end(geneData)
+					),
+					factors=data.frame(class=asClassVector(sampleList)),
+					biotype=as.character(geneData$biotype),
+					gene_name=as.character(geneData$gene_name)
+				)
+			
+			# There is not an easy way to bypass CORS, so we must offer the
+			# option to include all data in the report... This is necessary for
+			# non-unique plots such as biodetection
+			PLOT_DATA <- list()
+			samples <- unlist(sampleList)
+			ns <- length(samples)
+			
+			rdb <- file.path(PROJECT_PATH$data,"reportdb.sqlite")
+			disp("Opening plot database in ",rdb)
+			con <- dbConnect(dbDriver("SQLite"),dbname=rdb)
+			rs <- .initReportDbTables(con)
+			
+			if ("mds" %in% qcPlots) {
+				disp("Importing mds...")
+				json <- diagplotMds(geneCounts,sampleList,output="json")
+				.dbImportPlot(con,"MDS","mds",NULL,json)
+				
+			}
+			if ("biodetection" %in% qcPlots) {
+				disp("  Importing biodetection...")
+				json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+					whichPlot="biodetection",output="json")
+				PLOT_DATA$biodetection <- vector("list",ns)
+				for (s in samples) {
+					disp("    ",s)
+					name <- paste("biodetection",s,sep="_")
+					.dbImportPlot(con,name,"biodetection",NULL,json[[s]])
+					PLOT_DATA$biodetection[[s]] <- json[[s]]
+				}
+			}
+			if ("countsbio" %in% qcPlots) {
+				disp("  Importing countsbio...")
+				jsonList <- diagplotNoiseq(geneCounts,sampleList,
+					covars=covarsRaw,whichPlot="countsbio",output="json")
+				for (s in unlist(sampleList)) {
+					disp("    ",s)
+					name <- paste("countsbio",s,sep="_")
+					.dbImportPlot(con,name,"countsbio","sample",
+						jsonList[["sample"]][[s]])
+				}
+				for (b in names(jsonList[["biotype"]])) {
+					disp("    ",b)
+					name <- paste("countsbio",b,sep="_")
+					.dbImportPlot(con,name,"countsbio","biotype",
+						jsonList[["biotype"]][[b]])
+				}
+			}
+			if ("saturation" %in% qcPlots) {
+				disp("  Importing saturation...")
+				jsonList <- diagplotNoiseq(geneCounts,sampleList,
+					covars=covarsRaw,whichPlot="saturation",output="json")
+				for (s in unlist(sampleList)) {
+					disp("    ",s)
+					name <- paste("saturation",s,sep="_")
+					.dbImportPlot(con,name,"saturation","sample",
+						jsonList[["sample"]][[s]])
+				}
+				for (b in names(jsonList[["biotype"]])) {
+					disp("    ",b)
+					name <- paste("saturation",b,sep="_")
+					.dbImportPlot(con,name,"saturation","biotype",
+						jsonList[["biotype"]][[b]])
+				}
+			}
+			if ("readnoise" %in% qcPlots) {
+				disp("  Importing readnoise...")
+				json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+					whichPlot="readnoise",output="json")
+				.dbImportPlot(con,"ReadNoise","readnoise",NULL,json)
+			}
+			if ("filtered" %in% qcPlots) {
+				disp("  Importing filtered...")
+				jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,
+					output="json")
+				.dbImportPlot(con,"filtered_chromosome","filtered","chromosome",
+					jsonList[["chromosome"]])
+				.dbImportPlot(con,"filtered_biotype","filtered","biotype",
+					jsonList[["biotype"]])
+			}
+			
+			dbDisconnect(con)
+			
+			# PLOT_DATA to JSON and then write to include
+			#write(json,file.path(PROJECT_PATH$data,"mds.js"))
+		}
     }
 
     ############################################################################
@@ -2019,15 +2133,23 @@ metaseqr2 <- function(
 		
 		execTime <- elap2human(TB)
 		TEMP <- environment()
+		file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),overwrite=TRUE)
 		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
 		#	input="/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			input="C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			input=file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
+		#	input="C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			output_file="index.html",
 		    output_dir=PROJECT_PATH$main,
 		#	output_format="html_document",
 		#	params=list(result=result),
 			envir=TEMP,
+			#output_options=list(
+			#	includes=list(
+			#		in_header=MDS_JSON
+			#	)
+			#),
 			encoding="UTF-8"
 		)
         
@@ -2390,4 +2512,50 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 		}        
     }
     return(tmpEnv)
+}
+
+.initReportDbTables <- function(con) {
+	queries <- .reportDbTblDef()
+	rs <- dbSendQuery(con,queries[[1]])
+	if (dbHasCompleted(rs))
+		dbClearResult(rs)
+	for (n in names(queries)) {
+		rs <- dbSendStatement(con,queries[[n]])
+		if (dbHasCompleted(rs))
+			dbClearResult(rs)
+	}
+}
+
+.reportDbTblDef <- function() {
+	return(list(
+		enable_fkey="PRAGMA foreign_keys=1;",
+		plot=paste(
+			"CREATE TABLE IF NOT EXISTS plot (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"name TEXT,",
+			"type TEXT,",
+			"subtype TEXT,",
+			"json INTEGER",
+			");"
+		)
+	))
+}
+
+.dbImportPlot <- function(con,name,type,subtype=NULL,json) {
+	if (is.null(subtype))
+		#query <- paste("INSERT INTO plot (name, type, subtype, json) ",
+		#	"VALUES (","'",name,"', ","'",type,"', NULL, ",
+		#	"'",json,"')",sep="")
+		query <- paste("INSERT INTO plot (name, type, subtype, json) ",
+			"VALUES (","'",name,"', ","'",type,"', NULL, :j)",sep="")
+	else
+		#query <- paste("INSERT INTO plot (name, type, subtype, json) ",
+		#	"VALUES (","'",name,"', ","'",type,"', ","'",
+		#	subtype,"', ","'",json,"')",sep="")
+		query <- paste("INSERT INTO plot (name, type, subtype, json) ",
+			"VALUES (","'",name,"', ","'",type,"', ","'",
+			subtype,"', :j)",sep="")
+	#print(query)
+	nr <- dbExecute(con,query,params=list(j=json))
+	return(nr)
 }

@@ -20,6 +20,8 @@ output:
 <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript" src="https://code.highcharts.com/modules/offline-exporting.js"></script>
 <script type="text/javascript" src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js"></script>
+<!---<script src="data/mds.js"></script>-->
 
 <style>
 p {
@@ -927,8 +929,14 @@ cat("</ul>")
 
 ## Command
 
-The command used will be displayed here
+The differential expression analysis and this report were generated using the
+following command:
 
+```{r fun_call}
+cat("<pre><code>")
+cat(paste(FUN_CALL,collapse="</br>"))
+cat("</code></pre>")
+```
 
 ## `r if (runLog) 'Run log'`
 
@@ -956,6 +964,17 @@ by an explanatory text. Many figures are interactive wih additional controls on
 the top right of the figure.
 
 ### `r if ("mds" %in% qcPlots) 'MDS'` 
+
+<!---
+<button id="generate_mds" on>Generate MDS!</button>
+<div class="hc-rect-small" id="mds_container"></div>
+<script>
+$("#generate_mds").click(function() {
+	console.log(MDS_JSON);
+	$('#mds_container').highcharts(MDS_JSON);
+})
+</script>
+-->
 
 ```{r analysis_figures_mds}
 if ("mds" %in% qcPlots) {
