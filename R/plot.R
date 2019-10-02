@@ -258,6 +258,7 @@ diagplotBoxplot <- function(mat,name=NULL,logIt="auto",yLim="default",
             b <- boxplot(matList,names=nams,col=bCols,ylim=c(minY,maxY),
                 las=2,main=paste("Boxplot ",status,sep=""),...)
         graphicsClose(output)
+        return(fil)
     }
     else {
         # Create boxplot object
@@ -287,11 +288,11 @@ diagplotBoxplot <- function(mat,name=NULL,logIt="auto",yLim="default",
             user=oList
         )
         json <- boxplotToJSON(obj)
-        fil <- file.path(path,paste("boxplot_",status,".json",sep=""))
-        disp("Writing ",fil)
-        write(json,fil)
+        #fil <- file.path(path,paste("boxplot_",status,".json",sep=""))
+        #disp("Writing ",fil)
+        #write(json,fil)
+        return(json)
     }
-    return(fil)
 }
 
 diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
@@ -457,17 +458,18 @@ diagplotPairs <- function(x,output="x11",path=NULL,...) {
                 text(3,max(x[,j]-1),labels=cc,cex=0.7,)
                 #grid()
             }
-            else if (i>j) # MD plot
-            {
+            else if (i>j) { # MD plot
                 plot((x[,i]+x[,j])/2,x[,j]-x[,i],pch=20,col="blue",cex=0.4,...)
                 lines(lowess((x[,i]+x[,j])/2,x[,j]-x[,i]),col="red")
                 #grid()
             }
         }
     }
-
-    graphicsClose(output)
-    return(fil)
+	
+	if (output != "x11") {
+		graphicsClose(output)
+		return(fil)
+	}
 }
 
 diagplotCor <- function(mat,type=c("heatmap","correlogram"),output="x11",
@@ -513,7 +515,7 @@ diagplotCor <- function(mat,type=c("heatmap","correlogram"),output="x11",
 
 diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
     whichPlot=c("meanvar","meandiff","gcbias","lengthbias"),output="x11",
-    path=NULL,...) {
+    altNames=NULL,path=NULL,...) {
     if (is.null(path)) path <- getwd()
     checkTextArgs("whichPlot",whichPlot,c("meanvar","meandiff","gcbias",
         "lengthbias"),multiarg=TRUE)
@@ -524,60 +526,144 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
         status <- "normalized"
     else
         status <- "raw"
-    if (is.null(covar)) covar <- rep(NA,nrow(x))
-    s <- newSeqExpressionSet(x,phenoData=AnnotatedDataFrame(
+    if (whichPlot=="gcbias" && !is.null(covar)) {
+		if (max(covar) > 1) # 0-100 scale
+			covar <- covar/100
+	}
+    if (is.null(covar)) 
+		covar <- rep(NA,nrow(x))
+    s <- newSeqExpressionSet(as.matrix(x),phenoData=AnnotatedDataFrame(
         data.frame(conditions=asClassVector(sampleList),
         row.names=colnames(x))),featureData=AnnotatedDataFrame(data.frame(
         gc=covar,length=covar,row.names=rownames(x))))
     switch(whichPlot,
         meandiff = {
-            fil <- vector("list",length(sampleList))
-            names(fil) <- names(sampleList)
-            for (n in names(sampleList)) {
-                if (length(sampleList[[n]])==1) {
-                    warnwrap("Cannot create a mean-difference plot with one ",
-                        "sample per condition! Skipping...")
-                    next
-                }
-                pair.matrix <- combn(1:length(sampleList[[n]]),2)
-                fil[[n]] <- vector("list",ncol(pair.matrix))
-                for (i in 1:ncol(pair.matrix)) {
-                    s1 <- sampleList[[n]][pair.matrix[1,i]]
-                    s2 <- sampleList[[n]][pair.matrix[2,i]]
-                    fil[[n]][[i]] <- file.path(path,paste(whichPlot,"_",
-                        status,"_",n,"_",s1,"_",s2,".",output,sep=""))
-                    names(fil[[n]][i]) <- paste(s1,"vs",s2,sep="_")
-                    graphicsOpen(output,fil[[n]][[i]])
-                    MDPlot(s,y=pair.matrix[,i],main=paste("MD plot for ",n," ",
-                        status," samples ",s1," and ",s2,sep=""),cex.main=0.9)
-                    graphicsClose(output)
-                }
-            }
+			if (output!="json") {
+				fil <- vector("list",length(sampleList))
+				names(fil) <- names(sampleList)
+				for (n in names(sampleList)) {
+					if (length(sampleList[[n]])==1) {
+						warnwrap("Cannot create a mean-difference plot with ",
+							"one sample per condition! Skipping...")
+						next
+					}
+					pairMatrix <- combn(1:length(sampleList[[n]]),2)
+					fil[[n]] <- vector("list",ncol(pairMatrix))
+					for (i in 1:ncol(pairMatrix)) {
+						s1 <- sampleList[[n]][pairMatrix[1,i]]
+						s2 <- sampleList[[n]][pairMatrix[2,i]]
+						fil[[n]][[i]] <- file.path(path,paste(whichPlot,"_",
+							status,"_",n,"_",s1,"_",s2,".",output,sep=""))
+						names(fil[[n]][i]) <- paste(s1,"vs",s2,sep="_")
+						graphicsOpen(output,fil[[n]][[i]])
+						MDPlot(s,y=pairMatrix[,i],main=paste("MD plot for ",n,
+							" ",status," samples ",s1," and ",s2,sep=""),
+							cex.main=0.9)
+						graphicsClose(output)
+					}
+				}
+				return(fil)
+			}
+			else {
+				json <- vector("list",length(sampleList))
+				names(json) <- names(sampleList)
+				for (n in names(sampleList)) {
+					if (length(sampleList[[n]])==1) {
+						warnwrap("Cannot create a mean-difference plot with ",
+							"one sample per condition! Skipping...")
+						next
+					}
+					pairMatrix <- combn(1:length(sampleList[[n]]),2)
+					json[[n]] <- vector("list",ncol(pairMatrix))
+					for (i in 1:ncol(pairMatrix)) {
+						s1 <- sampleList[[n]][pairMatrix[1,i]]
+						s2 <- sampleList[[n]][pairMatrix[2,i]]
+						xx <- rowMeans(log(x[,pairMatrix[,i]] + 0.1))
+						yy <- log(x[,pairMatrix[2,i]] + 0.1) - 
+							log(x[,pairMatrix[1,i]] + 0.1)
+						obj <- list(
+							x=xx,
+							y=yy,
+							plot=NULL,
+							samples=c(s1,s2),
+							ylim=NULL,
+							xlim=NULL,
+							status=status,
+							pcut=NULL,
+							fcut=NULL,
+							altnames=altNames,
+							user=list(counts=NULL,covar=NULL,
+								covarname="Mean-Difference")
+						)
+						json[[n]][[i]] <- scatterToJSON(obj)
+					}
+				}
+				return(json)
+			}
         },
         meanvar = {
-            fil <- vector("list",length(sampleList))
-            names(fil) <- names(sampleList)
-            for (n in names(sampleList)) {    
-                if (length(sampleList[[n]])==1) {
-                    warnwrap("Cannot create a mean-variance plot with one ",
-                        "sample per condition! Skipping...")
-                    next
-                }
-                pair.matrix <- combn(1:length(sampleList[[n]]),2)
-                fil[[n]] <- vector("list",ncol(pair.matrix))
-                for (i in 1:ncol(pair.matrix)) {
-                    s1 <- sampleList[[n]][pair.matrix[1,i]]
-                    s2 <- sampleList[[n]][pair.matrix[2,i]]
-                    fil[[n]][[i]] <- file.path(path,paste(whichPlot,"_",status,
-                        "_",n,"_",s1,"_",s2,".",output,sep=""))
-                    names(fil[[n]][i]) <- paste(s1,"vs",s2,sep="_")
-                    graphicsOpen(output,fil[[n]][[i]])
-                    suppressWarnings(meanVarPlot(s,main=paste("MV plot for ",n,
-                        " ",status," samples ",s1," and ",s2,sep=""),
-                        cex.main=0.9))
-                    graphicsClose(output)
-                }
-            }
+			# FIXME: Damn bug! MV plots are per sample...
+			if (output!="json") {
+				fil <- vector("list",length(sampleList))
+				names(fil) <- names(sampleList)
+				for (n in names(sampleList)) {    
+					if (length(sampleList[[n]])==1) {
+						warnwrap("Cannot create a mean-variance plot with one ",
+							"sample per condition! Skipping...")
+						next
+					}
+					pair.matrix <- combn(1:length(sampleList[[n]]),2)
+					fil[[n]] <- vector("list",ncol(pair.matrix))
+					for (i in 1:ncol(pair.matrix)) {
+						s1 <- sampleList[[n]][pair.matrix[1,i]]
+						s2 <- sampleList[[n]][pair.matrix[2,i]]
+						fil[[n]][[i]] <- file.path(path,paste(whichPlot,"_",
+							status,"_",n,"_",s1,"_",s2,".",output,sep=""))
+						names(fil[[n]][i]) <- paste(s1,"vs",s2,sep="_")
+						graphicsOpen(output,fil[[n]][[i]])
+						suppressWarnings(meanVarPlot(s,main=paste(
+							"MV plot for ",n," ",status," samples ",s1," and ",
+							s2,sep=""),cex.main=0.9))
+						graphicsClose(output)
+					}
+				}
+				return(fil)
+			}
+			else {
+				json <- vector("list",length(sampleList))
+				names(json) <- names(sampleList)
+				for (n in names(sampleList)) {
+					if (length(sampleList[[n]])==1) {
+						warnwrap("Cannot create a mean-difference plot with ",
+							"one sample per condition! Skipping...")
+						next
+					}
+					pairMatrix <- combn(1:length(sampleList[[n]]),2)
+					json[[n]] <- vector("list",ncol(pairMatrix))
+					for (i in 1:ncol(pairMatrix)) {
+						s1 <- sampleList[[n]][pairMatrix[1,i]]
+						s2 <- sampleList[[n]][pairMatrix[2,i]]
+						xx <- apply(x[,pairMatrix[,i]],1,mean)
+						yy <- apply(x[,pairMatrix[,i]],1,mean)
+						obj <- list(
+							x=xx,
+							y=yy,
+							plot=NULL,
+							samples=c(s1,s2),
+							ylim=NULL,
+							xlim=NULL,
+							status=status,
+							pcut=NULL,
+							fcut=NULL,
+							altnames=altNames,
+							user=list(counts=NULL,covar=NULL,
+								covarname="Mean-Difference")
+						)
+						json[[n]][[i]] <- scatterToJSON(obj)
+					}
+				}
+				return(json)
+			}
         },
         gcbias = {
             if (!output=="json") {
@@ -588,6 +674,7 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
                     main=paste("Expression - GC content ",status,sep=""))
                 grid()
                 graphicsClose(output)
+                return(fil)
             }
             else {
                 obj <- list(
@@ -604,10 +691,11 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
                     user=list(counts=x,covar=covar,covarname="GC content")
                 )
                 json <- biasPlotToJSON(obj)
-                fil <- file.path(path,paste(whichPlot,"_",status,".json",
-                    sep=""))
-                disp("Writing ",fil)
-                write(json,fil)
+                #fil <- file.path(path,paste(whichPlot,"_",status,".json",
+                #    sep=""))
+                #disp("Writing ",fil)
+                #write(json,fil)
+                return(json)
             }
         },
         lengthbias = {
@@ -619,6 +707,7 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
                     main=paste("Expression - Gene length ",status,sep=""))
                 grid()
                 graphicsClose(output)
+                return(fil)
             }
             else {
                 obj <- list(
@@ -636,14 +725,14 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
                         covarname="Gene/transcript length")
                 )
                 json <- biasPlotToJSON(obj)
-                fil <- file.path(path,paste(whichPlot,"_",status,".json",
-                    sep=""))
-                disp("Writing ",fil)
-                write(json,fil)
+                #fil <- file.path(path,paste(whichPlot,"_",status,".json",
+                #    sep=""))
+                #disp("Writing ",fil)
+                #write(json,fil)
+                return(json)
             }
         }
     )
-    return(fil)
 }
 
 diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
@@ -1108,9 +1197,6 @@ diagplotNoiseqSaturation <- function(x,o,tb,path=NULL) {
 
 diagplotVolcano <- function(f,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
     output="x11",path=NULL,...) { # output can be json here...
-    ## Check rjson
-    #if ("json" %in% output && !require(rjson))
-    #    stopwrap("R package rjson is required to create interactive volcano plot!")
     if (is.null(path)) path <- getwd()
     if (is.null(con))
         con <- conn <- ""

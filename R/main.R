@@ -485,7 +485,7 @@ metaseqr2 <- function(
         if (length(toRemove)>0)
             qcPlots <- qcPlots[-toRemove]
     }
-	
+    
     # Check additional input arguments for normalization and statistics
     algArgs <- validateAlgArgs(normalization,statistics,normArgs,statArgs)
     normArgs <- algArgs$normArgs
@@ -1953,6 +1953,14 @@ metaseqr2 <- function(
         progressFun(detail=text)
     }
     
+    # Check if we have more than 6 samples in total, pairwise plots are not
+    # meaningful
+    if (length(unlist(sampleList)) > 6 && "pairwise" %in% qcPlots) {
+		warnwrap("Pairwise sample comparison plot becomes indistinguishable ",
+			"for more than 6 samples! Removing from plots...")
+		qcPlots <- qcPlots[-which(qcPlots == "pairwise")]
+	}
+	
     if (!is.null(qcPlots)) {
         disp("Creating quality control graphs...")
         plots <- list(
@@ -2038,7 +2046,7 @@ metaseqr2 <- function(
 			# non-unique plots such as biodetection
 			PLOT_DATA <- list()
 			samples <- unlist(sampleList)
-			ns <- length(samples)
+			nsa <- length(samples)
 			
 			rdb <- file.path(PROJECT_PATH$data,"reportdb.sqlite")
 			disp("Opening plot database in ",rdb)
@@ -2049,13 +2057,13 @@ metaseqr2 <- function(
 				disp("Importing mds...")
 				json <- diagplotMds(geneCounts,sampleList,output="json")
 				.dbImportPlot(con,"MDS","mds",NULL,json)
-				
+				# No need to put a single plot in PLOT_DATA
 			}
 			if ("biodetection" %in% qcPlots) {
 				disp("  Importing biodetection...")
 				json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 					whichPlot="biodetection",output="json")
-				PLOT_DATA$biodetection <- vector("list",ns)
+				PLOT_DATA$biodetection <- vector("list",nsa)
 				for (s in samples) {
 					disp("    ",s)
 					name <- paste("biodetection",s,sep="_")
@@ -2067,34 +2075,58 @@ metaseqr2 <- function(
 				disp("  Importing countsbio...")
 				jsonList <- diagplotNoiseq(geneCounts,sampleList,
 					covars=covarsRaw,whichPlot="countsbio",output="json")
-				for (s in unlist(sampleList)) {
+				PLOT_DATA$countsbio <- vector("list",2)
+				names(PLOT_DATA$countsbio) <- c("sample","biotype")
+				PLOT_DATA$countsbio$sample <- vector("list",nsa)
+				names(PLOT_DATA$countsbio$sample) <- samples
+				PLOT_DATA$countsbio$biotype <- 
+					vector("list",length(names(jsonList[["biotype"]])))
+				names(PLOT_DATA$countsbio$biotype) <- 
+					names(jsonList[["biotype"]])
+				for (s in samples) {
 					disp("    ",s)
 					name <- paste("countsbio",s,sep="_")
 					.dbImportPlot(con,name,"countsbio","sample",
 						jsonList[["sample"]][[s]])
+					PLOT_DATA$countsbio$sample[[s]] <- 
+						jsonList[["sample"]][[s]]
 				}
 				for (b in names(jsonList[["biotype"]])) {
 					disp("    ",b)
 					name <- paste("countsbio",b,sep="_")
 					.dbImportPlot(con,name,"countsbio","biotype",
 						jsonList[["biotype"]][[b]])
+					PLOT_DATA$countsbio$biotype[[b]] <- 
+						jsonList[["biotype"]][[b]]
 				}
 			}
 			if ("saturation" %in% qcPlots) {
 				disp("  Importing saturation...")
 				jsonList <- diagplotNoiseq(geneCounts,sampleList,
 					covars=covarsRaw,whichPlot="saturation",output="json")
+				PLOT_DATA$saturation <- vector("list",2)
+				names(PLOT_DATA$saturation) <- c("sample","biotype")
+				PLOT_DATA$saturation$sample <- vector("list",nsa)
+				names(PLOT_DATA$saturation$sample) <- samples
+				PLOT_DATA$saturation$biotype <- 
+					vector("list",length(names(jsonList[["biotype"]])))
+				names(PLOT_DATA$saturation$biotype) <- 
+					names(jsonList[["biotype"]])
 				for (s in unlist(sampleList)) {
 					disp("    ",s)
 					name <- paste("saturation",s,sep="_")
 					.dbImportPlot(con,name,"saturation","sample",
 						jsonList[["sample"]][[s]])
+					PLOT_DATA$saturation$sample[[s]] <- 
+						jsonList[["sample"]][[s]]
 				}
 				for (b in names(jsonList[["biotype"]])) {
 					disp("    ",b)
 					name <- paste("saturation",b,sep="_")
 					.dbImportPlot(con,name,"saturation","biotype",
 						jsonList[["biotype"]][[b]])
+					PLOT_DATA$saturation$biotype[[b]] <- 
+						jsonList[["biotype"]][[b]]
 				}
 			}
 			if ("readnoise" %in% qcPlots) {
@@ -2112,6 +2144,52 @@ metaseqr2 <- function(
 				.dbImportPlot(con,"filtered_biotype","filtered","biotype",
 					jsonList[["biotype"]])
 			}
+			
+			if ("boxplot" %in% qcPlots) {
+				disp("  Importing boxplot...")
+				jsonUnorm <- diagplotBoxplot(geneCounts,name=sampleList,
+					isNorm=FALSE,output="json")
+				jsonNorm <- diagplotBoxplot(normGenes,name=sampleList,
+					isNorm=FALSE,output="json")
+				.dbImportPlot(con,"Boxplot","boxplot","unorm",jsonUnorm)
+				.dbImportPlot(con,"Boxplot","boxplot","norm",jsonNorm)
+			}
+			
+			if ("gcbias" %in% qcPlots) {
+				disp("  Importing gcbias...")
+				covar <- as.numeric(geneData$gc_content)
+				jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
+					isNorm=FALSE,whichPlot="gcbias",output="json")
+				jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
+					isNorm=TRUE,whichPlot="gcbias",output="json")
+				.dbImportPlot(con,"GCBias","gcbias","unorm",jsonUnorm)
+				.dbImportPlot(con,"GCBias","gcbias","norm",jsonNorm)
+			}
+			
+			if ("lengthbias" %in% qcPlots) {
+				disp("  Importing lengthbias...")
+				covar <- width(geneData)
+				jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
+					isNorm=FALSE,whichPlot="lengthbias",output="json")
+				jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
+					isNorm=TRUE,whichPlot="lengthbias",output="json")
+				.dbImportPlot(con,"LengthBias","lengthbias","unorm",jsonUnorm)
+				.dbImportPlot(con,"LengthBias","lengthbias","norm",jsonNorm)
+			}
+			
+			#if ("meandiff" %in% qcPlots) {
+			#	disp("  Importing meanvar...")
+			#	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
+			#		whichPlot="meandiff",output="json")
+			#	jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
+			#		whichPlot="meandiff",output="json")
+			#	.dbImportPlot(con,"MeanDifference","meandiff","unorm",jsonUnorm)
+			#	.dbImportPlot(con,"MeanDifference","meandiff","norm",jsonNorm)
+			#}
+			
+			assign("sampleList",sampleList,envir=parent.frame())
+			assign("geneCounts",geneCounts,envir=parent.frame())
+			assign("geneData",geneData,envir=parent.frame())
 			
 			dbDisconnect(con)
 			
@@ -2153,6 +2231,9 @@ metaseqr2 <- function(
 			encoding="UTF-8"
 		)
         
+        # Remove the Rmd file after rendering the report
+		unlink(PROJECT_PATH$main,"metaseqr2_report.Rmd")
+		
         if (!is.null(qcPlots)) {
             # First create zip archives of the figures
             disp("Compressing figures...")

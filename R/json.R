@@ -1444,7 +1444,10 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1) {
     }
     
     # If length bias, not nice to have x-axis at -200k
-    minX <- ifelse(max(covar>100),0,"undefined")
+    if (covarname == "lengthbias")
+		minX <- ifelse(max(covar>100),0,"undefined")
+	else
+		minX <- 0.1
 
     if (is.null(samples)) {
         if (is.null(colnames(x)))
@@ -1457,6 +1460,7 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1) {
     else if (is.list(samples)) { # Is sampleList
         samplenames <- unlist(samples,use.names=FALSE)
         grouped <- TRUE
+        cols <- .getColorScheme(length(samplenames))
     }
     colnames(counts) <- samplenames
     
@@ -1929,6 +1933,138 @@ volcanoToJSON <- function(obj,jl=c("highcharts")) {
                             ),
                             data=list(round(c(xlim[1],-log10(pcut)),3),
                                 round(c(xlim[2],-log10(pcut)),3))
+                        )
+                    )
+                )
+            )
+        }
+    )
+    return(json)
+}
+
+scatterToJSON <- function(obj,jl=c("highcharts")) {
+    jl <- tolower(jl[1])
+    x <- obj$x
+    y <- obj$y
+    altNames <- obj$altnames
+    type <- obj$user$covarname
+    status <- obj$status
+    samples <- obj$samples
+    
+    if (type=="Mean-Difference") {
+		xLab <- "Mean"
+		yLab <- "Difference"
+	}
+	else if (type=="Mean-Variance") {
+		xLab <- "Mean"
+		yLab <- "Variance"
+	}
+    
+    fit <- lowess(x,y)
+    
+    switch(jl,
+        highcharts = {
+            if (is.null(altNames))
+                point.format=paste("<strong>Gene ID: </strong>{point.name}<br>",
+                    "<strong>",xLab,": </strong>{point.x}<br>",
+                    "<strong>",yLab,": </strong>{point.y}",sep="")
+            else
+                point.format=paste("<strong>Gene name: </strong>",
+                    "{point.alt_name}<br>",
+                    "<strong>Gene ID: </strong>{point.name}<br>",
+                    "<strong>",xLab,": </strong>{point.x}<br>",
+                    "<strong>",yLab,": </strong>{point.y}",sep="")
+                json <- toJSON(
+                    list(
+                        chart=list(
+                        type="scatter",
+                        zoomType="xy"
+                    ),
+                    title=list(
+                        text=paste(type,"plot for",status,"samples",samples[1],
+							"and",samples[2])
+                    ),
+                    xAxis=list(
+                        title=list(
+                            text=xLab,
+                            margin=20,
+                            style=list(
+                                color="#000000",
+                                fontSize="1.2em"
+                            )
+                        ),
+                        labels=list(
+                            style=list(
+                                color="#000000",
+                                fontSize="1.1em",
+                                fontWeight="bold"
+                            )
+                        ),
+                        startOnTick=TRUE,
+                        endOnTick=TRUE,
+                        showLastLabel=TRUE,
+                        gridLineWidth=1,
+                        min=round(min(x),3),
+						max=round(max(x),3)
+                    ),
+                    yAxis=list(
+                        title=list(
+                            useHTML=TRUE,
+                            text=yLab,
+                            margin=25,
+                            style=list(
+                                color="#000000",
+                                fontSize="1.2em"
+                            )
+                        ),
+                        labels=list(
+                            style=list(
+                                color="#000000",
+                                fontSize="1.1em",
+                                fontWeight="bold"
+                            )
+                        ),
+                        startOnTick=TRUE,
+                        endOnTick=TRUE,
+                        showLastLabel=TRUE,
+                        gridLineWidth=1,
+                        min=round(min(y),3),
+						max=round(max(y),3)
+                    ),
+                    plotOptions=list(
+                        scatter=list(
+                            turboThreshold=50000
+                        )
+                    ),
+                    series=list(
+                        list(
+							type="scatter",
+                            name="Genes/Transcripts",
+                            #color="#00ABEE",
+                            color="rgba(0,171,238,0.5)",
+                            marker=list(
+                                radius=0.5
+                            ),
+                            data=makeHighchartsPoints(x,y,unname(altNames)),
+                            tooltip=list(
+								followPointer=FALSE,
+                                headerFormat=paste("<span style=",
+                                    "\"font-size:1.1em;color:{series.color};",
+                                    "font-weight:bold\">{series.name}<br>",
+                                    sep=""),
+                                pointFormat=point.format
+                            )
+                        ),
+                        list(
+							type="line",
+                            name="Trend",
+                            marker=list(
+                                enabled=FALSE
+                            ),
+                            color="#E40000",
+                            data=lapply(1:length(x),function(i,x,y) {
+								return(c(x[i],y[i])) 
+							},round(fit$x,3),round(fit$y,3))
                         )
                     )
                 )

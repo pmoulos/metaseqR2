@@ -70,7 +70,7 @@ library(rmdformats)
 options(max.print="75")
 opts_chunk$set(
 	echo=FALSE,
-	cache=TRUE,
+	cache=FALSE,
 	prompt=FALSE,
 	tidy=TRUE,
 	comment=NA,
@@ -958,7 +958,7 @@ if (runLog) {
 
 ## Quality control figures {.tabset .tabset-pills}
 
-The following figures summarize the quality conrol steps and assessment 
+The following figures summarize the quality control steps and assessment 
 performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
 by an explanatory text. Many figures are interactive wih additional controls on
 the top right of the figure.
@@ -1138,13 +1138,47 @@ if ("correl" %in% qcPlots) {
 
 ```{r analysis_figures_pairwise}
 if ("pairwise" %in% qcPlots) {
-	cat("<h4><strong>Pairwise sample pairwiseations</strong></h4>")
+	cat("<h4><strong>Pairwise sample correlations</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
 	    "</br></br></div>",sep="")
-	#cat("<div class=\"hc-rect-small\" id=\"pairwise_container\"></div>",
-	#	sep="")
-	#cat("<script>$('#pairwise_container').highcharts(",json,");</script>",
-	#	sep="")
+	cat("<div style=\"text-align:center\">")
+	
+    x <- nat2log(as.matrix(geneCounts))
+    n <- ncol(x)
+    if (!is.null(colnames(x)))
+        nams <- colnames(x)
+    else
+        nams <- paste("Sample_",1:ncol(x),sep="")
+
+    par(mfrow=c(n,n),mar=c(1,1,1,1),oma=c(1,1,0,0),mgp=c(2,0.5,0),cex.axis=0.6,
+        cex.lab=0.6)
+
+    for (i in 1:n) {
+        for (j in 1:n) {
+            if (i==j) { # Diagonal
+                plot(0:10,0:10,type="n",xaxt="n",yaxt="n",xlab="",ylab="")
+                text(c(3,5,3),c(9.5,5,1),c("X-Y plots",nams[i],"M-D plots"),
+                    cex=c(0.8,1,0.8))
+                arrows(6,9.5,9.5,9.5,angle=20,length=0.1,lwd=0.8,cex=0.8)
+                arrows(0.2,3.2,0.2,0.2,angle=20,length=0.1,lwd=0.8,cex=0.8)
+            }
+            else if (i<j) { # XY plot
+                plot(x[,i],x[,j],pch=20,col="blue",cex=0.4,xlab=nams[i],
+                    ylab=nams[j],...)
+                lines(lowess(x[,i],x[,j]),col="red")
+                cc <- paste("cor:",formatC(cor(x[,i],x[,j]),digits=3))
+                text(3,max(x[,j]-1),labels=cc,cex=0.7,)
+                #grid()
+            }
+            else if (i>j) { # MD plot
+                plot((x[,i]+x[,j])/2,x[,j]-x[,i],pch=20,col="blue",cex=0.4,...)
+                lines(lowess((x[,i]+x[,j])/2,x[,j]-x[,i]),col="red")
+                #grid()
+            }
+        }
+    }
+    
+    cat("</div>")
 }
 ```
 
@@ -1170,3 +1204,103 @@ if ("filtered" %in% qcPlots) {
 		jsonList[["biotype"]],");</script>",sep="")
 }
 ```
+
+# Normalization
+
+## Normalization assessment figures {.tabset .tabset-pills}
+
+The following figures allow for the assessment of the normalization procedures 
+performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
+by an explanatory text. Many figures are interactive wih additional controls on
+the top right of the figure.
+
+### `r if ("boxplot" %in% qcPlots) 'Boxplots'`
+
+```{r analysis_figures_boxplot}
+if ("boxplot" %in% qcPlots) {
+	jsonUnorm <- diagplotBoxplot(geneCounts,name=sampleList,isNorm=FALSE,
+		output="json")
+	jsonNorm <- diagplotBoxplot(normGenes,name=sampleList,isNorm=TRUE,
+		output="json")
+	
+	cat("<h4><strong>Boxplots</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$boxplot,"</br></br></div>",sep="")
+	cat("<div class=\"hc-rect-small\" id=\"boxplot_unorm_container\"></div>",
+		sep="")
+	cat("<div class=\"hc-rect-small\" id=\"boxplot_norm_container\"></div>",
+		sep="")
+	cat("<script>$('#boxplot_unorm_container').highcharts(",jsonUnorm,
+		");</script>",sep="")
+	cat("</br></br>")
+	cat("<script>$('#boxplot_norm_container').highcharts(",jsonNorm,
+		");</script>",sep="")
+}
+```
+
+### `r if ("gcbias" %in% qcPlots) 'GCBias'`
+
+```{r analysis_figures_gcbias}
+if ("gcbias" %in% qcPlots) {
+	covar <- as.numeric(geneData$gc_content)
+	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
+		whichPlot="gcbias",output="json")
+	jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,isNorm=TRUE,
+		whichPlot="gcbias",output="json")
+	
+	cat("<h4><strong>GC bias assessment plots</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$gcbias,
+		"</br></br></div>",sep="")
+	cat("<div class=\"hc-rect-small\" id=\"gcbias_unorm_container\"></div>",
+		sep="")
+	cat("<div class=\"hc-rect-small\" id=\"gcbias_norm_container\"></div>",
+		sep="")
+	cat("<script>$('#gcbias_unorm_container').highcharts(",jsonUnorm,
+		");</script>",sep="")
+	cat("</br></br>")
+	cat("<script>$('#gcbias_norm_container').highcharts(",jsonNorm,
+		");</script>",sep="")
+}
+```
+
+### `r if ("lengthbias" %in% qcPlots) 'LengthBias'`
+
+```{r analysis_figures_lengthbias}
+if ("lengthbias" %in% qcPlots) {
+	covar <- width(geneData)
+	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
+		whichPlot="lengthbias",output="json")
+	jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,isNorm=TRUE,
+		whichPlot="lengthbias",output="json")
+	
+	cat("<h4><strong>Length bias assessment plots</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$lengthbias,
+		"</br></br></div>",sep="")
+	cat("<div class=\"hc-rect-small\" id=\"lengthbias_unorm_container\"></div>",
+		sep="")
+	cat("<div class=\"hc-rect-small\" id=\"lengthbias_norm_container\"></div>",
+		sep="")
+	cat("<script>$('#lengthbias_unorm_container').highcharts(",jsonUnorm,
+		");</script>",sep="")
+	cat("</br></br>")
+	cat("<script>$('#lengthbias_norm_container').highcharts(",jsonNorm,
+		");</script>",sep="")
+}
+```
+
+### `r if ("meandiff" %in% qcPlots) 'MeanDiff'`
+```{r analysis_figures_meandiff}
+if ("meandiff" %in% qcPlots) {
+	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
+		whichPlot="meandiff",output="json")
+	
+	cat("<h4><strong>Length bias assessment plots</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$meandiff,
+		"</br></br></div>",sep="")
+	
+	cat("<div class=\"hc-rect-small\" id=\"meandiff_unorm_container\"></div>",
+		sep="")
+	cat("<script>$('#meandiff_unorm_container').highcharts(",jsonUnorm[[1]][[1]],
+		");</script>",sep="")
+}
+
+### `r if ("meanvar" %in% qcPlots) 'MeanVar'`
