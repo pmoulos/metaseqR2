@@ -645,6 +645,18 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
 						s2 <- sampleList[[n]][pairMatrix[2,i]]
 						xx <- apply(x[,pairMatrix[,i]],1,mean)
 						yy <- apply(x[,pairMatrix[,i]],1,mean)
+						
+						
+						#m <- apply(counts, 1, mean)
+						#v <- apply(counts, 1, var)
+						#if(log) {
+						#  mm <- pmax(0, log(m))
+						#  vv <- pmax(0, log(v))
+						#} else {
+						#  mm <- m[m<=quantile(m,probs=.9)]
+						#  vv <- v[m<=quantile(m,probs=.9)]
+						#}
+						
 						obj <- list(
 							x=xx,
 							y=yy,
