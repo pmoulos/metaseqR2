@@ -602,78 +602,34 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
 			}
         },
         meanvar = {
-			# FIXME: Damn bug! MV plots are per sample...
 			if (output!="json") {
-				fil <- vector("list",length(sampleList))
-				names(fil) <- names(sampleList)
-				for (n in names(sampleList)) {    
-					if (length(sampleList[[n]])==1) {
-						warnwrap("Cannot create a mean-variance plot with one ",
-							"sample per condition! Skipping...")
-						next
-					}
-					pair.matrix <- combn(1:length(sampleList[[n]]),2)
-					fil[[n]] <- vector("list",ncol(pair.matrix))
-					for (i in 1:ncol(pair.matrix)) {
-						s1 <- sampleList[[n]][pair.matrix[1,i]]
-						s2 <- sampleList[[n]][pair.matrix[2,i]]
-						fil[[n]][[i]] <- file.path(path,paste(whichPlot,"_",
-							status,"_",n,"_",s1,"_",s2,".",output,sep=""))
-						names(fil[[n]][i]) <- paste(s1,"vs",s2,sep="_")
-						graphicsOpen(output,fil[[n]][[i]])
-						suppressWarnings(meanVarPlot(s,main=paste(
-							"MV plot for ",n," ",status," samples ",s1," and ",
-							s2,sep=""),cex.main=0.9))
-						graphicsClose(output)
-					}
-				}
+				fil <- file.path(path,paste(whichPlot,"_",status,".",output,
+					sep=""))
+				graphicsOpen(output,fil)
+				suppressWarnings(meanVarPlot(s,main=paste("MV plot for",status,
+					"samples"),cex.main=0.9))
+				graphicsClose(output)
 				return(fil)
 			}
 			else {
-				json <- vector("list",length(sampleList))
-				names(json) <- names(sampleList)
-				for (n in names(sampleList)) {
-					if (length(sampleList[[n]])==1) {
-						warnwrap("Cannot create a mean-difference plot with ",
-							"one sample per condition! Skipping...")
-						next
-					}
-					pairMatrix <- combn(1:length(sampleList[[n]]),2)
-					json[[n]] <- vector("list",ncol(pairMatrix))
-					for (i in 1:ncol(pairMatrix)) {
-						s1 <- sampleList[[n]][pairMatrix[1,i]]
-						s2 <- sampleList[[n]][pairMatrix[2,i]]
-						xx <- apply(x[,pairMatrix[,i]],1,mean)
-						yy <- apply(x[,pairMatrix[,i]],1,mean)
-						
-						
-						#m <- apply(counts, 1, mean)
-						#v <- apply(counts, 1, var)
-						#if(log) {
-						#  mm <- pmax(0, log(m))
-						#  vv <- pmax(0, log(v))
-						#} else {
-						#  mm <- m[m<=quantile(m,probs=.9)]
-						#  vv <- v[m<=quantile(m,probs=.9)]
-						#}
-						
-						obj <- list(
-							x=xx,
-							y=yy,
-							plot=NULL,
-							samples=c(s1,s2),
-							ylim=NULL,
-							xlim=NULL,
-							status=status,
-							pcut=NULL,
-							fcut=NULL,
-							altnames=altNames,
-							user=list(counts=NULL,covar=NULL,
-								covarname="Mean-Difference")
-						)
-						json[[n]][[i]] <- scatterToJSON(obj)
-					}
-				}
+				m <- apply(x,1,mean)
+				v <- apply(x,1,var)
+				mm <- m[m<=quantile(m,probs=0.9)]
+				vv <- v[m<=quantile(m,probs=0.9)]
+				obj <- list(
+					x=mm,
+					y=vv,
+					plot=NULL,
+					samples=NULL,
+					ylim=NULL,
+					xlim=NULL,
+					status=status,
+					pcut=NULL,
+					fcut=NULL,
+					altnames=altNames,
+					user=list(counts=NULL,covar=NULL,covarname="Mean-Variance")
+				)
+				json <- scatterToJSON(obj)
 				return(json)
 			}
         },

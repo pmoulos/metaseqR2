@@ -20,8 +20,46 @@ output:
 <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript" src="https://code.highcharts.com/modules/offline-exporting.js"></script>
 <script type="text/javascript" src="https://code.highcharts.com/modules/export-data.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js"></script>
-<!---<script src="data/mds.js"></script>-->
+<!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js"></script>-->
+<script src="https://unpkg.com/dexie@2.0.4/dist/dexie.min.js"></script>
+
+<script>
+var db = new Dexie("plotdb");
+db.version(1).stores({
+	plots: '++_id,[name+type+subtype]'
+});
+db.plots.clear().then(console.log("Previous plots cleared!"));
+</script>
+
+<script type="text/javascript">
+/*getPlotFromDb = function(query,renderId) {
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', './data/reportdb.sqlite',true);
+	xhr.responseType = 'arraybuffer';
+	xhr.onload = function(e) {
+	  var uInt8Array = new Uint8Array(this.response);
+	  var db = new SQL.Database(uInt8Array);
+	  var contents = db.exec(query);
+	  var chartData = JSON.parse(contents[0].values[0][0]);
+	  //console.log(chartData)
+	  chartData.chart.renderTo = renderId;
+	  var chart = new Highcharts.Chart(chartData);
+	};
+	xhr.send();
+}*/
+getPlotFromDb = function(query,renderId) {
+	db.plots.get({
+		name: query.name,
+		type: query.type,
+		type: query.subtype
+	},function(res) {
+		console.log(res);
+		var chartData = res.json;
+		chartData.chart.renderTo = renderId;
+		var chart = new Highcharts.Chart(chartData);
+	});
+}
+</script>
 
 <style>
 p {
@@ -46,9 +84,15 @@ p {
 	font-size: 0.9em;
 }
 
-.hc-rect-small {
+.hc-rect-sm {
 	width: 640px;
 	height: 640px;
+	margin: auto;
+}
+
+.hc-rect-xs {
+	width: 320px;
+	height: 320px;
 	margin: auto;
 }
 
@@ -507,7 +551,7 @@ if (countType=="utr" && utrFlank>0) {
 **Exon filters:**
 ```{r summary_input_options_11}
 if (!is.null(exonFilters)) {
-	cat(paste(names(exonFilters),collapse=", "),"</br>")
+	cat(paste(names(exonFilters),collapse=", "),"<br/>")
 	for (ef in names(exonFilters)) {
 		cat("<ul>")
 		cat("<li><em><span style=\"font-size:1em\">",ef,"</span></em><ul>",
@@ -538,7 +582,7 @@ if (!is.null(preset))
 **Gene filters:**
 ```{r summary_input_options_13}
 if (!is.null(geneFilters)) {
-	cat(paste(names(geneFilters),collapse=", "),"</br>")
+	cat(paste(names(geneFilters),collapse=", "),"<br/>")
 	for (gf in names(geneFilters)) {
 		cat("<ul>")
 		cat("<li><em><span style=\"font-size:1em\">",gf,"</span></em><ul>",
@@ -601,7 +645,7 @@ if (!is.null(normArgs)) {
 		}
 	}
 	else {
-		cat(paste(names(normArgs),collapse=", "),"</br>")
+		cat(paste(names(normArgs),collapse=", "),"<br/>")
 		cat("<ul>")
 		for (na in names(normArgs)) {
 			if (length(normArgs[[na]])==1 && is.function(normArgs[[na]])) {
@@ -649,7 +693,7 @@ if (!is.null(statArgs)) {
 			}
 			cat("</ul>")
 		} else {
-			cat("not available or not required</br>")
+			cat("not available or not required<br/>")
 		}
 	}
 } else {
@@ -934,7 +978,7 @@ following command:
 
 ```{r fun_call}
 cat("<pre><code>")
-cat(paste(FUN_CALL,collapse="</br>"))
+cat(paste(FUN_CALL,collapse="<br/>"))
 cat("</code></pre>")
 ```
 
@@ -947,7 +991,7 @@ if (runLog) {
 	logString <- paste(readLines(file.path(PROJECT_PATH$logs,
 	    "metaseqr_run.log")),collapse="---EOL---")
 	logString <- gsub("\\$","->",logString)
-	cat(gsub("---EOL---","</br>",logString))
+	cat(gsub("---EOL---","<br/>",logString))
 	cat("</div>")
 } else {
 	cat("<h4>No logging requested</h4>")
@@ -965,29 +1009,31 @@ the top right of the figure.
 
 ### `r if ("mds" %in% qcPlots) 'MDS'` 
 
-<!---
-<button id="generate_mds" on>Generate MDS!</button>
-<div class="hc-rect-small" id="mds_container"></div>
+<button id="generate_mds">Generate MDS!</button>
 <script>
-$("#generate_mds").click(function() {
-	console.log(MDS_JSON);
-	$('#mds_container').highcharts(MDS_JSON);
+$("#generate_mds").click(function() {	
+	//getPlotFromDb('SELECT json FROM plot WHERE type="mds"',"mds_container")
+	getPlotFromDb({name: "MDS",type: "mds",subtype: null},"mds_container");
 })
 </script>
--->
+
 
 ```{r analysis_figures_mds}
 if ("mds" %in% qcPlots) {
 	json <- diagplotMds(geneCounts,sampleList,output="json")
-	
+	 
 	cat("<h4><strong>Multidimensional scaling</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$mds,
-	    "</br></br></div>",sep="")
-	cat("<div class=\"hc-rect-small\" id=\"mds_container\"></div>",sep="")
-	cat("<script>$('#mds_container').highcharts(",json,");</script>",sep="")
+	    "<br/><br/></div>",sep="")
+	cat("<div class=\"hc-rect-sm\" id=\"mds_container\"></div>",sep="")
+	#cat("<script>$('#mds_container').highcharts(",json,");</script>",sep="")
+	cat("<script type=\"text/javascript\">")
+	cat("db.plots.add({name: 'MDS',type: 'mds', subtype: null, json: ",json,"});",sep="")
+	cat("</script>")
 }
 ```
 
+<!---
 ### `r if ("biodetection" %in% qcPlots) 'Biodetection'`
 
 ```{r analysis_figures_biodetection}
@@ -999,15 +1045,15 @@ if ("biodetection" %in% qcPlots) {
 	
 	cat("<h4><strong>Biotype detection</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
-	    "</br></br></div>",sep="")
+	    "<br/><br/></div>",sep="")
 	counter <- 0
 	for (s in unlist(sampleList)) {
 		counter <- counter + 1
-		cat("<div class=\"hc-rect-small\" id=\"biodetection_container_",counter,
+		cat("<div class=\"hc-rect-sm\" id=\"biodetection_container_",counter,
 		    "\"></div>",sep="")
 		cat("<script>$('#biodetection_container_",counter,"').highcharts(",
 		    json[[s]],");</script>",sep="")
-		cat("</br>")
+		cat("<br/>")
 	}
 }
 ```
@@ -1021,28 +1067,28 @@ if ("countsbio" %in% qcPlots) {
 			
 	cat("<h4><strong>Biotype detection</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
-	    "</br></br></div>",sep="")
+	    "<br/><br/></div>",sep="")
 	
 	cat("<h4><em>Biotypes within samples</em></h4>")
 	counter <- 0
 	for (s in unlist(sampleList)) {
 		counter <- counter + 1
-		cat("<div class=\"hc-rect-small\" id=\"countsbio_sample_container_",
+		cat("<div class=\"hc-rect-sm\" id=\"countsbio_sample_container_",
 		    counter,"\"></div>",sep="")
 		cat("<script>$('#countsbio_sample_container_",counter,"').highcharts(",
 		    jsonList[["sample"]][[s]],");</script>",sep="")
-		cat("</br>")
+		cat("<br/>")
 	}
 	
 	cat("<h4><em>Biotype representation across samples</em></h4>")
 	counter <- 0
 	for (b in names(jsonList[["biotype"]])) {
 		counter <- counter + 1
-		cat("<div class=\"hc-rect-small\" id=\"countsbio_biotype_container_",
+		cat("<div class=\"hc-rect-sm\" id=\"countsbio_biotype_container_",
 		    counter,"\"></div>",sep="")
 		cat("<script>$('#countsbio_biotype_container_",counter,"').highcharts(",
 		    jsonList[["biotype"]][[b]],");</script>",sep="")
-		cat("</br>")
+		cat("<br/>")
 	}
 }
 ```
@@ -1056,28 +1102,28 @@ if ("saturation" %in% qcPlots) {
 			
 	cat("<h4><strong>Read and biotype saturation</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$saturation,
-	    "</br></br></div>",sep="")
+	    "<br/><br/></div>",sep="")
 	
 	cat("<h4><em>Read saturation per biotype for all samples</em></h4>")
 	counter <- 0
 	for (s in unlist(sampleList)) {
 		counter <- counter + 1
-		cat("<div class=\"hc-rect-small\" id=\"saturation_sample_container_",
+		cat("<div class=\"hc-rect-sm\" id=\"saturation_sample_container_",
 		    counter,"\"></div>",sep="")
 		cat("<script>$('#saturation_sample_container_",counter,"').highcharts(",
 		    jsonList[["sample"]][[s]],");</script>",sep="")
-		cat("</br>")
+		cat("<br/>")
 	}
 	
 	cat("<h4><em>Read saturation per sample for all biotypes</em></h4>")
 	counter <- 0
 	for (b in names(jsonList[["biotype"]])) {
 		counter <- counter + 1
-		cat("<div class=\"hc-rect-small\" id=\"saturation_biotype_container_",
+		cat("<div class=\"hc-rect-sm\" id=\"saturation_biotype_container_",
 		    counter,"\"></div>",sep="")
 		cat("<script>$('#saturation_biotype_container_",counter,"').highcharts(",
 		    jsonList[["biotype"]][[b]],");</script>",sep="")
-		cat("</br>")
+		cat("<br/>")
 	}
 }
 ```
@@ -1091,8 +1137,8 @@ if ("readnoise" %in% qcPlots) {
 	
 	cat("<h4><strong>RNA_Seq reads noise</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$readnoise,
-	    "</br></br></div>",sep="")
-	cat("<div class=\"hc-rect-small\" id=\"readsnoise_container\"></div>",
+	    "<br/><br/></div>",sep="")
+	cat("<div class=\"hc-rect-sm\" id=\"readsnoise_container\"></div>",
 		sep="")
 	cat("<script>$('#readsnoise_container').highcharts(",json,");</script>",
 		sep="")
@@ -1105,8 +1151,8 @@ if ("readnoise" %in% qcPlots) {
 if ("correl" %in% qcPlots) {
 	cat("<h4><strong>Pairwise sample correlations</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$correl,
-	    "</br></br></div>",sep="")
-	#cat("<div class=\"hc-rect-small\" id=\"correl_container\"></div>",
+	    "<br/><br/></div>",sep="")
+	#cat("<div class=\"hc-rect-sm\" id=\"correl_container\"></div>",
 	#	sep="")
 	corMat <- cor(geneCounts)
     if (!is.null(colnames(geneCounts)))
@@ -1140,7 +1186,7 @@ if ("correl" %in% qcPlots) {
 if ("pairwise" %in% qcPlots) {
 	cat("<h4><strong>Pairwise sample correlations</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
-	    "</br></br></div>",sep="")
+	    "<br/><br/></div>",sep="")
 	cat("<div style=\"text-align:center\">")
 	
     x <- nat2log(as.matrix(geneCounts))
@@ -1191,14 +1237,14 @@ if ("filtered" %in% qcPlots) {
 	cat("<h4><strong>Chromosome and biotype distribution of filtered ",
 		transLevel,"s</strong></h4>",sep="")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$filtered,
-	    "</br></br></div>",sep="")
+	    "<br/><br/></div>",sep="")
 	cat("<h4>Chromosome distribution of filtered",transLevel,"s</h4>",sep="")
-	cat("<div class=\"hc-rect-small\" id=\"chromosome_distr_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"chromosome_distr_container\"></div>",
 		sep="")
 	cat("<script>$('#chromosome_distr_container').highcharts(",
 		jsonList[["chromosome"]],");</script>",sep="")
 	cat("<h4>Biotype distribution of filtered ",transLevel,"s</h4>",sep="")
-	cat("<div class=\"hc-rect-small\" id=\"biotype_distr_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"biotype_distr_container\"></div>",
 		sep="")
 	cat("<script>$('#biotype_distr_container').highcharts(",
 		jsonList[["biotype"]],");</script>",sep="")
@@ -1224,14 +1270,14 @@ if ("boxplot" %in% qcPlots) {
 		output="json")
 	
 	cat("<h4><strong>Boxplots</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$boxplot,"</br></br></div>",sep="")
-	cat("<div class=\"hc-rect-small\" id=\"boxplot_unorm_container\"></div>",
+	cat("<div class=\"figure-hint\">",reportMessages$explain$boxplot,"<br/><br/></div>",sep="")
+	cat("<div class=\"hc-rect-sm\" id=\"boxplot_unorm_container\"></div>",
 		sep="")
-	cat("<div class=\"hc-rect-small\" id=\"boxplot_norm_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"boxplot_norm_container\"></div>",
 		sep="")
 	cat("<script>$('#boxplot_unorm_container').highcharts(",jsonUnorm,
 		");</script>",sep="")
-	cat("</br></br>")
+	cat("<br/><br/>")
 	cat("<script>$('#boxplot_norm_container').highcharts(",jsonNorm,
 		");</script>",sep="")
 }
@@ -1249,14 +1295,14 @@ if ("gcbias" %in% qcPlots) {
 	
 	cat("<h4><strong>GC bias assessment plots</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$gcbias,
-		"</br></br></div>",sep="")
-	cat("<div class=\"hc-rect-small\" id=\"gcbias_unorm_container\"></div>",
+		"<br/><br/></div>",sep="")
+	cat("<div class=\"hc-rect-sm\" id=\"gcbias_unorm_container\"></div>",
 		sep="")
-	cat("<div class=\"hc-rect-small\" id=\"gcbias_norm_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"gcbias_norm_container\"></div>",
 		sep="")
 	cat("<script>$('#gcbias_unorm_container').highcharts(",jsonUnorm,
 		");</script>",sep="")
-	cat("</br></br>")
+	cat("<br/><br/>")
 	cat("<script>$('#gcbias_norm_container').highcharts(",jsonNorm,
 		");</script>",sep="")
 }
@@ -1274,33 +1320,66 @@ if ("lengthbias" %in% qcPlots) {
 	
 	cat("<h4><strong>Length bias assessment plots</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$lengthbias,
-		"</br></br></div>",sep="")
-	cat("<div class=\"hc-rect-small\" id=\"lengthbias_unorm_container\"></div>",
+		"<br/><br/></div>",sep="")
+	cat("<div class=\"hc-rect-sm\" id=\"lengthbias_unorm_container\"></div>",
 		sep="")
-	cat("<div class=\"hc-rect-small\" id=\"lengthbias_norm_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"lengthbias_norm_container\"></div>",
 		sep="")
 	cat("<script>$('#lengthbias_unorm_container').highcharts(",jsonUnorm,
 		");</script>",sep="")
-	cat("</br></br>")
+	cat("<br/><br/>")
 	cat("<script>$('#lengthbias_norm_container').highcharts(",jsonNorm,
 		");</script>",sep="")
 }
 ```
 
 ### `r if ("meandiff" %in% qcPlots) 'MeanDiff'`
+
 ```{r analysis_figures_meandiff}
 if ("meandiff" %in% qcPlots) {
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
 		whichPlot="meandiff",output="json")
+	jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
+		whichPlot="meandiff",output="json")
 	
-	cat("<h4><strong>Length bias assessment plots</strong></h4>")
+	cat("<h4><strong>Mean-difference plots for normalization assessment",
+		"</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$meandiff,
-		"</br></br></div>",sep="")
-	
-	cat("<div class=\"hc-rect-small\" id=\"meandiff_unorm_container\"></div>",
+		"<br/><br/></div>",sep="")
+	#cat("<div class=\"row\"><div class=\"col-sm-6\">")
+	cat("<div class=\"hc-rect-sm\" id=\"meandiff_unorm_container\"></div>",
 		sep="")
+	#cat("</div><div class=\"col-sm-6\">")
+	cat("<div class=\"hc-rect-sm\" id=\"meandiff_norm_container\"></div>",
+		sep="")
+	#cat("</div></div>")
 	cat("<script>$('#meandiff_unorm_container').highcharts(",jsonUnorm[[1]][[1]],
+		");</script>",sep="")
+	cat("<script>$('#meandiff_norm_container').highcharts(",jsonNorm[[1]][[1]],
 		");</script>",sep="")
 }
 
 ### `r if ("meanvar" %in% qcPlots) 'MeanVar'`
+
+```{r analysis_figures_meanvar}
+if ("meanvar" %in% qcPlots) {
+	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
+		whichPlot="meanvar",output="json")
+	jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
+		whichPlot="meanvar",output="json")
+	
+	cat("<h4><strong>Mean-variance plot for normalization assessment",
+		"</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$meanvar,
+		"<br/><br/></div>",sep="")
+	cat("<div class=\"hc-rect-xs\" id=\"meanvar_unorm_container\"></div>",
+		sep="")
+	cat("<div class=\"hc-rect-xs\" id=\"meanvar_norm_container\"></div>",
+		sep="")
+	cat("<script>$('#meanvar_unorm_container').highcharts(",jsonUnorm,
+		");</script>",sep="")
+	cat("<script>$('#meanvar_norm_container').highcharts(",jsonNorm,
+		");</script>",sep="")
+}
+```
+-->

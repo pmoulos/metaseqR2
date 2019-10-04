@@ -1948,6 +1948,7 @@ makeProjectPath <- function(path,f=NULL) {
 makePathStruct <- function(mainPath) {
     projectPath <- list(
         main=mainPath,
+        js=file.path(mainPath,"js"),
         media=file.path(mainPath,"media"),
         data=file.path(mainPath,"data"),
         logs=file.path(mainPath,"logs"),
