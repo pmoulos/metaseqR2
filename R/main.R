@@ -2020,154 +2020,42 @@ metaseqr2 <- function(
                     output=fig,path=PROJECT_PATH$statistics)
         }
         
-        # And now, write the serialized JSON to a temporary SQLite database
-        # to be used to render the interactive charts
-        if (report) {
-			# Help data
-			covarsRaw <- covarsStat <- NULL
-			if (any(qcPlots %in% c("biodetection","countsbio","saturation",
-				"rnacomp","readnoise")))
-				covarsRaw <- list(
-					data=geneCounts,
-					length=width(geneData),
-					gc=as.numeric(geneData$gc_content),
-					chromosome=data.frame(
-						chromosome=as.character(seqnames(geneData)),
-						start=start(geneData),
-						end=end(geneData)
-					),
-					factors=data.frame(class=asClassVector(sampleList)),
-					biotype=as.character(geneData$biotype),
-					gene_name=as.character(geneData$gene_name)
-				)
-			
-			samples <- unlist(sampleList)
-			nsa <- length(samples)
-			
-			rdb <- file.path(PROJECT_PATH$data,"reportdb.sqlite")
-			disp("Opening plot database in ",rdb)
-			con <- dbConnect(dbDriver("SQLite"),dbname=rdb)
-			rs <- .initReportDbTables(con)
-			
-			if ("mds" %in% qcPlots) {
-				disp("Importing mds...")
-				json <- diagplotMds(geneCounts,sampleList,output="json")
-				.dbImportPlot(con,"MDS","mds",NULL,json)
-			}
-			if ("biodetection" %in% qcPlots) {
-				disp("  Importing biodetection...")
-				json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-					whichPlot="biodetection",output="json")
-				for (s in samples) {
-					disp("    ",s)
-					name <- paste("biodetection",s,sep="_")
-					.dbImportPlot(con,name,"biodetection",NULL,json[[s]])
-				}
-			}
-			if ("countsbio" %in% qcPlots) {
-				disp("  Importing countsbio...")
-				jsonList <- diagplotNoiseq(geneCounts,sampleList,
-					covars=covarsRaw,whichPlot="countsbio",output="json")
-				for (s in samples) {
-					disp("    ",s)
-					name <- paste("countsbio",s,sep="_")
-					.dbImportPlot(con,name,"countsbio","sample",
-						jsonList[["sample"]][[s]])
-				}
-				for (b in names(jsonList[["biotype"]])) {
-					disp("    ",b)
-					name <- paste("countsbio",b,sep="_")
-					.dbImportPlot(con,name,"countsbio","biotype",
-						jsonList[["biotype"]][[b]])
-				}
-			}
-			if ("saturation" %in% qcPlots) {
-				disp("  Importing saturation...")
-				jsonList <- diagplotNoiseq(geneCounts,sampleList,
-					covars=covarsRaw,whichPlot="saturation",output="json")
-				for (s in unlist(sampleList)) {
-					disp("    ",s)
-					name <- paste("saturation",s,sep="_")
-					.dbImportPlot(con,name,"saturation","sample",
-						jsonList[["sample"]][[s]])
-				}
-				for (b in names(jsonList[["biotype"]])) {
-					disp("    ",b)
-					name <- paste("saturation",b,sep="_")
-					.dbImportPlot(con,name,"saturation","biotype",
-						jsonList[["biotype"]][[b]])
-				}
-			}
-			if ("readnoise" %in% qcPlots) {
-				disp("  Importing readnoise...")
-				json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-					whichPlot="readnoise",output="json")
-				.dbImportPlot(con,"ReadNoise","readnoise",NULL,json)
-			}
-			if ("filtered" %in% qcPlots) {
-				disp("  Importing filtered...")
-				jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,
-					output="json")
-				.dbImportPlot(con,"filtered_chromosome","filtered","chromosome",
-					jsonList[["chromosome"]])
-				.dbImportPlot(con,"filtered_biotype","filtered","biotype",
-					jsonList[["biotype"]])
-			}
-			
-			if ("boxplot" %in% qcPlots) {
-				disp("  Importing boxplot...")
-				jsonUnorm <- diagplotBoxplot(geneCounts,name=sampleList,
-					isNorm=FALSE,output="json")
-				jsonNorm <- diagplotBoxplot(normGenes,name=sampleList,
-					isNorm=FALSE,output="json")
-				.dbImportPlot(con,"Boxplot","boxplot","unorm",jsonUnorm)
-				.dbImportPlot(con,"Boxplot","boxplot","norm",jsonNorm)
-			}
-			
-			if ("gcbias" %in% qcPlots) {
-				disp("  Importing gcbias...")
-				covar <- as.numeric(geneData$gc_content)
-				jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
-					isNorm=FALSE,whichPlot="gcbias",output="json")
-				jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
-					isNorm=TRUE,whichPlot="gcbias",output="json")
-				.dbImportPlot(con,"GCBias","gcbias","unorm",jsonUnorm)
-				.dbImportPlot(con,"GCBias","gcbias","norm",jsonNorm)
-			}
-			
-			if ("lengthbias" %in% qcPlots) {
-				disp("  Importing lengthbias...")
-				covar <- width(geneData)
-				jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
-					isNorm=FALSE,whichPlot="lengthbias",output="json")
-				jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
-					isNorm=TRUE,whichPlot="lengthbias",output="json")
-				.dbImportPlot(con,"LengthBias","lengthbias","unorm",jsonUnorm)
-				.dbImportPlot(con,"LengthBias","lengthbias","norm",jsonNorm)
-			}
-			
-			if ("meandiff" %in% qcPlots) {
-				disp("  Importing meandif...")
-				jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
-					whichPlot="meandiff",output="json")
-				jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
-					whichPlot="meandiff",output="json")
-				for (n in names(jsonUnorm)) {
-					for (s in names(jsonUnorm[[n]])) {
-						nam <- paste(n,s,sep="_")
-						.dbImportPlot(con,nam,"meandiff","unorm",jsonUnorm)
-						.dbImportPlot(con,"MeanDifference","meandiff","norm",jsonNorm)
-					}
-				}
-				
-			}
-			
-			assign("sampleList",sampleList,envir=parent.frame())
-			assign("geneCounts",geneCounts,envir=parent.frame())
-			assign("geneData",geneData,envir=parent.frame())
-			
-			dbDisconnect(con)
+        ########################################################################
+        covarsRaw <- list(
+			data=geneCounts,
+			length=width(geneData),
+			gc=as.numeric(geneData$gc_content),
+			chromosome=data.frame(
+				chromosome=as.character(seqnames(geneData)),
+				start=start(geneData),
+				end=end(geneData)
+			),
+			factors=data.frame(class=asClassVector(sampleList)),
+			biotype=as.character(geneData$biotype),
+			gene_name=as.character(geneData$gene_name)
+		)
+	
+		samples <- unlist(sampleList)
+		nsa <- length(samples)
+		
+		json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+			whichPlot="biodetection",output="json")
+		
+		preImport <- vector("list",length(json))
+		for (i in 1:length(json)) {
+			preImport[[i]] <- list(
+				name=paste("biodetection",samples[i],sep="_"),
+				type="biodetection",
+				subtype="generic",
+				json=json[[samples[i]]]
+			)
 		}
+		toImport <- toJSON(preImport,force=TRUE)
+		
+		assign("json",json,envir=parent.frame())
+		assign("preImport",preImport,envir=parent.frame())
+		assign("toImport",toImport,envir=parent.frame())
+		########################################################################
     }
 
     ############################################################################
@@ -2186,8 +2074,10 @@ metaseqr2 <- function(
 		
 		# Here we must download all required libraries and put them in the js
 		# folder of the report to make it available offline
-		#file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-		file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		
+		
+		file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),overwrite=TRUE)
 		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
@@ -2571,46 +2461,195 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
     return(tmpEnv)
 }
 
-################################################################################
+#~ #############################################################################
 
-# SQL(ite) backed-up ready (for later shiny app)
+#~ # SQL(ite) backed-up ready (for later shiny app)
 
-..initReportDbTables <- function(con) {
-	queries <- .reportDbTblDef()
-	rs <- dbSendQuery(con,queries[[1]])
-	if (dbHasCompleted(rs))
-		dbClearResult(rs)
-	for (n in names(queries)) {
-		rs <- dbSendStatement(con,queries[[n]])
-		if (dbHasCompleted(rs))
-			dbClearResult(rs)
-	}
-}
+#~ .initReportDbTables <- function(con) {
+#~ 	queries <- .reportDbTblDef()
+#~ 	rs <- dbSendQuery(con,queries[[1]])
+#~ 	if (dbHasCompleted(rs))
+#~ 		dbClearResult(rs)
+#~ 	for (n in names(queries)) {
+#~ 		rs <- dbSendStatement(con,queries[[n]])
+#~ 		if (dbHasCompleted(rs))
+#~ 			dbClearResult(rs)
+#~ 	}
+#~ }
 
-..reportDbTblDef <- function() {
-	return(list(
-		enable_fkey="PRAGMA foreign_keys=1;",
-		plot=paste(
-			"CREATE TABLE IF NOT EXISTS plot (",
-			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
-			"name TEXT,",
-			"type TEXT,",
-			"subtype TEXT,",
-			"json TEXT",
-			");"
-		)
-	))
-}
+#~ .reportDbTblDef <- function() {
+#~ 	return(list(
+#~ 		enable_fkey="PRAGMA foreign_keys=1;",
+#~ 		plot=paste(
+#~ 			"CREATE TABLE IF NOT EXISTS plot (",
+#~ 			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+#~ 			"name TEXT,",
+#~ 			"type TEXT,",
+#~ 			"subtype TEXT,",
+#~ 			"json TEXT",
+#~ 			");"
+#~ 		)
+#~ 	))
+#~ }
 
-..dbImportPlot <- function(con,name,type,subtype=NULL,json) {
-	if (is.null(subtype))
-		query <- paste("INSERT INTO plot (name, type, subtype, json) ",
-			"VALUES (","'",name,"', ","'",type,"', NULL, :j)",sep="")
-	else
-		query <- paste("INSERT INTO plot (name, type, subtype, json) ",
-			"VALUES (","'",name,"', ","'",type,"', ","'",
-			subtype,"', :j)",sep="")
-	#print(query)
-	nr <- dbExecute(con,query,params=list(j=json))
-	return(nr)
-}
+#~ .dbImportPlot <- function(con,name,type,subtype=NULL,json) {
+#~ 	if (is.null(subtype))
+#~ 		query <- paste("INSERT INTO plot (name, type, subtype, json) ",
+#~ 			"VALUES (","'",name,"', ","'",type,"', NULL, :j)",sep="")
+#~ 	else
+#~ 		query <- paste("INSERT INTO plot (name, type, subtype, json) ",
+#~ 			"VALUES (","'",name,"', ","'",type,"', ","'",
+#~ 			subtype,"', :j)",sep="")
+#~ 	#print(query)
+#~ 	nr <- dbExecute(con,query,params=list(j=json))
+#~ 	return(nr)
+#~ }
+
+#~ # And now, write the serialized JSON to a temporary SQLite database
+#~ # to be used to render the interactive charts
+#~ if (report) {
+#~ 	# Help data
+#~ 	covarsRaw <- covarsStat <- NULL
+#~ 	if (any(qcPlots %in% c("biodetection","countsbio","saturation",
+#~ 		"rnacomp","readnoise")))
+#~ 		covarsRaw <- list(
+#~ 			data=geneCounts,
+#~ 			length=width(geneData),
+#~ 			gc=as.numeric(geneData$gc_content),
+#~ 			chromosome=data.frame(
+#~ 				chromosome=as.character(seqnames(geneData)),
+#~ 				start=start(geneData),
+#~ 				end=end(geneData)
+#~ 			),
+#~ 			factors=data.frame(class=asClassVector(sampleList)),
+#~ 			biotype=as.character(geneData$biotype),
+#~ 			gene_name=as.character(geneData$gene_name)
+#~ 		)
+	
+#~ 	samples <- unlist(sampleList)
+#~ 	nsa <- length(samples)
+	
+#~ 	rdb <- file.path(PROJECT_PATH$data,"reportdb.sqlite")
+#~ 	disp("Opening plot database in ",rdb)
+#~ 	con <- dbConnect(dbDriver("SQLite"),dbname=rdb)
+#~ 	rs <- .initReportDbTables(con)
+	
+#~ 	if ("mds" %in% qcPlots) {
+#~ 		disp("Importing mds...")
+#~ 		json <- diagplotMds(geneCounts,sampleList,output="json")
+#~ 		.dbImportPlot(con,"MDS","mds",NULL,json)
+#~ 	}
+#~ 	if ("biodetection" %in% qcPlots) {
+#~ 		disp("  Importing biodetection...")
+#~ 		json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+#~ 			whichPlot="biodetection",output="json")
+#~ 		for (s in samples) {
+#~ 			disp("    ",s)
+#~ 			name <- paste("biodetection",s,sep="_")
+#~ 			.dbImportPlot(con,name,"biodetection",NULL,json[[s]])
+#~ 		}
+#~ 	}
+#~ 	if ("countsbio" %in% qcPlots) {
+#~ 		disp("  Importing countsbio...")
+#~ 		jsonList <- diagplotNoiseq(geneCounts,sampleList,
+#~ 			covars=covarsRaw,whichPlot="countsbio",output="json")
+#~ 		for (s in samples) {
+#~ 			disp("    ",s)
+#~ 			name <- paste("countsbio",s,sep="_")
+#~ 			.dbImportPlot(con,name,"countsbio","sample",
+#~ 				jsonList[["sample"]][[s]])
+#~ 		}
+#~ 		for (b in names(jsonList[["biotype"]])) {
+#~ 			disp("    ",b)
+#~ 			name <- paste("countsbio",b,sep="_")
+#~ 			.dbImportPlot(con,name,"countsbio","biotype",
+#~ 				jsonList[["biotype"]][[b]])
+#~ 		}
+#~ 	}
+#~ 	if ("saturation" %in% qcPlots) {
+#~ 		disp("  Importing saturation...")
+#~ 		jsonList <- diagplotNoiseq(geneCounts,sampleList,
+#~ 			covars=covarsRaw,whichPlot="saturation",output="json")
+#~ 		for (s in unlist(sampleList)) {
+#~ 			disp("    ",s)
+#~ 			name <- paste("saturation",s,sep="_")
+#~ 			.dbImportPlot(con,name,"saturation","sample",
+#~ 				jsonList[["sample"]][[s]])
+#~ 		}
+#~ 		for (b in names(jsonList[["biotype"]])) {
+#~ 			disp("    ",b)
+#~ 			name <- paste("saturation",b,sep="_")
+#~ 			.dbImportPlot(con,name,"saturation","biotype",
+#~ 				jsonList[["biotype"]][[b]])
+#~ 		}
+#~ 	}
+#~ 	if ("readnoise" %in% qcPlots) {
+#~ 		disp("  Importing readnoise...")
+#~ 		json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+#~ 			whichPlot="readnoise",output="json")
+#~ 		.dbImportPlot(con,"ReadNoise","readnoise",NULL,json)
+#~ 	}
+#~ 	if ("filtered" %in% qcPlots) {
+#~ 		disp("  Importing filtered...")
+#~ 		jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,
+#~ 			output="json")
+#~ 		.dbImportPlot(con,"filtered_chromosome","filtered","chromosome",
+#~ 			jsonList[["chromosome"]])
+#~ 		.dbImportPlot(con,"filtered_biotype","filtered","biotype",
+#~ 			jsonList[["biotype"]])
+#~ 	}
+	
+#~ 	if ("boxplot" %in% qcPlots) {
+#~ 		disp("  Importing boxplot...")
+#~ 		jsonUnorm <- diagplotBoxplot(geneCounts,name=sampleList,
+#~ 			isNorm=FALSE,output="json")
+#~ 		jsonNorm <- diagplotBoxplot(normGenes,name=sampleList,
+#~ 			isNorm=FALSE,output="json")
+#~ 		.dbImportPlot(con,"Boxplot","boxplot","unorm",jsonUnorm)
+#~ 		.dbImportPlot(con,"Boxplot","boxplot","norm",jsonNorm)
+#~ 	}
+	
+#~ 	if ("gcbias" %in% qcPlots) {
+#~ 		disp("  Importing gcbias...")
+#~ 		covar <- as.numeric(geneData$gc_content)
+#~ 		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
+#~ 			isNorm=FALSE,whichPlot="gcbias",output="json")
+#~ 		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
+#~ 			isNorm=TRUE,whichPlot="gcbias",output="json")
+#~ 		.dbImportPlot(con,"GCBias","gcbias","unorm",jsonUnorm)
+#~ 		.dbImportPlot(con,"GCBias","gcbias","norm",jsonNorm)
+#~ 	}
+	
+#~ 	if ("lengthbias" %in% qcPlots) {
+#~ 		disp("  Importing lengthbias...")
+#~ 		covar <- width(geneData)
+#~ 		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
+#~ 			isNorm=FALSE,whichPlot="lengthbias",output="json")
+#~ 		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
+#~ 			isNorm=TRUE,whichPlot="lengthbias",output="json")
+#~ 		.dbImportPlot(con,"LengthBias","lengthbias","unorm",jsonUnorm)
+#~ 		.dbImportPlot(con,"LengthBias","lengthbias","norm",jsonNorm)
+#~ 	}
+	
+#~ 	if ("meandiff" %in% qcPlots) {
+#~ 		disp("  Importing meandif...")
+#~ 		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
+#~ 			whichPlot="meandiff",output="json")
+#~ 		jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
+#~ 			whichPlot="meandiff",output="json")
+#~ 		for (n in names(jsonUnorm)) {
+#~ 			for (s in names(jsonUnorm[[n]])) {
+#~ 				nam <- paste(n,s,sep="_")
+#~ 				.dbImportPlot(con,nam,"meandiff","unorm",jsonUnorm)
+#~ 				.dbImportPlot(con,"MeanDifference","meandiff","norm",jsonNorm)
+#~ 			}
+#~ 		}
+		
+#~ 	}
+	
+#~ 	assign("sampleList",sampleList,envir=parent.frame())
+#~ 	assign("geneCounts",geneCounts,envir=parent.frame())
+#~ 	assign("geneData",geneData,envir=parent.frame())
+	
+#~ 	dbDisconnect(con)
+#~ }

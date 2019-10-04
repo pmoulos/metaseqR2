@@ -779,7 +779,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                    altnames=covars$gene_name,
                    user=list(plotdata=diagplotDataSave,covars=covars)
                 )
-                json <- bioDetectionToJSON(obj)
+                json <- bioDetectionToJSON(obj,out="list")
                 names(json) <- samples
                 #fil <- character(length(samples))
                 #names(fil) <- samples
@@ -841,7 +841,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 #names(fil[["biotype"]]) <- bts
                 jsonList[["biotype"]] <- vector("list",length(bts))
                 #json <- countsBioToJSON(obj,by="sample")
-                jsonList[["sample"]] <- countsBioToJSON(obj,by="sample")
+                jsonList[["sample"]] <- 
+					countsBioToJSON(obj,by="sample",out="list")
                 #for (i in 1:length(samples)) {
                 #    fil[["sample"]][samples[i]] <- file.path(path,
                 #        paste(whichPlot,"_",samples[i],".json",sep=""))
@@ -849,7 +850,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 #    write(json[[i]],fil[["sample"]][samples[i]])
                 #}
                 #json <- countsBioToJSON(obj,by="biotype")
-                jsonList[["biotype"]] <- countsBioToJSON(obj,by="biotype")
+                jsonList[["biotype"]] <- 
+					countsBioToJSON(obj,by="biotype",out="list")
                 names(jsonList[["biotype"]]) <- bts
                 #names(json) <- samples
                 #for (i in 1:length(bts)) {

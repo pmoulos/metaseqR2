@@ -20,7 +20,6 @@ output:
 <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript" src="https://code.highcharts.com/modules/offline-exporting.js"></script>
 <script type="text/javascript" src="https://code.highcharts.com/modules/export-data.js"></script>
-<!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js"></script>-->
 <script src="https://unpkg.com/dexie@2.0.4/dist/dexie.min.js"></script>
 
 <script>
@@ -47,11 +46,25 @@ db.plots.clear().then(console.log("Previous plots cleared!"));
 	};
 	xhr.send();
 }*/
+
 getPlotFromDb = function(query,renderId) {
 	db.plots.get({
 		name: query.name,
 		type: query.type,
-		type: query.subtype
+		subtype: query.subtype
+	},function(res) {
+		console.log(res);
+		var chartData = res.json;
+		chartData.chart.renderTo = renderId;
+		var chart = new Highcharts.Chart(chartData);
+	});
+}
+
+getPlotWithFunFromDb = function(query,renderId) {
+	db.plots.get({
+		name: query.name,
+		type: query.type,
+		subtype: query.subtype
 	},function(res) {
 		console.log(res);
 		var chartData = res.json;
@@ -96,6 +109,12 @@ p {
 	margin: auto;
 }
 
+.hc-selector-label {
+	color: #0030CE;
+	font-size: 0.9em;
+	font-weight: 600;
+}
+
 #summary_log_container {
 	font-family: "Courier New", Courier, monospace;
 	font-size: 0.9em;
@@ -128,6 +147,8 @@ opts_knit$set(width=75)
 
 ```{r report_init}
 # Initialize some variables used throughout the report
+samples <- unlist(sampleList,use.names=FALSE)
+
 covarsRaw <- covarsStat <- NULL
 if (any(qcPlots %in% c("biodetection","countsbio","saturation","rnacomp",
 	"readnoise"))) {
@@ -272,7 +293,7 @@ if (!is.null(geneFilters)) {
 		)
 	}
 	if (!is.null(geneFilters$expression)) {
-		if (!is.null(geneFilters$expression$median) 
+		if (!is.null(geneFilters$expression$median)
 		    && geneFilters$expression$median) {
 			counter <- counter + 1
 			msgGeneFiltersExpressionMedian <- paste(
@@ -1009,31 +1030,28 @@ the top right of the figure.
 
 ### `r if ("mds" %in% qcPlots) 'MDS'` 
 
+<!---
 <button id="generate_mds">Generate MDS!</button>
 <script>
 $("#generate_mds").click(function() {	
 	//getPlotFromDb('SELECT json FROM plot WHERE type="mds"',"mds_container")
-	getPlotFromDb({name: "MDS",type: "mds",subtype: null},"mds_container");
+	getPlotFromDb({name: "MDS",type: "mds",subtype: "generic"},"mds_container");
 })
 </script>
-
+-->
 
 ```{r analysis_figures_mds}
 if ("mds" %in% qcPlots) {
 	json <- diagplotMds(geneCounts,sampleList,output="json")
-	 
+	
 	cat("<h4><strong>Multidimensional scaling</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$mds,
 	    "<br/><br/></div>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"mds_container\"></div>",sep="")
-	#cat("<script>$('#mds_container').highcharts(",json,");</script>",sep="")
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.add({name: 'MDS',type: 'mds', subtype: null, json: ",json,"});",sep="")
-	cat("</script>")
+	cat("<script>$('#mds_container').highcharts(",json,");</script>",sep="")
 }
 ```
 
-<!---
 ### `r if ("biodetection" %in% qcPlots) 'Biodetection'`
 
 ```{r analysis_figures_biodetection}
@@ -1043,18 +1061,42 @@ if ("biodetection" %in% qcPlots) {
 			whichPlot="biodetection",output="json")
 	})
 	
+	# Import the plots to Dexie
+	preImport <- vector("list",length(json))
+	for (i in 1:length(json)) {
+		preImport[[i]] <- list(
+			name=paste("biodetection",samples[i],sep="_"),
+			type="biodetection",
+			subtype="generic",
+			json=json[[samples[i]]]
+		)
+	}
+	toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
+	
+	# Import script
+	cat("<script type=\"text/javascript\">")
+	cat("db.plots.bulkAdd(",toImport,");",sep="")
+	cat("</script>")
+	
 	cat("<h4><strong>Biotype detection</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
 	    "<br/><br/></div>",sep="")
-	counter <- 0
-	for (s in unlist(sampleList)) {
-		counter <- counter + 1
-		cat("<div class=\"hc-rect-sm\" id=\"biodetection_container_",counter,
-		    "\"></div>",sep="")
-		cat("<script>$('#biodetection_container_",counter,"').highcharts(",
-		    json[[s]],");</script>",sep="")
-		cat("<br/>")
-	}
+	    
+	# Create a selector
+	items <- paste("<option value=",paste("biodetection",samples,sep="_"),">",
+		samples,"</option>",sep="")
+	cat("<div>")
+	cat("<div class=\"hc-selector-label\">Select a sample to display plot for",
+		"</div>",sep="")
+	cat("<select id=\"biodetection_selector\">",items,"</select>",sep="")
+	cat("</div>")
+	
+	cat("<div class=\"hc-rect-sm\" id=\"biodetection_container\"></div>",sep="")
+	
+	# Initialize with first plot
+	cat("<script>$('#biodetection_container').highcharts(",
+		toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+		sep="")
 }
 ```
 
@@ -1063,39 +1105,90 @@ if ("biodetection" %in% qcPlots) {
 ```{r analysis_figures_countsbio}
 if ("countsbio" %in% qcPlots) {
 	jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-			whichPlot="countsbio",output="json")
-			
-	cat("<h4><strong>Biotype detection</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
+		whichPlot="countsbio",output="json")
+	
+	# Import per sample
+	preImportSample <- vector("list",length(jsonList$sample))
+	for (i in 1:length(jsonList$sample)) {
+		preImportSample[[i]] <- list(
+			name=paste("countsbio",samples[i],sep="_"),
+			type="countsbio",
+			subtype="sample",
+			json=jsonList$sample[[samples[i]]]
+		)
+	}
+	toImportSample <- toJSON(preImportSample,auto_unbox=TRUE,null="null")
+	#toImportSample <- .unquote_js_fun(toImportSample)
+	
+	cat("<script type=\"text/javascript\">")
+	cat("db.plots.bulkAdd(",toImportSample,");",sep="")
+	cat("</script>")
+	
+	# Import per biotype
+	preImportBiotype <- vector("list",length(jsonList$biotype))
+	biotypes <- names(jsonList$biotype)
+	for (i in 1:length(jsonList$biotype)) {
+		preImportBiotype[[i]] <- list(
+			name=paste("countsbio",biotypes[i],sep="_"),
+			type="countsbio",
+			subtype="biotype",
+			json=jsonList$biotype[[biotypes[i]]]
+		)
+	}
+	toImportBiotype <- toJSON(preImportBiotype,auto_unbox=TRUE,null="null")
+	#toImportBiotype <- .unquote_js_fun(toImportBiotype)
+	
+	cat("<script type=\"text/javascript\">")
+	cat("db.plots.bulkAdd(",toImportBiotype,");",sep="")
+	cat("</script>")
+	
+	cat("<h4><strong>Biotype representation</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$countsbio,
 	    "<br/><br/></div>",sep="")
 	
 	cat("<h4><em>Biotypes within samples</em></h4>")
-	counter <- 0
-	for (s in unlist(sampleList)) {
-		counter <- counter + 1
-		cat("<div class=\"hc-rect-sm\" id=\"countsbio_sample_container_",
-		    counter,"\"></div>",sep="")
-		cat("<script>$('#countsbio_sample_container_",counter,"').highcharts(",
-		    jsonList[["sample"]][[s]],");</script>",sep="")
-		cat("<br/>")
-	}
+	
+	# Create a selector
+	items <- paste("<option value=",paste("countsbio",samples,sep="_"),">",
+		samples,"</option>",sep="")
+	cat("<div>")
+	cat("<div class=\"hc-selector-label\">Select a sample to display plot for",
+		"</div>",sep="")
+	cat("<select id=\"countsbio_sample_selector\">",items,"</select>",sep="")
+	cat("</div>")
+	
+	cat("<div class=\"hc-rect-sm\" id=\"countsbio_sample_container\"></div>",
+		sep="")
+	
+	# Initialize with first plot
+	cat("<script>$('#countsbio_sample_container').highcharts(",
+	    .unquote_js_fun(toJSON(preImportSample[[1]]$json,auto_unbox=TRUE,
+	    null="null")),");</script>",sep="")
+	
+	cat("<br/>")
 	
 	cat("<h4><em>Biotype representation across samples</em></h4>")
-	counter <- 0
-	for (b in names(jsonList[["biotype"]])) {
-		counter <- counter + 1
-		cat("<div class=\"hc-rect-sm\" id=\"countsbio_biotype_container_",
-		    counter,"\"></div>",sep="")
-		cat("<script>$('#countsbio_biotype_container_",counter,"').highcharts(",
-		    jsonList[["biotype"]][[b]],");</script>",sep="")
-		cat("<br/>")
-	}
+	
+	# Create a selector
+	items <- paste("<option value=",paste("countsbio",biotypes,sep="_"),">",
+		biotypes,"</option>",sep="")
+	cat("<div>")
+	cat("<div class=\"hc-selector-label\">Select a biotype to display plot for",
+		"</div>",sep="")
+	cat("<select id=\"countsbio_biotype_selector\">",items,"</select>",sep="")
+	cat("</div>")
+	
+	cat("<div class=\"hc-rect-sm\" id=\"countsbio_biotype_container\">",
+		"</div>",sep="")
+	cat("<script>$('#countsbio_biotype_container').highcharts(",
+	    .unquote_js_fun(toJSON(preImportBiotype[[1]]$json,auto_unbox=TRUE,
+		null="null")),");</script>",sep="")
 }
 ```
 
 ### `r if ("saturation" %in% qcPlots) 'Saturation'`
 
-```{r analysis_figures_saturation}
+```{r analysis_figures_saturation,eval=FALSE}
 if ("saturation" %in% qcPlots) {
 	jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 			whichPlot="saturation",output="json")
@@ -1130,7 +1223,7 @@ if ("saturation" %in% qcPlots) {
 
 ### `r if ("readnoise" %in% qcPlots) 'Reads noise'` 
 
-```{r analysis_figures_readsnoise}
+```{r analysis_figures_readsnoise,eval=FALSE}
 if ("readnoise" %in% qcPlots) {
 	json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 			whichPlot="readnoise",output="json")
@@ -1147,7 +1240,7 @@ if ("readnoise" %in% qcPlots) {
 
 ### `r if ("correl" %in% qcPlots) 'Correlation'` 
 
-```{r analysis_figures_correl}
+```{r analysis_figures_correl,eval=FALSE}
 if ("correl" %in% qcPlots) {
 	cat("<h4><strong>Pairwise sample correlations</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$correl,
@@ -1182,7 +1275,7 @@ if ("correl" %in% qcPlots) {
 
 ### `r if ("pairwise" %in% qcPlots) 'Pairwise'` 
 
-```{r analysis_figures_pairwise}
+```{r analysis_figures_pairwise,eval=FALSE}
 if ("pairwise" %in% qcPlots) {
 	cat("<h4><strong>Pairwise sample correlations</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
@@ -1230,7 +1323,7 @@ if ("pairwise" %in% qcPlots) {
 
 ### `r if ("filtered" %in% qcPlots) 'Filtered'` 
 
-```{r analysis_figures_filtered}
+```{r analysis_figures_filtered,eval=FALSE}
 if ("filtered" %in% qcPlots) {
 	jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,output="json")
 	
@@ -1262,7 +1355,7 @@ the top right of the figure.
 
 ### `r if ("boxplot" %in% qcPlots) 'Boxplots'`
 
-```{r analysis_figures_boxplot}
+```{r analysis_figures_boxplot,eval=FALSE}
 if ("boxplot" %in% qcPlots) {
 	jsonUnorm <- diagplotBoxplot(geneCounts,name=sampleList,isNorm=FALSE,
 		output="json")
@@ -1285,7 +1378,7 @@ if ("boxplot" %in% qcPlots) {
 
 ### `r if ("gcbias" %in% qcPlots) 'GCBias'`
 
-```{r analysis_figures_gcbias}
+```{r analysis_figures_gcbias,eval=FALSE}
 if ("gcbias" %in% qcPlots) {
 	covar <- as.numeric(geneData$gc_content)
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
@@ -1310,7 +1403,7 @@ if ("gcbias" %in% qcPlots) {
 
 ### `r if ("lengthbias" %in% qcPlots) 'LengthBias'`
 
-```{r analysis_figures_lengthbias}
+```{r analysis_figures_lengthbias,eval=FALSE}
 if ("lengthbias" %in% qcPlots) {
 	covar <- width(geneData)
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
@@ -1335,7 +1428,7 @@ if ("lengthbias" %in% qcPlots) {
 
 ### `r if ("meandiff" %in% qcPlots) 'MeanDiff'`
 
-```{r analysis_figures_meandiff}
+```{r analysis_figures_meandiff,eval=FALSE}
 if ("meandiff" %in% qcPlots) {
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
 		whichPlot="meandiff",output="json")
@@ -1361,7 +1454,7 @@ if ("meandiff" %in% qcPlots) {
 
 ### `r if ("meanvar" %in% qcPlots) 'MeanVar'`
 
-```{r analysis_figures_meanvar}
+```{r analysis_figures_meanvar,eval=FALSE}
 if ("meanvar" %in% qcPlots) {
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
 		whichPlot="meanvar",output="json")
@@ -1382,4 +1475,26 @@ if ("meanvar" %in% qcPlots) {
 		");</script>",sep="")
 }
 ```
--->
+
+<!--- Bind change on all selectboxes -->
+<script>
+$("#biodetection_selector").on('change',function() {
+	var name = this.value;
+	getPlotFromDb({name: name,type: "biodetection",subtype: "generic"},
+		"biodetection_container");
+});
+
+$("#countsbio_sample_selector").on('change',function() {
+	var name = this.value;
+	getPlotFromDb({name: name,type: "countsbio",subtype: "sample"},
+		"countsbio_sample_container");
+});
+
+$("#countsbio_biotype_selector").on('change',function() {
+	var name = this.value;
+	getPlotFromDb({name: name,type: "countsbio",subtype: "biotype"},
+		"countsbio_biotype_container");
+});
+</script>
+
+
