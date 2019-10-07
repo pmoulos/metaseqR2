@@ -89,6 +89,7 @@ metaseqr2 <- function(
     runLog=TRUE,
     localDb=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
     progressFun=NULL,
+    offlineReport=TRUE,
     ...
 ) {
 	# Save function call for report
@@ -2050,7 +2051,7 @@ metaseqr2 <- function(
 				json=json[[samples[i]]]
 			)
 		}
-		toImport <- toJSON(preImport,force=TRUE)
+		toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
 		
 		assign("json",json,envir=parent.frame())
 		assign("preImport",preImport,envir=parent.frame())
@@ -2074,10 +2075,32 @@ metaseqr2 <- function(
 		
 		# Here we must download all required libraries and put them in the js
 		# folder of the report to make it available offline
+		if (offlineReport) {
+			disp("Downloading required JavaScript libraries...")
+			if (!file.exists(file.path(PROJECT_PATH$js,"highcharts.js")))
+				download.file("https://code.highcharts.com/highcharts.js",
+					file.path(PROJECT_PATH$js,"highcharts.js"))
+			if (!file.exists(file.path(PROJECT_PATH$js,"highcharts-more.js")))
+				download.file("https://code.highcharts.com/highcharts-more.js",
+					file.path(PROJECT_PATH$js,"highcharts-more.js"))
+			if (!file.exists(file.path(PROJECT_PATH$js,"exporting.js")))
+				download.file("https://code.highcharts.com/modules/exporting.js",
+					file.path(PROJECT_PATH$js,"exporting.js"))
+			if (!file.exists(file.path(PROJECT_PATH$js,"offline-exporting.js")))
+				download.file(
+					"https://code.highcharts.com/modules/offline-exporting.js",
+					file.path(PROJECT_PATH$js,"offline-exporting.js"))
+			if (!file.exists(file.path(PROJECT_PATH$js,"export-data.js")))
+				download.file(
+					"https://code.highcharts.com/modules/export-data.js",
+					file.path(PROJECT_PATH$js,"export-data.js"))
+			if (!file.exists(file.path(PROJECT_PATH$js,"dexie.min.js")))
+				download.file("https://unpkg.com/dexie@2.0.4/dist/dexie.min.js",
+					file.path(PROJECT_PATH$js,"dexie.min.js"))
+		}
 		
-		
-		file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-		#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		#file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),overwrite=TRUE)
 		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),

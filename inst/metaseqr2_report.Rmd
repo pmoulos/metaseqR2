@@ -15,12 +15,55 @@ output:
     use_bookdown: false
 ---
 
-<script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
-<script type="text/javascript" src="https://code.highcharts.com/highcharts-more.js"></script>
-<script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
-<script type="text/javascript" src="https://code.highcharts.com/modules/offline-exporting.js"></script>
-<script type="text/javascript" src="https://code.highcharts.com/modules/export-data.js"></script>
-<script src="https://unpkg.com/dexie@2.0.4/dist/dexie.min.js"></script>
+```{r knitr_init, echo=FALSE, cache=FALSE}
+library(knitr)
+library(rmdformats)
+
+# Global options
+options(max.print="75")
+opts_chunk$set(
+	echo=FALSE,
+	cache=FALSE,
+	prompt=FALSE,
+	tidy=TRUE,
+	comment=NA,
+	message=FALSE,
+	warning=FALSE,
+	results="asis",
+	eval=TRUE
+)
+opts_knit$set(width=75)
+```
+
+```{r load_js}
+if (offlineReport) {
+	cat("<script type=\"text/javascript\" src=\"js/highcharts.js\"></script>",
+		sep="")
+	cat("<script type=\"text/javascript\" src=\"js/highcharts-more.js\">",
+		"</script>",sep="")
+	cat("<script type=\"text/javascript\" src=\"js/exporting.js\"></script>",
+		sep="")
+	cat("<script type=\"text/javascript\" src=\"js/offline-exporting.js\">",
+		"</script>",sep="")
+	cat("<script type=\"text/javascript\" src=\"js/export-data.js\"></script>",
+		sep="")
+	cat("<script src=\"js/dexie.min.js\"></script>",sep="")
+} else {
+	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+		"highcharts.js\"></script>",sep="")
+	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+		"highcharts-more.js\"></script>",sep="")
+	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+		"modules/exporting.js\"></script>",sep="")
+	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+		"modules/offline-exporting.js\"></script>",sep="")
+	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+		"modules/export-data.js\"></script>",sep="")
+	cat("<script src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
+		"</script>",sep="")
+}
+
+```
 
 <script>
 var db = new Dexie("plotdb");
@@ -69,6 +112,22 @@ getPlotWithFunFromDb = function(query,renderId) {
 		console.log(res);
 		var chartData = res.json;
 		chartData.chart.renderTo = renderId;
+		
+		// Deserialize the stored functions - only in a couple of cases
+		if (query.type === "countsbio") {
+			chartData.chart.yAxis.labels.formatter = 
+				new Function('return ' +
+					chartData.chart.yAxis.labels.formatter)()
+				
+			chart.plotOptions.tooltip.pointFormatter = 
+				new Function('return ' +
+					chart.plotOptions.tooltip.pointFormatter)()
+			
+			chart.plotOptions.events.legendItemClick = 
+				new Function('return ' + 
+					chart.plotOptions.events.legendItemClick)()
+		}
+		
 		var chart = new Highcharts.Chart(chartData);
 	});
 }
@@ -124,26 +183,6 @@ p {
 	overflow-wrap: normal;
 }
 </style>
-
-```{r knitr_init, echo=FALSE, cache=FALSE}
-library(knitr)
-library(rmdformats)
-
-# Global options
-options(max.print="75")
-opts_chunk$set(
-	echo=FALSE,
-	cache=FALSE,
-	prompt=FALSE,
-	tidy=TRUE,
-	comment=NA,
-	message=FALSE,
-	warning=FALSE,
-	results="asis",
-	eval=TRUE
-)
-opts_knit$set(width=75)
-```
 
 ```{r report_init}
 # Initialize some variables used throughout the report

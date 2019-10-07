@@ -25,7 +25,7 @@ Imports:
     corrplot,
     vsn,
     brew,
-    rjson,
+    jsonlite,
     log4r,
     rmdformats
 Suggests:

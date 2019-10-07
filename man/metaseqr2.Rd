@@ -57,7 +57,8 @@
         exportCountsTable = FALSE,
         restrictCores = 0.6, report = TRUE, reportTop = 0.1,
         reportTemplate = "default", saveGeneModel = TRUE,
-        verbose = TRUE, runLog = TRUE, progressFun = NULL, ...)
+        verbose = TRUE, runLog = TRUE, progressFun = NULL, 
+        offlineReport = TRUE, ...)
 }
 \arguments{
     \item{counts}{a text tab-delimited file containing gene,
@@ -367,6 +368,11 @@
     \code{Progress} object from shiny. This function must
     accept a \code{detail} argument. See 
     http://shiny.rstudio.com/articles/progress.html}
+    
+    \item{offlineReport}{\code{TRUE} (default) to download
+    and include the required JavaScript libraries to
+    properly view the report offline. Ignored if
+    \code{report=FALSE}.
 
     \item{...}{further arguments that may be passed to
     plotting functions, related to \code{\link{par}}.}
