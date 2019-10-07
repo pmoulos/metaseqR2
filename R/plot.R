@@ -414,7 +414,7 @@ diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
     #return(fil)
 }
 
-diagplotPairs <- function(x,output="x11",path=NULL,...) {    
+diagplotPairs <- function(x,output="x11",path=NULL,altNames=NULL,...) {    
     x <- as.matrix(x)
     x <- nat2log(x)
     n <- ncol(x)
@@ -427,49 +427,105 @@ diagplotPairs <- function(x,output="x11",path=NULL,...) {
         fil <- file.path(path,paste("correlation_pairs",output,sep="."))
     else
         fil <- paste("correlation_pairs",output,sep=".")
-    if (output %in% c("pdf","ps","x11"))
-        graphicsOpen(output,fil,width=12,height=12)
-    else {
-        if (ncol(x)<=5)
-            graphicsOpen(output,fil,width=800,height=800,res=100)
-        else
-            graphicsOpen(output,fil,width=1024,height=1024,res=150)
-    }
-        
-    # Setup the grid
-    par(mfrow=c(n,n),mar=c(1,1,1,1),oma=c(1,1,0,0),mgp=c(2,0.5,0),cex.axis=0.6,
-        cex.lab=0.6)
+    
+    if (output != "json") {
+		if (output %in% c("pdf","ps","x11"))
+			graphicsOpen(output,fil,width=12,height=12)
+		else {
+			if (ncol(x)<=5)
+				graphicsOpen(output,fil,width=800,height=800,res=100)
+			else
+				graphicsOpen(output,fil,width=1024,height=1024,res=150)
+		}
+		
+		# Setup the grid
+		par(mfrow=c(n,n),mar=c(1,1,1,1),oma=c(1,1,0,0),mgp=c(2,0.5,0),
+			cex.axis=0.6,cex.lab=0.6)
 
-    # Plot
-    for (i in 1:n) {
-        for (j in 1:n) {
-            if (i==j) { # Diagonal
-                plot(0:10,0:10,type="n",xaxt="n",yaxt="n",xlab="",ylab="")
-                text(c(3,5,3),c(9.5,5,1),c("X-Y plots",nams[i],"M-D plots"),
-                    cex=c(0.8,1,0.8))
-                arrows(6,9.5,9.5,9.5,angle=20,length=0.1,lwd=0.8,cex=0.8)
-                arrows(0.2,3.2,0.2,0.2,angle=20,length=0.1,lwd=0.8,cex=0.8)
-            }
-            else if (i<j) { # XY plot
-                plot(x[,i],x[,j],pch=20,col="blue",cex=0.4,xlab=nams[i],
-                    ylab=nams[j],...)
-                lines(lowess(x[,i],x[,j]),col="red")
-                cc <- paste("cor:",formatC(cor(x[,i],x[,j]),digits=3))
-                text(3,max(x[,j]-1),labels=cc,cex=0.7,)
-                #grid()
-            }
-            else if (i>j) { # MD plot
-                plot((x[,i]+x[,j])/2,x[,j]-x[,i],pch=20,col="blue",cex=0.4,...)
-                lines(lowess((x[,i]+x[,j])/2,x[,j]-x[,i]),col="red")
-                #grid()
-            }
-        }
-    }
-	
-	if (output != "x11") {
-		graphicsClose(output)
-		return(fil)
+		# Plot
+		for (i in 1:n) {
+			for (j in 1:n) {
+				if (i==j) { # Diagonal
+					plot(0:10,0:10,type="n",xaxt="n",yaxt="n",xlab="",ylab="")
+					text(c(3,5,3),c(9.5,5,1),c("X-Y plots",nams[i],"M-D plots"),
+						cex=c(0.8,1,0.8))
+					arrows(6,9.5,9.5,9.5,angle=20,length=0.1,lwd=0.8,cex=0.8)
+					arrows(0.2,3.2,0.2,0.2,angle=20,length=0.1,lwd=0.8,cex=0.8)
+				}
+				else if (i<j) { # XY plot
+					plot(x[,i],x[,j],pch=20,col="blue",cex=0.4,xlab=nams[i],
+						ylab=nams[j],...)
+					lines(lowess(x[,i],x[,j]),col="red")
+					cc <- paste("cor:",formatC(cor(x[,i],x[,j]),digits=3))
+					text(3,max(x[,j]-1),labels=cc,cex=0.7,)
+					#grid()
+				}
+				else if (i>j) { # MD plot
+					plot((x[,i]+x[,j])/2,x[,j]-x[,i],pch=20,col="blue",
+						cex=0.4,...)
+					lines(lowess((x[,i]+x[,j])/2,x[,j]-x[,i]),col="red")
+					#grid()
+				}
+			}
+		}
+		
+		if (output != "x11") {
+			graphicsClose(output)
+			return(fil)
+		}
 	}
+	else {
+		jsonList <- vector("list",2)
+		names(jsonList) <- c("xy","md")
+		jsonList$xy <- jsonList$md <- vector("list",n*(n-1)/2)
+		
+		nams <- colnames(x)
+		plotNames <- character(n*(n-1)/2)
+		counter <- 0
+		for (i in 1:(ncol(x)-1)) {
+			for (j in (i+1):ncol(x)) {
+				counter <- counter + 1
+				plotNames[counter] <- paste(nams[i],nams[j],sep="_vs_")
+				
+				#disp("  creating ",plotNames[counter])
+				
+				# XY
+				obj <- list(
+					x=x[,i],
+					y=x[,j],
+					plot=NULL,
+					samples=c(nams[i],nams[j]),
+					ylim=NULL,
+					xlim=NULL,
+					status=NULL,
+					pcut=NULL,
+					fcut=NULL,
+					altnames=altNames,
+					user=list(counts=NULL,covar=NULL,covarname="X-Y")
+				)
+				jsonList$xy[[counter]] <- scatterToJSON(obj,out="list")
+				
+				# MD
+				obj <- list(
+					x=(x[,i]+x[,j])/2,
+					y=x[,j]-x[,i],
+					plot=NULL,
+					samples=c(nams[i],nams[j]),
+					ylim=NULL,
+					xlim=NULL,
+					status=NULL,
+					pcut=NULL,
+					fcut=NULL,
+					altnames=altNames,
+					user=list(counts=NULL,covar=NULL,
+						covarname="Mean-Difference")
+				)
+				jsonList$md[[counter]] <- scatterToJSON(obj,out="list")
+			}
+		}
+		names(jsonList$xy) <- names(jsonList$md) <- plotNames
+	}
+	return(jsonList)
 }
 
 diagplotCor <- function(mat,type=c("heatmap","correlogram"),output="x11",
@@ -895,7 +951,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 jsonList <- vector("list",2)
                 names(jsonList) <- c("sample","biotype")
                 #json <- bioSaturationToJSON(obj,by="sample")
-                jsonList[["sample"]] <- bioSaturationToJSON(obj,by="sample")
+                jsonList[["sample"]] <- 
+					bioSaturationToJSON(obj,by="sample",out="list")
                 names(jsonList[["sample"]]) <- samples
                 #for (i in 1:length(samples)) {
                 #    fil[["sample"]][samples[i]] <- file.path(path,
@@ -904,8 +961,9 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 #    write(json[[i]],fil[["sample"]][samples[i]])
                 #}
                 #json <- bioSaturationToJSON(obj,by="biotype")
-                jsonList[["biotype"]] <- bioSaturationToJSON(obj,by="biotype")
-                #names(jsonList[["sample"]]) <- samples
+                jsonList[["biotype"]] <- 
+					bioSaturationToJSON(obj,by="biotype",out="list")
+				#names(jsonList[["sample"]]) <- samples
                 #fil[["biotype"]] <- character(length(json))
                 #names(fil[["biotype"]]) <- names(json)
                 #for (n in names(json)) {
@@ -1415,6 +1473,16 @@ diagplotFiltered <- function(x,y,output="x11",path=NULL,...) {
         return(fil)
     }
     else {
+		if (is(x,"GenomicRanges")) {
+			x <- as.data.frame(x)
+			x <- x[,c(1:3,6,7,5,8,9)]
+			colnames(x)[1] <- "chromosome"
+		}
+		if (is(y,"GenomicRanges")) {
+			y <- as.data.frame(y)
+			y <- y[,c(1:3,6,7,5,8,9)]
+			colnames(y)[1] <- "chromosome"
+		}
         obj <- list(
             x=NULL,
             y=NULL,

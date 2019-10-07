@@ -2022,40 +2022,30 @@ metaseqr2 <- function(
         }
         
         ########################################################################
-        covarsRaw <- list(
-			data=geneCounts,
-			length=width(geneData),
-			gc=as.numeric(geneData$gc_content),
-			chromosome=data.frame(
-				chromosome=as.character(seqnames(geneData)),
-				start=start(geneData),
-				end=end(geneData)
-			),
-			factors=data.frame(class=asClassVector(sampleList)),
-			biotype=as.character(geneData$biotype),
-			gene_name=as.character(geneData$gene_name)
-		)
+        #covarsRaw <- list(
+		#	data=geneCounts,
+		#	length=width(geneData),
+		#	gc=as.numeric(geneData$gc_content),
+		#	chromosome=data.frame(
+		#		chromosome=as.character(seqnames(geneData)),
+		#		start=start(geneData),
+		#		end=end(geneData)
+		#	),
+		#	factors=data.frame(class=asClassVector(sampleList)),
+		#	biotype=as.character(geneData$biotype),
+		#	gene_name=as.character(geneData$gene_name)
+		#)
 	
-		samples <- unlist(sampleList)
-		nsa <- length(samples)
+		#jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,
+		#	output="json")
 		
-		json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-			whichPlot="biodetection",output="json")
-		
-		preImport <- vector("list",length(json))
-		for (i in 1:length(json)) {
-			preImport[[i]] <- list(
-				name=paste("biodetection",samples[i],sep="_"),
-				type="biodetection",
-				subtype="generic",
-				json=json[[samples[i]]]
-			)
-		}
-		toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
-		
-		assign("json",json,envir=parent.frame())
-		assign("preImport",preImport,envir=parent.frame())
-		assign("toImport",toImport,envir=parent.frame())
+		#assign("jsonList",jsonList,envir=parent.frame())
+		#
+		#assign("sampleList",sampleList,envir=parent.frame())
+		assign("geneCounts",geneCounts,envir=parent.frame())
+		#assign("geneData",geneData,envir=parent.frame())
+		#assign("geneDataFiltered",geneDataFiltered,envir=parent.frame())
+		#assign("totalGeneData",totalGeneData,envir=parent.frame())
 		########################################################################
     }
 
@@ -2099,8 +2089,8 @@ metaseqr2 <- function(
 					file.path(PROJECT_PATH$js,"dexie.min.js"))
 		}
 		
-		#file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-		file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),overwrite=TRUE)
 		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
