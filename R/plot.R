@@ -988,12 +988,31 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 return(NULL)
             }
             diagplotData <- NOISeq::dat(localObj,type="cd")
-            fil <- file.path(path,paste(whichPlot,"_",status,".",output,
-                sep=""))
-            graphicsOpen(output,fil)
-            explo.plot(diagplotData)
-            grid()
-            graphicsClose(output)
+            if (output!="json") {
+				fil <- file.path(path,paste(whichPlot,"_",status,".",output,
+					sep=""))
+				graphicsOpen(output,fil)
+				explo.plot(diagplotData)
+				grid()
+				graphicsClose(output)
+			}
+			else {
+				obj <- list(
+                   x=NULL,
+                   y=NULL,
+                   plot=NULL,
+                   samples=sampleList,
+                   ylims=NULL,
+                   xlims=NULL,
+                   status=status,
+                   pcut=NULL,
+                   fcut=NULL,
+                   altnames=covars$gene_name,
+                   user=list(plotdata=diagplotData@dat)
+                )
+                json <- rnacompToJSON(obj)
+				return(json)
+			}
         },
         readnoise = {
             D <- cddat(localObj)
@@ -1294,6 +1313,7 @@ diagplotVolcano <- function(f,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
             xjust=1,yjust=0,box.lty=0,x.intersp=0.5,cex=0.8,text.font=2
         )
         graphicsClose(output)
+        return(fil)
     }
     else {
         obj <- list(
@@ -1310,12 +1330,11 @@ diagplotVolcano <- function(f,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
             user=list(up=up,down=down,unf=ff,unp=pp,ualt=altNamesNeutral,
                 con=con)
         )
-        #json <- volcanoToJSON(obj)
+        json <- volcanoToJSON(obj,out="list")
         #fil <- file.path(path,paste("volcano_",con,".json",sep=""))
         #write(json,fil)
-        fil <- volcanoToJSON(obj)
+        return(json)
     }
-    return(fil)
 }
 
 diagplotDeHeatmap <- function(x,con=NULL,output="x11",path=NULL,...) {

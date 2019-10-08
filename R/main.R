@@ -2022,30 +2022,42 @@ metaseqr2 <- function(
         }
         
         ########################################################################
-        #covarsRaw <- list(
-		#	data=geneCounts,
-		#	length=width(geneData),
-		#	gc=as.numeric(geneData$gc_content),
-		#	chromosome=data.frame(
-		#		chromosome=as.character(seqnames(geneData)),
-		#		start=start(geneData),
-		#		end=end(geneData)
-		#	),
-		#	factors=data.frame(class=asClassVector(sampleList)),
-		#	biotype=as.character(geneData$biotype),
-		#	gene_name=as.character(geneData$gene_name)
-		#)
+        covarsRaw <- list(
+			data=geneCounts,
+			length=width(geneData),
+			gc=as.numeric(geneData$gc_content),
+			chromosome=data.frame(
+				chromosome=as.character(seqnames(geneData)),
+				start=start(geneData),
+				end=end(geneData)
+			),
+			factors=data.frame(class=asClassVector(sampleList)),
+			biotype=as.character(geneData$biotype),
+			gene_name=as.character(geneData$gene_name)
+		)
+		
+		covarsNorm <- list(
+			data=normGenes,
+			length=width(geneData),
+			gc=as.numeric(geneData$gc_content),
+			chromosome=data.frame(
+				chromosome=as.character(seqnames(geneData)),
+				start=start(geneData),
+				end=end(geneData)
+			),
+			factors=data.frame(class=asClassVector(sampleList)),
+			biotype=as.character(geneData$biotype),
+			gene_name=as.character(geneData$gene_name)
+		)
 	
 		#jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,
 		#	output="json")
-		
 		#assign("jsonList",jsonList,envir=parent.frame())
-		#
-		#assign("sampleList",sampleList,envir=parent.frame())
+		
+		assign("sampleList",sampleList,envir=parent.frame())
 		assign("geneCounts",geneCounts,envir=parent.frame())
-		#assign("geneData",geneData,envir=parent.frame())
-		#assign("geneDataFiltered",geneDataFiltered,envir=parent.frame())
-		#assign("totalGeneData",totalGeneData,envir=parent.frame())
+		assign("normGenes",normGenes,envir=parent.frame())
+		assign("geneData",geneData,envir=parent.frame())
 		########################################################################
     }
 

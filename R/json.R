@@ -1808,181 +1808,179 @@ volcanoToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                     "<strong>Gene ID: </strong>{point.name}<br>",
                     "<strong>Fold change: </strong>{point.x}<br>",
                     "<strong>Significance: </strong>{point.y}",sep="")
-                json <- toJSON(
-                    list(
-                        chart=list(
-                        type="scatter",
-                        zoomType="xy"
-                    ),
-                    title=list(
-                        text=paste("Volcano plot for",con)
-                    ),
-                    xAxis=list(
-                        title=list(
-                            text="Fold change",
-                            margin=20,
-                            style=list(
-                                color="#000000",
-                                fontSize="1.2em"
-                            )
-                        ),
-                        labels=list(
-                            style=list(
-                                color="#000000",
-                                fontSize="1.1em",
-                                fontWeight="bold"
-                            )
-                        ),
-                        startOnTick=TRUE,
-                        endOnTick=TRUE,
-                        showLastLabel=TRUE,
-                        gridLineWidth=1,
-                        min=round(xlim[1],3),
-                        max=round(xlim[2],3)
-                    ),
-                    yAxis=list(
-                        title=list(
-                            useHTML=TRUE,
-                            text="Significance (-log<sub>10</sub>(p-value))",
-                            margin=25,
-                            style=list(
-                                color="#000000",
-                                fontSize="1.2em"
-                            )
-                        ),
-                        labels=list(
-                            style=list(
-                                color="#000000",
-                                fontSize="1.1em",
-                                fontWeight="bold"
-                            )
-                        ),
-                        startOnTick=TRUE,
-                        endOnTick=TRUE,
-                        showLastLabel=TRUE,
-                        gridLineWidth=1,
-                        min=round(ylim[1]-2,3),
-                        max=round(ylim[2],3)
-                    ),
-                    #legend=list(
-                    #    layout="vertical",
-                    #    align="left",
-                    #    verticalAlign="top",
-                    #    floating=TRUE,
-                    #    backgroundColor="#FFFFFF",
-                    #    borderWidth=1
-                    #),
-                    plotOptions=list(
-                        scatter=list(
-                            allowPointSelect=TRUE,
-                            marker=list(
-                                radius=2,
-                                states=list(
-                                    hover=list(
-                                        enabled=TRUE,
-                                        lineColor="#333333"
-                                    )
-                                )
-                            ),
-                            states=list(
-                                hover=list(
-                                    marker=list(
-                                        enabled=FALSE
-                                    )
-                                )
-                            ),
-                            tooltip=list(
-                                headerFormat=paste("<span style=",
-                                    "\"font-size:1.1em;color:{series.color};",
-                                    "font-weight:bold\">{series.name}<br>",
-                                    sep=""),
-                                pointFormat=point.format
-                            ),
-                            turboThreshold=50000
-                        )
-                    ),
-                    series=list(
-                        list(
-                            name="Up-regulated",
-                            color="#EE0000",
-                            marker=list(
-                                symbol="circle"
-                            ),
-                            data=makeHighchartsPoints(f[up],-log10(p[up]),
-                                unname(altNames[up]))
-                        ),
-                        list(
-                            name="Down-regulated",
-                            marker=list(
-                                symbol="circle"
-                            ),
-                            color="#00CD00",
-                            data=makeHighchartsPoints(f[down],-log10(p[down]),
-                                unname(altNames[down]))
-                        ),
-                        list(
-                            name="Unregulated",
-                            marker=list(
-                                symbol="circle"
-                            ),
-                            color="#0000EE",
-                            data=makeHighchartsPoints(ff,-log10(pp),
-                                unname(altNamesNeutrall))
-                        ),
-                        list(
-                            name="Downfold threshold",
-                            color="#000000",
-                            type="line",
-                            dashStyle="dash",
-                            marker=list(
-                                enabled=FALSE
-                            ),
-                            tooltip=list(
-                                headerFormat=paste('<strong>{series.name}',
-                                    '</strong><br/>',sep=""),
-                                pointFormat=paste('<strong>Threshold: ',
-                                    '</strong>{point.x}<br/>',sep="")
-                            ),
-                            data=list(round(c(-fcut,ylim[1]-5),3),
-                                round(c(-fcut,ylim[2]),3))
-                        ),
-                        list(
-                            name="Upfold threshold",
-                            color="#000000",
-                            type="line",
-                            dashStyle="Dash",
-                            marker=list(
-                                enabled=FALSE
-                            ),
-                            tooltip=list(
-                                headerFormat=paste('<strong>{series.name}',
-                                    '</strong><br/>',sep=""),
-                                pointFormat=paste('<strong>Threshold: ',
-                                    '</strong>{point.x}<br/>',sep="")
-                            ),
-                            data=list(round(c(fcut,ylim[1]-5),3),
-                                round(c(fcut,ylim[2]),3))
-                        ),
-                        list(
-                            name="Significance threshold",
-                            color="#000000",
-                            type="line",
-                            dashStyle="DashDot",
-                            marker=list(
-                                enabled=FALSE
-                            ),
-                            tooltip=list(
-                                headerFormat=paste('<strong>{series.name}',
-                                    '</strong><br/>',sep=""),
-                                pointFormat=paste('<strong>Threshold: ',
-                                    '</strong>{point.y}<br/>',sep="")
-                            ),
-                            data=list(round(c(xlim[1],-log10(pcut)),3),
-                                round(c(xlim[2],-log10(pcut)),3))
-                        )
-                    )
-                )
-            )
+                json <- list(
+					chart=list(
+					type="scatter",
+					zoomType="xy"
+				),
+				title=list(
+					text=paste("Volcano plot for",con)
+				),
+				xAxis=list(
+					title=list(
+						text="Fold change",
+						margin=20,
+						style=list(
+							color="#000000",
+							fontSize="1.2em"
+						)
+					),
+					labels=list(
+						style=list(
+							color="#000000",
+							fontSize="1.1em",
+							fontWeight="bold"
+						)
+					),
+					startOnTick=TRUE,
+					endOnTick=TRUE,
+					showLastLabel=TRUE,
+					gridLineWidth=1,
+					min=round(xlim[1],3),
+					max=round(xlim[2],3)
+				),
+				yAxis=list(
+					title=list(
+						useHTML=TRUE,
+						text="Significance (-log<sub>10</sub>(p-value))",
+						margin=25,
+						style=list(
+							color="#000000",
+							fontSize="1.2em"
+						)
+					),
+					labels=list(
+						style=list(
+							color="#000000",
+							fontSize="1.1em",
+							fontWeight="bold"
+						)
+					),
+					startOnTick=TRUE,
+					endOnTick=TRUE,
+					showLastLabel=TRUE,
+					gridLineWidth=1,
+					min=round(ylim[1]-2,3),
+					max=round(ylim[2],3)
+				),
+				#legend=list(
+				#    layout="vertical",
+				#    align="left",
+				#    verticalAlign="top",
+				#    floating=TRUE,
+				#    backgroundColor="#FFFFFF",
+				#    borderWidth=1
+				#),
+				plotOptions=list(
+					scatter=list(
+						allowPointSelect=TRUE,
+						marker=list(
+							radius=2,
+							states=list(
+								hover=list(
+									enabled=TRUE,
+									lineColor="#333333"
+								)
+							)
+						),
+						states=list(
+							hover=list(
+								marker=list(
+									enabled=FALSE
+								)
+							)
+						),
+						tooltip=list(
+							headerFormat=paste("<span style=",
+								"\"font-size:1.1em;color:{series.color};",
+								"font-weight:bold\">{series.name}<br>",
+								sep=""),
+							pointFormat=point.format
+						),
+						turboThreshold=50000
+					)
+				),
+				series=list(
+					list(
+						name="Up-regulated",
+						color="#EE0000",
+						marker=list(
+							symbol="circle"
+						),
+						data=makeHighchartsPoints(f[up],-log10(p[up]),
+							unname(altNames[up]))
+					),
+					list(
+						name="Down-regulated",
+						marker=list(
+							symbol="circle"
+						),
+						color="#00CD00",
+						data=makeHighchartsPoints(f[down],-log10(p[down]),
+							unname(altNames[down]))
+					),
+					list(
+						name="Unregulated",
+						marker=list(
+							symbol="circle"
+						),
+						color="#0000EE",
+						data=makeHighchartsPoints(ff,-log10(pp),
+							unname(altNamesNeutrall))
+					),
+					list(
+						name="Downfold threshold",
+						color="#000000",
+						type="line",
+						dashStyle="dash",
+						marker=list(
+							enabled=FALSE
+						),
+						tooltip=list(
+							headerFormat=paste('<strong>{series.name}',
+								'</strong><br/>',sep=""),
+							pointFormat=paste('<strong>Threshold: ',
+								'</strong>{point.x}<br/>',sep="")
+						),
+						data=list(round(c(-fcut,ylim[1]-5),3),
+							round(c(-fcut,ylim[2]),3))
+					),
+					list(
+						name="Upfold threshold",
+						color="#000000",
+						type="line",
+						dashStyle="Dash",
+						marker=list(
+							enabled=FALSE
+						),
+						tooltip=list(
+							headerFormat=paste('<strong>{series.name}',
+								'</strong><br/>',sep=""),
+							pointFormat=paste('<strong>Threshold: ',
+								'</strong>{point.x}<br/>',sep="")
+						),
+						data=list(round(c(fcut,ylim[1]-5),3),
+							round(c(fcut,ylim[2]),3))
+					),
+					list(
+						name="Significance threshold",
+						color="#000000",
+						type="line",
+						dashStyle="DashDot",
+						marker=list(
+							enabled=FALSE
+						),
+						tooltip=list(
+							headerFormat=paste('<strong>{series.name}',
+								'</strong><br/>',sep=""),
+							pointFormat=paste('<strong>Threshold: ',
+								'</strong>{point.y}<br/>',sep="")
+						),
+						data=list(round(c(xlim[1],-log10(pcut)),3),
+							round(c(xlim[2],-log10(pcut)),3))
+					)
+				)
+			)
         }
     )
     
@@ -2130,6 +2128,148 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         }
     )
     
+    if (out=="json")
+		return(toJSON(json,auto_unbox=TRUE,null="null"))
+	else if (out=="list")
+		return(json)
+}
+
+rnacompToJSON <- function(obj,jl=c("highcharts"),seed=42,out=c("json","list")) {
+    jl <- tolower(jl[1])
+    out <- tolower(out[1])
+    
+    dat <- obj$user$plotdata$data2plot
+    samples <- obj$samples
+    refColumn <- obj$user$plotdata$refColumn
+    
+    # Too many points for a lot of curves of interactive data
+    if (nrow(dat)>1000) {
+        set.seed(seed)
+        ii <- sort(sample(1:nrow(dat),998))
+        ii <- c(1,ii,nrow(dat))
+        dat <- cbind(dat[ii,1],dat[ii,2:ncol(dat)])
+    }
+
+    if (is.list(samples))
+        samplenames <- unlist(samples)
+    
+    samplenames <- setdiff(samplenames,refColumn)
+    dat <- as.matrix(dat[,samplenames])
+    datDens <- apply(dat,2,density,adjust=1.5)
+	limY <- c(0,max(sapply(datDens,function (x) max(x$y,na.rm=TRUE))))
+  
+    cols <- .getColorScheme(length(samplenames))
+    
+    # Construct series
+    counter <- 0
+    densSeries <- vector("list",length(samplenames))
+    names(densSeries) <- samplenames
+    for (n in names(densSeries)) {
+        counter <- counter + 1
+        densSeries[[n]] <- list()
+        densSeries[[n]]$name=n
+        densSeries[[n]]$color=cols$fill[counter]
+        densSeries[[n]]$data <- 
+			makeHighchartsPoints(datDens[[n]]$x,datDens[[n]]$y)
+        densSeries[[n]]$tooltip=list(
+            headerFormat=paste("<span style=",
+                "\"font-size:1.1em;color:{series.color};",
+                "font-weight:bold\">{series.name}<br>",
+                sep=""),
+            pointFormat=NULL
+        )
+    }
+    counter <- 0
+    abSeries <- vector("list",length(samplenames))
+    names(abSeries) <- samplenames
+    for (n in names(abSeries)) {
+        counter <- counter + 1
+        abSeries[[n]] <- list()
+        abSeries[[n]]$name=paste(n,"median")
+        abSeries[[n]]$color=cols$fill[counter]
+        abSeries[[n]]$data <- 
+			makeHighchartsPoints(rep(median(dat[,n],na.rm=TRUE),nrow(dat)),
+				seq(limY[1],limY[2],length.out=nrow(dat)))
+        abSeries[[n]]$enableMouseTracking=FALSE
+        abSeries[[n]]$dashStyle="Dash"
+    }
+    
+    switch(jl,
+        highcharts = {
+			json <- list(
+				chart=list(
+					type="line",
+					zoomType="xy"
+				),
+				title=list(
+					text=paste("RNA-composition for",status,"mapped reads")
+				),
+				xAxis=list(
+					title=list(
+						text="log<sub>2</sub>(sample/reference sample)",
+						margin=20,
+						useHTML=TRUE,
+						style=list(
+							color="#000000",
+							fontSize="1.2em"
+						)
+					),
+					labels=list(
+						style=list(
+							color="#000000",
+							fontSize="1.1em",
+							fontWeight="bold"
+						)
+					),
+					startOnTick=TRUE,
+					endOnTick=TRUE,
+					showLastLabel=TRUE,
+					gridLineWidth=1
+				),
+				yAxis=list(
+					title=list(
+						text="Density",
+						margin=25,
+						style=list(
+							color="#000000",
+							fontSize="1.2em"
+						)
+					),
+					labels=list(
+						style=list(
+							color="#000000",
+							fontSize="1.1em",
+							fontWeight="bold"
+						)
+					),
+					startOnTick=TRUE,
+					endOnTick=TRUE,
+					showLastLabel=TRUE,
+					gridLineWidth=1,
+					min=limY[1],
+					max=limY[2]
+				),
+				plotOptions=list(
+					line=list(
+						allowPointSelect=TRUE,
+						lineWidth=1,
+						marker=list(
+							enabled=FALSE
+						),
+						tooltip=list(
+							headerFormat=paste("<span style=",
+								"\"font-size:1.1em;color:{series.color};",
+								"font-weight:bold\">{series.name}<br>",
+								sep=""),
+							pointFormat=NULL
+						),
+						turboThreshold=50000
+					)
+				),
+				series=c(unname(densSeries),unname(abSeries))
+			)
+        }
+    )
     if (out=="json")
 		return(toJSON(json,auto_unbox=TRUE,null="null"))
 	else if (out=="list")

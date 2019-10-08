@@ -1072,7 +1072,7 @@ if (runLog) {
 
 The following figures summarize the quality control steps and assessment 
 performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
-by an explanatory text. Many figures are interactive wih additional controls on
+by an explanatory text. All figures are interactive wih additional controls on
 the top right of the figure.
 
 ### `r if ("mds" %in% qcPlots) 'MDS'` 
@@ -1464,7 +1464,7 @@ if ("pairwise" %in% qcPlots) {
 	cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
 	    "<br/><br/></div>",sep="")
 	
-	cat("<h4><em>X-Y plots</em></h4>")
+	#cat("<h4><em>X-Y plots</em></h4>")
 	
 	# Create a selector for each sample
 	items <- paste("<option value=",nams,">",gsub("_vs_"," vs ",nams),
@@ -1524,7 +1524,7 @@ if ("filtered" %in% qcPlots) {
 
 The following figures allow for the assessment of the normalization procedures 
 performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
-by an explanatory text. Many figures are interactive wih additional controls on
+by an explanatory text. All figures are interactive wih additional controls on
 the top right of the figure.
 
 ### `r if ("boxplot" %in% qcPlots) 'Boxplots'`
@@ -1550,7 +1550,7 @@ if ("boxplot" %in% qcPlots) {
 }
 ```
 
-### `r if ("gcbias" %in% qcPlots) 'GCBias'`
+### `r if ("gcbias" %in% qcPlots) 'GC bias'`
 
 ```{r analysis_figures_gcbias}
 if ("gcbias" %in% qcPlots) {
@@ -1575,7 +1575,7 @@ if ("gcbias" %in% qcPlots) {
 }
 ```
 
-### `r if ("lengthbias" %in% qcPlots) 'LengthBias'`
+### `r if ("lengthbias" %in% qcPlots) 'Length bias'`
 
 ```{r analysis_figures_lengthbias}
 if ("lengthbias" %in% qcPlots) {
@@ -1600,9 +1600,9 @@ if ("lengthbias" %in% qcPlots) {
 }
 ```
 
-### `r if ("meandiff" %in% qcPlots) 'MeanDiff'`
+### `r if ("meandiff" %in% qcPlots) 'Mean-Difference'`
 
-```{r analysis_figures_meandiff,eval=FALSE}
+```{r analysis_figures_meandiff}
 if ("meandiff" %in% qcPlots) {
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
 		whichPlot="meandiff",output="json")
@@ -1610,27 +1610,15 @@ if ("meandiff" %in% qcPlots) {
 		whichPlot="meandiff",output="json")
 	
 	np <- sum(lengths(jsonUnorm))
-	
-	#cat("<div class=\"row\"><div class=\"col-sm-6\">")
-	cat("<div class=\"hc-rect-sm\" id=\"meandiff_unorm_container\"></div>",
-		sep="")
-	#cat("</div><div class=\"col-sm-6\">")
-	cat("<div class=\"hc-rect-sm\" id=\"meandiff_norm_container\"></div>",
-		sep="")
-	#cat("</div></div>")
-	cat("<script>$('#meandiff_unorm_container').highcharts(",jsonUnorm[[1]][[1]],
-		");</script>",sep="")
-	cat("<script>$('#meandiff_norm_container').highcharts(",jsonNorm[[1]][[1]],
-		");</script>",sep="")
 		
 	# Add extra data, serialize and import the plots to Dexie per sample
 	preImportUnorm <- vector("list",np)
 	index <- 0
-	for (i in 1:length(jsonUnnorm)) {
-		for (j in 1:length(jsonUnnorm[[i]])) {
+	for (i in 1:length(jsonUnorm)) {
+		for (j in 1:length(jsonUnorm[[i]])) {
 			index <- index + 1
 			preImportUnorm[[index]] <- list(
-				name=names(jsonUnnorm[[i]])[j],
+				name=names(jsonUnorm[[i]])[j],
 				type="meandiff",
 				subtype="unorm",
 				json=jsonUnorm[[i]][[j]]
@@ -1641,24 +1629,28 @@ if ("meandiff" %in% qcPlots) {
 	
 	# Import script
 	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportXY,");",sep="")
+	cat("db.plots.bulkAdd(",toImportUnorm,");",sep="")
 	cat("</script>")
 	
-	# Add extra data, serialize and import the plots to Dexie per biotype
-	preImportMD <- vector("list",length(jsonList$md))
-	for (i in 1:length(jsonList$md)) {
-		preImportMD[[i]] <- list(
-			name=nams[i],
-			type="pairwise",
-			subtype="md",
-			json=jsonList$md[[nams[i]]]
-		)
+	# Add extra data, serialize and import the plots to Dexie per sample
+	preImportNorm <- vector("list",np)
+	index <- 0
+	for (i in 1:length(jsonNorm)) {
+		for (j in 1:length(jsonNorm[[i]])) {
+			index <- index + 1
+			preImportNorm[[index]] <- list(
+				name=names(jsonNorm[[i]])[j],
+				type="meandiff",
+				subtype="norm",
+				json=jsonNorm[[i]][[j]]
+			)
+		}
 	}
-	toImportMD <- toJSON(preImportMD,auto_unbox=TRUE,null="null")
+	toImportNorm <- toJSON(preImportNorm,auto_unbox=TRUE,null="null")
 	
 	# Import script
 	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportMD,");",sep="")
+	cat("db.plots.bulkAdd(",toImportNorm,");",sep="")
 	cat("</script>")
 	
 	cat("<h4><strong>Mean-difference plots for normalization assessment",
@@ -1666,39 +1658,43 @@ if ("meandiff" %in% qcPlots) {
 	cat("<div class=\"figure-hint\">",reportMessages$explain$meandiff,
 		"<br/><br/></div>",sep="")
 	
-	cat("<h4><em>X-Y plots</em></h4>")
-	
 	# Create a selector for each sample
-	items <- paste("<option value=",nams,">",gsub("_vs_"," vs ",nams),
-		"</option>",sep="")
+	html <- ""
+	for (n in names(jsonUnorm)) {
+		nams <- names(jsonUnorm[[n]])
+		items <- paste("<option value=",nams,">",gsub("_vs_"," vs ",nams),
+			"</option>",sep="")
+		html <- paste(html,"<optgroup label=\"",n,"\">",items,"</optgroup>",
+			sep="")
+	}
+	
 	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a pair to display plot for",
+	cat("<div class=\"hc-selector-label\">Select a pair to display plots for",
 		"</div>",sep="")
-	cat("<select id=\"pairwise_selector\">",items,"</select>",sep="")
+	cat("<select id=\"meandiff_selector\">",html,"</select>",sep="")
 	cat("</div>")
 	
 	# Container div - sample
-	cat("<div class=\"hc-rect-sm\" id=\"pairwise_xy_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"meandiff_unorm_container\"></div>",
 		sep="")
 	# Initialize first plot with serialized JSON
-	cat("<script>$('#pairwise_xy_container').highcharts(",toJSON(
-		preImportXY[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+	cat("<script>$('#meandiff_unorm_container').highcharts(",toJSON(
+		preImportUnorm[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
 		sep="")
-	
-	cat("<br/><h4><em>M-D plots</em></h4>")
 	
 	# Container div - sample
-	cat("<div class=\"hc-rect-sm\" id=\"pairwise_md_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"meandiff_norm_container\"></div>",
 		sep="")
 	# Initialize first plot with serialized JSON
-	cat("<script>$('#pairwise_md_container').highcharts(",toJSON(
-		preImportMD[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+	cat("<script>$('#meandiff_norm_container').highcharts(",toJSON(
+		preImportNorm[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
 		sep="")
 }
+```
 
-### `r if ("meanvar" %in% qcPlots) 'MeanVar'`
+### `r if ("meanvar" %in% qcPlots) 'Mean-Variance'`
 
-```{r analysis_figures_meanvar,eval=FALSE}
+```{r analysis_figures_meanvar}
 if ("meanvar" %in% qcPlots) {
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
 		whichPlot="meanvar",output="json")
@@ -1709,14 +1705,110 @@ if ("meanvar" %in% qcPlots) {
 		"</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$meanvar,
 		"<br/><br/></div>",sep="")
-	cat("<div class=\"hc-rect-xs\" id=\"meanvar_unorm_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"meanvar_unorm_container\"></div>",
 		sep="")
-	cat("<div class=\"hc-rect-xs\" id=\"meanvar_norm_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"meanvar_norm_container\"></div>",
 		sep="")
 	cat("<script>$('#meanvar_unorm_container').highcharts(",jsonUnorm,
 		");</script>",sep="")
 	cat("<script>$('#meanvar_norm_container').highcharts(",jsonNorm,
 		");</script>",sep="")
+}
+```
+
+### `r if ("rnacomp" %in% qcPlots) 'RnaComp'`
+
+```{r analysis_figures_rnacomp}
+if ("rnacomp" %in% qcPlots) {
+	log1 <- capture.output({
+		jsonUnorm <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+			whichPlot="rnacomp",isNorm=FALSE,output="json")
+	})
+	
+	log2 <- capture.output({
+		jsonNorm <- diagplotNoiseq(normGenes,sampleList,covars=covarsRaw,
+			whichPlot="rnacomp",isNorm=TRUE,output="json")
+	})
+
+	cat("<h4><strong>RNA composition plot</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$rnacomp,
+		"</br></br></div>",sep="")
+		
+	cat("<div class=\"hc-rect-sm\" id=\"rnacomp_unorm_container\"></div>",
+		sep="")
+	cat("<script>$('#rnacomp_unorm_container').highcharts(",jsonUnorm,
+		");</script>",sep="")
+	cat("<div class=\"hc-rect-sm\" id=\"rnacomp_norm_container\"></div>",sep="")
+	cat("<script>$('#rnacomp_norm_container').highcharts(",jsonNorm,
+		");</script>",sep="")
+}
+```
+
+# Statistics
+
+## Differential expression assessment figures {.tabset .tabset-pills}
+
+The following figures allow for the assessment of the statistical testing 
+procedures performed by the ```metaseqr2``` pipeline. Each figure category is 
+accompanied by an explanatory text. All figures are interactive wih additional 
+controls on the top right of the figure.
+
+### `r if ("volcano" %in% qcPlots) 'Volcano'`
+
+```{r analysis_figures_volcano}
+if ("volcano" %in% qcPlots) {
+	nn <- names(contrastList)
+	json <- list()
+	
+	namc <- character(0)
+	index <- 0
+	for (n in nn) {
+		fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+		for (contr in colnames(fc)) {
+			index <- index + 1
+			namc <- c(namc,contr)
+			json[[index]] <- diagplotVolcano(fc[,contr],sumpList[[n]],contr,
+				altNames=geneDataExpr$gene_name,output="json")
+		}
+	}
+	names(json) <- namc
+	
+	# Add extra data, serialize and import the plots to Dexie
+	preImport <- vector("list",length(json))
+	for (i in 1:length(json)) {
+		preImport[[i]] <- list(
+			name=paste("volcano",namc[i],sep="_"),
+			type="volcano",
+			subtype="generic",
+			json=json[[i]]
+		)
+	}
+	toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
+	
+	# Import script
+	cat("<script type=\"text/javascript\">")
+	cat("db.plots.bulkAdd(",toImport,");",sep="")
+	cat("</script>")
+	
+	cat("<h4><strong>Volcano plots</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$volcano,
+	    "<br/><br/></div>",sep="")
+	    
+	# Create a selector for each contrast
+	items <- paste("<option value=",paste("volcano",nn,sep="_"),">",
+		gsub("_vs_"," vs ",nn),"</option>",sep="")
+	cat("<div>")
+	cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
+		"for </div>",sep="")
+	cat("<select id=\"volcano_selector\">",items,"</select>",sep="")
+	cat("</div>")
+	
+	# Container div
+	cat("<div class=\"hc-rect-sm\" id=\"volcano_container\"></div>",sep="")
+	# Initialize first plot with serialized JSON
+	cat("<script>$('#volcano_container').highcharts(",
+		toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+		sep="")
 }
 ```
 
@@ -1756,8 +1848,16 @@ $("#pairwise_selector").on('change',function() {
 	var name = this.value;
 	getPlotFromDb({name: name,type: "pairwise",subtype: "xy"},
 		"pairwise_xy_container");
-	getPlotFromDb({name: name,type: "pairwise",subtype: "md"},
-		"pairwise_md_container");
+	//getPlotFromDb({name: name,type: "pairwise",subtype: "md"},
+	//	"pairwise_md_container");
+});
+
+$("#meandiff_selector").on('change',function() {
+	var name = this.value;
+	getPlotFromDb({name: name,type: "meandiff",subtype: "unorm"},
+		"meandiff_unorm_container");
+	getPlotFromDb({name: name,type: "meandiff",subtype: "norm"},
+		"meandiff_norm_container");
 });
 </script>
 
