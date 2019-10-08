@@ -2138,6 +2138,7 @@ rnacompToJSON <- function(obj,jl=c("highcharts"),seed=42,out=c("json","list")) {
     jl <- tolower(jl[1])
     out <- tolower(out[1])
     
+    status <- obj$status
     dat <- obj$user$plotdata$data2plot
     samples <- obj$samples
     refColumn <- obj$user$plotdata$refColumn

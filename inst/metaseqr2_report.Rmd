@@ -1812,6 +1812,44 @@ if ("volcano" %in% qcPlots) {
 }
 ```
 
+### `r if ("deheatmap" %in% qcPlots) 'Heatmap'`
+
+```{r analysis_figures_deheatmap}
+if ("deheatmap" %in% qcPlots) {
+	
+	cat("<h4><strong>Differential expression heatmaps</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$deheatmap,
+	    "<br/><br/></div>",sep="")
+	
+	# Create a selector for each contrast
+	items <- paste("<option value=",paste("deheatmap",names(contrastList),
+		sep="_"),">",gsub("_vs_"," vs ",nn),"</option>",sep="")
+	cat("<div>")
+	cat("<div class=\"hc-selector-label\">Select a contrast to display ",
+		"heatmap for </div>",sep="")
+	cat("<select id=\"heatmap_selector\">",items,"</select>",sep="")
+	cat("</div>")
+	
+	heatmaply(nat2log(normGenesExpr),trace="none",colors=bluered(64),
+		main=paste("DEG heatmap",con)) %>%
+		layout(width=640,height=720)
+			
+	#for (cnt in names(contrastList)) {
+	#	s <- names(unlist(contrastList[[cnt]]))
+	#	if (is.na(pcut))
+	#		pcut <- 0.05
+	#	ind <- which(sumpList[[cnt]]<=pcut)
+	#	if (length(ind) > 0)
+	#		mat <- as.matrix(normGenesExpr[ind,s])
+	#	else
+	#		mat <- as.matrix(normGenesExpr[,s])
+	#	heatmaply(nat2log(mat),trace="none",colors=bluered(64),
+	#		main=paste("DEG heatmap",con)) %>%
+	#		layout(width=640,height=720)
+	#}
+}
+```
+
 <!--- Bind change on all selectboxes -->
 <script>
 $("#biodetection_selector").on('change',function() {
