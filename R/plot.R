@@ -651,7 +651,8 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
 							user=list(counts=NULL,covar=NULL,
 								covarname="Mean-Difference")
 						)
-						json[[n]][[i]] <- scatterToJSON(obj)
+						json[[n]][[i]] <- scatterToJSON(obj,out="list")
+						names(json[[n]])[i] <- paste(s1,"_vs_",s2,sep="")
 					}
 				}
 				return(json)
