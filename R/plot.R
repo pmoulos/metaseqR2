@@ -1355,33 +1355,6 @@ diagplotDeHeatmap <- function(x,con=NULL,output="x11",path=NULL,...) {
     heatmap.2(y,trace="none",col=bluered(16),labRow="",cexCol=0.9,keysize=1,
         font.lab=2,main=paste("DEG heatmap",con),cex.main=0.9)
     graphicsClose(output)
-    ## Then the "interactive" using sendplot
-    #xy.labels <- list(normalized_counts=x,log2_normalized_counts=y)
-    #x.labels <- data.frame(
-    #    label=colnames(x),
-    #    description=paste("Sample",colnames(x))
-    #)
-    #y.labels <- data.frame(
-    #    label=rownames(x),
-    #    description=paste("Gene ID:",rownames(x))
-    #)
-    #suppressWarnings(heatmap.send(
-    #    y,
-    #    distfun=dist,
-    #    hclustfun=hclust,
-    #    MainColor=bluered(16),
-    #    labRow="",
-    #    labCol=NULL,
-    #    keep.dendro=TRUE, 
-    #    x.labels=x.labels,
-    #    y.labels=y.labels,
-    #    xy.labels=xy.labels,
-    #    image.size="2048x4096",
-    #    fname.root=paste("iframe_de_heatmap_",conn,sep=""),
-    #    dir=paste(path,.Platform$file.sep,sep=""),
-    #    header="v3",
-    #    window.size="2048x4192"
-    #))
     return(fil)
 }
 
