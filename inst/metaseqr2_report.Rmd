@@ -182,6 +182,13 @@ p {
 	font-weight: 600;
 }
 
+.deheatmap-container {
+	width: 740px;
+	height: 860px;
+	text-align: center;
+	margin: auto;
+}
+
 #summary_log_container {
 	font-family: "Courier New", Courier, monospace;
 	font-size: 0.9em;
@@ -1824,15 +1831,12 @@ if ("deheatmap" %in% qcPlots) {
 	# Create a selector for each contrast
 	items <- paste("<option value=",paste("deheatmap",names(contrastList),
 		sep="_"),">",gsub("_vs_"," vs ",nn),"</option>",sep="")
+	#items <- "<option value=test1>test1</option><option value=test2>test2</option>"
 	cat("<div>")
 	cat("<div class=\"hc-selector-label\">Select a contrast to display ",
 		"heatmap for </div>",sep="")
 	cat("<select id=\"heatmap_selector\">",items,"</select>",sep="")
 	cat("</div><br/><br/><br/>")
-	
-	#heatmaply(nat2log(normGenesExpr),trace="none",colors=bluered(64),
-	#	main=paste("DEG heatmap",con)) %>%
-	#	layout(width=640,height=720)
 	
 	hList <- vector("list",length(contrastList))
 	names(hList) <- names(contrastList)
@@ -1846,15 +1850,57 @@ if ("deheatmap" %in% qcPlots) {
 		else
 			mat <- as.matrix(normGenesExpr[,s])
 		hList[[cnt]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
-			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",con)) %>%
-			layout(width=640,height=720)
+			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",con,runif(1))) %>%
+			layout(width=720,height=840)
 	}
 	setNames(hList,NULL)
-	htmltools::tagList(tags$div(hList))
+	# FIXME: Attach tag to heatmap before publishing
+	htmltools::tagList(
+		tags$div(id="test1",class="deheatmap-container",hList[[1]])
+	)
+	#htmltools::tagList(tags$div(hList))
 	#htmltools::tagList(setNames(hList,NULL))
-	
 }
 ```
+
+```{js deheatmap_render}
+// Chunk to initialize the display of the DE heatmaps
+var hids = $('.deheatmap-container').map(function(index) {
+	return(this.id);
+});
+$('.deheatmap-container').hide(0);
+$('#'+hids[0]).show();
+```
+
+# Results
+
+## Tables of differentially expressed genes {.tabset .tabset-pills}
+
+The following tables allow for a quick exploration of the results of the
+statistical analysis performed by the ```metaseqr2``` pipeline.
+
+```{r results_tables_header}
+if (is.null(reportTop)) {
+	topText <- paste("all the statistically significant ",	transLevel,"s",
+		sep="")
+} else {
+	topText <- paste("the top ",round(100*reportTop),"% statistically ",
+		"significant ",transLevel,"s",sep="")
+}
+restText <- paste("Use the download links below each table to retrieve the ",
+	"total list of differentially expressed ",transLevel,"s or the whole ",
+	transLevel," list of the selected genome irrespective of differential ",
+	"expression.",sep="")
+cat("Each table presents ",topText,restText,sep="")
+```
+
+```{r test_prog_pill}
+library(pander)
+hh <- c("AAA","BBB","CCC")
+for (h in hh)
+	pandoc.header(h,level=3)
+```
+
 
 <!--- Bind change on all selectboxes -->
 <script>
@@ -1902,6 +1948,12 @@ $("#meandiff_selector").on('change',function() {
 		"meandiff_unorm_container");
 	getPlotFromDb({name: name,type: "meandiff",subtype: "norm"},
 		"meandiff_norm_container");
+});
+
+$("#heatmap_selector").on('change',function() {
+	var name = this.value;
+	$(".deheatmap-container").hide(0);
+	$("#"+name).show();
 });
 </script>
 

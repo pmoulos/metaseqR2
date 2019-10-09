@@ -1077,43 +1077,49 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 pnr=0.2,
                 v=0.02
             )
-            if (!is.null(biodistOpts$name))
-                fil <- file.path(path,paste(whichPlot,"_",biodistOpts$name,
-                    ".",output,sep=""))
-            else
-                fil <- file.path(path,paste(whichPlot,".",output,sep=""))
-            if (output %in% c("pdf","ps","x11"))
-                graphicsOpen(output,fil,width=10,height=6)
-            else
-                graphicsOpen(output,fil,width=1024,height=640)
-            tryCatch( # A lot of times, there is a problem with this function
-                DE.plot(dummy,chromosomes=NULL,q=biodistOpts$pcut,
-                    graphic="distr"),
-                error=function(e) {
-                    disp("      Known problem with NOISeq and external ",
-                        "p-values  detected! Trying to make a plot with ",
-                        "alternative p-values  (median of p-value ",
-                        "distribution)...")
-                    fil="error"
-                    tryCatch(
-                        DE.plot(dummy,chromosomes=NULL,
-                            q=quantile(biodistOpts$p,0.5),
-                            graphic="distr"),
-                        error=function(e) {
-                            disp("      Cannot create DEG biotype plot! This ",
-                                "is not related to a problem with the ",
-                                "results. Excluding...")
-                            fil="error"
-                        },
-                        finally=""
-                    )
-                },
-                finally=""
-            )
-            graphicsClose(output)
+            if (output!="json") {
+				if (!is.null(biodistOpts$name))
+					fil <- file.path(path,paste(whichPlot,"_",biodistOpts$name,
+						".",output,sep=""))
+				else
+					fil <- file.path(path,paste(whichPlot,".",output,sep=""))
+				if (output %in% c("pdf","ps","x11"))
+					graphicsOpen(output,fil,width=10,height=6)
+				else
+					graphicsOpen(output,fil,width=1024,height=640)
+				tryCatch( # A lot of times, there is a problem with this function
+					DE.plot(dummy,chromosomes=NULL,q=biodistOpts$pcut,
+						graphic="distr"),
+					error=function(e) {
+						disp("      Known problem with NOISeq and external ",
+							"p-values  detected! Trying to make a plot with ",
+							"alternative p-values  (median of p-value ",
+							"distribution)...")
+						fil="error"
+						tryCatch(
+							DE.plot(dummy,chromosomes=NULL,
+								q=quantile(biodistOpts$p,0.5),
+								graphic="distr"),
+							error=function(e) {
+								disp("      Cannot create DEG biotype plot! ",
+									"This is not related to any problem with ",
+									"the results. Excluding...")
+								fil="error"
+							},
+							finally=""
+						)
+					},
+					finally=""
+				)
+				graphicsClose(output)
+				return(fil)
+			}
+			else {
+				
+			}
         }
     )
-    return(fil)
+    
 }
 
 diagplotNoiseqSaturation <- function(x,o,tb,path=NULL) {
