@@ -150,19 +150,6 @@ p {
 	font-size: 0.8em;
 }
 
-.dataTables_wrapper {
-	width: 95%;
-}
-
-.table-supercondensed>thead>tr>th, 
-.table-supercondensed>tbody>tr>th, 
-.table-supercondensed>tfoot>tr>th, 
-.table-supercondensed>thead>tr>td, 
-.table-supercondensed>tbody>tr>td, 
-.table-supercondensed>tfoot>tr>td{
-    padding: 2px;
-}
-
 .header-panel {
     background-color: #0E2B8A;
     min-height: 144px;
@@ -1912,7 +1899,7 @@ cat("Each table presents ",topText,restText,sep="")
 ```
 
 ```{r dt_hack, include=FALSE}
-datatable(NULL)
+DT::datatable(NULL)
 ```
 
 ```{r results_tables}
@@ -1927,18 +1914,53 @@ for (cnt in contrast) {
 		"be searched using the search field on the top right.</div>",
 		sep="")
 	
+	# Fold change should always exist in this table defined by us...
+	pi <- grep("p-value",colnames(reportTables[[cnt]]))
+	di <- grep("FDR",colnames(reportTables[[cnt]]))
+	fi <- grep("_vs_",colnames(reportTables[[cnt]]))
+	brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
+		na.rm=TRUE)
+	preClrs <- col2rgb(redgreen(length(brks)+1))
+	clrs <- paste("rgb(",apply(preClrs,2,paste0,collapse=","),")",sep="")
+	
 	print(htmltools::tagList(tags$div(class="detable-container",DT::datatable(
 		reportTables[[cnt]],
 		rownames=FALSE,
+		#width=1020,
 		style="bootstrap",
-		class="table-supercondensed table-striped",
+		class="table-condensed table-striped table-responsive",
 		options=list(
 			scrollX=TRUE
 		)
-	))))
+	) %>% formatStyle(
+		names(reportTables[[cnt]])[fi],
+		backgroundColor=styleInterval(brks,clrs),
+		fontWeight="bold",
+		color="#FFFFFF"
+	) %>% formatStyle(
+		names(reportTables[[cnt]])[pi],
+		backgroundColor=styleColorBar(range(-10*log10(
+			reportTables[[cnt]][,pi])),"lightblue"),
+		fontWeight="bold",
+		backgroundSize="98% 88%",
+		backgroundRepeat="no-repeat",
+		backgroundPosition="center"
+	) %>% formatStyle(
+		names(reportTables[[cnt]])[di],
+		backgroundColor=styleColorBar(range(-10*log10(
+			reportTables[[cnt]][,di])),"lightgreen"),
+		fontWeight="bold",
+		backgroundSize="98% 88%",
+		backgroundRepeat="no-repeat",
+		backgroundPosition="center"
+	)
+	)))
 }
-
 ```
+
+# References
+
+Related references will be displayed here.
 
 
 <!--- Bind change on all selectboxes -->

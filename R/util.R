@@ -1689,9 +1689,11 @@ makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
         meanNom <- apply(nom,1,mean)
         meanDenom <- apply(denom,1,mean)
         #meanNom <- ifelse(meanNom==0,logOffset,meanNom)
-        if (any(meanNom==0)) meanNom <- meanNom + logOffset
+        if (any(meanNom==0)) 
+			meanNom <- meanNom + logOffset
         #meanDenom <- ifelse(meanDenom==0,logOffset,meanDenom)
-        if (any(meanDenom==0)) meanDenom <- meanDenom + logOffset
+        if (any(meanDenom==0)) 
+			meanDenom <- meanDenom + logOffset
         foldMat[,i-1] <- meanNom/meanDenom
     }
     rownames(foldMat) <- rownames(dataMatrix)
@@ -1792,15 +1794,15 @@ makeTransformation <- function(dataMatrix,exportScale,
 }
 
 makeStat <- function(samples,dataList,stat,exportScale) {
-    stat.result <- vector("list",length(exportScale))
-    names(stat.result) <- exportScale
+    statResult <- vector("list",length(exportScale))
+    names(statResult) <- exportScale
     for (scl in exportScale) {
-        stat.data <- dataList[[scl]][,match(samples,
-            colnames(dataList[[scl]]))]
-        if (!is.matrix(stat.data)) stat.data <- as.matrix(stat.data)
+        statData <- dataList[[scl]][,match(samples,colnames(dataList[[scl]]))]
+        if (!is.matrix(statData))
+			statData <- as.matrix(statData)
         switch(stat,
             mean = {
-                stat.result[[scl]] <- apply(stat.data,1,function(x,s) {
+                statResult[[scl]] <- apply(statData,1,function(x,s) {
                     if (s=="natural")
                         return(round(mean(x)))
                     else
@@ -1808,7 +1810,7 @@ makeStat <- function(samples,dataList,stat,exportScale) {
                 },scl)
             },
             median = {
-                stat.result[[scl]] <- apply(stat.data,1,function(x,s) {
+                statResult[[scl]] <- apply(statData,1,function(x,s) {
                     if (s=="natural")
                         return(round(median(x)))
                     else
@@ -1816,7 +1818,7 @@ makeStat <- function(samples,dataList,stat,exportScale) {
                 },scl)
             },
             sd = {
-                stat.result[[scl]] <- apply(stat.data,1,function(x,s) {
+                statResult[[scl]] <- apply(statData,1,function(x,s) {
                     if (s=="natural")
                         return(ceiling(sd(x)))
                     else
@@ -1824,7 +1826,7 @@ makeStat <- function(samples,dataList,stat,exportScale) {
                 },scl)
             },
             mad = {
-                stat.result[[scl]] <- apply(stat.data,1,function(x,s) {
+                statResult[[scl]] <- apply(statData,1,function(x,s) {
                     if (s=="natural")
                         return(ceiling(mad(x)))
                     else
@@ -1832,7 +1834,7 @@ makeStat <- function(samples,dataList,stat,exportScale) {
                 },scl)
             },
             cv = {
-                stat.result[[scl]] <- apply(stat.data,1,function(x,s) {
+                statResult[[scl]] <- apply(statData,1,function(x,s) {
                     if (s=="natural")
                         return(ceiling(sd(x))/round(mean(x)))
                     else
@@ -1840,7 +1842,7 @@ makeStat <- function(samples,dataList,stat,exportScale) {
                 },scl)
             },
             rcv = {
-                stat.result[[scl]] <- apply(stat.data,1,function(x,s) {
+                statResult[[scl]] <- apply(statData,1,function(x,s) {
                     if (s=="natural")
                         return(ceiling(mad(x))/round(median(x))) 
                     else
@@ -1849,7 +1851,7 @@ makeStat <- function(samples,dataList,stat,exportScale) {
             }
         )
     }
-    return(do.call("cbind",stat.result))
+    return(do.call("cbind",statResult))
 }
 
 makeMatrix <- function(samples,dataList,exportScale="natural") {

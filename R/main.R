@@ -1722,15 +1722,13 @@ metaseqr2 <- function(
         fa <- NULL
     if ("normalized" %in% exportValues) {
         fac <- fa[rownames(normGenesExpr)]
-        normList <- makeTransformation(normGenesExpr,exportScale,fac,
-            logOffset)
+        normList <- makeTransformation(normGenesExpr,exportScale,fac,logOffset)
     }
     else
         normList <- NULL
     if ("raw" %in% exportValues) {
         fac <- fa[rownames(geneCountsExpr)]
-        rawList <- makeTransformation(geneCountsExpr,exportScale,fac,
-            logOffset)
+        rawList <- makeTransformation(geneCountsExpr,exportScale,fac,logOffset)
     }
     else
         rawList <- NULL
@@ -1800,7 +1798,9 @@ metaseqr2 <- function(
             report=report
         )
         
-        if (report) {		
+        # If report requested, build a more condensed summary table, while the
+        # complete tables are available for download
+        if (report) { 
 			if (length(statistics) > 1)
 				ew <- c("annotation","meta_p_value","adj_meta_p_value",
 					"fold_change","stats")
@@ -1811,28 +1811,36 @@ metaseqr2 <- function(
 			ev <- "normalized"
 			est <- "mean"
 			
-#~ 			disp("    Adding report data...")
-#~ 			reportTables[[cnt]] <- buildExport(
-#~ 				geneData=geneDataExpr,
-#~ 				rawGeneCounts=geneCountsExpr,
-#~ 				normGeneCounts=normGenesExpr,
-#~ 				flags=goodFlags,
-#~ 				sampleList=sampleList,
-#~ 				cnt=cnt,
-#~ 				statistics=statistics,
-#~ 				rawList=rawList,
-#~ 				normList=normList,
-#~ 				pMat=cpList[[cnt]],
-#~ 				adjpMat=adjCpList[[cnt]],
-#~ 				sumP=sumpList[[cnt]],
-#~ 				adjSumP=adjSumpList[[cnt]],
-#~ 				exportWhat=ew,
-#~ 				exportScale=esc,
-#~ 				exportValues=ev,
-#~ 				exportStats=est,
-#~ 				logOffset=logOffset,
-#~ 				report=FALSE
-#~ 			)$textTable
+			faR <- attr(geneDataExpr,"geneLength")			
+			facR <- faR[rownames(normGenesExpr)]
+			normListR <- makeTransformation(normGenesExpr,esc,facR,logOffset)
+			
+			disp("    Adding report data...")
+			reportTables[[cnt]] <- buildExport(
+				geneData=geneDataExpr,
+				rawGeneCounts=geneCountsExpr,
+				normGeneCounts=normGenesExpr,
+				flags=goodFlags,
+				sampleList=sampleList,
+				cnt=cnt,
+				statistics=statistics,
+				rawList=NULL,
+				normList=normListR,
+				pMat=cpList[[cnt]],
+				adjpMat=adjCpList[[cnt]],
+				sumP=sumpList[[cnt]],
+				adjSumP=adjSumpList[[cnt]],
+				exportWhat=ew,
+				exportScale=esc,
+				exportValues=ev,
+				exportStats=est,
+				logOffset=logOffset,
+				report=FALSE
+			)$textTable
+			
+			reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]])
+			
+			assign("xi",reportTables[[cnt]],envir=.GlobalEnv)
 		}
 
         # Adjust the export based on what statistics have been done and a 
@@ -1924,47 +1932,7 @@ metaseqr2 <- function(
         if (outList)
             out[[cnt]] <- export
 
-        if (report) {		
-			if (length(statistics) > 1)
-				ew <- c("annotation","p_value","adj_p_value","fold_change",
-					"stats")
-			else
-				ew <- c("annotation","meta_p_value","adj_meta_p_value",
-					"fold_change","stats")
-			esc <- "rpgm"
-			ev <- "normalized"
-			est <- "mean"
-			
-			#disp("    Adding report data...")
-			#theReportExport <- buildExport(
-			#	geneData=geneDataExpr,
-			#	rawGeneCounts=geneCountsExpr,
-			#	normGeneCounts=normGenesExpr,
-			#	flags=goodFlags,
-			#	sampleList=sampleList,
-			#	cnt=cnt,
-			#	statistics=statistics,
-			#	rawList=rawList,
-			#	normList=normList,
-			#	pMat=cpList[[cnt]],
-			#	adjpMat=adjCpList[[cnt]],
-			#	sumP=sumpList[[cnt]],
-			#	adjSumP=adjSumpList[[cnt]],
-			#	exportWhat=ew,
-			#	exportScale=esc,
-			#	exportValues=ev,
-			#	exportStats=est,
-			#	logOffset=logOffset,
-			#	report=FALSE
-			#)
-			
-			#if (!is.null(reportTop))
-            #    topi <- ceiling(reportTop*nrow(theReportExport$textTable))
-            #else
-			#	topi <- 1:nrow(theReportExport$textTable)
-			#reportTables[[cnt]] <- theReportExport$textTable[1:topi,,drop=FALSE]
-			#rownames(reportTables[[cnt]]) <- NULL
-			
+        #if (report) {		
             #theHtmlHeader <- .makeHtmlHeader(theExport$headers)
             #if (!is.null(reportTop)) {
             #    topi <- ceiling(reportTop*nrow(exportHtml))
@@ -1977,7 +1945,7 @@ metaseqr2 <- function(
             #    id=paste("table_",counter,sep=""))
             #html[[cnt]] <- theHtmlTable
             #counter <- counter+1
-        }
+        #}
 
         if (!is.null(geneCountsZero) || !is.null(geneCountsDead)) {
             disp("    Adding filtered data...")
@@ -2206,6 +2174,17 @@ metaseqr2 <- function(
         
         # Remove the Rmd file after rendering the report
 		unlink(file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"))
+		
+		########################################################################
+		# Replace a jQuery incompatibility bug line... Hopefully to remove...
+		L <- readLines(file.path(PROJECT_PATH$main,"index.html"))
+		ln <- grep(paste("$(\".menu\").find(\"li[data-target=\" + window.page",
+			"+ \"]\").trigger(\"click\");"),L,fixed=TRUE)
+		if (length(ln) == 1)
+			L[ln] <- paste("$(\".menu\").find(\"li[data-target='\" +",
+			"window.page + \"']\").trigger(\"click\");")
+		cat(L,file=file.path(PROJECT_PATH$main,"index.html"),sep="\n")
+		########################################################################
 		
         if (!is.null(qcPlots)) {
             # First create zip archives of the figures
@@ -2566,6 +2545,36 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 		}        
     }
     return(tmpEnv)
+}
+
+.formatForReport <- function(x) {
+	# Replace seqnames name
+	colnames(x)[1] <- "chromosome"
+	
+	# Round rpgm and fold change
+	tmpi1 <- grep("log2_normalized_fold_change_",colnames(x))
+	tmpi2 <- grep("rpgm_normalized_mean_counts_",colnames(x))
+	tmpi <- c(tmpi1,tmpi2)
+	if (length(tmpi) > 0)
+		x[,tmpi] <- round(x[,tmpi],digits=4)
+	
+	# Round p-values and FDR
+	tmpi1 <- grep("p-value",colnames(x))
+	tmpi2 <- grep("FDR",colnames(x))
+	tmpi <- c(tmpi1,tmpi2)
+	if (length(tmpi) > 0)
+		x[,tmpi] <- round(x[,tmpi],digits=6)
+	
+	colnames(x) <- gsub("log2_normalized_fold_change_","",colnames(x))
+	colnames(x) <- gsub("rpgm_normalized_mean_counts_","",colnames(x))
+	tmpi <- grep("p-value",colnames(x))
+	if (length(tmpi) > 0)
+		colnames(x)[tmpi] <- "p-value"
+	tmpi <- grep("FDR",colnames(x))
+	if (length(tmpi) > 0)
+		colnames(x)[tmpi] <- "FDR"
+	
+	return(x)
 }
 
 #~ #############################################################################
