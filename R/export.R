@@ -36,7 +36,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
         disp("      binding annotation...")
         export <- cbind(export,geneData)
         if (report)
-            exportHtml <- cbind(exportHtml,makeHtmlCells(geneData,
+            exportHtml <- cbind(exportHtml,.makeHtmlCells(geneData,
                 type="text"))
         theNames <- c(theNames,colnames(geneData))
     }
@@ -44,14 +44,14 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
         disp("      binding p-values...")
         export <- cbind(export,pMat)
         if (report) 
-            exportHtml <- cbind(exportHtml,makeHtmlCells(pMat))
+            exportHtml <- cbind(exportHtml,.makeHtmlCells(pMat))
         theNames <- c(theNames,paste("p-value_",colnames(pMat),sep=""))
     }
     if ("adj_p_value" %in% exportWhat) {
         disp("      binding FDRs...")
         export <- cbind(export,adjpMat)
         if (report) 
-            exportHtml <- cbind(exportHtml,makeHtmlCells(adjpMat))
+            exportHtml <- cbind(exportHtml,.makeHtmlCells(adjpMat))
         theNames <- c(theNames,paste("FDR_",colnames(adjpMat),sep=""))
     }
     if ("meta_p_value" %in% exportWhat && length(statistics)>1) { 
@@ -59,14 +59,14 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
         disp("      binding meta p-values...")
         export <- cbind(export,sumP)
         if (report) 
-            exportHtml <- cbind(exportHtml,makeHtmlCells(sumP))
+            exportHtml <- cbind(exportHtml,.makeHtmlCells(sumP))
         theNames <- c(theNames,paste("meta_p-value_",cnt,sep=""))
     }
     if ("adj_meta_p_value" %in% exportWhat && length(statistics)>1) {
         disp("      binding adjusted meta p-values...")
         export <- cbind(export,adjSumP)
         if (report) 
-            exportHtml <- cbind(exportHtml,makeHtmlCells(adjSumP))
+            exportHtml <- cbind(exportHtml,.makeHtmlCells(adjSumP))
         theNames <- c(theNames,paste("meta_FDR_",cnt,sep=""))
     }
     if ("fold_change" %in% exportWhat) {
@@ -76,7 +76,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                 disp("      binding natural normalized fold changes...")
                 export <- cbind(export,tmp)
                 if (report) 
-                    exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                    exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                 theNames <- c(theNames,
                     paste("natural_normalized_fold_change_",colnames(tmp),
                         sep=""))
@@ -85,7 +85,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                 disp("      binding log2 normalized fold changes...")
                 export <- cbind(export,log2(tmp))
                 if (report) 
-                    exportHtml <- cbind(exportHtml,makeHtmlCells(log2(tmp)))
+                    exportHtml <- cbind(exportHtml,.makeHtmlCells(log2(tmp)))
                 theNames <- c(theNames,paste("log2_normalized_fold_change_",
                     colnames(tmp),sep=""))
             }
@@ -95,7 +95,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
             if ("natural" %in% exportScale) {
                 disp("      binding natural raw fold changes...")
                 export <- cbind(export,tmp)
-                if (report) exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                if (report) exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                 theNames <- c(theNames,paste("natural_raw_fold_change_",
                     colnames(tmp),sep=""))
             }
@@ -103,7 +103,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                 disp("      binding log2 raw fold changes...")
                 export <- cbind(export,log2(tmp))
                 if (report) 
-                    exportHtml <- cbind(exportHtml,makeHtmlCells(log2(tmp)))
+                    exportHtml <- cbind(exportHtml,.makeHtmlCells(log2(tmp)))
                 theNames <- c(theNames,paste("log2_raw_fold_change_",
                     colnames(tmp),sep=""))
             }
@@ -115,11 +115,15 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
             if ("normalized" %in% exportValues) {
                 if ("mean" %in% exportStats) {
                     disp("      binding normalized mean counts...")
+                    disp("            ##############1#################")
                     tmp <- makeStat(sampleList[[cond]],normList,"mean",
                         exportScale)
+                    disp("            ##############2#################")
                     export <- cbind(export,tmp)
+                    disp("            ##############3#################")
                     if (report) 
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
+                    disp("            ##############4#################")
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_normalized_mean_counts_",cond,sep=""))
                 }
@@ -129,7 +133,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report) 
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_normalized_median_counts_",cond,sep=""))
                 }
@@ -139,7 +143,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report) 
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_normalized_sd_counts_",cond,sep=""))
                 }
@@ -149,7 +153,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report)
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_normalized_mad_counts_",cond,sep=""))
                 }
@@ -159,7 +163,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report)
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_normalized_cv_counts_",cond,sep=""))
                 }
@@ -169,7 +173,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report)
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_normalized_rcv_counts_",cond,sep=""))
                 }
@@ -181,7 +185,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report)
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_raw_mean_counts_",cond,sep=""))
                 }
@@ -191,7 +195,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report)
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_raw_median_counts_",cond,sep=""))
                 }
@@ -201,7 +205,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report)
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_raw_sd_counts_",cond,sep=""))
                 }
@@ -211,7 +215,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report)
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_raw_mad_counts_",cond,sep=""))
                 }
@@ -221,7 +225,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report)
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_raw_cv_counts_",cond,sep=""))
                 }
@@ -231,7 +235,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                         exportScale)
                     export <- cbind(export,tmp)
                     if (report)
-                        exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                     theNames <- c(theNames,paste(colnames(tmp),
                         "_raw_rcv_counts_",cond,sep=""))
                 }
@@ -246,7 +250,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                 tmp <- makeMatrix(sampleList[[cond]],normList,exportScale)
                 export <- cbind(export,tmp)
                 if (report)
-                    exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                    exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                 part1 <- rep(paste(exportScale,"_normalized_counts_",sep=""),
                     each=length(sampleList[[cond]]))
                 part2 <- paste(part1,colnames(tmp),sep="")
@@ -257,7 +261,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
                 tmp <- makeMatrix(sampleList[[cond]],rawList,exportScale)
                 export <- cbind(export,tmp)
                 if (report)
-                    exportHtml <- cbind(exportHtml,makeHtmlCells(tmp))
+                    exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
                 part1 <- rep(paste(exportScale,"_raw_counts_",sep=""),
                     each=length(sampleList[[cond]]))
                 part2 <- paste(part1,colnames(tmp),sep="")
@@ -269,7 +273,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
         disp("      binding filtering flags...")
         export <- cbind(export,as.data.frame(flags))
         if (report)
-            exportHtml <- cbind(exportHtml,makeHtmlCells(flags))
+            exportHtml <- cbind(exportHtml,.makeHtmlCells(flags))
         theNames <- c(theNames,colnames(flags))
     }
     names(export) <- theNames

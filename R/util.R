@@ -1720,7 +1720,7 @@ makeAvgExpression <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     return(a.mat)
 }
 
-makeHtmlCells <- function(mat,type="numeric",digits=3) {
+.makeHtmlCells <- function(mat,type="numeric",digits=3) {
     if (type=="numeric")
         tmp <- format(mat,digits=digits)
         #tmp <- formatC(mat,digits=digits,format="f")
@@ -1731,25 +1731,25 @@ makeHtmlCells <- function(mat,type="numeric",digits=3) {
     return(tmp)
 }
 
-makeHtmlRows <- function(mat) {
+.makeHtmlRows <- function(mat) {
     tmp <- apply(mat,1,paste,collapse="")
     tmp <- paste("<tr>",tmp,"</tr>",sep="")
     return(tmp)
 }
 
-makeHtmlHeader <- function(h) {
+.makeHtmlHeader <- function(h) {
     tmp <- paste("<th>",h,"</th>",sep="")
     tmp <- paste(tmp,collapse="")
     tmp <- paste("<tr>",tmp,"</tr>",sep="")
     return(tmp)
 }
 
-makeHtmlBody <- function(mat) {
+.makeHtmlBody <- function(mat) {
     tmp <- paste(mat,collapse="")
     return(tmp)
 }
 
-makeHtmlTable <- function(b,h=NULL,id=NULL) {
+.makeHtmlTable <- function(b,h=NULL,id=NULL) {
     if (!is.null(id))
         html <- paste("<table id=\"",id,"\" class=\"datatable\">",sep="")
     else

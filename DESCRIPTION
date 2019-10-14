@@ -27,7 +27,10 @@ Imports:
     brew,
     jsonlite,
     log4r,
-    rmdformats
+    rmdformats,
+    RSQLite,
+    pander,
+    DT
 Suggests:
     BiocGenerics,
     GenomicRanges,
@@ -39,9 +42,7 @@ Suggests:
     zoo,
     RUnit,
     BiocInstaller,
-    BiocManager,
-    BSgenome,
-    RSQLite
+    BSgenome
 Enhances:
     parallel,
     TCC,

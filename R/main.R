@@ -206,12 +206,14 @@ metaseqr2 <- function(
         fromRaw <- TRUE
     }
     
-    # If report requested, RSQLite must be present
-    if (report && !require(RSQLite))
-		stop("R package RSQLite is required to build metaseqR reports!")
+    ## If report requested, RSQLite must be present
+    #if (report && !requireNamespace(RSQLite))
+	#	stop("R package RSQLite is required to build metaseqR reports!")
+	if (report && !requireNamespace("pander"))
+		stop("R package pander is required to build metaseqR2 reports!")
     
     # Initialize environmental variables
-    HOME <- system.file(package="metaseqR")
+    HOME <- system.file(package="metaseqR2")
     TEMPLATE <- HOME
     # Globalize the project's verbosity and logger
     if (fromRaw)
@@ -1769,6 +1771,9 @@ metaseqr2 <- function(
         allFlags <- NULL
     }
     
+    reportTables <- vector("list",length(contrast))
+	names(reportTables) <- contrast
+    
     counter <- 1
     for (cnt in contrast) {
         disp("  Contrast: ",cnt)
@@ -1794,10 +1799,46 @@ metaseqr2 <- function(
             logOffset=logOffset,
             report=report
         )
+        
+        if (report) {		
+			if (length(statistics) > 1)
+				ew <- c("annotation","meta_p_value","adj_meta_p_value",
+					"fold_change","stats")
+			else
+				ew <- c("annotation","p_value","adj_p_value","fold_change",
+					"stats")
+			esc <- "rpgm"
+			ev <- "normalized"
+			est <- "mean"
+			
+#~ 			disp("    Adding report data...")
+#~ 			reportTables[[cnt]] <- buildExport(
+#~ 				geneData=geneDataExpr,
+#~ 				rawGeneCounts=geneCountsExpr,
+#~ 				normGeneCounts=normGenesExpr,
+#~ 				flags=goodFlags,
+#~ 				sampleList=sampleList,
+#~ 				cnt=cnt,
+#~ 				statistics=statistics,
+#~ 				rawList=rawList,
+#~ 				normList=normList,
+#~ 				pMat=cpList[[cnt]],
+#~ 				adjpMat=adjCpList[[cnt]],
+#~ 				sumP=sumpList[[cnt]],
+#~ 				adjSumP=adjSumpList[[cnt]],
+#~ 				exportWhat=ew,
+#~ 				exportScale=esc,
+#~ 				exportValues=ev,
+#~ 				exportStats=est,
+#~ 				logOffset=logOffset,
+#~ 				report=FALSE
+#~ 			)$textTable
+		}
 
-        # Adjust the export based on what statistics have been done and a possible 
-        # p-value cutoff
+        # Adjust the export based on what statistics have been done and a 
+        # possible p-value cutoff
         export <- theExport$textTable
+        colnames(export)[1] <- "chromosome"
         if (report)
             exportHtml <- theExport$htmlTable
         if (!is.na(pcut)) {
@@ -1883,19 +1924,59 @@ metaseqr2 <- function(
         if (outList)
             out[[cnt]] <- export
 
-        if (report) {
-            theHtmlHeader <- makeHtmlHeader(theExport$headers)
-            if (!is.null(reportTop)) {
-                topi <- ceiling(reportTop*nrow(exportHtml))
-                theHtmlRows <- makeHtmlRows(exportHtml[1:topi,])
-            }
-            else
-                theHtmlRows <- makeHtmlRows(exportHtml)
-            theHtmlBody <- makeHtmlBody(theHtmlRows)
-            theHtmlTable <- makeHtmlTable(theHtmlBody,theHtmlHeader,
-                id=paste("table_",counter,sep=""))
-            html[[cnt]] <- theHtmlTable
-            counter <- counter+1
+        if (report) {		
+			if (length(statistics) > 1)
+				ew <- c("annotation","p_value","adj_p_value","fold_change",
+					"stats")
+			else
+				ew <- c("annotation","meta_p_value","adj_meta_p_value",
+					"fold_change","stats")
+			esc <- "rpgm"
+			ev <- "normalized"
+			est <- "mean"
+			
+			#disp("    Adding report data...")
+			#theReportExport <- buildExport(
+			#	geneData=geneDataExpr,
+			#	rawGeneCounts=geneCountsExpr,
+			#	normGeneCounts=normGenesExpr,
+			#	flags=goodFlags,
+			#	sampleList=sampleList,
+			#	cnt=cnt,
+			#	statistics=statistics,
+			#	rawList=rawList,
+			#	normList=normList,
+			#	pMat=cpList[[cnt]],
+			#	adjpMat=adjCpList[[cnt]],
+			#	sumP=sumpList[[cnt]],
+			#	adjSumP=adjSumpList[[cnt]],
+			#	exportWhat=ew,
+			#	exportScale=esc,
+			#	exportValues=ev,
+			#	exportStats=est,
+			#	logOffset=logOffset,
+			#	report=FALSE
+			#)
+			
+			#if (!is.null(reportTop))
+            #    topi <- ceiling(reportTop*nrow(theReportExport$textTable))
+            #else
+			#	topi <- 1:nrow(theReportExport$textTable)
+			#reportTables[[cnt]] <- theReportExport$textTable[1:topi,,drop=FALSE]
+			#rownames(reportTables[[cnt]]) <- NULL
+			
+            #theHtmlHeader <- .makeHtmlHeader(theExport$headers)
+            #if (!is.null(reportTop)) {
+            #    topi <- ceiling(reportTop*nrow(exportHtml))
+            #    theHtmlRows <- .makeHtmlRows(exportHtml[1:topi,])
+            #}
+            #else
+            #    theHtmlRows <- .makeHtmlRows(exportHtml)
+            #theHtmlBody <- .makeHtmlBody(theHtmlRows)
+            #theHtmlTable <- .makeHtmlTable(theHtmlBody,theHtmlHeader,
+            #    id=paste("table_",counter,sep=""))
+            #html[[cnt]] <- theHtmlTable
+            #counter <- counter+1
         }
 
         if (!is.null(geneCountsZero) || !is.null(geneCountsDead)) {
@@ -2057,6 +2138,7 @@ metaseqr2 <- function(
 		assign("sampleList",sampleList,envir=parent.frame())
 		assign("geneCounts",geneCounts,envir=parent.frame())
 		assign("normGenes",normGenes,envir=parent.frame())
+		assign("normGenesExpr",normGenes,envir=parent.frame())
 		assign("geneData",geneData,envir=parent.frame())
 		########################################################################
     }

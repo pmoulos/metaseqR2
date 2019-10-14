@@ -62,7 +62,6 @@ if (offlineReport) {
 	cat("<script src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
 		"</script>",sep="")
 }
-
 ```
 
 <script>
@@ -147,6 +146,23 @@ p {
     text-align: justify;
 }
 
+.detable-container {
+	font-size: 0.8em;
+}
+
+.dataTables_wrapper {
+	width: 95%;
+}
+
+.table-supercondensed>thead>tr>th, 
+.table-supercondensed>tbody>tr>th, 
+.table-supercondensed>tfoot>tr>th, 
+.table-supercondensed>thead>tr>td, 
+.table-supercondensed>tbody>tr>td, 
+.table-supercondensed>tfoot>tr>td{
+    padding: 2px;
+}
+
 .header-panel {
     background-color: #0E2B8A;
     min-height: 144px;
@@ -200,6 +216,8 @@ p {
 </style>
 
 ```{r report_init}
+library(pander)
+
 # Initialize some variables used throughout the report
 samples <- unlist(sampleList,use.names=FALSE)
 
@@ -1082,8 +1100,6 @@ performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
 by an explanatory text. All figures are interactive wih additional controls on
 the top right of the figure.
 
-### `r if ("mds" %in% qcPlots) 'MDS'` 
-
 <!---
 <button id="generate_mds">Generate MDS!</button>
 <script>
@@ -1096,6 +1112,8 @@ $("#generate_mds").click(function() {
 
 ```{r analysis_figures_mds}
 if ("mds" %in% qcPlots) {
+	pandoc.header("MDS",level=3)
+	
 	# Get chart data as serialized JSON
 	json <- diagplotMds(geneCounts,sampleList,output="json")
 	
@@ -1110,10 +1128,10 @@ if ("mds" %in% qcPlots) {
 }
 ```
 
-### `r if ("biodetection" %in% qcPlots) 'Biodetection'`
-
 ```{r analysis_figures_biodetection}
 if ("biodetection" %in% qcPlots) {
+	pandoc.header("Biodetection",level=3)
+	
 	# Get chart data as list
 	log <- capture.output({
 		json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
@@ -1159,10 +1177,10 @@ if ("biodetection" %in% qcPlots) {
 }
 ```
 
-### `r if ("countsbio" %in% qcPlots) 'Biocounts'`
-
 ```{r analysis_figures_countsbio}
 if ("countsbio" %in% qcPlots) {
+	pandoc.header("Biocounts",level=3)
+	
 	# Get the chart data as list
 	jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 		whichPlot="countsbio",output="json")
@@ -1248,10 +1266,10 @@ if ("countsbio" %in% qcPlots) {
 }
 ```
 
-### `r if ("saturation" %in% qcPlots) 'Saturation'`
-
 ```{r analysis_figures_saturation}
 if ("saturation" %in% qcPlots) {
+	pandoc.header("Saturation",level=3)
+	
 	# Get the chart data as list
 	jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 		whichPlot="saturation",output="json")
@@ -1335,10 +1353,10 @@ if ("saturation" %in% qcPlots) {
 }
 ```
 
-### `r if ("readnoise" %in% qcPlots) 'Reads noise'` 
-
 ```{r analysis_figures_readsnoise}
 if ("readnoise" %in% qcPlots) {
+	pandoc.header("Reads noise",level=3)
+	
 	json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 			whichPlot="readnoise",output="json")
 	
@@ -1352,10 +1370,10 @@ if ("readnoise" %in% qcPlots) {
 }
 ```
 
-### `r if ("correl" %in% qcPlots) 'Correlation'` 
-
 ```{r analysis_figures_correl}
 if ("correl" %in% qcPlots) {
+	pandoc.header("Correlation",level=3)
+	
 	cat("<h4><strong>Pairwise sample correlations</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$correl,
 	    "<br/><br/></div>",sep="")
@@ -1383,10 +1401,10 @@ if ("correl" %in% qcPlots) {
 }
 ```
 
-### `r if ("pairwise" %in% qcPlots) 'Pairwise'` 
-
 ```{r analysis_figures_pairwise}
 if ("pairwise" %in% qcPlots) {
+	pandoc.header("Pairwise",level=3)
+	
 	#cat("<h4><strong>Pairwise sample correlations</strong></h4>")
 	#cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
 	#    "<br/><br/></div>",sep="")
@@ -1502,10 +1520,10 @@ if ("pairwise" %in% qcPlots) {
 }
 ```
 
-### `r if ("filtered" %in% qcPlots) 'Filtered'` 
-
 ```{r analysis_figures_filtered}
 if ("filtered" %in% qcPlots) {
+	pandoc.header("Filtered",level=3)
+	
 	jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,output="json")
 	
 	cat("<h4><strong>Chromosome and biotype distribution of filtered ",
@@ -1534,10 +1552,10 @@ performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
 by an explanatory text. All figures are interactive wih additional controls on
 the top right of the figure.
 
-### `r if ("boxplot" %in% qcPlots) 'Boxplots'`
-
 ```{r analysis_figures_boxplot}
 if ("boxplot" %in% qcPlots) {
+	pandoc.header("Boxplots",level=3)
+	
 	jsonUnorm <- diagplotBoxplot(geneCounts,name=sampleList,isNorm=FALSE,
 		output="json")
 	jsonNorm <- diagplotBoxplot(normGenes,name=sampleList,isNorm=TRUE,
@@ -1557,10 +1575,10 @@ if ("boxplot" %in% qcPlots) {
 }
 ```
 
-### `r if ("gcbias" %in% qcPlots) 'GC bias'`
-
 ```{r analysis_figures_gcbias}
 if ("gcbias" %in% qcPlots) {
+	pandoc.header("GC bias",level=3)
+	
 	covar <- as.numeric(geneData$gc_content)
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
 		whichPlot="gcbias",output="json")
@@ -1582,10 +1600,10 @@ if ("gcbias" %in% qcPlots) {
 }
 ```
 
-### `r if ("lengthbias" %in% qcPlots) 'Length bias'`
-
 ```{r analysis_figures_lengthbias}
 if ("lengthbias" %in% qcPlots) {
+	pandoc.header("Length bias",level=3)
+	
 	covar <- width(geneData)
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
 		whichPlot="lengthbias",output="json")
@@ -1607,10 +1625,10 @@ if ("lengthbias" %in% qcPlots) {
 }
 ```
 
-### `r if ("meandiff" %in% qcPlots) 'Mean-Difference'`
-
 ```{r analysis_figures_meandiff}
 if ("meandiff" %in% qcPlots) {
+	pandoc.header("Mean-Difference",level=3)
+	
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
 		whichPlot="meandiff",output="json")
 	jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
@@ -1699,10 +1717,10 @@ if ("meandiff" %in% qcPlots) {
 }
 ```
 
-### `r if ("meanvar" %in% qcPlots) 'Mean-Variance'`
-
 ```{r analysis_figures_meanvar}
 if ("meanvar" %in% qcPlots) {
+	pandoc.header("Mean-Variance",level=3)
+	
 	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
 		whichPlot="meanvar",output="json")
 	jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
@@ -1723,10 +1741,10 @@ if ("meanvar" %in% qcPlots) {
 }
 ```
 
-### `r if ("rnacomp" %in% qcPlots) 'RnaComp'`
-
 ```{r analysis_figures_rnacomp}
 if ("rnacomp" %in% qcPlots) {
+	pandoc.header("Rna composition",level=3)
+	
 	log1 <- capture.output({
 		jsonUnorm <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 			whichPlot="rnacomp",isNorm=FALSE,output="json")
@@ -1760,10 +1778,10 @@ procedures performed by the ```metaseqr2``` pipeline. Each figure category is
 accompanied by an explanatory text. All figures are interactive wih additional 
 controls on the top right of the figure.
 
-### `r if ("volcano" %in% qcPlots) 'Volcano'`
-
 ```{r analysis_figures_volcano}
 if ("volcano" %in% qcPlots) {
+	pandoc.header("Volcano",level=3)
+	
 	nn <- names(contrastList)
 	json <- list()
 	
@@ -1819,10 +1837,9 @@ if ("volcano" %in% qcPlots) {
 }
 ```
 
-### `r if ("deheatmap" %in% qcPlots) 'Heatmap'`
-
 ```{r analysis_figures_deheatmap}
 if ("deheatmap" %in% qcPlots) {
+	pandoc.header("Heatmap",level=3)
 	
 	cat("<h4><strong>Differential expression heatmaps</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$deheatmap,
@@ -1894,11 +1911,33 @@ restText <- paste("Use the download links below each table to retrieve the ",
 cat("Each table presents ",topText,restText,sep="")
 ```
 
-```{r test_prog_pill}
-library(pander)
-hh <- c("AAA","BBB","CCC")
-for (h in hh)
-	pandoc.header(h,level=3)
+```{r dt_hack, include=FALSE}
+datatable(NULL)
+```
+
+```{r results_tables}
+for (cnt in contrast) {
+	cntn <- gsub("_vs_"," vs ",cnt)
+	pandoc.header(cntn,level=3)
+	
+	cat("<h4>DEG table for the contrast <strong>",cntn,"</strong></h4>",sep="")
+	cat("<div class=\"figure-hint\">The following table presents ",topText,
+		" for the contrast <strong>",cntn,"</strong>. The fields of the table ",
+		"correspond to the requested features to be exported. The table can ",
+		"be searched using the search field on the top right.</div>",
+		sep="")
+	
+	print(htmltools::tagList(tags$div(class="detable-container",DT::datatable(
+		reportTables[[cnt]],
+		rownames=FALSE,
+		style="bootstrap",
+		class="table-supercondensed table-striped",
+		options=list(
+			scrollX=TRUE
+		)
+	))))
+}
+
 ```
 
 
