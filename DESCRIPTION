@@ -24,7 +24,6 @@ Imports:
     gplots,
     corrplot,
     vsn,
-    brew,
     jsonlite,
     log4r,
     rmdformats,

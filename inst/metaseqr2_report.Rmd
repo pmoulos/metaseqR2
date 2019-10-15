@@ -1918,45 +1918,116 @@ for (cnt in contrast) {
 	pi <- grep("p-value",colnames(reportTables[[cnt]]))
 	di <- grep("FDR",colnames(reportTables[[cnt]]))
 	fi <- grep("_vs_",colnames(reportTables[[cnt]]))
+	# Get values before rounding for styling
 	brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
 		na.rm=TRUE)
 	preClrs <- col2rgb(redgreen(length(brks)+1))
 	clrs <- paste("rgb(",apply(preClrs,2,paste0,collapse=","),")",sep="")
+	pRangeForColor <- 1-as.numeric(reportTables[[cnt]][,pi])
+	#pZero <- which(pRangeForColor == 0)
+	#if (length(pZero) > 0)
+	#	pRangeForColor[pZero] <- min(pRangeForColor[-pZero])
+	fRangeForColor <- 1-as.numeric(reportTables[[cnt]][,di])
+	#fZero <- which(fRangeForColor == 0)
+	#if (length(fZero) > 0)
+	#	fRangeForColor[fZero] <- min(fRangeForColor[-fZero])
+	#pRangeForColor <- 1-pRangeForColor
+	#fRangeForColor <- 1-fRangeForColor
 	
-	print(htmltools::tagList(tags$div(class="detable-container",DT::datatable(
+	reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]])
+	
+	# Dirty hack
+	# https://stackoverflow.com/questions/32018521/
+	# shiny-use-stylecolorbar-with-data-from-two-data-frames
+	reportTables[[cnt]] <- cbind(pRangeForColor,fRangeForColor,reportTables[[cnt]])
+	jspf <- paste0("function(row,data) {",
+		"var value = data[0];",
+		"var backgroundValueP =",styleColorBar(pRangeForColor,"lightblue")[1],";",
+		"var value = data[1];",
+		"var backgroundValueF =",styleColorBar(fRangeForColor,"lightsalmon")[1],";",
+		"$('td',row).eq(",pi-1,").css({",
+			"'background': backgroundValueP,",
+			"'background-repeat': 'no-repeat',",
+			"'background-position': 'center',",
+			"'background-size': '98% 88%',",
+		"});",
+		"$('td',row).eq(",di-1,").css({",
+			"'background': backgroundValueF,",
+			"'background-repeat': 'no-repeat',",
+			"'background-position': 'center',",
+			"'background-size': '98% 88%',",
+		"});",
+		"for (var i=",fi[1],"i<=",fi[length(fi)],"i++) {",
+			"var value = data[i+1];",
+			"$('td',row).eq(i-1).css({",
+				"'color': '#FFFFFF',",
+				"'font-weight': 'bold',",
+				"'background-color': ",styleInterval(brks,clrs),
+			"});",
+		"}",
+	"}")
+	
+	
+	theTable <- DT::datatable(
 		reportTables[[cnt]],
 		rownames=FALSE,
 		#width=1020,
 		style="bootstrap",
 		class="table-condensed table-striped table-responsive",
 		options=list(
-			scrollX=TRUE
+			scrollX=TRUE,
+			columnDefs=list(
+				list(
+					targets=0:1,
+					visible=FALSE
+				)
+			),
+			rowCallback=JS(jspf)
 		)
-	) %>% formatStyle(
-		names(reportTables[[cnt]])[fi],
-		backgroundColor=styleInterval(brks,clrs),
-		fontWeight="bold",
-		color="#FFFFFF"
-	) %>% formatStyle(
-		names(reportTables[[cnt]])[pi],
-		backgroundColor=styleColorBar(range(-10*log10(
-			reportTables[[cnt]][,pi])),"lightblue"),
-		fontWeight="bold",
-		backgroundSize="98% 88%",
-		backgroundRepeat="no-repeat",
-		backgroundPosition="center"
-	) %>% formatStyle(
-		names(reportTables[[cnt]])[di],
-		backgroundColor=styleColorBar(range(-10*log10(
-			reportTables[[cnt]][,di])),"lightgreen"),
-		fontWeight="bold",
-		backgroundSize="98% 88%",
-		backgroundRepeat="no-repeat",
-		backgroundPosition="center"
-	)
-	)))
+	) #%>% formatStyle(
+		#names(reportTables[[cnt]])[fi+2],
+		#backgroundColor=styleInterval(brks,clrs),
+		#fontWeight="bold",
+		#color="#FFFFFF"
+	#) #%>% formatStyle(
+		#names(reportTables[[cnt]])[pi+2],
+		#background=styleColorBar(pRangeForColor,"lightblue"),
+		#fontWeight="bold",
+		#backgroundSize="98% 88%",
+		#backgroundRepeat="no-repeat",
+		#backgroundPosition="center"
+	#) %>% formatStyle(
+		#names(reportTables[[cnt]])[di+2],
+		#background=styleColorBar(fRangeForColor,"lightsalmon"),
+		#fontWeight="bold",
+		#backgroundSize="98% 88%",
+		#backgroundRepeat="no-repeat",
+		#backgroundPosition="center"
+	#)
+	
+	# 15 colors should be enough for most situations...
+	sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9","#EDEEC9",
+		"#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2","#B2F7EF","#EFF7F6",
+		"#F7D6E0","#F2B5D4")
+	
+	N <- names(sampleList)
+	#for (i in 1:length(N)) {
+	#	theTable <- formatStyle(
+	#		theTable,N[i],
+	#		background=styleColorBar(range(reportTables[[cnt]][,N[i]]),
+	#			sColors[i]),
+	#		#fontWeight="bold",
+	#		backgroundSize="98% 88%",
+	#		backgroundRepeat="no-repeat",
+	#		backgroundPosition="center"
+	#	)
+	#}
+	
+	print(htmltools::tagList(tags$div(class="detable-container",theTable)))
 }
 ```
+
+
 
 # References
 

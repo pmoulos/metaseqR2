@@ -10,8 +10,6 @@ import(utils)
 import(gplots)
 import(corrplot)
 import(qvalue)
-import(brew)
-import(rjson)
 
 importFrom("vsn",vsn2)
 importFrom("vsn",predict)
@@ -65,6 +63,9 @@ importFrom("log4r",info)
 importFrom("log4r",level)
 importFrom("log4r",logfile)
 importFrom("log4r",warn)
+
+importFrom("DT",datatable)
+importFrom("pander",pandoc.header)
 
 export(metaseqr2)
 export(buildAnnotationDatabase)

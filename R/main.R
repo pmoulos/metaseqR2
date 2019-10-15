@@ -1838,8 +1838,6 @@ metaseqr2 <- function(
 				report=FALSE
 			)$textTable
 			
-			reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]])
-			
 			assign("xi",reportTables[[cnt]],envir=.GlobalEnv)
 		}
 
