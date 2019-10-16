@@ -1914,26 +1914,33 @@ for (cnt in contrast) {
 		"be searched using the search field on the top right.</div>",
 		sep="")
 	
-	# Fold change should always exist in this table defined by us...
+	# 15 colors should be enough for most situations...
+	sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9","#EDEEC9",
+		"#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2","#B2F7EF","#EFF7F6",
+		"#F7D6E0","#F2B5D4")
+		
+	# Fold change and condition means should always exist in this table defined 
+	# by us...
 	pi <- grep("p-value",colnames(reportTables[[cnt]]))
 	di <- grep("FDR",colnames(reportTables[[cnt]]))
 	fi <- grep("_vs_",colnames(reportTables[[cnt]]))
+	ci <- numeric(length(sampleList))
+	N <- names(sampleList)
+	for (i in 1:length(N))
+		ci[i] <- grep(N[i],colnames(reportTables[[cnt]]))
+	
 	# Get values before rounding for styling
 	brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
 		na.rm=TRUE)
 	preClrs <- col2rgb(redgreen(length(brks)+1))
 	clrs <- paste("rgb(",apply(preClrs,2,paste0,collapse=","),")",sep="")
 	pRangeForColor <- 1-as.numeric(reportTables[[cnt]][,pi])
-	#pZero <- which(pRangeForColor == 0)
-	#if (length(pZero) > 0)
-	#	pRangeForColor[pZero] <- min(pRangeForColor[-pZero])
 	fRangeForColor <- 1-as.numeric(reportTables[[cnt]][,di])
-	#fZero <- which(fRangeForColor == 0)
-	#if (length(fZero) > 0)
-	#	fRangeForColor[fZero] <- min(fRangeForColor[-fZero])
-	#pRangeForColor <- 1-pRangeForColor
-	#fRangeForColor <- 1-fRangeForColor
+	styleBars <- character(length(ci))
+	for (i in ci)
+		styleBars[i] <- styleColorBar(range(reportTables[[cnt]][,i]),sColors[i])
 	
+	# After setting colors, format the table for the report
 	reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]])
 	
 	# Dirty hack
@@ -1949,21 +1956,30 @@ for (cnt in contrast) {
 			"'background': backgroundValueP,",
 			"'background-repeat': 'no-repeat',",
 			"'background-position': 'center',",
-			"'background-size': '98% 88%',",
+			"'background-size': '98% 88%'",
 		"});",
 		"$('td',row).eq(",di-1,").css({",
 			"'background': backgroundValueF,",
 			"'background-repeat': 'no-repeat',",
 			"'background-position': 'center',",
-			"'background-size': '98% 88%',",
+			"'background-size': '98% 88%'",
 		"});",
-		"for (var i=",fi[1],"i<=",fi[length(fi)],"i++) {",
+		"for (var i=",fi[1],";i<=",fi[length(fi)],";i++) {",
 			"var value = data[i+1];",
 			"$('td',row).eq(i-1).css({",
 				"'color': '#FFFFFF',",
 				"'font-weight': 'bold',",
 				"'background-color': ",styleInterval(brks,clrs),
 			"});",
+		"}",
+		#"for (var i=",ci[1],";i<=",ci[length(ci)],";i++) {",
+		#	"var value = data[i+1];",
+		#	"$('td',row).eq(i-1).css({",
+		#		"'background': backgroundValueP,",
+		#		"'background-repeat': 'no-repeat',",
+		#		"'background-position': 'center',",
+		#		"'background-size': '98% 88%'",
+		#	"});",
 		"}",
 	"}")
 	
@@ -2005,10 +2021,7 @@ for (cnt in contrast) {
 		#backgroundPosition="center"
 	#)
 	
-	# 15 colors should be enough for most situations...
-	sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9","#EDEEC9",
-		"#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2","#B2F7EF","#EFF7F6",
-		"#F7D6E0","#F2B5D4")
+	
 	
 	N <- names(sampleList)
 	#for (i in 1:length(N)) {
