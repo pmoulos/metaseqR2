@@ -2540,6 +2540,10 @@ makeReportMessages <- function(lang) {
                     )
                 ),
                 references=list(
+                    main=paste("Moulos, P., Hatzis, P. (2015). Systematic",
+						"integration of RNA-Seq statistical algorithms for",
+						"accurate detection of differential gene expression",
+						"patterns. Nucleic Acids Research 43(4), e25."),
                     filein=list(
                         sam=paste("Statham, A.L., Strbenac, D., Coolen, M.W.,",
                             "Stirzaker, C., Clark, S.J., Robinson, M.D. (2010).",

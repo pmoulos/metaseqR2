@@ -64,6 +64,8 @@ if (offlineReport) {
 }
 ```
 
+<script src="https://raw.github.com/HubSpot/pace/v1.0.0/pace.min.js"></script>
+
 <script>
 var db = new Dexie("plotdb");
 db.version(1).stores({
@@ -200,6 +202,219 @@ p {
 	overflow-x: hidden;
 	overflow-wrap: normal;
 }
+
+#get_figures {
+	background-color: #D2EBFF; 
+	border-style: solid; 
+	border-color: #8F8BFF; 
+	border-width: 1px; 
+	width: 400px; 
+	padding: 10px;
+}
+
+/********************************** Pace.js ***********************************/
+.pace {
+  -webkit-pointer-events: none;
+  pointer-events: none;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+
+  z-index: 2000;
+  position: fixed;
+  margin: auto;
+  top: 12px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 200px;
+  height: 50px;
+  overflow: hidden;
+}
+
+.pace .pace-progress {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+
+  display: block;
+  position: absolute;
+  right: 100%;
+  margin-right: -7px;
+  width: 93%;
+  top: 7px;
+  height: 14px;
+  font-size: 12px;
+  background: #29d;
+  color: #29d;
+  line-height: 60px;
+  font-weight: bold;
+  font-family: Helvetica, Arial, "Lucida Grande", sans-serif;
+
+  -webkit-box-shadow: 120px 0 #fff, 240px 0 #fff;
+  -ms-box-shadow: 120px 0 #fff, 240px 0 #fff;
+  box-shadow: 120px 0 #fff, 240px 0 #fff;
+}
+
+.pace .pace-progress:after {
+  content: attr(data-progress-text);
+  display: inline-block;
+  position: fixed;
+  width: 45px;
+  text-align: right;
+  right: 0;
+  padding-right: 16px;
+  top: 4px;
+}
+
+.pace .pace-progress[data-progress-text="0%"]:after { right: -200px }
+.pace .pace-progress[data-progress-text="1%"]:after { right: -198.14px }
+.pace .pace-progress[data-progress-text="2%"]:after { right: -196.28px }
+.pace .pace-progress[data-progress-text="3%"]:after { right: -194.42px }
+.pace .pace-progress[data-progress-text="4%"]:after { right: -192.56px }
+.pace .pace-progress[data-progress-text="5%"]:after { right: -190.7px }
+.pace .pace-progress[data-progress-text="6%"]:after { right: -188.84px }
+.pace .pace-progress[data-progress-text="7%"]:after { right: -186.98px }
+.pace .pace-progress[data-progress-text="8%"]:after { right: -185.12px }
+.pace .pace-progress[data-progress-text="9%"]:after { right: -183.26px }
+.pace .pace-progress[data-progress-text="10%"]:after { right: -181.4px }
+.pace .pace-progress[data-progress-text="11%"]:after { right: -179.54px }
+.pace .pace-progress[data-progress-text="12%"]:after { right: -177.68px }
+.pace .pace-progress[data-progress-text="13%"]:after { right: -175.82px }
+.pace .pace-progress[data-progress-text="14%"]:after { right: -173.96px }
+.pace .pace-progress[data-progress-text="15%"]:after { right: -172.1px }
+.pace .pace-progress[data-progress-text="16%"]:after { right: -170.24px }
+.pace .pace-progress[data-progress-text="17%"]:after { right: -168.38px }
+.pace .pace-progress[data-progress-text="18%"]:after { right: -166.52px }
+.pace .pace-progress[data-progress-text="19%"]:after { right: -164.66px }
+.pace .pace-progress[data-progress-text="20%"]:after { right: -162.8px }
+.pace .pace-progress[data-progress-text="21%"]:after { right: -160.94px }
+.pace .pace-progress[data-progress-text="22%"]:after { right: -159.08px }
+.pace .pace-progress[data-progress-text="23%"]:after { right: -157.22px }
+.pace .pace-progress[data-progress-text="24%"]:after { right: -155.36px }
+.pace .pace-progress[data-progress-text="25%"]:after { right: -153.5px }
+.pace .pace-progress[data-progress-text="26%"]:after { right: -151.64px }
+.pace .pace-progress[data-progress-text="27%"]:after { right: -149.78px }
+.pace .pace-progress[data-progress-text="28%"]:after { right: -147.92px }
+.pace .pace-progress[data-progress-text="29%"]:after { right: -146.06px }
+.pace .pace-progress[data-progress-text="30%"]:after { right: -144.2px }
+.pace .pace-progress[data-progress-text="31%"]:after { right: -142.34px }
+.pace .pace-progress[data-progress-text="32%"]:after { right: -140.48px }
+.pace .pace-progress[data-progress-text="33%"]:after { right: -138.62px }
+.pace .pace-progress[data-progress-text="34%"]:after { right: -136.76px }
+.pace .pace-progress[data-progress-text="35%"]:after { right: -134.9px }
+.pace .pace-progress[data-progress-text="36%"]:after { right: -133.04px }
+.pace .pace-progress[data-progress-text="37%"]:after { right: -131.18px }
+.pace .pace-progress[data-progress-text="38%"]:after { right: -129.32px }
+.pace .pace-progress[data-progress-text="39%"]:after { right: -127.46px }
+.pace .pace-progress[data-progress-text="40%"]:after { right: -125.6px }
+.pace .pace-progress[data-progress-text="41%"]:after { right: -123.74px }
+.pace .pace-progress[data-progress-text="42%"]:after { right: -121.88px }
+.pace .pace-progress[data-progress-text="43%"]:after { right: -120.02px }
+.pace .pace-progress[data-progress-text="44%"]:after { right: -118.16px }
+.pace .pace-progress[data-progress-text="45%"]:after { right: -116.3px }
+.pace .pace-progress[data-progress-text="46%"]:after { right: -114.44px }
+.pace .pace-progress[data-progress-text="47%"]:after { right: -112.58px }
+.pace .pace-progress[data-progress-text="48%"]:after { right: -110.72px }
+.pace .pace-progress[data-progress-text="49%"]:after { right: -108.86px }
+.pace .pace-progress[data-progress-text="50%"]:after { right: -107px }
+.pace .pace-progress[data-progress-text="51%"]:after { right: -105.14px }
+.pace .pace-progress[data-progress-text="52%"]:after { right: -103.28px }
+.pace .pace-progress[data-progress-text="53%"]:after { right: -101.42px }
+.pace .pace-progress[data-progress-text="54%"]:after { right: -99.56px }
+.pace .pace-progress[data-progress-text="55%"]:after { right: -97.7px }
+.pace .pace-progress[data-progress-text="56%"]:after { right: -95.84px }
+.pace .pace-progress[data-progress-text="57%"]:after { right: -93.98px }
+.pace .pace-progress[data-progress-text="58%"]:after { right: -92.12px }
+.pace .pace-progress[data-progress-text="59%"]:after { right: -90.26px }
+.pace .pace-progress[data-progress-text="60%"]:after { right: -88.4px }
+.pace .pace-progress[data-progress-text="61%"]:after { right: -86.53999999999999px }
+.pace .pace-progress[data-progress-text="62%"]:after { right: -84.68px }
+.pace .pace-progress[data-progress-text="63%"]:after { right: -82.82px }
+.pace .pace-progress[data-progress-text="64%"]:after { right: -80.96000000000001px }
+.pace .pace-progress[data-progress-text="65%"]:after { right: -79.1px }
+.pace .pace-progress[data-progress-text="66%"]:after { right: -77.24px }
+.pace .pace-progress[data-progress-text="67%"]:after { right: -75.38px }
+.pace .pace-progress[data-progress-text="68%"]:after { right: -73.52px }
+.pace .pace-progress[data-progress-text="69%"]:after { right: -71.66px }
+.pace .pace-progress[data-progress-text="70%"]:after { right: -69.8px }
+.pace .pace-progress[data-progress-text="71%"]:after { right: -67.94px }
+.pace .pace-progress[data-progress-text="72%"]:after { right: -66.08px }
+.pace .pace-progress[data-progress-text="73%"]:after { right: -64.22px }
+.pace .pace-progress[data-progress-text="74%"]:after { right: -62.36px }
+.pace .pace-progress[data-progress-text="75%"]:after { right: -60.5px }
+.pace .pace-progress[data-progress-text="76%"]:after { right: -58.64px }
+.pace .pace-progress[data-progress-text="77%"]:after { right: -56.78px }
+.pace .pace-progress[data-progress-text="78%"]:after { right: -54.92px }
+.pace .pace-progress[data-progress-text="79%"]:after { right: -53.06px }
+.pace .pace-progress[data-progress-text="80%"]:after { right: -51.2px }
+.pace .pace-progress[data-progress-text="81%"]:after { right: -49.34px }
+.pace .pace-progress[data-progress-text="82%"]:after { right: -47.480000000000004px }
+.pace .pace-progress[data-progress-text="83%"]:after { right: -45.62px }
+.pace .pace-progress[data-progress-text="84%"]:after { right: -43.76px }
+.pace .pace-progress[data-progress-text="85%"]:after { right: -41.9px }
+.pace .pace-progress[data-progress-text="86%"]:after { right: -40.04px }
+.pace .pace-progress[data-progress-text="87%"]:after { right: -38.18px }
+.pace .pace-progress[data-progress-text="88%"]:after { right: -36.32px }
+.pace .pace-progress[data-progress-text="89%"]:after { right: -34.46px }
+.pace .pace-progress[data-progress-text="90%"]:after { right: -32.6px }
+.pace .pace-progress[data-progress-text="91%"]:after { right: -30.740000000000002px }
+.pace .pace-progress[data-progress-text="92%"]:after { right: -28.880000000000003px }
+.pace .pace-progress[data-progress-text="93%"]:after { right: -27.02px }
+.pace .pace-progress[data-progress-text="94%"]:after { right: -25.16px }
+.pace .pace-progress[data-progress-text="95%"]:after { right: -23.3px }
+.pace .pace-progress[data-progress-text="96%"]:after { right: -21.439999999999998px }
+.pace .pace-progress[data-progress-text="97%"]:after { right: -19.58px }
+.pace .pace-progress[data-progress-text="98%"]:after { right: -17.72px }
+.pace .pace-progress[data-progress-text="99%"]:after { right: -15.86px }
+.pace .pace-progress[data-progress-text="100%"]:after { right: -14px }
+
+
+.pace .pace-activity {
+  position: absolute;
+  width: 100%;
+  height: 28px;
+  z-index: 2001;
+  box-shadow: inset 0 0 0 2px #29d, inset 0 0 0 7px #FFF;
+  border-radius: 10px;
+}
+
+.pace.pace-inactive {
+  display: none;
+}
+
+.pace-running > *:not(.pace) {
+  opacity:0;
+}
+
 </style>
 
 ```{r report_init}
@@ -207,6 +422,10 @@ library(pander)
 
 # Initialize some variables used throughout the report
 samples <- unlist(sampleList,use.names=FALSE)
+qualPlots <- c("mds","biodetection","countsbio","saturation","readnoise",
+	"correl","pairwise","filtered")
+normPlots <- c("boxplot","gcbias","lengthbias","meandiff","meanvar","rnacomp")
+statPlots <- c("deheatmap","volcano","biodist","venn")
 
 covarsRaw <- covarsStat <- NULL
 if (any(qcPlots %in% c("biodetection","countsbio","saturation","rnacomp",
@@ -1078,6 +1297,19 @@ if (runLog) {
 }
 ```
 
+```{r decide_qc}
+if (any(qcPlots %in% qualPlots)) {
+	pandoc.header("Quality control",level=1)
+	pandoc.header("Quality control figures {.tabset .tabset-pills}",level=2)
+	cat("The following figures summarize the quality control steps and ",
+		"assessment performed by the ```metaseqr2``` pipeline. Each figure ",
+		"category is accompanied by an explanatory text. All figures are ",
+		"interactive wih additional controls on the top right of the figure.",
+		sep="")
+}
+                
+```
+<!---
 # Quality control
 
 ## Quality control figures {.tabset .tabset-pills}
@@ -1086,15 +1318,6 @@ The following figures summarize the quality control steps and assessment
 performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
 by an explanatory text. All figures are interactive wih additional controls on
 the top right of the figure.
-
-<!---
-<button id="generate_mds">Generate MDS!</button>
-<script>
-$("#generate_mds").click(function() {	
-	//getPlotFromDb('SELECT json FROM plot WHERE type="mds"',"mds_container")
-	getPlotFromDb({name: "MDS",type: "mds",subtype: "generic"},"mds_container");
-})
-</script>
 -->
 
 ```{r analysis_figures_mds}
@@ -1530,14 +1753,18 @@ if ("filtered" %in% qcPlots) {
 }
 ```
 
-# Normalization
-
-## Normalization assessment figures {.tabset .tabset-pills}
-
-The following figures allow for the assessment of the normalization procedures 
-performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
-by an explanatory text. All figures are interactive wih additional controls on
-the top right of the figure.
+```{r decide_norm}
+if (any(qcPlots %in% normPlots)) {
+	pandoc.header("Normalization",level=1)
+	pandoc.header("Normalization assessment figures {.tabset .tabset-pills}",
+		level=2)
+	cat("The following figures allow for the assessment of the ",
+		"normalization procedures performed by the ```metaseqr2``` pipeline. ",
+		"Each figure category is accompanied by an explanatory text. All ",
+		"figures are interactive wih additional controls on the top right of ",
+		"the figure.",sep="")
+}
+```
 
 ```{r analysis_figures_boxplot}
 if ("boxplot" %in% qcPlots) {
@@ -1756,14 +1983,19 @@ if ("rnacomp" %in% qcPlots) {
 }
 ```
 
-# Statistics
-
-## Differential expression assessment figures {.tabset .tabset-pills}
-
-The following figures allow for the assessment of the statistical testing 
-procedures performed by the ```metaseqr2``` pipeline. Each figure category is 
-accompanied by an explanatory text. All figures are interactive wih additional 
-controls on the top right of the figure.
+```{r decide_stat}
+if (any(qcPlots %in% statPlots)) {
+	pandoc.header("Statistics",level=1)
+	pandoc.header(
+		"Differential expression assessment figures {.tabset .tabset-pills}",
+		level=2)
+	cat("The following figures allow for the assessment of the statistical ",
+		"testing procedures performed by the ```metaseqr2``` pipeline. Each ",
+		"figure category is accompanied by an explanatory text. All figures ",
+		"are interactive wih additional controls on the top right of the ",
+		"figure.",sep="")
+}
+```
 
 ```{r analysis_figures_volcano}
 if ("volcano" %in% qcPlots) {
@@ -1896,6 +2128,27 @@ restText <- paste("Use the download links below each table to retrieve the ",
 	transLevel," list of the selected genome irrespective of differential ",
 	"expression.",sep="")
 cat("Each table presents ",topText,restText,sep="")
+cat("Furthermore each table can be searched using the search field on the ",
+	"top right and you can also find the following information:<br/><br/>",
+	sep="")
+
+cat("<ul>")
+cat("<li>The <em>chromosome</em> column is linked to the genomic location of ",
+	"the ",transLevel," and opens a new tab/window to the UCSC Genome Browser",
+	"</li>",sep="")
+cat("<li>The *gene_id* column opens a link to the respective full annotation ",
+	"source (only for Ensembl and RefSeq)</li>",sep="")
+cat("<li>The background of the *p_value* and *FDR* columns displays a bar ",
+	"with length proportional to the significance of each ",transLevel,"</li>",
+	sep="")
+cat("<li>The background color of the *fold change (_vs_)* columns displays ",
+	"shows the deregulation of each ",transLevel," and is proportional to ",
+	"the deregulation strength (red for up- green for down-regulation</li>",
+	sep="")
+cat("<li>The background of the rest columns (condition average expression) ",
+	"displays a bar with length proportional to the expression strength ",
+	"of each condition</li>",sep="")
+cat("</ul>")
 ```
 
 ```{r dt_hack, include=FALSE}
@@ -1909,15 +2162,17 @@ for (cnt in contrast) {
 	
 	cat("<h4>DEG table for the contrast <strong>",cntn,"</strong></h4>",sep="")
 	cat("<div class=\"figure-hint\">The following table presents ",topText,
-		" for the contrast <strong>",cntn,"</strong>. The fields of the table ",
-		"correspond to the requested features to be exported. The table can ",
-		"be searched using the search field on the top right.</div>",
-		sep="")
+		" for the contrast <strong>",cntn,"</strong>.</div>",sep="")
 	
 	# 15 colors should be enough for most situations...
 	sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9","#EDEEC9",
 		"#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2","#B2F7EF","#EFF7F6",
 		"#F7D6E0","#F2B5D4")
+		
+	# We do not need GC content really...
+	gci <- grep("gc_content",colnames(reportTables[[cnt]]))
+	if (length(gci) > 0)
+		reportTables[[cnt]] <- reportTables[[cnt]][,-gci]
 		
 	# Fold change and condition means should always exist in this table defined 
 	# by us...
@@ -1927,31 +2182,40 @@ for (cnt in contrast) {
 	ci <- numeric(length(sampleList))
 	N <- names(sampleList)
 	for (i in 1:length(N))
-		ci[i] <- grep(N[i],colnames(reportTables[[cnt]]))
+		ci[i] <- grep(paste0("rpgm_normalized_mean_counts_",N[i]),
+			colnames(reportTables[[cnt]]))
+	names(reportTables[[cnt]])[pi] <- "p_value"
 	
 	# Get values before rounding for styling
 	brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
 		na.rm=TRUE)
-	preClrs <- col2rgb(redgreen(length(brks)+1))
+	preClrs <- col2rgb(rev(redgreen(length(brks)+1)))
 	clrs <- paste("rgb(",apply(preClrs,2,paste0,collapse=","),")",sep="")
 	pRangeForColor <- 1-as.numeric(reportTables[[cnt]][,pi])
 	fRangeForColor <- 1-as.numeric(reportTables[[cnt]][,di])
 	styleBars <- character(length(ci))
-	for (i in ci)
-		styleBars[i] <- styleColorBar(range(reportTables[[cnt]][,i]),sColors[i])
+	for (i in 1:length(ci))
+		styleBars[i] <- styleColorBar(range(reportTables[[cnt]][,ci[i]]),
+			sColors[i])
 	
 	# After setting colors, format the table for the report
-	reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]])
+	if (!is.numeric(version)) # Not defined in call
+		version <- NULL
+	reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]],o=org,r=refdb,
+		v=version)
 	
 	# Dirty hack
 	# https://stackoverflow.com/questions/32018521/
 	# shiny-use-stylecolorbar-with-data-from-two-data-frames
-	reportTables[[cnt]] <- cbind(pRangeForColor,fRangeForColor,reportTables[[cnt]])
+	reportTables[[cnt]] <- 
+		cbind(pRangeForColor,fRangeForColor,reportTables[[cnt]])
 	jspf <- paste0("function(row,data) {",
 		"var value = data[0];",
-		"var backgroundValueP =",styleColorBar(pRangeForColor,"lightblue")[1],";",
+		"var backgroundValueP =",styleColorBar(pRangeForColor,"lightblue")[1],
+			";",
 		"var value = data[1];",
-		"var backgroundValueF =",styleColorBar(fRangeForColor,"lightsalmon")[1],";",
+		"var backgroundValueF =",styleColorBar(fRangeForColor,"lightsalmon")[1],
+			";",
 		"$('td',row).eq(",pi-1,").css({",
 			"'background': backgroundValueP,",
 			"'background-repeat': 'no-repeat',",
@@ -1971,18 +2235,19 @@ for (cnt in contrast) {
 				"'font-weight': 'bold',",
 				"'background-color': ",styleInterval(brks,clrs),
 			"});",
-		"}",
-		#"for (var i=",ci[1],";i<=",ci[length(ci)],";i++) {",
-		#	"var value = data[i+1];",
-		#	"$('td',row).eq(i-1).css({",
-		#		"'background': backgroundValueP,",
-		#		"'background-repeat': 'no-repeat',",
-		#		"'background-position': 'center',",
-		#		"'background-size': '98% 88%'",
-		#	"});",
-		"}",
-	"}")
+		"}")
 	
+	for (i in 1:length(ci)) {
+		jsa <- paste0("var value = data[",ci[i]+1,"];",
+			"$('td',row).eq(",ci[i]-1,").css({",
+				"'background': ",styleBars[i],",",
+				"'background-repeat': 'no-repeat',",
+				"'background-position': 'center',",
+				"'background-size': '98% 88%'",
+			"});")
+		jspf <- paste0(jspf,jsa)
+	}
+	jspf <- paste0(jspf,"}")
 	
 	theTable <- DT::datatable(
 		reportTables[[cnt]],
@@ -1990,6 +2255,7 @@ for (cnt in contrast) {
 		#width=1020,
 		style="bootstrap",
 		class="table-condensed table-striped table-responsive",
+		escape=FALSE,
 		options=list(
 			scrollX=TRUE,
 			columnDefs=list(
@@ -2021,31 +2287,60 @@ for (cnt in contrast) {
 		#backgroundPosition="center"
 	#)
 	
-	
-	
-	N <- names(sampleList)
-	#for (i in 1:length(N)) {
-	#	theTable <- formatStyle(
-	#		theTable,N[i],
-	#		background=styleColorBar(range(reportTables[[cnt]][,N[i]]),
-	#			sColors[i]),
-	#		#fontWeight="bold",
-	#		backgroundSize="98% 88%",
-	#		backgroundRepeat="no-repeat",
-	#		backgroundPosition="center"
-	#	)
-	#}
-	
 	print(htmltools::tagList(tags$div(class="detable-container",theTable)))
+	
+	cat("<div class=\"figure-hint\">")
+	cat("<strong><a href=\"lists/metaseqr_sig_out_",cnt,".txt.gz\"",
+		" download>Download</a> the DEG result list for ",cnt,".</strong></br>",
+		sep="")
+	if (!is.null(geneCountsZero) || !is.null(geneCountsDead))
+		cat("<strong><a href=\"lists/metaseqr_all_out_",cnt,".txt.gz\"",
+		" download>Download</a> the whole result list for ",cnt,
+		".</strong></br>",sep="")
+	cat("</div><br/><br/>")                             
+}
+
+if (exportCountsTable) {
+	cat("</br><div style=\"background-color:#D2EBFF; border-style:solid;",
+		"border-color:#8F8BFF; border-width:1px; width:400px; padding:10px;\">",
+		sep="")
+	if (file.exists(file.path(PROJECT.PATH[["lists"]],
+		"raw_counts_table.txt.gz")))
+		cat("<strong><a href=\"lists/raw_counts_table.txt.gz\" download>",
+			"Download</a> the raw read counts table for the experiment.",
+			"</strong></br>",sep="")
+	cat("<strong><a href=\"lists/normalized_counts_table.txt.gz\"",
+		" download>Download</a> the normalized read counts table for the ",
+		"experiment.</strong></br>",sep="")
+	cat("</div>")
+}
+
+if (length(qcPlots) > 0) {
+	ltxt <- paste(paste("<a href=\"plots/metaseqr_figures_",figFormat,
+		".zip\" download>",figFormat,"</a>",sep=""),collapse=", ")
+	cat("<div id=\"get_figures\" class=\"figure-hint\">")
+	cat("<strong>Get all the figures in ",ltxt," format.")
+	cat("</div>")
 }
 ```
 
-
-
 # References
 
-Related references will be displayed here.
-
+```{r references}
+refs <- unique(c(
+	reportMessages$references$main,
+	reportMessages$references$filein[[fileType]],
+	reportMessages$references$norm[[normalization]],
+	unlist(reportMessages$references$stat[statistics],use.names=FALSE),
+	unlist(reportMessages$references$figure[qcPlots],use.names=FALSE),
+	reportMessages$references$multiple[[adjustMethod]],
+	reportMessages$references$meta[[metaP]]
+))
+cat("<div class=\"figure-hint\" style=\"margin-left:25px\"><ol>")
+for (r in refs)
+	cat("<li>",r,"</li>",sep="")
+cat("</ol></div>")
+```
 
 <!--- Bind change on all selectboxes -->
 <script>

@@ -2545,9 +2545,32 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
     return(tmpEnv)
 }
 
-.formatForReport <- function(x) {
+.formatForReport <- function(x,o=NULL,r=NULL,v=NULL) {
 	# Replace seqnames name
 	colnames(x)[1] <- "chromosome"
+	
+	# Link to UCSC genome browser with position
+	if (!is.null(o)) {
+		x$chromosome <- 
+			paste('<a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=',
+				getUcscOrganism(o),'&position=',paste(x$chromosome,":",
+				x$start,"-",x$end,sep=""),'" target="_blank">',x$chromosome,
+				'</a>',sep="")
+	}
+	
+	# Link to gene pages - only for Ensembl, RefSeq, not custom GTFs! UCSC does
+	# not offer a related page.
+	if (!is.null(r)) {
+		if (r == "ensembl") {
+			h <- getHost(o,v)
+			x$gene_id <- paste('<a href="',h,'/Gene/Summary?g=',x$gene_id,
+				'" target="_blank">',x$gene_id,'</a>',sep="")
+		}
+		else if (r == "refseq") {
+			x$gene_id <- paste('<a href="https://www.ncbi.nlm.nih.gov/nuccore/',
+				x$gene_id,'" target="_blank">',x$gene_id,'</a>',sep="")
+		}
+	}
 	
 	# Round rpgm and fold change
 	tmpi1 <- grep("log2_normalized_fold_change_",colnames(x))

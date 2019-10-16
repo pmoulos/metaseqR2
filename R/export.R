@@ -23,13 +23,13 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
 		nmi <- grep("gene_name",colnames(geneData))
 		bti <- grep("biotype",colnames(geneData))
 		baseInd <- c(1:3,6)
-		if (length(gci) > 1)
+		if (length(gci) > 0)
 			baseInd <- c(baseInd,gci,5)
 		else
 			baseInd <- c(baseInd,5)
-		if (length(nmi) > 1)
+		if (length(nmi) > 0)
 			baseInd <- c(baseInd,nmi)
-		if (length(bti) > 1)
+		if (length(bti) > 0)
 			baseInd <- c(baseInd,bti)
 		geneData <- geneData[,baseInd]
 	}
