@@ -1917,6 +1917,66 @@ if ("volcano" %in% qcPlots) {
 }
 ```
 
+```{r analysis_figures_mastat}
+if ("mastat" %in% qcPlots) {
+	pandoc.header("MA",level=3)
+	
+	nn <- names(contrastList)
+	json <- list()
+	
+	namc <- character(0)
+	index <- 0
+	for (n in nn) {
+		m <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+		a <- makeA(n,sampleList,normGenesExpr,1)
+		for (contr in colnames(m)) {
+			index <- index + 1
+			namc <- c(namc,contr)
+			json[[index]] <- diagplotMa(m[,contr],a[,contr],sumpList[[n]],contr,
+				altNames=geneDataExpr$gene_name,output="json")
+		}
+	}
+	names(json) <- namc
+	
+	# Add extra data, serialize and import the plots to Dexie
+	preImport <- vector("list",length(json))
+	for (i in 1:length(json)) {
+		preImport[[i]] <- list(
+			name=paste("mastat",namc[i],sep="_"),
+			type="mastat",
+			subtype="generic",
+			json=json[[i]]
+		)
+	}
+	toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
+	
+	# Import script
+	cat("<script type=\"text/javascript\">")
+	cat("db.plots.bulkAdd(",toImport,");",sep="")
+	cat("</script>")
+	
+	cat("<h4><strong>Mean-Difference (MA) plots</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$mastat,
+	    "<br/><br/></div>",sep="")
+	    
+	# Create a selector for each contrast
+	items <- paste("<option value=",paste("mastat",nn,sep="_"),">",
+		gsub("_vs_"," vs ",nn),"</option>",sep="")
+	cat("<div>")
+	cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
+		"for </div>",sep="")
+	cat("<select id=\"mastat_selector\">",items,"</select>",sep="")
+	cat("</div>")
+	
+	# Container div
+	cat("<div class=\"hc-rect-sm\" id=\"mastat_container\"></div>",sep="")
+	# Initialize first plot with serialized JSON
+	cat("<script>$('#mastat_container').highcharts(",
+		toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+		sep="")
+}
+```
+
 ```{r analysis_figures_deheatmap}
 if ("deheatmap" %in% qcPlots) {
 	pandoc.header("Heatmap",level=3)
@@ -1952,9 +2012,16 @@ if ("deheatmap" %in% qcPlots) {
 	}
 	setNames(hList,NULL)
 	# FIXME: Attach tag to heatmap before publishing
-	htmltools::tagList(
-		tags$div(id="test1",class="deheatmap-container",hList[[1]])
-	)
+	
+	tl <- htmltools::tagList()
+	for (i in 1:length(hList))
+		tl[[i]] <- tags$div(id=names(contrastList)[i],
+			class="deheatmap-container",hList[[i]])
+	print(tl)
+	
+	#htmltools::tagList(
+	#	tags$div(id="test1",class="deheatmap-container",hList[[1]])
+	#)
 	#htmltools::tagList(tags$div(hList))
 	#htmltools::tagList(setNames(hList,NULL))
 }
@@ -1973,15 +2040,28 @@ $('#'+hids[0]).show();
 if ("biodist" %in% qcPlots) {
 	pandoc.header("Biodist",level=3)
 	log <- capture.output({
-		json <- diagplotNoiseq(normGenesExpr,sampleList,covars=covarsStat,
+		jsonList <- diagplotNoiseq(normGenesExpr,sampleList,covars=covarsStat,
 			whichPlot="biodist",biodistOpts=list(p=pList[[cnt]],pcut=pcut,
             name=cnt),output="json")
 	})
 	
 	cat("<h4><strong>Chromosome and biotype distributions of differentially ",
-		"expressed genes</strong></h4>",sep="")
+		"expressed ",transLevel,"s</strong></h4>",sep="")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$biodist,
 	    "<br/><br/></div>",sep="")
+	    
+	cat("<h4>Chromosome distribution of differentially expressed ",transLevel,
+		"s</h4>",sep="")
+	cat("<div class=\"hc-rect-sm\" id=\"chromosome_biodist_container\"></div>",
+		sep="")
+	cat("<script>$('#chromosome_biodist_container').highcharts(",
+		jsonList[["chromosome"]],");</script>",sep="")
+	cat("<h4>Biotype distribution of differentially expressed ",transLevel,
+		"s</h4>",sep="")
+	cat("<div class=\"hc-rect-sm\" id=\"biotype_biodist_container\"></div>",
+		sep="")
+	cat("<script>$('#biotype_biodist_container').highcharts(",
+		jsonList[["biotype"]],");</script>",sep="")
 }
 ```
 
@@ -2178,7 +2258,7 @@ for (cnt in contrast) {
 		cat("<strong><a href=\"lists/metaseqr_all_out_",cnt,".txt.gz\"",
 		" download>Download</a> the whole result list for ",cnt,
 		".</strong></br>",sep="")
-	cat("</div><br/><br/>")                             
+	cat("</div><br/><br/>")                            
 }
 
 if (exportCountsTable) {
@@ -2267,6 +2347,18 @@ $("#meandiff_selector").on('change',function() {
 		"meandiff_unorm_container");
 	getPlotFromDb({name: name,type: "meandiff",subtype: "norm"},
 		"meandiff_norm_container");
+});
+
+$("#volcano_selector").on('change',function() {
+	var name = this.value;
+	getPlotFromDb({name: name,type: "volcano",subtype: "generic"},
+		"volcano_container");
+});
+
+$("#mastat_selector").on('change',function() {
+	var name = this.value;
+	getPlotFromDb({name: name,type: "mastat",subtype: "generic"},
+		"mastat_container");
 });
 
 $("#heatmap_selector").on('change',function() {

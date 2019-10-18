@@ -2283,70 +2283,36 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
     by <- by[1]
     out <- tolower(out[1])
     
-    plotdata <- obj$user$plotdata
-    covars <- obj$user$covars
-    
-    abu <- which(plotdata$genome>7)
-    nabu <- which(plotdata$genome<=7)
+    plotdataChromosome <- obj$user$plotdata$chromosome
+    plotdataBiotype <- obj$user$plotdata$biotype
     
     cols <- .getColorScheme()
     
     if (by == "chromosome") {
-	}
-    if (by == "biotype") {
-        # Data series
-        series.abu <- vector("list",3)
-        names(series.abu) <- c("genome","detectionVSgenome","detectionVSsample")
-        series.abu$genome <- list()
-        series.abu$genome$id <- "abu_genome"
-        series.abu$genome$name <- "% in genome"
-        series.abu$genome$color <- cols$trans[1]
-        series.abu$genome$pointPlacement <- -0.2
-        series.abu$genome$data <- round(as.numeric(plotdata$genome[abu]),3)
-        series.abu$detectionVSgenome <- list()
-        series.abu$detectionVSgenome$id <- "abu_detected"
-        series.abu$detectionVSgenome$name <- "% detected"
-        series.abu$detectionVSgenome$color <- cols$trans[2]
-        series.abu$detectionVSgenome$pointPlacement <- 0
-        series.abu$detectionVSgenome$data <- round(as.numeric(
-            plotdata$biotables[[n]][1,abu]),3)
-        series.abu$detectionVSsample <- list()
-        series.abu$detectionVSsample$id <- "abu_sample"
-        series.abu$detectionVSsample$name <- "% in sample"
-        series.abu$detectionVSsample$color <- cols$trans[3]
-        series.abu$detectionVSsample$pointPlacement <- 0.2
-        series.abu$detectionVSsample$data <- round(as.numeric(
-            plotdata$biotables[[n]][2,abu]),3)
-        series.nabu <- vector("list",3)
-        names(series.nabu) <- c("genome","detectionVSgenome",
-            "detectionVSsample")
-        series.nabu$genome <- list()
-        series.nabu$genome$name <- "% in genome"
-        series.nabu$genome$yAxis <- 1
-        series.nabu$genome$pointStart <- length(abu)
-        series.nabu$genome$linkedTo <- "abu_genome"
-        series.nabu$genome$color <- cols$trans[1]
-        series.nabu$genome$pointPlacement <- -0.2
-        series.nabu$genome$data <- round(as.numeric(plotdata$genome[nabu]),3)
-        series.nabu$detectionVSgenome <- list()
-        series.nabu$detectionVSgenome$name <- "% detected"
-        series.nabu$detectionVSgenome$yAxis <- 1
-        series.nabu$detectionVSgenome$pointStart <- length(abu)
-        series.nabu$detectionVSgenome$linkedTo <- "abu_detected"
-        series.nabu$detectionVSgenome$color <- cols$trans[2]
-        series.nabu$detectionVSgenome$pointPlacement <- 0
-        series.nabu$detectionVSgenome$data <- round(as.numeric(
-            plotdata$biotables[[n]][1,nabu]),3)
-        series.nabu$detectionVSsample <- list()
-        series.nabu$detectionVSsample$name <- "% in sample"
-        series.nabu$detectionVSsample$yAxis <- 1
-        series.nabu$detectionVSsample$pointStart <- length(abu)
-        series.nabu$detectionVSsample$linkedTo <- "abu_sample"
-        series.nabu$detectionVSsample$color <- cols$trans[3]
-        series.nabu$detectionVSsample$pointPlacement <- 0.2
-        series.nabu$detectionVSsample$data <- round(as.numeric(
-            plotdata$biotables[[n]][2,nabu]),3)
-        
+		# Data series
+        series <- vector("list",3)
+        names(series) <- c("genome","chromosome_deg","deg_chromosome")
+        series$genome <- list()
+        series$genome$id <- "genome"
+        series$genome$name <- "% chromosome in genome"
+        series$genome$color <- cols$trans[1]
+        series$genome$pointPlacement <- -0.2
+        series$genome$data <- round(as.numeric(plotdataChromosome[1,]),3)
+        series$chromosome_deg <- list()
+        series$chromosome_deg$id <- "chromosome_deg"
+        series$chromosome_deg$name <- "% chromosome in DEG"
+        series$chromosome_deg$color <- cols$trans[2]
+        series$chromosome_deg$pointPlacement <- 0
+        series$chromosome_deg$data <- 
+			round(as.numeric(plotdataChromosome[2,]),3)
+        series$deg_chromosome <- list()
+        series$deg_chromosome$id <- "deg_chromosome"
+        series$deg_chromosome$name <- "% DEG in chromosome"
+        series$deg_chromosome$color <- cols$trans[3]
+        series$deg_chromosome$pointPlacement <- 0.2
+        series$deg_chromosome$data <- 
+            round(as.numeric(plotdataChromosome[3,]),3)
+            
         json <- switch(jl,
             highcharts = {
                 list(
@@ -2355,8 +2321,7 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
 						alignTicks=FALSE
 					),
 					title=list(
-						text=paste("Comparative biotype detection for ",
-							"sample ",n,sep="")
+						text="DEG distribution across chromosomes"
 					),
 					legend=list(
 						enabled=TRUE,
@@ -2368,7 +2333,141 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
 						shared=TRUE
 					),  
 					xAxis=list(
-						categories=names(plotdata$genome)[c(abu,nabu)],
+						categories=names(plotdataChromosome),
+						title=list(
+							text="Chromosome",
+							margin=25,
+							style=list(
+								color="#000000",
+								fontSize="1.2em"
+							)
+						),
+						labels=list(
+							style=list(
+								color="#000000",
+								fontWeight="bold"
+							)
+						)
+					),
+					yAxis=list(
+						list(
+							min=0,
+							max=ceiling(max(plotdataChromosome[1,])),
+							title=list(
+								text="% of features",
+								margin=20,
+								style=list(
+									color="#000000",
+									fontSize="1.2em"
+								)
+							),                          
+							labels=list(
+								style=list(
+									color="#000000",
+									fontSize="1.1em",
+									fontWeight="bold"
+								)
+							)
+						)
+					),
+					plotOptions=list(
+						column=list(
+							grouping=FALSE,
+							shadow=FALSE,
+							groupPadding=0.3,
+							pointPadding=0.25,
+							tooltip=list(
+								headerFormat=paste(
+									'<span style="font-size:1.1em;',
+									'font-weight:bold">',
+									'{point.key}</span><br/>',sep=""
+								)
+							)
+						)
+					),
+					series=unname(series)
+				)
+            }
+        )
+	}
+    if (by == "biotype") {
+		# For biotype
+		abu <- which(plotdataBiotype[1,]>7)
+		nabu <- which(plotdataBiotype[1,]<=7)
+        
+        # Data series
+        seriesAbu <- vector("list",3)
+        names(seriesAbu) <- c("genome","biotype_deg","deg_biotype")
+        seriesAbu$genome <- list()
+        seriesAbu$genome$id <- "abu_genome"
+        seriesAbu$genome$name <- "% biotype in genome"
+        seriesAbu$genome$color <- cols$trans[1]
+        seriesAbu$genome$pointPlacement <- -0.2
+        seriesAbu$genome$data <- round(as.numeric(plotdataBiotype[1,abu]),3)
+        seriesAbu$biotype_deg <- list()
+        seriesAbu$biotype_deg$id <- "abu_biotype_deg"
+        seriesAbu$biotype_deg$name <- "% biotype in DEG"
+        seriesAbu$biotype_deg$color <- cols$trans[2]
+        seriesAbu$biotype_deg$pointPlacement <- 0
+        seriesAbu$biotype_deg$data <- 
+			round(as.numeric(plotdataBiotype[2,abu]),3)
+        seriesAbu$deg_biotype <- list()
+        seriesAbu$deg_biotype$id <- "abu_deg_biotype"
+        seriesAbu$deg_biotype$name <- "% DEG in biotype"
+        seriesAbu$deg_biotype$color <- cols$trans[3]
+        seriesAbu$deg_biotype$pointPlacement <- 0.2
+        seriesAbu$deg_biotype$data <- 
+            round(as.numeric(plotdataBiotype[3,abu]),3)
+        seriesNabu <- vector("list",3)
+        names(seriesNabu) <- c("genome","biotype_deg","deg_biotype")
+        seriesNabu$genome <- list()
+        seriesNabu$genome$name <- "% biotype in genome"
+        seriesNabu$genome$yAxis <- 1
+        seriesNabu$genome$pointStart <- length(abu)
+        seriesNabu$genome$linkedTo <- "abu_genome"
+        seriesNabu$genome$color <- cols$trans[1]
+        seriesNabu$genome$pointPlacement <- -0.2
+        seriesNabu$genome$data <- round(as.numeric(plotdataBiotype[1,nabu]),3)
+        seriesNabu$biotype_deg <- list()
+        seriesNabu$biotype_deg$name <- "% biotype in DEG"
+        seriesNabu$biotype_deg$yAxis <- 1
+        seriesNabu$biotype_deg$pointStart <- length(abu)
+        seriesNabu$biotype_deg$linkedTo <- "abu_detected"
+        seriesNabu$biotype_deg$color <- cols$trans[2]
+        seriesNabu$biotype_deg$pointPlacement <- 0
+        seriesNabu$biotype_deg$data <- 
+			round(as.numeric(plotdataBiotype[2,nabu]),3)
+        seriesNabu$deg_biotype <- list()
+        seriesNabu$deg_biotype$name <- "% DEG in biotype"
+        seriesNabu$deg_biotype$yAxis <- 1
+        seriesNabu$deg_biotype$pointStart <- length(abu)
+        seriesNabu$deg_biotype$linkedTo <- "abu_sample"
+        seriesNabu$deg_biotype$color <- cols$trans[3]
+        seriesNabu$deg_biotype$pointPlacement <- 0.2
+        seriesNabu$deg_biotype$data <- 
+			round(as.numeric(plotdataBiotype[3,nabu]),3)
+        
+        json <- switch(jl,
+            highcharts = {
+                list(
+					chart=list(
+						type="column",
+						alignTicks=FALSE
+					),
+					title=list(
+						text="DEG distribution across biotypes"
+					),
+					legend=list(
+						enabled=TRUE,
+						itemHoverStyle=list(
+							color="#B40000"
+						)
+					),
+					tooltip=list(
+						shared=TRUE
+					),  
+					xAxis=list(
+						categories=colnames(plotdataBiotype)[c(abu,nabu)],
 						title=list(
 							text="Biotype",
 							margin=25,
@@ -2400,7 +2499,7 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
 							list(
 								color="#FFECEB",
 								from=length(abu)-0.5,
-								to=length(plotdata$genome)
+								to=ncol(plotdataBiotype)
 							)
 						)
 					),
@@ -2460,7 +2559,7 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
 							)
 						)
 					),
-					series=c(unname(series.abu),unname(series.nabu))
+					series=c(unname(seriesAbu),unname(seriesNabu))
 				)
             }
         )
@@ -2470,6 +2569,239 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
 		return(toJSON(json,auto_unbox=TRUE,null="null"))
 	else if (out=="list")
 		return(json)
+}
+
+maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
+    jl <- tolower(jl[1])
+    out <- out[1]
+    
+    a <- obj$x
+    f <- obj$y
+    p <- obj$user$p
+    xlim <- obj$xlim
+    ylim <- obj$ylim
+    pcut <- obj$pcut
+    fcut <- obj$fcut
+    altNames <- obj$altnames
+    con <- obj$user$con
+    #stat <- obj$user$stat
+    
+    conlab <- strsplit(con,"_vs_")
+    #conlab <- paste(conlab[[1]][1],"against",conlab[[1]][2])
+    conlab <- paste(conlab[[1]][2],"against",conlab[[1]][1])
+    #statMap <- .getStatMap()
+    #statlab <- statMap[[stat]]
+   
+    upstat <- which(f>=fcut & p<pcut)
+    downstat <- which(f<=-fcut & p<pcut)
+    up <- which(f>=fcut & p>=pcut)
+    down <- which(f<=-fcut & p>=pcut)
+    poor <- which(p<pcut & abs(f)<fcut)
+    neutral <- setdiff(1:length(a),
+        Reduce("union",list(upstat,downstat,up,down,poor)))
+    
+    switch(jl,
+        highcharts = {
+            series <- list()
+            counter <- 0
+            if (length(upstat)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Significantly up-regulated",
+                    color="#EE0000",
+                    marker=list(
+                        radius=3
+                    ),
+                    data=makeHighchartsPoints(
+                        x=a[upstat],
+                        y=f[upstat],
+                        a=unname(altNames[upstat]),
+                        p=-log10(p[upstat])
+                    )
+                )
+            }
+            if (length(downstat)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Significantly down-regulated",
+                    color="#00EE00",
+                    marker=list(
+                        radius=3
+                    ),
+                    data=makeHighchartsPoints(
+                        x=a[downstat],
+                        y=f[downstat],
+                        a=unname(altNames[downstat]),
+                        p=-log10(p[downstat])
+                    )
+                )
+            }
+            if (length(up)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Up-regulated",
+                    color="#B80000",
+                    marker=list(
+                        radius=2
+                    ),
+                    data=makeHighchartsPoints(
+                        x=a[up],
+                        y=f[up],
+                        a=unname(altNames[up]),
+                        p=-log10(p[up])
+                    )
+                )
+            }
+            if (length(down)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Down-regulated",
+                    color="#008000",
+                    marker=list(
+                        radius=2
+                    ),
+                    data=makeHighchartsPoints(
+                        x=a[down],
+                        y=f[down],
+                        a=unname(altNames[down]),
+                        p=-log10(p[down])
+                    )
+                )
+            }
+            if (length(poor)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Significant only",
+                    color="#FFA600",
+                    data=makeHighchartsPoints(
+                        x=a[poor],
+                        y=f[poor],
+                        a=unname(altNames[poor]),
+                        p=-log10(p[poor])
+                    )
+                )
+            }
+            if (length(neutral)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Neutral",
+                    color="#858585",
+                    data=makeHighchartsPoints(
+                        x=a[neutral],
+                        y=f[neutral],
+                        a=unname(altNames[neutral]),
+                        p=-log10(p[neutral])
+                    )
+                )
+            }
+        
+            if (is.null(altNames))
+                point.format=paste("<strong>Gene ID: </strong>{point.name}<br>",
+                    "<strong>Average expression: </strong>{point.x}<br>",
+                    "<strong>Fold change: </strong>{point.y}<br>",
+                    "<strong>Significance: </strong>{point.sig}",sep="")
+            else
+                point.format=paste("<strong>Gene name: </strong>",
+                    "{point.alt_name}<br>",
+                    "<strong>Gene ID: </strong>{point.name}<br>",
+                    "<strong>Average expression: </strong>{point.x}<br>",
+                    "<strong>Fold change: </strong>{point.y}<br>",
+                    "<strong>Significance: </strong>{point.sig}",sep="")
+                json <- list(
+					chart=list(
+					type="scatter",
+					zoomType="xy"
+				),
+				title=list(
+					text=paste("Mean-Difference (MA) plot for",conlab)
+				),
+				xAxis=list(
+					title=list(
+						text="Average expression",
+						margin=20,
+						style=list(
+							color="#000000",
+							fontSize="1.2em"
+						)
+					),
+					labels=list(
+						style=list(
+							color="#000000",
+							fontSize="1.1em",
+							fontWeight="bold"
+						)
+					),
+					startOnTick=TRUE,
+					endOnTick=TRUE,
+					showLastLabel=TRUE,
+					gridLineWidth=1,
+					min=round(xlim[1],3),
+					max=round(xlim[2],3)
+				),
+				yAxis=list(
+					title=list(
+						useHTML=TRUE,
+						text="Fold change (log<sub>2</sub>)",
+						margin=25,
+						style=list(
+							color="#000000",
+							fontSize="1.2em"
+						)
+					),
+					labels=list(
+						style=list(
+							color="#000000",
+							fontSize="1.1em",
+							fontWeight="bold"
+						)
+					),
+					startOnTick=TRUE,
+					endOnTick=TRUE,
+					showLastLabel=TRUE,
+					gridLineWidth=1,
+					min=round(ylim[1],3),
+					max=round(ylim[2],3)
+				),
+				plotOptions=list(
+					scatter=list(
+						allowPointSelect=TRUE,
+						marker=list(
+							radius=2,
+							symbol="circle",
+							states=list(
+								hover=list(
+									enabled=TRUE,
+									lineColor="#333333"
+								)
+							)
+						),
+						states=list(
+							hover=list(
+								marker=list(
+									enabled=FALSE
+								)
+							)
+						),
+						#events=list(
+						#	legendItemClick=paste("function() {",
+						#		"return false; }")
+						#),
+						tooltip=list(
+							headerFormat=paste("<span style=",
+								"\"font-size:1.1em;color:{series.color};",
+								"font-weight:bold\">{series.name}<br>",
+								sep=""),
+							pointFormat=point.format
+						),
+						turboThreshold=50000
+					)
+				),
+				series=series
+			)
+        }
+    )
+    #return(unquoteJsFun(json))
+    return(json)
 }
 
 .unquote_js_fun <- function(js) {
@@ -2535,5 +2867,19 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
             "rgba(0,139,0,0.6)","rgba(49,49,49,0.6)","rgba(255,192,203,0.5)",
             "rgba(165,42,42,0.6)","rgba(255,0,255,0.6)","rgba(154,205,50,0.6)",
             "rgba(139,99,108,0.6)","rgba(46,139,87,0.6)","rgba(0,139,139,0.6)")
+    ))
+}
+
+.getStatMap <- function() {
+    return(list(
+        deseq="DEseq",
+        deseq2="DEseq2",
+        edger="edgeR",
+        limma="voom",
+        nbpseq="NBPSeq",
+        noiseq="NOISeq",
+        bayseq="baySeq",
+        absseq="ABSSeq",
+        dss="DSS"
     ))
 }

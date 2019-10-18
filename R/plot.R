@@ -2,7 +2,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     pList=NULL,thresholds=list(p=0.05,f=1),plotType=c("mds","biodetection",
     "countsbio","saturation","readnoise","rnacomp","correl","pairs","boxplot",
     "gcbias","lengthbias","meandiff","meanvar","deheatmap","volcano","biodist",
-    "filtered","venn"),isNorm=FALSE,output="x11",path=NULL,...) {
+    "filtered","mastat","venn"),isNorm=FALSE,output="x11",path=NULL,...) {
     if (is(object,"GenomicRanges")) {
 		object <- as.data.frame(object)
 		object <- object[,c(1:3,6,7,5,8,9)]
@@ -59,7 +59,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
         "correl","pairwise")
     normPlots <- c("boxplot","gcbias","lengthbias","meandiff","meanvar",
         "rnacomp")
-    statPlots <- c("deheatmap","volcano","biodist")
+    statPlots <- c("deheatmap","volcano","mastat","biodist")
     otherPlots <- c("filtered")
     vennPlots <- c("venn")
     files <- list()
@@ -156,6 +156,20 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
                             files$volcano[[contrast]] <- diagplotVolcano(
                                 fc[,contrast],pList[[cnt]],contrast,
                                 fcut=thresholds$f,pcut=thresholds$p,
+                                output=output,path=path)
+                        }
+                    },
+                    mastat = {
+                        m <- log2(makeFoldChange(cnt,sampleList,object,1))
+                        a <- makeA(cnt,sampleList,object,1)
+                        for (contrast in colnames(m)) {
+                            #files$mastat[[contrast]] <- diagplotVolcano(
+                            #    fc[,contrast],pList[[cnt]],contrast,
+                            #    fcut=thresholds$f,pcut=thresholds$p,
+                            #    output=output,path=path)
+                            files$mastat[[contrast]] <- diagplotMa(
+                                m[,contrast],a[,contrast],pList[[cnt]],
+                                contrast,fcut=thresholds$f,pcut=thresholds$p,
                                 output=output,path=path)
                         }
                     },
@@ -1130,13 +1144,13 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                    pcut=NULL,
                    fcut=NULL,
                    altnames=covars$gene_name,
-                   user=list(counts=nat2log(x),covars=covars)
+                   user=list(plotdata=dataList)
                 )
                 
                 jsonList <- vector("list",2)
                 names(jsonList) <- c("chromosome","biotype")
-                #jsonList[["chromosome"]] <- biodistToJSON(obj,by="chromosome")
-                #jsonList[["biotype"]] <- biodistToJSON(obj,by="biotype")
+                jsonList[["chromosome"]] <- biodistToJSON(obj,by="chromosome")
+                jsonList[["biotype"]] <- biodistToJSON(obj,by="biotype")
                 return(jsonList)
 			}
         }
@@ -1361,6 +1375,95 @@ diagplotVolcano <- function(f,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
         json <- volcanoToJSON(obj,out="list")
         #fil <- file.path(path,paste("volcano_",con,".json",sep=""))
         #write(json,fil)
+        return(json)
+    }
+}
+
+diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
+    output="x11",path=NULL,...) { # output can be json here...
+    if (is.null(path)) path <- getwd()
+    if (is.null(con))
+        con <- conn <- ""
+    else {
+        conn <- con
+        con <- paste("for ",con)
+    }
+    fil <- file.path(path,paste("mastat_plot_",conn,".",output,sep=""))
+    if (output!="json") {
+        if (output %in% c("pdf","ps","x11"))
+            graphicsOpen(output,fil,width=10,height=8)
+        else
+            graphicsOpen(output,fil,width=1024,height=768,res=100)
+    }
+    rem <- which(is.na(p))
+    if (length(rem)>0) {
+        p <- p[-rem]
+        m <- m[-rem]
+        a <- a[-rem]
+        if (!is.null(altNames))
+            altNames <- altNames[-rem]
+    }
+    # Fix problem with extremely low p-values, only for display purposes though
+    pZero <- which(p==0)
+    if (length(pZero)>0)
+        p[pZero] <- runif(length(pZero),0,1e-256)
+    ylim <- c(-max(abs(m)),max(abs(m)))
+    xlim <- c(min(a),max(a))
+    
+    upstat <- which(m>=fcut & p<pcut)
+    downstat <- which(m<=-fcut & p<pcut)
+    up <- which(m>=fcut & p>=pcut)
+    down <- which(m<=-fcut & p>=pcut)
+    poor <- which(p<pcut & abs(m)<fcut)
+    neutral <- setdiff(1:length(a),
+        Reduce("union",list(upstat,downstat,up,down,poor)))
+    
+    if (output!="json") {
+        par(cex.main=1.1,cex.lab=1.1,cex.axis=1.1,font.lab=2,font.axis=2,
+            pty="m",lwd=1.5)
+        plot.new()
+        plot.window(xlim,ylim)
+        axis(1,at=pretty(xlim,10),labels=as.character(pretty(xlim,10)))
+        axis(2,at=pretty(ylim,10))
+        title(paste(main="MA plot",con),xlab="Average expression",
+			ylab="Fold change")
+			
+		points(a[neutral],m[neutral],pch=20,col="gray50",cex=0.5)
+		points(a[poor],m[poor],pch=20,col="orange",cex=0.5)
+		points(a[up],m[up],pch=20,col="red3",cex=0.5)
+		points(a[down],m[down],pch=20,col="green3",cex=0.5)
+		points(a[upstat],m[upstat],pch=20,col="red",cex=0.5)
+		points(a[downstat],m[downstat],pch=20,col="green",cex=0.5)
+		abline(h=-fcut,lty=2)
+		abline(h=fcut,lty=2)
+		grid()
+		graphics::legend(
+			x="topright",
+			legend=c("significantly up-regulated",
+				"significantly down-regulated","up-regulated","down-regulated",
+				"poorly regulated","neutral","fold change threshold"),
+			col=c("red","green","red3","green3","orange","gray50","black"),
+			pch=c(20,20,20,20,20,20,NA),lty=c(NA,NA,NA,NA,NA,NA,2),
+			xjust=1,yjust=0,box.lty=0,x.intersp=0.5,cex=0.7,text.font=2
+		)
+        graphicsClose(output)
+        return(fil)
+    }
+    else {
+        obj <- list(
+            x=a,
+            y=m,
+            plot=NULL,
+            samples=NULL,
+            xlim=xlim,
+            ylim=ylim,
+            status=NULL,
+            pcut=pcut,
+            fcut=fcut,
+            altnames=altNames,
+            user=list(p=p,con=conn)
+        )
+        json <- maStatToJSON(obj,out="list")
         return(json)
     }
 }
@@ -2591,7 +2694,8 @@ deplot <- function (output,q=NULL,logScale=TRUE,join=FALSE,...) {
 		else 
 			ymaxR2 <- ymaxL2
 
-	} else { 
+	} 
+	else { 
 		ymaxR2 <- ceiling(max(biotable2[,lower2],na.rm=TRUE))
 		ymaxL2 <- ymaxR2               
 	}

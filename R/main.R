@@ -69,7 +69,7 @@ metaseqr2 <- function(
     qcPlots=c(
         "mds","biodetection","countsbio","saturation","readnoise","filtered",
         "correl","pairwise","boxplot","gcbias","lengthbias","meandiff",
-        "meanvar","rnacomp","deheatmap","volcano","biodist","venn"
+        "meanvar","rnacomp","deheatmap","volcano","biodist","mastat","venn"
     ),
     figFormat=c("png","jpg","tiff","bmp","pdf","ps"),
     outList=FALSE,
@@ -395,7 +395,7 @@ metaseqr2 <- function(
         checkTextArgs("qcPlots",qcPlots,c("mds","biodetection","countsbio",
             "saturation","readnoise","correl","pairwise","boxplot","gcbias",
             "lengthbias","meandiff","meanvar","rnacomp","deheatmap","volcano",
-            "biodist","filtered","venn"),multiarg=TRUE)
+            "biodist","filtered","mastat","venn"),multiarg=TRUE)
     if (!is.na(restrictCores)) checkNumArgs("restrictCores",restrictCores,
         "numeric",c(0,1),"botheq")
     if (!is.na(pcut)) checkNumArgs("pcut",pcut,"numeric",c(0,1),"botheq")
@@ -2016,7 +2016,7 @@ metaseqr2 <- function(
                 "correl","pairwise"),
             norm=c("boxplot","gcbias","lengthbias","meandiff","meanvar",
                 "rnacomp"),
-            stat=c("deheatmap","volcano","biodist"),
+            stat=c("deheatmap","volcano","mastat","biodist"),
             other=c("filtered"),
             venn=c("venn")
         )
@@ -2153,8 +2153,8 @@ metaseqr2 <- function(
 					file.path(PROJECT_PATH$js,"dexie.min.js"))
 		}
 		
-		#file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-		file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),overwrite=TRUE)
 		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),

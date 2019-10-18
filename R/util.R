@@ -1701,6 +1701,32 @@ makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     return(foldMat)
 }
 
+makeA <- function(contrast,sampleList,dataMatrix,logOffset=1) {
+    conds <- strsplit(contrast,"_vs_")[[1]]
+    aMat <- matrix(0,nrow(dataMatrix),length(conds)-1)
+    #for (i in 1:(length(conds)-1)) { # Last condition is ALWAYS reference
+    for (i in 2:length(conds)) { # First condition is ALWAYS reference
+        samplesTrt <- sampleList[[conds[i]]]
+        #samplesCnt <- sampleList[[conds[length(conds)]]]
+        samplesCnt <- sampleList[[conds[1]]]
+        trt <- dataMatrix[,match(samplesTrt,colnames(dataMatrix)),drop=FALSE]
+        cnt <- dataMatrix[,match(samplesCnt,colnames(dataMatrix)),drop=FALSE]
+        meanTrt <- apply(trt,1,mean)
+        meanCnt <- apply(cnt,1,mean)
+        if (any(meanTrt==0)) 
+            meanTrt <- meanTrt + logOffset
+        if (any(meanCnt==0)) 
+            meanCnt <- meanCnt + logOffset
+        #aMat[,i] <- 0.5*(log2(meanTrt)+log2(meanCnt))
+        aMat[,i-1] <- 0.5*(log2(meanTrt)+log2(meanCnt))
+    }
+    rownames(aMat) <- rownames(dataMatrix)
+    colnames(aMat) <- paste(conds[1:(length(conds)-1)],"_vs_",
+        conds[length(conds)],sep="")
+    #colnames(aMat) <- paste(conds[2:length(conds)],"_vs_",conds[1],sep="")
+    return(aMat)
+}
+
 makeAvgExpression <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
     a.mat <- matrix(0,nrow(dataMatrix),length(conds)-1)
@@ -2487,6 +2513,7 @@ makeReportMessages <- function(lang) {
                 "one in the lower part of the plot. You can always zoom in",
                 "when using interacting mode (the default).",collapse=" "
                     ),
+                 mastat="Description will be soon available!",
                     biodist=paste(
                 "The chromosome and biotype distributions bar diagram for",
                 "Differentially Expressed Genes (DEGs) is split in two",
@@ -2757,32 +2784,88 @@ makeReportMessages <- function(lang) {
     return(messages)
 }
 
-makeHighchartsPoints <- function(x,y,a=NULL) {
+#makeHighchartsPoints <- function(x,y,a=NULL) {
+#    if (length(x)>0) {
+#        n <- names(x)
+#        x <- unname(x)
+#        y <- unname(y)
+#        stru <- vector("list",length(x))
+#        if (is.null(a)) {
+#            for (i in 1:length(x))
+#                stru[[i]] <- list(
+#                    x=round(x[i],digits=3),
+#                    y=round(y[i],digits=3),
+#                    name=n[i]
+#                )
+#        }
+#        else {
+#            for (i in 1:length(x))
+#                stru[[i]] <- list(
+#                    x=round(x[i],digits=3),
+#                    y=round(y[i],digits=3),
+#                    name=n[i],
+#                    alt_name=a[i]
+#                )
+#        }
+#    }
+#    else
+#        stru <- list(x=NULL,y=NULL,name=NULL,alt_name=NULL)
+#    return(stru)
+#}
+
+makeHighchartsPoints <- function(x,y,a=NULL,p=NULL) {
     if (length(x)>0) {
         n <- names(x)
         x <- unname(x)
         y <- unname(y)
+        if (!is.null(a))
+            a <- unname(a)
+        if (!is.null(p))
+            p <- unname(p)
         stru <- vector("list",length(x))
-        if (is.null(a)) {
-            for (i in 1:length(x))
-                stru[[i]] <- list(
+        if (is.null(a) && is.null(p)) {
+            stru <- lapply(1:length(x),function(i,x,y,n) {
+                return(list(
                     x=round(x[i],digits=3),
                     y=round(y[i],digits=3),
                     name=n[i]
-                )
+                ))
+           },x,y,n)
         }
-        else {
-            for (i in 1:length(x))
-                stru[[i]] <- list(
+        else if (!is.null(a) && is.null(p)) {
+            stru <- lapply(1:length(x),function(i,x,y,n,a) {
+                return(list(
                     x=round(x[i],digits=3),
                     y=round(y[i],digits=3),
                     name=n[i],
                     alt_name=a[i]
-                )
+                ))
+           },x,y,n,a)
+        }
+        else if (is.null(a) && !is.null(p)) {
+            stru <- lapply(1:length(x),function(i,x,y,n,p) {
+                return(list(
+                    x=round(x[i],digits=3),
+                    y=round(y[i],digits=3),
+                    name=n[i],
+                    sig=round(p[i],digits=3)
+                ))
+           },x,y,n,p)
+        }
+        else if (!is.null(a) && !is.null(p)) {
+            stru <- lapply(1:length(x),function(i,x,y,n,a,p) {
+                return(list(
+                    x=round(x[i],digits=3),
+                    y=round(y[i],digits=3),
+                    name=n[i],
+                    alt_name=a[i],
+                    sig=round(p[i],digits=3)
+                ))
+           },x,y,n,a,p)
         }
     }
     else
-        stru <- list(x=NULL,y=NULL,name=NULL,alt_name=NULL)
+        stru <- list(x=NULL,y=NULL,name=NULL,alt_name=NULL,sig=NULL)
     return(stru)
 }
 
