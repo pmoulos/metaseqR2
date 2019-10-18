@@ -37,6 +37,8 @@ opts_knit$set(width=75)
 
 ```{r load_js}
 if (offlineReport) {
+	cat("<script type=\"text/javascript\" src=\"js/pace.min.js\"></script>",
+		sep="")
 	cat("<script type=\"text/javascript\" src=\"js/highcharts.js\"></script>",
 		sep="")
 	cat("<script type=\"text/javascript\" src=\"js/highcharts-more.js\">",
@@ -49,6 +51,8 @@ if (offlineReport) {
 		sep="")
 	cat("<script src=\"js/dexie.min.js\"></script>",sep="")
 } else {
+	cat("<script type=\"text/javascript\" src=\"https://raw.github.com/",
+		"HubSpot/pace/v1.0.0/pace.min.js\"></script>",sep="")
 	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
 		"highcharts.js\"></script>",sep="")
 	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
@@ -63,8 +67,6 @@ if (offlineReport) {
 		"</script>",sep="")
 }
 ```
-
-<script src="https://raw.github.com/HubSpot/pace/v1.0.0/pace.min.js"></script>
 
 <script>
 var db = new Dexie("plotdb");
@@ -194,6 +196,19 @@ p {
 	margin: auto;
 }
 
+.link-box {
+	background-color: #D5EEEB; 
+	border-style: solid; 
+	border-color: #00887A; 
+	border-width: 1px; 
+	width: 80%; 
+	padding: 10px;
+	-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+}
+
 #summary_log_container {
 	font-family: "Courier New", Courier, monospace;
 	font-size: 0.9em;
@@ -201,15 +216,6 @@ p {
 	overflow-y: scroll;
 	overflow-x: hidden;
 	overflow-wrap: normal;
-}
-
-#get_figures {
-	background-color: #D2EBFF; 
-	border-style: solid; 
-	border-color: #8F8BFF; 
-	border-width: 1px; 
-	width: 400px; 
-	padding: 10px;
 }
 
 /********************************** Pace.js ***********************************/
@@ -220,201 +226,44 @@ p {
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
+}
 
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
-
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
-
-  -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
-  background-clip: padding-box;
-
-  z-index: 2000;
-  position: fixed;
-  margin: auto;
-  top: 12px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 200px;
-  height: 50px;
-  overflow: hidden;
+.pace.pace-inactive .pace-progress {
+  display: none;
 }
 
 .pace .pace-progress {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
+  position: fixed;
+  z-index: 2000;
+  top: 50%;
+  left: 50%;
+  height: 240px;
+  width: 240px;
+  margin-top: -120px; /* Negative half of height. */
+  margin-left: -200px; /* Negative half of width. */
 
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
-
-  -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
-  background-clip: padding-box;
-
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-
-  display: block;
-  position: absolute;
-  right: 100%;
-  margin-right: -7px;
-  width: 93%;
-  top: 7px;
-  height: 14px;
-  font-size: 12px;
-  background: #29d;
-  color: #29d;
-  line-height: 60px;
-  font-weight: bold;
-  font-family: Helvetica, Arial, "Lucida Grande", sans-serif;
-
-  -webkit-box-shadow: 120px 0 #fff, 240px 0 #fff;
-  -ms-box-shadow: 120px 0 #fff, 240px 0 #fff;
-  box-shadow: 120px 0 #fff, 240px 0 #fff;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+  -ms-transform: translate3d(0, 0, 0) !important;
+  transform: translate3d(0, 0, 0) !important;
 }
 
 .pace .pace-progress:after {
-  content: attr(data-progress-text);
-  display: inline-block;
-  position: fixed;
-  width: 45px;
-  text-align: right;
-  right: 0;
-  padding-right: 16px;
-  top: 4px;
-}
-
-.pace .pace-progress[data-progress-text="0%"]:after { right: -200px }
-.pace .pace-progress[data-progress-text="1%"]:after { right: -198.14px }
-.pace .pace-progress[data-progress-text="2%"]:after { right: -196.28px }
-.pace .pace-progress[data-progress-text="3%"]:after { right: -194.42px }
-.pace .pace-progress[data-progress-text="4%"]:after { right: -192.56px }
-.pace .pace-progress[data-progress-text="5%"]:after { right: -190.7px }
-.pace .pace-progress[data-progress-text="6%"]:after { right: -188.84px }
-.pace .pace-progress[data-progress-text="7%"]:after { right: -186.98px }
-.pace .pace-progress[data-progress-text="8%"]:after { right: -185.12px }
-.pace .pace-progress[data-progress-text="9%"]:after { right: -183.26px }
-.pace .pace-progress[data-progress-text="10%"]:after { right: -181.4px }
-.pace .pace-progress[data-progress-text="11%"]:after { right: -179.54px }
-.pace .pace-progress[data-progress-text="12%"]:after { right: -177.68px }
-.pace .pace-progress[data-progress-text="13%"]:after { right: -175.82px }
-.pace .pace-progress[data-progress-text="14%"]:after { right: -173.96px }
-.pace .pace-progress[data-progress-text="15%"]:after { right: -172.1px }
-.pace .pace-progress[data-progress-text="16%"]:after { right: -170.24px }
-.pace .pace-progress[data-progress-text="17%"]:after { right: -168.38px }
-.pace .pace-progress[data-progress-text="18%"]:after { right: -166.52px }
-.pace .pace-progress[data-progress-text="19%"]:after { right: -164.66px }
-.pace .pace-progress[data-progress-text="20%"]:after { right: -162.8px }
-.pace .pace-progress[data-progress-text="21%"]:after { right: -160.94px }
-.pace .pace-progress[data-progress-text="22%"]:after { right: -159.08px }
-.pace .pace-progress[data-progress-text="23%"]:after { right: -157.22px }
-.pace .pace-progress[data-progress-text="24%"]:after { right: -155.36px }
-.pace .pace-progress[data-progress-text="25%"]:after { right: -153.5px }
-.pace .pace-progress[data-progress-text="26%"]:after { right: -151.64px }
-.pace .pace-progress[data-progress-text="27%"]:after { right: -149.78px }
-.pace .pace-progress[data-progress-text="28%"]:after { right: -147.92px }
-.pace .pace-progress[data-progress-text="29%"]:after { right: -146.06px }
-.pace .pace-progress[data-progress-text="30%"]:after { right: -144.2px }
-.pace .pace-progress[data-progress-text="31%"]:after { right: -142.34px }
-.pace .pace-progress[data-progress-text="32%"]:after { right: -140.48px }
-.pace .pace-progress[data-progress-text="33%"]:after { right: -138.62px }
-.pace .pace-progress[data-progress-text="34%"]:after { right: -136.76px }
-.pace .pace-progress[data-progress-text="35%"]:after { right: -134.9px }
-.pace .pace-progress[data-progress-text="36%"]:after { right: -133.04px }
-.pace .pace-progress[data-progress-text="37%"]:after { right: -131.18px }
-.pace .pace-progress[data-progress-text="38%"]:after { right: -129.32px }
-.pace .pace-progress[data-progress-text="39%"]:after { right: -127.46px }
-.pace .pace-progress[data-progress-text="40%"]:after { right: -125.6px }
-.pace .pace-progress[data-progress-text="41%"]:after { right: -123.74px }
-.pace .pace-progress[data-progress-text="42%"]:after { right: -121.88px }
-.pace .pace-progress[data-progress-text="43%"]:after { right: -120.02px }
-.pace .pace-progress[data-progress-text="44%"]:after { right: -118.16px }
-.pace .pace-progress[data-progress-text="45%"]:after { right: -116.3px }
-.pace .pace-progress[data-progress-text="46%"]:after { right: -114.44px }
-.pace .pace-progress[data-progress-text="47%"]:after { right: -112.58px }
-.pace .pace-progress[data-progress-text="48%"]:after { right: -110.72px }
-.pace .pace-progress[data-progress-text="49%"]:after { right: -108.86px }
-.pace .pace-progress[data-progress-text="50%"]:after { right: -107px }
-.pace .pace-progress[data-progress-text="51%"]:after { right: -105.14px }
-.pace .pace-progress[data-progress-text="52%"]:after { right: -103.28px }
-.pace .pace-progress[data-progress-text="53%"]:after { right: -101.42px }
-.pace .pace-progress[data-progress-text="54%"]:after { right: -99.56px }
-.pace .pace-progress[data-progress-text="55%"]:after { right: -97.7px }
-.pace .pace-progress[data-progress-text="56%"]:after { right: -95.84px }
-.pace .pace-progress[data-progress-text="57%"]:after { right: -93.98px }
-.pace .pace-progress[data-progress-text="58%"]:after { right: -92.12px }
-.pace .pace-progress[data-progress-text="59%"]:after { right: -90.26px }
-.pace .pace-progress[data-progress-text="60%"]:after { right: -88.4px }
-.pace .pace-progress[data-progress-text="61%"]:after { right: -86.53999999999999px }
-.pace .pace-progress[data-progress-text="62%"]:after { right: -84.68px }
-.pace .pace-progress[data-progress-text="63%"]:after { right: -82.82px }
-.pace .pace-progress[data-progress-text="64%"]:after { right: -80.96000000000001px }
-.pace .pace-progress[data-progress-text="65%"]:after { right: -79.1px }
-.pace .pace-progress[data-progress-text="66%"]:after { right: -77.24px }
-.pace .pace-progress[data-progress-text="67%"]:after { right: -75.38px }
-.pace .pace-progress[data-progress-text="68%"]:after { right: -73.52px }
-.pace .pace-progress[data-progress-text="69%"]:after { right: -71.66px }
-.pace .pace-progress[data-progress-text="70%"]:after { right: -69.8px }
-.pace .pace-progress[data-progress-text="71%"]:after { right: -67.94px }
-.pace .pace-progress[data-progress-text="72%"]:after { right: -66.08px }
-.pace .pace-progress[data-progress-text="73%"]:after { right: -64.22px }
-.pace .pace-progress[data-progress-text="74%"]:after { right: -62.36px }
-.pace .pace-progress[data-progress-text="75%"]:after { right: -60.5px }
-.pace .pace-progress[data-progress-text="76%"]:after { right: -58.64px }
-.pace .pace-progress[data-progress-text="77%"]:after { right: -56.78px }
-.pace .pace-progress[data-progress-text="78%"]:after { right: -54.92px }
-.pace .pace-progress[data-progress-text="79%"]:after { right: -53.06px }
-.pace .pace-progress[data-progress-text="80%"]:after { right: -51.2px }
-.pace .pace-progress[data-progress-text="81%"]:after { right: -49.34px }
-.pace .pace-progress[data-progress-text="82%"]:after { right: -47.480000000000004px }
-.pace .pace-progress[data-progress-text="83%"]:after { right: -45.62px }
-.pace .pace-progress[data-progress-text="84%"]:after { right: -43.76px }
-.pace .pace-progress[data-progress-text="85%"]:after { right: -41.9px }
-.pace .pace-progress[data-progress-text="86%"]:after { right: -40.04px }
-.pace .pace-progress[data-progress-text="87%"]:after { right: -38.18px }
-.pace .pace-progress[data-progress-text="88%"]:after { right: -36.32px }
-.pace .pace-progress[data-progress-text="89%"]:after { right: -34.46px }
-.pace .pace-progress[data-progress-text="90%"]:after { right: -32.6px }
-.pace .pace-progress[data-progress-text="91%"]:after { right: -30.740000000000002px }
-.pace .pace-progress[data-progress-text="92%"]:after { right: -28.880000000000003px }
-.pace .pace-progress[data-progress-text="93%"]:after { right: -27.02px }
-.pace .pace-progress[data-progress-text="94%"]:after { right: -25.16px }
-.pace .pace-progress[data-progress-text="95%"]:after { right: -23.3px }
-.pace .pace-progress[data-progress-text="96%"]:after { right: -21.439999999999998px }
-.pace .pace-progress[data-progress-text="97%"]:after { right: -19.58px }
-.pace .pace-progress[data-progress-text="98%"]:after { right: -17.72px }
-.pace .pace-progress[data-progress-text="99%"]:after { right: -15.86px }
-.pace .pace-progress[data-progress-text="100%"]:after { right: -14px }
-
-
-.pace .pace-activity {
+  display: block;
   position: absolute;
-  width: 100%;
-  height: 28px;
-  z-index: 2001;
-  box-shadow: inset 0 0 0 2px #29d, inset 0 0 0 7px #FFF;
-  border-radius: 10px;
-}
-
-.pace.pace-inactive {
-  display: none;
+  top: 0;
+  content: attr(data-progress-text);
+  font-family: "Helvetica Neue", sans-serif;
+  font-weight: 200;
+  font-size: 240px;
+  line-height: 1;
+  text-align: right;
+  color: rgba(0, 0, 220, 0.3);
 }
 
 .pace-running > *:not(.pace) {
   opacity:0;
 }
-
+/******************************** End Pace.js *********************************/
 </style>
 
 ```{r report_init}
@@ -446,7 +295,19 @@ if (any(qcPlots %in% c("biodetection","countsbio","saturation","rnacomp",
 }
 
 if ("biodist" %in% qcPlots) {
-	covarsStat <- NULL
+	covarsStat <- list(
+		data=normGenesExpr,
+		length=width(geneDataExpr),
+		gc=as.numeric(geneDataExpr$gc_content),
+		chromosome=data.frame(
+			chromosome=as.character(seqnames(geneDataExpr)),
+			start=start(geneDataExpr),
+			end=end(geneDataExpr)
+		),
+		factors=data.frame(class=asClassVector(sampleList)),
+		biotype=as.character(geneDataExpr$biotype),
+		gene_name=as.character(geneDataExpr$gene_name)
+	)
 }
 ```
 
@@ -2108,6 +1969,22 @@ $('.deheatmap-container').hide(0);
 $('#'+hids[0]).show();
 ```
 
+```{r analysis_figures_biodist}
+if ("biodist" %in% qcPlots) {
+	pandoc.header("Biodist",level=3)
+	log <- capture.output({
+		json <- diagplotNoiseq(normGenesExpr,sampleList,covars=covarsStat,
+			whichPlot="biodist",biodistOpts=list(p=pList[[cnt]],pcut=pcut,
+            name=cnt),output="json")
+	})
+	
+	cat("<h4><strong>Chromosome and biotype distributions of differentially ",
+		"expressed genes</strong></h4>",sep="")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$biodist,
+	    "<br/><br/></div>",sep="")
+}
+```
+
 # Results
 
 ## Tables of differentially expressed genes {.tabset .tabset-pills}
@@ -2152,7 +2029,7 @@ cat("</ul>")
 ```
 
 ```{r dt_hack, include=FALSE}
-DT::datatable(NULL)
+DT::datatable(NULL,extensions="Buttons")
 ```
 
 ```{r results_tables}
@@ -2252,16 +2129,27 @@ for (cnt in contrast) {
 	theTable <- DT::datatable(
 		reportTables[[cnt]],
 		rownames=FALSE,
-		#width=1020,
+		width="95%",
+		height=460,
 		style="bootstrap",
 		class="table-condensed table-striped table-responsive",
 		escape=FALSE,
+		extensions="Buttons",
 		options=list(
 			scrollX=TRUE,
 			columnDefs=list(
 				list(
 					targets=0:1,
 					visible=FALSE
+				)
+			),
+			dom='Bfrtip',
+			#buttons=I('colvis'),
+			buttons=list(
+				list(
+					extend='colvis',
+					#exclude=0:1,
+					text="Show/Hide columns"
 				)
 			),
 			rowCallback=JS(jspf)
@@ -2278,18 +2166,11 @@ for (cnt in contrast) {
 		#backgroundSize="98% 88%",
 		#backgroundRepeat="no-repeat",
 		#backgroundPosition="center"
-	#) %>% formatStyle(
-		#names(reportTables[[cnt]])[di+2],
-		#background=styleColorBar(fRangeForColor,"lightsalmon"),
-		#fontWeight="bold",
-		#backgroundSize="98% 88%",
-		#backgroundRepeat="no-repeat",
-		#backgroundPosition="center"
 	#)
 	
 	print(htmltools::tagList(tags$div(class="detable-container",theTable)))
 	
-	cat("<div class=\"figure-hint\">")
+	cat("<div class=\"figure-hint link-box\">")
 	cat("<strong><a href=\"lists/metaseqr_sig_out_",cnt,".txt.gz\"",
 		" download>Download</a> the DEG result list for ",cnt,".</strong></br>",
 		sep="")
@@ -2301,9 +2182,7 @@ for (cnt in contrast) {
 }
 
 if (exportCountsTable) {
-	cat("</br><div style=\"background-color:#D2EBFF; border-style:solid;",
-		"border-color:#8F8BFF; border-width:1px; width:400px; padding:10px;\">",
-		sep="")
+	cat("</br><div class=\"figure-hint link-box\">")
 	if (file.exists(file.path(PROJECT.PATH[["lists"]],
 		"raw_counts_table.txt.gz")))
 		cat("<strong><a href=\"lists/raw_counts_table.txt.gz\" download>",
@@ -2318,7 +2197,7 @@ if (exportCountsTable) {
 if (length(qcPlots) > 0) {
 	ltxt <- paste(paste("<a href=\"plots/metaseqr_figures_",figFormat,
 		".zip\" download>",figFormat,"</a>",sep=""),collapse=", ")
-	cat("<div id=\"get_figures\" class=\"figure-hint\">")
+	cat("<div class=\"figure-hint link-box\">")
 	cat("<strong>Get all the figures in ",ltxt," format.")
 	cat("</div>")
 }

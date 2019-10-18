@@ -2016,14 +2016,13 @@ makeReportMessages <- function(lang) {
                     susscr3=paste("pig (<em>Sus scrofa</em>),",
                         "genome version alias susScr3"),
                     tair10=paste("arabidopsis (<em>Arabidobsis thaliana</em>)",
-                        ",","genome version alias TAIR10"),
-                    bmori2=paste("silkworm (<em>Bombyx mori</em>)",
-                        ",","genome version alias bmori2")
+                        ",","genome version alias TAIR10")
                 ),
                 refdb=list(
                     ensembl="Ensembl genomes",
                     ucsc="UCSC genomes database",
-                    refseq="RefSeq database"
+                    refseq="RefSeq database",
+                    other="User provided"
                 ),
                 whenfilter=list(
                     prenorm="before normalization",

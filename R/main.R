@@ -2069,33 +2069,33 @@ metaseqr2 <- function(
         }
         
         ########################################################################
-        covarsRaw <- list(
-			data=geneCounts,
-			length=width(geneData),
-			gc=as.numeric(geneData$gc_content),
-			chromosome=data.frame(
-				chromosome=as.character(seqnames(geneData)),
-				start=start(geneData),
-				end=end(geneData)
-			),
-			factors=data.frame(class=asClassVector(sampleList)),
-			biotype=as.character(geneData$biotype),
-			gene_name=as.character(geneData$gene_name)
-		)
-		
-		covarsNorm <- list(
-			data=normGenes,
-			length=width(geneData),
-			gc=as.numeric(geneData$gc_content),
-			chromosome=data.frame(
-				chromosome=as.character(seqnames(geneData)),
-				start=start(geneData),
-				end=end(geneData)
-			),
-			factors=data.frame(class=asClassVector(sampleList)),
-			biotype=as.character(geneData$biotype),
-			gene_name=as.character(geneData$gene_name)
-		)
+        #covarsRaw <- list(
+		#	data=geneCounts,
+		#	length=width(geneData),
+		#	gc=as.numeric(geneData$gc_content),
+		#	chromosome=data.frame(
+		#		chromosome=as.character(seqnames(geneData)),
+		#		start=start(geneData),
+		#		end=end(geneData)
+		#	),
+		#	factors=data.frame(class=asClassVector(sampleList)),
+		#	biotype=as.character(geneData$biotype),
+		#	gene_name=as.character(geneData$gene_name)
+		#)
+		#
+		#covarsNorm <- list(
+		#	data=normGenes,
+		#	length=width(geneData),
+		#	gc=as.numeric(geneData$gc_content),
+		#	chromosome=data.frame(
+		#		chromosome=as.character(seqnames(geneData)),
+		#		start=start(geneData),
+		#		end=end(geneData)
+		#	),
+		#	factors=data.frame(class=asClassVector(sampleList)),
+		#	biotype=as.character(geneData$biotype),
+		#	gene_name=as.character(geneData$gene_name)
+		#)
 	
 		#jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,
 		#	output="json")
@@ -2127,6 +2127,10 @@ metaseqr2 <- function(
 		# folder of the report to make it available offline
 		if (offlineReport) {
 			disp("Downloading required JavaScript libraries...")
+			if (!file.exists(file.path(PROJECT_PATH$js,"pace.js")))
+				download.file(paste0("https://raw.github.com/HubSpot/pace/",
+					"v1.0.0/pace.min.js"),
+					file.path(PROJECT_PATH$js,"pace.min.js"))
 			if (!file.exists(file.path(PROJECT_PATH$js,"highcharts.js")))
 				download.file("https://code.highcharts.com/highcharts.js",
 					file.path(PROJECT_PATH$js,"highcharts.js"))
@@ -2149,8 +2153,8 @@ metaseqr2 <- function(
 					file.path(PROJECT_PATH$js,"dexie.min.js"))
 		}
 		
-		file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-		#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		#file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),overwrite=TRUE)
 		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),

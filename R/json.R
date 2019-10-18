@@ -2277,6 +2277,201 @@ rnacompToJSON <- function(obj,jl=c("highcharts"),seed=42,out=c("json","list")) {
 		return(json)
 }
 
+biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
+	out=c("json","list")) {
+    jl <- tolower(jl[1])
+    by <- by[1]
+    out <- tolower(out[1])
+    
+    plotdata <- obj$user$plotdata
+    covars <- obj$user$covars
+    
+    abu <- which(plotdata$genome>7)
+    nabu <- which(plotdata$genome<=7)
+    
+    cols <- .getColorScheme()
+    
+    if (by == "chromosome") {
+	}
+    if (by == "biotype") {
+        # Data series
+        series.abu <- vector("list",3)
+        names(series.abu) <- c("genome","detectionVSgenome","detectionVSsample")
+        series.abu$genome <- list()
+        series.abu$genome$id <- "abu_genome"
+        series.abu$genome$name <- "% in genome"
+        series.abu$genome$color <- cols$trans[1]
+        series.abu$genome$pointPlacement <- -0.2
+        series.abu$genome$data <- round(as.numeric(plotdata$genome[abu]),3)
+        series.abu$detectionVSgenome <- list()
+        series.abu$detectionVSgenome$id <- "abu_detected"
+        series.abu$detectionVSgenome$name <- "% detected"
+        series.abu$detectionVSgenome$color <- cols$trans[2]
+        series.abu$detectionVSgenome$pointPlacement <- 0
+        series.abu$detectionVSgenome$data <- round(as.numeric(
+            plotdata$biotables[[n]][1,abu]),3)
+        series.abu$detectionVSsample <- list()
+        series.abu$detectionVSsample$id <- "abu_sample"
+        series.abu$detectionVSsample$name <- "% in sample"
+        series.abu$detectionVSsample$color <- cols$trans[3]
+        series.abu$detectionVSsample$pointPlacement <- 0.2
+        series.abu$detectionVSsample$data <- round(as.numeric(
+            plotdata$biotables[[n]][2,abu]),3)
+        series.nabu <- vector("list",3)
+        names(series.nabu) <- c("genome","detectionVSgenome",
+            "detectionVSsample")
+        series.nabu$genome <- list()
+        series.nabu$genome$name <- "% in genome"
+        series.nabu$genome$yAxis <- 1
+        series.nabu$genome$pointStart <- length(abu)
+        series.nabu$genome$linkedTo <- "abu_genome"
+        series.nabu$genome$color <- cols$trans[1]
+        series.nabu$genome$pointPlacement <- -0.2
+        series.nabu$genome$data <- round(as.numeric(plotdata$genome[nabu]),3)
+        series.nabu$detectionVSgenome <- list()
+        series.nabu$detectionVSgenome$name <- "% detected"
+        series.nabu$detectionVSgenome$yAxis <- 1
+        series.nabu$detectionVSgenome$pointStart <- length(abu)
+        series.nabu$detectionVSgenome$linkedTo <- "abu_detected"
+        series.nabu$detectionVSgenome$color <- cols$trans[2]
+        series.nabu$detectionVSgenome$pointPlacement <- 0
+        series.nabu$detectionVSgenome$data <- round(as.numeric(
+            plotdata$biotables[[n]][1,nabu]),3)
+        series.nabu$detectionVSsample <- list()
+        series.nabu$detectionVSsample$name <- "% in sample"
+        series.nabu$detectionVSsample$yAxis <- 1
+        series.nabu$detectionVSsample$pointStart <- length(abu)
+        series.nabu$detectionVSsample$linkedTo <- "abu_sample"
+        series.nabu$detectionVSsample$color <- cols$trans[3]
+        series.nabu$detectionVSsample$pointPlacement <- 0.2
+        series.nabu$detectionVSsample$data <- round(as.numeric(
+            plotdata$biotables[[n]][2,nabu]),3)
+        
+        json <- switch(jl,
+            highcharts = {
+                list(
+					chart=list(
+						type="column",
+						alignTicks=FALSE
+					),
+					title=list(
+						text=paste("Comparative biotype detection for ",
+							"sample ",n,sep="")
+					),
+					legend=list(
+						enabled=TRUE,
+						itemHoverStyle=list(
+							color="#B40000"
+						)
+					),
+					tooltip=list(
+						shared=TRUE
+					),  
+					xAxis=list(
+						categories=names(plotdata$genome)[c(abu,nabu)],
+						title=list(
+							text="Biotype",
+							margin=25,
+							style=list(
+								color="#000000",
+								fontSize="1.2em"
+							)
+						),
+						labels=list(
+							style=list(
+								color="#000000",
+								fontWeight="bold"
+							)
+						),
+						plotLines=list(
+							list(
+								color="#8A8A8A",
+								width=1.5,
+								dashStyle="Dash",
+								value=length(abu)-0.5
+							)
+						),
+						plotBands=list(
+							list(
+								color="#FFFFE0",
+								from=-0.5,
+								to=length(abu)-0.5
+							),
+							list(
+								color="#FFECEB",
+								from=length(abu)-0.5,
+								to=length(plotdata$genome)
+							)
+						)
+					),
+					yAxis=list(
+						list(
+							min=0,
+							max=70,
+							title=list(
+								text="% of abundant features",
+								margin=20,
+								style=list(
+									color="#000000",
+									fontSize="1.2em"
+								)
+							),                          
+							labels=list(
+								style=list(
+									color="#000000",
+									fontSize="1.1em",
+									fontWeight="bold"
+								)
+							)
+						),
+						list(
+							min=0,
+							max=7,
+							title=list(
+								text="% of non-abundant features",
+								margin=20,
+								style=list(
+									color="#000000",
+									fontSize="1.2em"
+								)
+							),                          
+							labels=list(
+								style=list(
+									color="#000000",
+									fontSize="1.1em",
+									fontWeight="bold"
+								)
+							),
+							opposite=TRUE
+						)
+					),
+					plotOptions=list(
+						column=list(
+							grouping=FALSE,
+							shadow=FALSE,
+							groupPadding=0.3,
+							pointPadding=0.25,
+							tooltip=list(
+								headerFormat=paste(
+									'<span style="font-size:1.1em;',
+									'font-weight:bold">',
+									'{point.key}</span><br/>',sep=""
+								)
+							)
+						)
+					),
+					series=c(unname(series.abu),unname(series.nabu))
+				)
+            }
+        )
+    }
+    
+    if (out=="json")
+		return(toJSON(json,auto_unbox=TRUE,null="null"))
+	else if (out=="list")
+		return(json)
+}
+
 .unquote_js_fun <- function(js) {
     if (is.list(js))
         js <- lapply(js,.unquote_js_fun)
