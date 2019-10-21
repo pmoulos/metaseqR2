@@ -1710,6 +1710,11 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
         results[[p]] <- intersect(results[[a]],results[[b]])
         counts[[areas[[p]]]] <- length(results[[p]])
     }
+    
+    ############################################################################
+    assign("venncounts",counts,envir=.GlobalEnv)
+    ############################################################################
+    
     # And now, the Venn diagrams must be constructed
     colorScheme <- makeVennColorscheme(length(algs))
     fil <- file.path(path,paste("venn_plot_",nam,".",output,sep=""))

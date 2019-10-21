@@ -19,7 +19,11 @@ metaseqr2 <- function(
     version="auto",
     transLevel=c("gene","transcript","exon"),
     countType=c("gene","exon","utr"),
-    utrFlank=500,
+    utrOpts=list(
+		frac=1,
+		minLength=300,
+		downstream=50
+    ),
     exonFilters=list(
         minActiveExons=list(
             exonsPerGene=5,
@@ -42,7 +46,7 @@ metaseqr2 <- function(
             known=NA,
             custom=NA
         ),
-        biotype=getDefaults("biotype.filter",org[1]),
+        biotype=getDefaults("biotypeFilter",org[1]),
         presence=list(
             frac=0.25,
             minCount=10,
@@ -398,7 +402,8 @@ metaseqr2 <- function(
             "biodist","filtered","mastat","venn"),multiarg=TRUE)
     if (!is.na(restrictCores)) checkNumArgs("restrictCores",restrictCores,
         "numeric",c(0,1),"botheq")
-    if (!is.na(pcut)) checkNumArgs("pcut",pcut,"numeric",c(0,1),"botheq")
+    if (!is.na(pcut)) 
+		checkNumArgs("pcut",pcut,"numeric",c(0,1),"botheq")
     if (!is.null(embedCols$gcCol) && !is.na(embedCols$gcCol)) 
 		checkNumArgs("embedCols$gcCol",embedCols$gcCol,"numeric",0,"gt")
     if (!is.null(embedCols$nameCol) && !is.na(embedCols$nameCol)) 
@@ -407,7 +412,6 @@ metaseqr2 <- function(
 		checkNumArgs("embedCols$btCol",embedCols$btCol,"numeric",0,"gt")
     if (!is.na(logOffset)) checkNumArgs("logOffset",logOffset,"numeric",0,"gt")
     checkNumArgs("nperm",nperm,"numeric",10,"gt")
-    checkNumArgs("utrFlank",utrFlank,"numeric")
     if (!is.null(reportTop))
         checkNumArgs("reportTop",reportTop,"numeric",c(0,1),"both")
     if (!is.null(contrast)) {
@@ -423,7 +427,27 @@ metaseqr2 <- function(
     }
     else
         checkNumArgs("version",version,"numeric")
-
+    
+    # Check utrOpts if countType is "utr"
+    if (countType == "utr") {
+		utrOptsDef <- getDefaults("utrOpts")
+		if (!is.null(utrOpts$frac)) {
+			checkNumArgs("utrOpts$frac",utrOpts$frac,"numeric",c(0,1),"both")
+			utrOptsDef$frac <- utrOpts$frac
+		}
+		if (!is.null(utrOpts$minLength)) {
+			checkNumArgs("utrOpts$minLength",utrOpts$minLength,"numeric",0,
+				"gt")
+			utrOptsDef$minLength <- utrOpts$minLength
+		}
+		if (!is.null(utrOpts$downstream)) {
+			checkNumArgs("utrOpts$downstream",utrOpts$downstream,"numeric",0,
+				"gte")
+			utrOptsDef$downstream <- utrOpts$downstream
+		}
+		utrOpts <- utrOptsDef
+	}
+    
     # Check main functionality packages
     checkPackages(metaP,qcPlots)
     # Check the case of embedded annotation, not given gc and gene name columns
@@ -2153,8 +2177,8 @@ metaseqr2 <- function(
 					file.path(PROJECT_PATH$js,"dexie.min.js"))
 		}
 		
-		#file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-		file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),overwrite=TRUE)
 		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),

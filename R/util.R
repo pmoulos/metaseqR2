@@ -351,6 +351,13 @@ getDefaults <- function(what,method=NULL) {
                 }
             )
         },
+        utrOpts = {
+			return(list(
+				frac=1,
+				minLength=300,
+				downstram=50
+			))
+		},
         geneFilter = {
             return(list(
                 length=list(
@@ -367,7 +374,7 @@ getDefaults <- function(what,method=NULL) {
                     known=NA,
                     custom=NA
                 ),
-                biotype=getDefaults("biotype.filter",method[1]),
+                biotype=getDefaults("biotypeFilter",method[1]),
                 presence=list(
                     frac=0.25,
                     min.count=10,

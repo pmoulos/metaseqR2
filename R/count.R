@@ -1,5 +1,6 @@
 read2count <- function(targets,annotation,fileType=targets$type,
-    transLevel="gene",utrFlank=250,interFeature=FALSE,rc=NULL) {
+    transLevel="gene",utrOpts=list(frac=1,minLength=300,downstream=50),
+    interFeature=FALSE,rc=NULL) {
     if (missing(targets))
         stopwrap("You must provide the targets argument!")
     if (missing(annotation))
@@ -51,8 +52,16 @@ read2count <- function(targets,annotation,fileType=targets$type,
 		w <- width(annotationGr)
 		#annotationGr <- promoters(annotationGr,upstream=utrFlank,downstream=0)
 		#annotationGr <- resize(annotationGr,width=w+2*utrFlank)
-		annotationGr <- resize(annotationGr,width=utrFlank,fix="end")
-		annotationGr <- resize(annotationGr,width=2*utrFlank,fix="start")
+		#annotationGr <- resize(annotationGr,width=utrFlank,fix="end")
+		#annotationGr <- resize(annotationGr,width=2*utrFlank,fix="start")
+		
+		# 1. Percentage of 3' UTR only (upstream of end), ensuring min length
+		nw <- utrOpts$frac*width(annotationGr)
+		nw <- ifelse(nw < utrOpts$minLength,utrOpts$minLength,nw)
+		annotationGr <- resize(annotationGr,width=nw,fix="end")
+		# 2. Extend 3' UTR downstream
+		annotationGr <- resize(annotationGr,
+			width=width(annotationGr) + utrOpts$downstream,fix="start")
 	}
 	
     # Continue

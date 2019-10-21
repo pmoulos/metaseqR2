@@ -3,8 +3,9 @@
 \title{SAM/BAM/BED file reader helper for the metaseqr2 pipeline}
 \usage{
     read2count(targets, annotation, fileType = targets$type,
-        transLevel = "gene", utrFlank = 250, 
-        interFeature = FALSE, rc = NULL)
+        transLevel = "gene", utrOpts = list(frac = 1, 
+        minLength = 300, downstream = 50), interFeature = FALSE, 
+        rc = NULL)
 }
 \arguments{
     \item{targets}{a named list, the output of 
@@ -21,8 +22,12 @@
     \code{\link{metaseqr2}} function for the case of
     auto-guessing.}
     
-    \item{utrFlank}{the number of base pairs to flank the
-    3' UTR of transcripts when analyzing Quant-Seq data.}
+    \item{utrFlank}{a named list with members \code{frac} 
+    which is the fraction (0-1) of the 3' UTR region to count 
+    reads in, \code{minLength} the minimum acceptable 3'UTR
+    length irrespective of \code{frac} and \code{downstream} 
+    the number of base pairs to flank the end of the 3' UTR of 
+    transcripts when analyzing Quant-Seq data.}
     
     \item{transLevel}{see the \code{transLevel} argument
     in the main \code{\link{metaseqr2}} function.}

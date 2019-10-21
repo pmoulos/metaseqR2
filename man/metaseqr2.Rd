@@ -14,7 +14,7 @@
         refdb = c("ensembl", "ucsc", "refseq"), version = "auto",
         transLevel = c("gene", "transcript", "exon"),
         countType = c("gene", "exon","utr"),
-        utrFlank = 500,
+        utrOpts = list(frac = 1, minLength = 300, downstream = 50),
         exonFilters = list(minActiveExons = list(exonsPerGene = 5, 
             minExons = 2, frac = 1/5)),
         geneFilters = list(length = list(length = 500), 
@@ -144,9 +144,12 @@
     a very important and mandatory parameter as it defines
     the course of the workflow.}
     
-    \item{utrFlank}{the number of base pairs to flank the
-    end of the 3' UTR of transcripts when analyzing 
-    Quant-Seq data.}
+    \item{utrFlank}{a named list with members \code{frac} 
+    which is the fraction (0-1) of the 3' UTR region to count 
+    reads in, \code{minLength} the minimum acceptable 3'UTR
+    length irrespective of \code{frac} and \code{downstream} 
+    the number of base pairs to flank the end of the 3' UTR of 
+    transcripts when analyzing Quant-Seq data.}
 
     \item{exonFilters}{a named list whose names are the
     names of the supported exon filters and its members the

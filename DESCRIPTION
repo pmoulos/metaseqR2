@@ -67,7 +67,7 @@ Collate:
     'annotation.R'
     'argcheck.R'
     'count.R'
-    'metaseqr-data.R'
+    'metaseqr2-data.R'
     'export.R'
     'filter.R'
     'json.R'

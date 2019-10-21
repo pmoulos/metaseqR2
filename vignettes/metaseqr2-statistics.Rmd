@@ -308,7 +308,7 @@ of RAM available, consider setting restrict.cores to something like 0.2):
 data("hg19.exon.data",package="metaseqR")
 out.dir <- tempdir()
 print(out.dir)
-metaseqr(
+metaseqr2(
        counts=hg19.exon.counts,
        sample.list=sample.list.hg19,
        contrast=c("normal_vs_paracancerous","normal_vs_cancerous",

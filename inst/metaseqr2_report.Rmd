@@ -241,7 +241,7 @@ p {
   height: 240px;
   width: 240px;
   margin-top: -120px; /* Negative half of height. */
-  margin-left: -200px; /* Negative half of width. */
+  margin-left: -220px; /* Negative half of width. */
 
   -webkit-transform: translate3d(0, 0, 0) !important;
   -ms-transform: translate3d(0, 0, 0) !important;
@@ -259,6 +259,15 @@ p {
   line-height: 1;
   text-align: right;
   color: rgba(0, 0, 220, 0.3);
+}
+
+.pace .pace-progress:before {
+  display: block;
+  position: absolute;
+  top: 0;
+  content: url(media/dna_loader.gif);
+  margin-left: -300px;
+  margin-top: -120px;
 }
 
 .pace-running > *:not(.pace) {
@@ -2131,8 +2140,10 @@ cat("<div class=\"hc-selector-label\">Select a contrast to display ",
 	"DEG table for </div>",sep="")
 cat("<select id=\"detable_selector\">",items,"</select>",sep="")
 cat("</div><br/>")
-	
+
+tableCounter <- -1
 for (cnt in contrast) {
+	tableCounter <- tableCounter + 1
 	cntn <- gsub("_vs_"," vs ",cnt)
 	#pandoc.header(cntn,level=3)
 	
@@ -2229,6 +2240,23 @@ for (cnt in contrast) {
 	}
 	jspf <- paste0(jspf,"}")
 	
+	tableId <- paste0("#DataTables_Table_",tableCounter)
+	drcl <- paste0("function() {",
+		"console.log('Redrawing');",
+		"/*$('#",tableId,"').DataTable().columns.adjust();*/",
+		"/*$('#",tableId,"').DataTable().draw();*/",
+		"/*$('#",tableId,"').DataTable().columns.adjust();*/",
+		"/*this.api().columns.adjust();*/",
+		"/*this.api().draw();*/",
+		"var tids = $('.detable-helper-wrapper').map(function(index) {",
+			"return(this.id);",
+		"});",
+		"console.log(tids[0]+'_');",
+		"var id = $('#'+tids[0]+'_').find('table')[1].id;",
+		"console.log(id);",
+		"$('#'+id).DataTable().columns.adjust();",
+	"}")
+	
 	theTable <- DT::datatable(
 		reportTables[[cnt]],
 		rownames=FALSE,
@@ -2237,7 +2265,7 @@ for (cnt in contrast) {
 		style="bootstrap",
 		class="table-condensed table-striped table-responsive",
 		escape=FALSE,
-		elementId=paste("detable_",gsub("\\.","__",cnt,"_"),sep=""),
+		elementId=paste("detable_",gsub("\\.","__",cnt),"_",sep=""),
 		extensions="Buttons",
 		options=list(
 			scrollX=TRUE,
@@ -2257,8 +2285,9 @@ for (cnt in contrast) {
 				)
 			),
 			rowCallback=JS(jspf),
-			drawCallback=JS("function() { console.log('Redrawing'); this.api().columns.adjust(); }")
+			drawCallback=JS(drcl)
 		)
+		
 	) #%>% formatStyle(
 		#names(reportTables[[cnt]])[fi+2],
 		#backgroundColor=styleInterval(brks,clrs),
@@ -2274,7 +2303,7 @@ for (cnt in contrast) {
 	#)
 	print(htmltools::tagList(tags$div(class="detable-container",theTable)))
 	
-	cat("<div class=\"figure-hint link-box\">")
+	cat("<br/><div class=\"figure-hint link-box\">")
 	cat("<strong><a href=\"lists/metaseqr_sig_out_",cnt,".txt.gz\"",
 		" download>Download</a> the DEG result list for ",cnt,".</strong><br/>",
 		sep="")
@@ -2294,6 +2323,14 @@ var tids = $('.detable-helper-wrapper').map(function(index) {
 });
 $('.detable-helper-wrapper').hide(0);
 $('#'+tids[0]).show();
+
+//console.log($('#'+tids[0]).children("table").attr("id"));
+
+//$('#detable_e14__5_vs_adult_8_weeks_').find("table")[1].id
+
+//console.log(tids[0]);
+//console.log($('#'+tids[0]+"_").find("table")[1]);
+
 ```
 
 ```{r export_links}
@@ -2407,10 +2444,29 @@ $("#detable_selector").on('change',function() {
 	var name = this.value;
 	$(".detable-helper-wrapper").hide(0);
 	$("#"+name).show();
-	// Hack
+	
+	// Hack to make the table visible (htmlwidget known issue)
 	window.dispatchEvent(new Event('resize'));
-	//var resizeEvent = window.document.createEvent('UIEvents'); 
-	//resizeEvent.initUIEvent('resize', true, false, window, 0); 
-	//window.dispatchEvent(resizeEvent);
+	// Hack to align the column headers
+	var id = $('#'+name+"_").find("table")[1].id;
+	$('#'+id).DataTable().columns.adjust();
 });
+
+$('a[href="#results"]').on('click',function() {
+	console.log("Malakas");
+	
+	var tids = $('.detable-helper-wrapper').map(function(index) {
+		return(this.id);
+	});
+	//console.log(tids[0]+"_");
+	//var counter = 0;
+	//while ($('#'+tids[0]+"_").find("table")[1] === undefined) {
+	//	counter++
+	//	console.log(counter);
+	//}
+	//var id = $('#'+tids[0]+"_").find("table")[1].id;
+	//console.log(id)
+	//$('#'+id).DataTable().columns.adjust();	
+	
+})
 </script>
