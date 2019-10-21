@@ -1640,7 +1640,7 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     output="x11",path=NULL,altNames=NULL,...) {
     checkTextArgs("direction",direction,c("dereg","up","down"))
     if (is.na(pcut) || is.null(pcut) || pcut==1)
-        warnwrap("Illegal pcut argument! Using the default (0.05)")
+        warnwrap("Invalid pcut argument! Using the default (0.05)")
     algs <- colnames(pmat)
     if (is.null(algs))
         stopwrap("The p-value matrices must have the colnames attribute ",
@@ -1664,8 +1664,8 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     pairs <- makeVennPairs(algs)
     areas <- makeVennAreas(length(algs))
     counts <- makeVennCounts(length(algs))
-    # Initially populate the results and counts lists so they can be used to create
-    # the rest of the intersections
+    # Initially populate the results and counts lists so they can be used to 
+    # create the rest of the intersections
     results <- vector("list",nalg+length(pairs))
     names(results)[1:nalg] <- aliases
     names(results)[(nalg+1):length(results)] <- names(pairs)

@@ -203,6 +203,7 @@ p {
 	border-width: 1px; 
 	width: 80%; 
 	padding: 10px;
+	margin-top: 20px;
 	-moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     -khtml-border-radius: 5px;
@@ -1832,7 +1833,7 @@ if ("rnacomp" %in% qcPlots) {
 
 	cat("<h4><strong>RNA composition plot</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$rnacomp,
-		"</br></br></div>",sep="")
+		"<br/><br/></div>",sep="")
 		
 	cat("<div class=\"hc-rect-sm\" id=\"rnacomp_unorm_container\"></div>",
 		sep="")
@@ -1986,8 +1987,9 @@ if ("deheatmap" %in% qcPlots) {
 	    "<br/><br/></div>",sep="")
 	
 	# Create a selector for each contrast
-	items <- paste("<option value=",paste("deheatmap",names(contrastList),
-		sep="_"),">",gsub("_vs_"," vs ",nn),"</option>",sep="")
+	items <- paste("<option value=",
+		paste("deheatmap",gsub("\\.","__",names(contrastList)),sep="_"),">",
+		gsub("_vs_"," vs ",names(contrastList)),"</option>",sep="")
 	#items <- "<option value=test1>test1</option><option value=test2>test2</option>"
 	cat("<div>")
 	cat("<div class=\"hc-selector-label\">Select a contrast to display ",
@@ -2007,22 +2009,29 @@ if ("deheatmap" %in% qcPlots) {
 		else
 			mat <- as.matrix(normGenesExpr[,s])
 		hList[[cnt]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
-			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",con,runif(1))) %>%
+			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",con)) %>%
 			layout(width=720,height=840)
 	}
 	setNames(hList,NULL)
-	# FIXME: Attach tag to heatmap before publishing
 	
-	tl <- htmltools::tagList()
+	# Dirty hack
+	toEval <- "htmltools::tagList("
+	hItems <- character(length(hList))
 	for (i in 1:length(hList))
-		tl[[i]] <- tags$div(id=names(contrastList)[i],
-			class="deheatmap-container",hList[[i]])
-	print(tl)
+		hItems[i] <- paste0(
+			"tags$div(id='deheatmap_",
+			gsub("\\.","__",names(contrastList)[i]),
+			"', class='deheatmap-container',hList[[i]])"
+		)
+	toEval <- paste0(toEval,paste(hItems,collapse=","),")")
+	eval(parse(text=toEval))
 	
 	#htmltools::tagList(
-	#	tags$div(id="test1",class="deheatmap-container",hList[[1]])
+	#	tags$div(id=paste("deheatmap",gsub("\\.","__",names(contrastList)[1]),
+	#		sep="_"),class="deheatmap-container",hList[[1]]),
+	#	tags$div(id=paste("deheatmap",gsub("\\.","__",names(contrastList)[2]),
+	#		sep="_"),class="deheatmap-container",hList[[2]])
 	#)
-	#htmltools::tagList(tags$div(hList))
 	#htmltools::tagList(setNames(hList,NULL))
 }
 ```
@@ -2113,9 +2122,22 @@ DT::datatable(NULL,extensions="Buttons")
 ```
 
 ```{r results_tables}
+# Create a selector for each contrast
+items <- paste("<option value=",paste("detable",gsub("\\.","__",
+	names(contrastList)),sep="_"),">",gsub("_vs_"," vs ",
+	names(contrastList)),"</option>",sep="")
+cat("<hr><div>")
+cat("<div class=\"hc-selector-label\">Select a contrast to display ",
+	"DEG table for </div>",sep="")
+cat("<select id=\"detable_selector\">",items,"</select>",sep="")
+cat("</div><br/>")
+	
 for (cnt in contrast) {
 	cntn <- gsub("_vs_"," vs ",cnt)
-	pandoc.header(cntn,level=3)
+	#pandoc.header(cntn,level=3)
+	
+	cat("<div class='detable-helper-wrapper' id='detable_",gsub("\\.","__",cnt),
+		"'>",sep="")
 	
 	cat("<h4>DEG table for the contrast <strong>",cntn,"</strong></h4>",sep="")
 	cat("<div class=\"figure-hint\">The following table presents ",topText,
@@ -2141,7 +2163,6 @@ for (cnt in contrast) {
 	for (i in 1:length(N))
 		ci[i] <- grep(paste0("rpgm_normalized_mean_counts_",N[i]),
 			colnames(reportTables[[cnt]]))
-	names(reportTables[[cnt]])[pi] <- "p_value"
 	
 	# Get values before rounding for styling
 	brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
@@ -2160,6 +2181,8 @@ for (cnt in contrast) {
 		version <- NULL
 	reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]],o=org,r=refdb,
 		v=version)
+	# Hack to prevent the header name taking 2 rows because of hyphenation(?)
+	names(reportTables[[cnt]])[pi] <- "p_value"
 	
 	# Dirty hack
 	# https://stackoverflow.com/questions/32018521/
@@ -2214,6 +2237,7 @@ for (cnt in contrast) {
 		style="bootstrap",
 		class="table-condensed table-striped table-responsive",
 		escape=FALSE,
+		elementId=paste("detable_",gsub("\\.","__",cnt,"_"),sep=""),
 		extensions="Buttons",
 		options=list(
 			scrollX=TRUE,
@@ -2232,7 +2256,8 @@ for (cnt in contrast) {
 					text="Show/Hide columns"
 				)
 			),
-			rowCallback=JS(jspf)
+			rowCallback=JS(jspf),
+			drawCallback=JS("function() { console.log('Redrawing'); this.api().columns.adjust(); }")
 		)
 	) #%>% formatStyle(
 		#names(reportTables[[cnt]])[fi+2],
@@ -2247,30 +2272,41 @@ for (cnt in contrast) {
 		#backgroundRepeat="no-repeat",
 		#backgroundPosition="center"
 	#)
-	
 	print(htmltools::tagList(tags$div(class="detable-container",theTable)))
 	
 	cat("<div class=\"figure-hint link-box\">")
 	cat("<strong><a href=\"lists/metaseqr_sig_out_",cnt,".txt.gz\"",
-		" download>Download</a> the DEG result list for ",cnt,".</strong></br>",
+		" download>Download</a> the DEG result list for ",cnt,".</strong><br/>",
 		sep="")
 	if (!is.null(geneCountsZero) || !is.null(geneCountsDead))
 		cat("<strong><a href=\"lists/metaseqr_all_out_",cnt,".txt.gz\"",
 		" download>Download</a> the whole result list for ",cnt,
-		".</strong></br>",sep="")
-	cat("</div><br/><br/>")                            
+		".</strong><br/>",sep="")
+	cat("</div><br/><br/>")
+	
+	cat("</div>")                  
 }
+```
 
+```{js detable_render}
+var tids = $('.detable-helper-wrapper').map(function(index) {
+	return(this.id);
+});
+$('.detable-helper-wrapper').hide(0);
+$('#'+tids[0]).show();
+```
+
+```{r export_links}
 if (exportCountsTable) {
-	cat("</br><div class=\"figure-hint link-box\">")
+	cat("<br/><div class=\"figure-hint link-box\">")
 	if (file.exists(file.path(PROJECT.PATH[["lists"]],
 		"raw_counts_table.txt.gz")))
 		cat("<strong><a href=\"lists/raw_counts_table.txt.gz\" download>",
 			"Download</a> the raw read counts table for the experiment.",
-			"</strong></br>",sep="")
+			"</strong><br/>",sep="")
 	cat("<strong><a href=\"lists/normalized_counts_table.txt.gz\"",
 		" download>Download</a> the normalized read counts table for the ",
-		"experiment.</strong></br>",sep="")
+		"experiment.</strong><br/>",sep="")
 	cat("</div>")
 }
 
@@ -2278,7 +2314,7 @@ if (length(qcPlots) > 0) {
 	ltxt <- paste(paste("<a href=\"plots/metaseqr_figures_",figFormat,
 		".zip\" download>",figFormat,"</a>",sep=""),collapse=", ")
 	cat("<div class=\"figure-hint link-box\">")
-	cat("<strong>Get all the figures in ",ltxt," format.")
+	cat("<strong>Get all the figures in ",ltxt," format.</strong>")
 	cat("</div>")
 }
 ```
@@ -2295,7 +2331,7 @@ refs <- unique(c(
 	reportMessages$references$multiple[[adjustMethod]],
 	reportMessages$references$meta[[metaP]]
 ))
-cat("<div class=\"figure-hint\" style=\"margin-left:25px\"><ol>")
+cat("<div class=\"figure-hint\" style=\"margin-left:25px;\"><ol>")
 for (r in refs)
 	cat("<li>",r,"</li>",sep="")
 cat("</ol></div>")
@@ -2366,5 +2402,15 @@ $("#heatmap_selector").on('change',function() {
 	$(".deheatmap-container").hide(0);
 	$("#"+name).show();
 });
-</script>
 
+$("#detable_selector").on('change',function() {
+	var name = this.value;
+	$(".detable-helper-wrapper").hide(0);
+	$("#"+name).show();
+	// Hack
+	window.dispatchEvent(new Event('resize'));
+	//var resizeEvent = window.document.createEvent('UIEvents'); 
+	//resizeEvent.initUIEvent('resize', true, false, window, 0); 
+	//window.dispatchEvent(resizeEvent);
+});
+</script>
