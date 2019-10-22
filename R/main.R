@@ -1861,8 +1861,6 @@ metaseqr2 <- function(
 				logOffset=logOffset,
 				report=FALSE
 			)$textTable
-			
-			assign("xi",reportTables[[cnt]],envir=.GlobalEnv)
 		}
 
         # Adjust the export based on what statistics have been done and a 
@@ -2093,43 +2091,11 @@ metaseqr2 <- function(
         }
         
         ########################################################################
-        #covarsRaw <- list(
-		#	data=geneCounts,
-		#	length=width(geneData),
-		#	gc=as.numeric(geneData$gc_content),
-		#	chromosome=data.frame(
-		#		chromosome=as.character(seqnames(geneData)),
-		#		start=start(geneData),
-		#		end=end(geneData)
-		#	),
-		#	factors=data.frame(class=asClassVector(sampleList)),
-		#	biotype=as.character(geneData$biotype),
-		#	gene_name=as.character(geneData$gene_name)
-		#)
-		#
-		#covarsNorm <- list(
-		#	data=normGenes,
-		#	length=width(geneData),
-		#	gc=as.numeric(geneData$gc_content),
-		#	chromosome=data.frame(
-		#		chromosome=as.character(seqnames(geneData)),
-		#		start=start(geneData),
-		#		end=end(geneData)
-		#	),
-		#	factors=data.frame(class=asClassVector(sampleList)),
-		#	biotype=as.character(geneData$biotype),
-		#	gene_name=as.character(geneData$gene_name)
-		#)
-	
-		#jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,
-		#	output="json")
-		#assign("jsonList",jsonList,envir=parent.frame())
-		
-		assign("sampleList",sampleList,envir=parent.frame())
-		assign("geneCounts",geneCounts,envir=parent.frame())
-		assign("normGenes",normGenes,envir=parent.frame())
-		assign("normGenesExpr",normGenes,envir=parent.frame())
-		assign("geneData",geneData,envir=parent.frame())
+        #assign("sampleList",sampleList,envir=parent.frame())
+		#assign("geneCounts",geneCounts,envir=parent.frame())
+		#assign("normGenes",normGenes,envir=parent.frame())
+		#assign("normGenesExpr",normGenes,envir=parent.frame())
+		#assign("geneData",geneData,envir=parent.frame())
 		########################################################################
     }
 
@@ -2175,6 +2141,14 @@ metaseqr2 <- function(
 			if (!file.exists(file.path(PROJECT_PATH$js,"dexie.min.js")))
 				download.file("https://unpkg.com/dexie@2.0.4/dist/dexie.min.js",
 					file.path(PROJECT_PATH$js,"dexie.min.js"))
+			if (!file.exists(file.path(PROJECT_PATH$js,"canvas2svg.js")))
+				download.file(
+					"http://jvenn.toulouse.inra.fr/app/js/canvas2svg.js",
+					file.path(PROJECT_PATH$js,"canvas2svg.js"))
+			if (!file.exists(file.path(PROJECT_PATH$js,"jvenn.min.js")))
+				download.file(
+					"http://jvenn.toulouse.inra.fr/app/js/jvenn.min.js",
+					file.path(PROJECT_PATH$js,"jvenn.min.js"))
 		}
 		
 		file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",

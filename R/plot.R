@@ -1149,8 +1149,10 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 
                 jsonList <- vector("list",2)
                 names(jsonList) <- c("chromosome","biotype")
-                jsonList[["chromosome"]] <- biodistToJSON(obj,by="chromosome")
-                jsonList[["biotype"]] <- biodistToJSON(obj,by="biotype")
+                jsonList[["chromosome"]] <- 
+					biodistToJSON(obj,by="chromosome",out="list")
+                jsonList[["biotype"]] <- 
+					biodistToJSON(obj,by="biotype",out="list")
                 return(jsonList)
 			}
         }
@@ -1657,18 +1659,22 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
         algs <- algs[1:5]
         nalg <- 5
     }
+    
+    assign("pmat",pmat,envir=.GlobalEnv)
+    
     lenalias <- c("two","three","four","five")
     aliases <- toupper(letters[1:nalg])
     names(algs) <- aliases
     genes <- rownames(pmat)
     pairs <- makeVennPairs(algs)
+    morePairs <- makeMoreVennPairs(algs)
     areas <- makeVennAreas(length(algs))
     counts <- makeVennCounts(length(algs))
     # Initially populate the results and counts lists so they can be used to 
     # create the rest of the intersections
-    results <- vector("list",nalg+length(pairs))
+    results <- vector("list",nalg+length(pairs)+length(morePairs))
     names(results)[1:nalg] <- aliases
-    names(results)[(nalg+1):length(results)] <- names(pairs)
+    names(results)[(nalg+1):length(results)] <- c(names(pairs),names(morePairs))
     if (is.null(fcmat)) {
         for (a in aliases) {
             results[[a]] <- genes[which(pmat[,algs[a]]<pcut)]
@@ -1703,6 +1709,7 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
             }
         )
     }
+    
     # Now, perform the intersections
     for (p in names(pairs)) {
         a = pairs[[p]][1]
@@ -1710,10 +1717,13 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
         results[[p]] <- intersect(results[[a]],results[[b]])
         counts[[areas[[p]]]] <- length(results[[p]])
     }
-    
-    ############################################################################
-    assign("venncounts",counts,envir=.GlobalEnv)
-    ############################################################################
+    # and the setdiffs
+    for (mp in names(morePairs)) {
+        a = morePairs[[mp]][1]
+        b = morePairs[[mp]][2]
+        results[[mp]] <- setdiff(results[[a]],results[[b]])
+        #counts[[areas[[mp]]]] <- length(results[[mp]])
+    }
     
     # And now, the Venn diagrams must be constructed
     colorScheme <- makeVennColorscheme(length(algs))
@@ -1861,6 +1871,108 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     return(fil)
 }
 
+makeJVennData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
+    direction=c("dereg","up","down"),altNames=NULL,...) {
+    checkTextArgs("direction",direction,c("dereg","up","down"))
+    if (is.na(pcut) || is.null(pcut) || pcut==1)
+        warnwrap("Invalid pcut argument! Using the default (0.05)")
+        
+    assign("pmat2",pmat,envir=.GlobalEnv)    
+    
+    algs <- colnames(pmat)
+    if (is.null(algs))
+        stopwrap("The p-value matrices must have the colnames attribute ",
+            "(names of statistical algorithms)!")
+    if (!is.null(fcmat) && (is.null(colnames(fcmat)) ||
+        length(intersect(colnames(pmat),colnames(fcmat)))!=length(algs)))
+        stopwrap("The fold change matrices must have the colnames attribute ",
+            "(names of statistical algorithms) and must be the same as in the ",
+            "p-value matrices!")
+    nalg <- length(algs)
+    if(nalg>6) {
+        warnwrap(paste("Cannot create a JVenn diagram for more than 6 result ",
+            "sets! ",nalg,"found, only the first 6 will be used..."))
+        algs <- algs[1:6]
+        nalg <- 6
+    }
+    
+    genes <- rownames(pmat)
+    # Initially populate the results and counts lists so they can be used to 
+    # create the rest of the intersections
+    results <- vector("list",nalg)
+    names(results) <- names(algs) <- algs
+    if (is.null(fcmat)) {
+        for (a in algs)
+            results[[a]] <- genes[which(pmat[,algs[a]]<pcut)]
+    }
+    else {
+        switch(direction,
+            dereg = {
+                for (a in algs)
+                    results[[a]] <-
+                        genes[which(pmat[,algs[a]]<pcut & abs(
+                        fcmat[,algs[a]])>=fcut)]
+            },
+            up = {
+                for (a in algs)
+                    results[[a]] <-
+                        genes[which(pmat[,algs[a]]<pcut &
+                        fcmat[,algs[a]]>=fcut)]
+            },
+            down = {
+                for (a in algs)
+                    results[[a]] <-
+                        genes[which(pmat[,algs[a]]<pcut &
+                        fcmat[,algs[a]]<=-fcut)]
+            }
+        )
+    }
+    
+    series <- lapply(names(results),function(n,r) {
+		return(list(
+			name=n,
+			data=if (is.null(altNames)) r[[n]] else altNames[r[[n]]]
+		))
+	},results)
+	
+	return(list(series=series))
+}
+
+makeHighchartsVennSets <- function(algs,results) {
+	lenalias <- c("two","three","four","five")
+	aliases <- toupper(letters[1:nalg])
+    names(algs) <- aliases
+    switch(lenalias[length(algs)-1],
+		two = {
+			ofInterest <- c("Ao","Bo","AB")
+		},
+		three = {
+			ofInterest <- c("Ao","Bo","Co","ABo","ACo","BCo","ABC")
+		},
+		four = {
+			ofInterest <- c("Ao","Bo","Co","Do","ABo","ACo","ADo","BCo","BDo",
+				"CDo","ABCo","ABDo","BCDo","ABC")
+		},
+		five = {
+			ofInterest <- c("Ao","Bo","Co","Do","Eo","ABo","ACo","ADo","AEo",
+				"BCo","BDo","BEo","CDo","CEo","DEo","ABCo","ABDo","ABEo","ACDo",
+				"ACEo","ADEo","BCDo","BCEo","BDEo","CDEo","ABCDo","ABCEo",
+				"ABDEo","ACDEo","BCDEo","ABCDE")
+		}
+	)
+	values <- lengths(results[ofInterest])
+	preSets <- strsplit(gsub("o","",ofInterest),"")
+	sets <- lapply(preSets,function(x,a) {
+		return(a[x])
+	},algs)
+	return(lapply(1:length(sets),function(i,s,v) {
+		return(list(
+			sets=unname(s[[i]]),
+			value=unbox(unname(values[i]))
+		))
+	},sets,values))
+}
+
 makeVennPairs <- function(algs) {
     lenalias <- c("two","three","four","five")
     switch(lenalias[length(algs)-1],
@@ -1920,6 +2032,142 @@ makeVennPairs <- function(algs) {
                 ACDE=c("ACD","E"),
                 BCDE=c("BCD","E"),
                 ABCDE=c("ABCD","E")
+            ))
+        }
+    )
+}
+
+# for setdiff
+makeMoreVennPairs <- function(algs) {
+    lenalias <- c("two","three","four","five")
+    switch(lenalias[length(algs)-1],
+        two = {
+            return(list(
+                Ao=c("A","B"),
+                Bo=c("B","A")
+            ))
+        },
+        three = {
+            return(list(
+                ABo=c("AB","AC"),
+                ACo=c("AC","AB"),
+                BCo=c("BC","AC"),
+                AoI=c("A","B"),
+                Ao=c("AoI","C"),
+                BoI=c("B","A"),
+                Bo=c("BoI","C"),
+                CoI=c("C","A"),
+                Co=c("CoI","B")
+            ))
+        },
+        four = {
+            return(list(
+                ABCo=c("ABC","D"),
+				ABDo=c("ABD","C"),
+				BCDo=c("BCD","A"),
+				ABoI=c("AB","C"),
+				ABo=c("ABoI","D"),
+				ACoI=c("AC","B"),
+				ACo=c("ACoI","D"),
+				ADoI=c("AD","B"),
+				ADo=c("ADoI","C"),
+				BCoI=c("BC","A"),
+				BCo=c("BCoI","D"),
+				BDoI=c("BD","A"),
+				BDo=c("BDoI","C"),
+				CDoI=c("CD","A"),
+				CDo=c("CDoI","B"),
+				AoI1=c("A","B"),
+				AoI2=c("AoI1","C"),
+				Ao=c("AoI2","D"),
+				BoI1=c("B","A"),
+				BoI2=c("BoI1","C"),
+				Bo=c("BoI2","D"),
+				CoI1=c("C","A"),
+				CoI2=c("CoI1","B"),
+				Co=c("CoI2","D"),
+				DoI1=c("D","A"),
+				DoI2=c("DoI1","B"),
+				Do=c("DoI2","C")
+            ))
+        },
+        five = {
+            return(list(
+                ABCDo=c("ABCD","ABCDE"),
+				ABCEo=c("ABCE","ABCDE"),
+				ABDEo=c("ABDE","ABCDE"),
+				ACDEo=c("ACDE","ABCDE"),
+				BCDEo=c("BCDE","ABCDE"),
+				ABCoI=c("ABC","D"),
+				ABCo=c("ABCoI","E"),
+				ABDoI=c("ABD","C"),
+				ABDo=c("ABDoI","E"),
+				ABEoI=c("ABE","C"),
+				ABEo=c("ABEoI","D"),
+				ACDoI=c("ACD","B"),
+				ACDo=c("ACDoI","E"),
+				ACEoI=c("ACE","B"),
+				ACEo=c("ACEoI","D"),
+				ADEoI=c("ADE","B"),
+				ADEo=c("ADEoI","C"),
+				BCDoI=c("BCD","A"),
+				BCDo=c("BCDoI","E"),
+				BCEoI=c("BCE","A"),
+				BCEo=c("BCEoI","D"),
+				BDEoI=c("BDE","A"),
+				BDEo=c("BDEoI","C"),
+				CDEoI=c("CDE","A"),
+				CDEo=c("CDEoI","B"),
+				ABoI1=c("AB","C"),
+				ABoI2=c("ABoI1","D"),
+				ABo=c("ABoI2","E"),
+				ACoI1=c("AC","B"),
+				ACoI2=c("ACoI1","D"),
+				ACo=c("ACoI2","E"),
+				ADoI1=c("AD","B"),
+				ADoI2=c("ADoI1","C"),
+				ADo=c("ADoI2","E"),
+				AEoI1=c("AE","B"),
+				AEoI2=c("AEoI1","C"),
+				AEo=c("AEoI2","D"),
+				BCoI1=c("BC","A"),
+				BCoI2=c("BCoI1","D"),
+				BCo=c("BCoI2","E"),
+				BDoI1=c("BD","A"),
+				BDoI2=c("BDoI1","C"),
+				BDo=c("BDoI2","E"),
+				BEoI1=c("BE","A"),
+				BEoI2=c("BEoI1","C"),
+				BEo=c("BEoI2","D"),
+				CDoI1=c("CD","A"),
+				CDoI2=c("CDoI1","B"),
+				CDo=c("CDoI2","E"),
+				CEoI1=c("CE","A"),
+				CEoI2=c("CEoI1","B"),
+				CEo=c("CEoI2","D"),
+				DEoI1=c("DE","A"),
+				DEoI2=c("DEoI1","B"),
+				DEo=c("DEoI2","C"),
+				AoI1=c("A","B"),
+				AoI2=c("AoI1","C"),
+				AoI3=c("AoI2","D"),
+				Ao=c("AoI3","E"),
+				BoI1=c("B","A"),
+				BoI2=c("BoI1","C"),
+				BoI3=c("BoI2","D"),
+				Bo=c("BoI3","E"),
+				CoI1=c("C","A"),
+				CoI2=c("CoI1","B"),
+				CoI3=c("CoI2","D"),
+				Co=c("CoI3","E"),
+				DoI1=c("D","A"),
+				DoI2=c("DoI1","B"),
+				DoI3=c("DoI2","C"),
+				Do=c("DoI3","E"),
+				EoI1=c("E","A"),
+				EoI2=c("EoI1","B"),
+				EoI3=c("EoI2","C"),
+				Eo=c("EoI3","D")
             ))
         }
     )

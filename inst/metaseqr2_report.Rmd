@@ -50,6 +50,8 @@ if (offlineReport) {
 	cat("<script type=\"text/javascript\" src=\"js/export-data.js\"></script>",
 		sep="")
 	cat("<script src=\"js/dexie.min.js\"></script>",sep="")
+	cat("<script src=\"js/canvas2svg.js\"></script>",sep="")
+	cat("<script src=\"js/jvenn.min.js\"></script>",sep="")
 } else {
 	cat("<script type=\"text/javascript\" src=\"https://raw.github.com/",
 		"HubSpot/pace/v1.0.0/pace.min.js\"></script>",sep="")
@@ -64,6 +66,10 @@ if (offlineReport) {
 	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
 		"modules/export-data.js\"></script>",sep="")
 	cat("<script src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
+		"</script>",sep="")
+	cat("<script src=\"http://jvenn.toulouse.inra.fr/app/js/canvas2svg.js\">",
+		"</script>",sep="")
+	cat("<script src=\"http://jvenn.toulouse.inra.fr/app/js/jvenn.min.js\">",
 		"</script>",sep="")
 }
 ```
@@ -2057,29 +2063,92 @@ $('#'+hids[0]).show();
 ```{r analysis_figures_biodist}
 if ("biodist" %in% qcPlots) {
 	pandoc.header("Biodist",level=3)
-	log <- capture.output({
-		jsonList <- diagplotNoiseq(normGenesExpr,sampleList,covars=covarsStat,
-			whichPlot="biodist",biodistOpts=list(p=pList[[cnt]],pcut=pcut,
-            name=cnt),output="json")
-	})
+	
+	nn <- names(contrastList)
+	jsonList <- vector("list",length(nn))
+	names(jsonList) <- nn
+	
+	for (n in nn) {
+		log <- capture.output({
+			jsonList[[n]] <- diagplotNoiseq(normGenesExpr,sampleList,
+				covars=covarsStat,whichPlot="biodist",
+				biodistOpts=list(p=cpList[[cnt]],pcut=pcut,name=cnt),
+				output="json")
+		})
+	}
+	
+	# Add extra data, serialize and import the plots to Dexie
+	preImport <- vector("list",length(jsonList))
+	for (i in 1:length(jsonList)) {
+		preImport[[i]] <- list(
+			name=paste("biodist",nn[i],sep="_"),
+			type="biodist",
+			subtype="chromosome",
+			json=jsonList[[i]]$chromosome
+		)
+	}
+	toImportChromosome <- toJSON(preImport,auto_unbox=TRUE,null="null")
+	for (i in 1:length(jsonList)) {
+		preImport[[i]] <- list(
+			name=paste("biodist",nn[i],sep="_"),
+			type="biodist",
+			subtype="biotype",
+			json=jsonList[[i]]$biotype
+		)
+	}
+	toImportBiotype <- toJSON(preImport,auto_unbox=TRUE,null="null")
+	
+	# Import script
+	cat("<script type=\"text/javascript\">")
+	cat("db.plots.bulkAdd(",toImportChromosome,");",sep="")
+	cat("db.plots.bulkAdd(",toImportBiotype,");",sep="")
+	cat("</script>")
 	
 	cat("<h4><strong>Chromosome and biotype distributions of differentially ",
 		"expressed ",transLevel,"s</strong></h4>",sep="")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$biodist,
 	    "<br/><br/></div>",sep="")
+	
+	# Create a selector for each contrast
+	items <- paste("<option value=",paste("biodist",nn,sep="_"),">",
+		gsub("_vs_"," vs ",nn),"</option>",sep="")
+	cat("<div>")
+	cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
+		"for </div>",sep="")
+	cat("<select id=\"biodist_selector\">",items,"</select>",sep="")
+	cat("</div>")
 	    
 	cat("<h4>Chromosome distribution of differentially expressed ",transLevel,
 		"s</h4>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"chromosome_biodist_container\"></div>",
 		sep="")
-	cat("<script>$('#chromosome_biodist_container').highcharts(",
-		jsonList[["chromosome"]],");</script>",sep="")
+	cat("<script>$('#biodist_chromosome_container').highcharts(",
+		toJSON(jsonList[[1]]$chromosome,auto_unbox=TRUE,null="null"),
+		");</script>",sep="")
 	cat("<h4>Biotype distribution of differentially expressed ",transLevel,
 		"s</h4>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"biotype_biodist_container\"></div>",
 		sep="")
-	cat("<script>$('#biotype_biodist_container').highcharts(",
-		jsonList[["biotype"]],");</script>",sep="")
+	cat("<script>$('#biodist_biotype_container').highcharts(",
+		toJSON(jsonList[[1]]$biotype,auto_unbox=TRUE,null="null"),
+		");</script>",sep="")
+}
+```
+
+```{r analysis_figures_venn}
+if ("venn" %in% qcPlots) {
+	pandoc.header("Venn",level=3)
+	
+	preJson <- makeJVennData(cpList[[1]],pcut=pcut)
+	
+	cat("<h4><strong>Venn diagram of differentially expressed ",transLevel,
+		"s</strong></h4>",sep="")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$venn,
+	    "<br/><br/></div>",sep="")
+	cat("<div id='jvenn_container'></div>")
+	
+	cat("<script>$('#jvenn_container').jvenn(",toJSON(preJson,auto_unbox=TRUE),
+		");</script>",sep="")
 }
 ```
 
@@ -2141,9 +2210,7 @@ cat("<div class=\"hc-selector-label\">Select a contrast to display ",
 cat("<select id=\"detable_selector\">",items,"</select>",sep="")
 cat("</div><br/>")
 
-tableCounter <- -1
 for (cnt in contrast) {
-	tableCounter <- tableCounter + 1
 	cntn <- gsub("_vs_"," vs ",cnt)
 	#pandoc.header(cntn,level=3)
 	
@@ -2169,6 +2236,10 @@ for (cnt in contrast) {
 	pi <- grep("p-value",colnames(reportTables[[cnt]]))
 	di <- grep("FDR",colnames(reportTables[[cnt]]))
 	fi <- grep("_vs_",colnames(reportTables[[cnt]]))
+	# If more than one statistics applied, the 1st two from fi are meta p-value
+	# and meta FDR
+	if (length(statistics) > 1)
+		fi <- fi[-c(1,2)]
 	ci <- numeric(length(sampleList))
 	N <- names(sampleList)
 	for (i in 1:length(N))
@@ -2308,9 +2379,7 @@ $('#'+tids[0]).show();
 // The only way to align columns...
 var timer = setInterval(function() {
 	if ($('#'+tids[0]+"_").find("table").length > 0) {
-		console.log("Table rendering")
 		if ($('#'+tids[0]+"_").find("table")[1].id !== undefined) {
-			console.log("Table rendered")
 			var id = $('#'+tids[0]+"_").find("table")[1].id;
 			$('#'+id).DataTable().columns.adjust();
 			clearInterval(timer);
@@ -2424,6 +2493,14 @@ $("#heatmap_selector").on('change',function() {
 	var name = this.value;
 	$(".deheatmap-container").hide(0);
 	$("#"+name).show();
+});
+
+$("#biodist_selector").on('change',function() {
+	var name = this.value;
+	getPlotFromDb({name: name,type: "biodist",subtype: "chromosome"},
+		"biodist_chromosome_container");
+	getPlotFromDb({name: name,type: "biodist",subtype: "biotype"},
+		"biodist_biotype_container");
 });
 
 $("#detable_selector").on('change',function() {
