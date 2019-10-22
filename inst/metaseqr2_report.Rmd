@@ -2453,8 +2453,6 @@ $("#detable_selector").on('change',function() {
 });
 
 $('a[href="#results"]').on('click',function() {
-	console.log("Malakas");
-	
 	var tids = $('.detable-helper-wrapper').map(function(index) {
 		return(this.id);
 	});
