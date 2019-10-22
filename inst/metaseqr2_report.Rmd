@@ -2240,23 +2240,6 @@ for (cnt in contrast) {
 	}
 	jspf <- paste0(jspf,"}")
 	
-	tableId <- paste0("#DataTables_Table_",tableCounter)
-	drcl <- paste0("function() {",
-		"console.log('Redrawing');",
-		"/*$('#",tableId,"').DataTable().columns.adjust();*/",
-		"/*$('#",tableId,"').DataTable().draw();*/",
-		"/*$('#",tableId,"').DataTable().columns.adjust();*/",
-		"/*this.api().columns.adjust();*/",
-		"/*this.api().draw();*/",
-		"var tids = $('.detable-helper-wrapper').map(function(index) {",
-			"return(this.id);",
-		"});",
-		"console.log(tids[0]+'_');",
-		"var id = $('#'+tids[0]+'_').find('table')[1].id;",
-		"console.log(id);",
-		"$('#'+id).DataTable().columns.adjust();",
-	"}")
-	
 	theTable <- DT::datatable(
 		reportTables[[cnt]],
 		rownames=FALSE,
@@ -2284,10 +2267,8 @@ for (cnt in contrast) {
 					text="Show/Hide columns"
 				)
 			),
-			rowCallback=JS(jspf),
-			drawCallback=JS(drcl)
+			rowCallback=JS(jspf)
 		)
-		
 	) #%>% formatStyle(
 		#names(reportTables[[cnt]])[fi+2],
 		#backgroundColor=styleInterval(brks,clrs),
@@ -2324,13 +2305,18 @@ var tids = $('.detable-helper-wrapper').map(function(index) {
 $('.detable-helper-wrapper').hide(0);
 $('#'+tids[0]).show();
 
-//console.log($('#'+tids[0]).children("table").attr("id"));
-
-//$('#detable_e14__5_vs_adult_8_weeks_').find("table")[1].id
-
-//console.log(tids[0]);
-//console.log($('#'+tids[0]+"_").find("table")[1]);
-
+// The only way to align columns...
+var timer = setInterval(function() {
+	if ($('#'+tids[0]+"_").find("table").length > 0) {
+		console.log("Table rendering")
+		if ($('#'+tids[0]+"_").find("table")[1].id !== undefined) {
+			console.log("Table rendered")
+			var id = $('#'+tids[0]+"_").find("table")[1].id;
+			$('#'+id).DataTable().columns.adjust();
+			clearInterval(timer);
+		}
+	}
+},100);
 ```
 
 ```{r export_links}
@@ -2451,20 +2437,4 @@ $("#detable_selector").on('change',function() {
 	var id = $('#'+name+"_").find("table")[1].id;
 	$('#'+id).DataTable().columns.adjust();
 });
-
-$('a[href="#results"]').on('click',function() {
-	var tids = $('.detable-helper-wrapper').map(function(index) {
-		return(this.id);
-	});
-	//console.log(tids[0]+"_");
-	//var counter = 0;
-	//while ($('#'+tids[0]+"_").find("table")[1] === undefined) {
-	//	counter++
-	//	console.log(counter);
-	//}
-	//var id = $('#'+tids[0]+"_").find("table")[1].id;
-	//console.log(id)
-	//$('#'+id).DataTable().columns.adjust();	
-	
-})
 </script>
