@@ -105,7 +105,6 @@ getPlotFromDb = function(query,renderId) {
 		type: query.type,
 		subtype: query.subtype
 	},function(res) {
-		console.log(res);
 		var chartData = res.json;
 		chartData.chart.renderTo = renderId;
 		var chart = new Highcharts.Chart(chartData);
@@ -118,7 +117,6 @@ getPlotWithFunFromDb = function(query,renderId) {
 		type: query.type,
 		subtype: query.subtype
 	},function(res) {
-		console.log(res);
 		var chartData = res.json;
 		chartData.chart.renderTo = renderId;
 		
@@ -146,6 +144,34 @@ getPlotWithFunFromDb = function(query,renderId) {
 		}
 		
 		var chart = new Highcharts.Chart(chartData);
+	});
+}
+
+getVennFromDb = function(query,renderId) {
+	db.plots.get({
+		name: query.name,
+		type: query.type,
+		subtype: query.subtype
+	},function(res) {
+		var chartData = res.json;
+		chartData.fnClickCallback = function() {
+			var value = '';
+			if (this.listnames.length == 1) {
+				value += 'Elements only in ';
+			} else {
+				value += 'Common elements in ';
+			}
+			for (name in this.listnames) {
+				value += this.listnames[name] + ' ';
+			}
+			value += ':\n';
+			for (val in this.list) {
+				value += this.list[val] + '\n';
+			}
+			$('#jvenn_list').text(value);
+		}
+		//$('#'+renderId).empty();
+		$('#'+renderId).jvenn(chartData);
 	});
 }
 </script>
@@ -223,6 +249,13 @@ p {
 	overflow-y: scroll;
 	overflow-x: hidden;
 	overflow-wrap: normal;
+}
+
+#jvenn_list {
+	font-size: 0.9em;
+	font-wight: 600;
+	width: 100%;
+	height: 300px;
 }
 
 /********************************** Pace.js ***********************************/
@@ -2120,14 +2153,14 @@ if ("biodist" %in% qcPlots) {
 	    
 	cat("<h4>Chromosome distribution of differentially expressed ",transLevel,
 		"s</h4>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"chromosome_biodist_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"biodist_chromosome_container\"></div>",
 		sep="")
 	cat("<script>$('#biodist_chromosome_container').highcharts(",
 		toJSON(jsonList[[1]]$chromosome,auto_unbox=TRUE,null="null"),
 		");</script>",sep="")
 	cat("<h4>Biotype distribution of differentially expressed ",transLevel,
 		"s</h4>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"biotype_biodist_container\"></div>",
+	cat("<div class=\"hc-rect-sm\" id=\"biodist_biotype_container\"></div>",
 		sep="")
 	cat("<script>$('#biodist_biotype_container').highcharts(",
 		toJSON(jsonList[[1]]$biotype,auto_unbox=TRUE,null="null"),
@@ -2139,16 +2172,76 @@ if ("biodist" %in% qcPlots) {
 if ("venn" %in% qcPlots) {
 	pandoc.header("Venn",level=3)
 	
-	preJson <- makeJVennData(cpList[[1]],pcut=pcut)
+	nn <- names(contrastList)
+	jsonList <- vector("list",length(nn))
+	names(jsonList) <- nn
+	
+	callback <- paste0("function() {",
+		"var value = '';",
+		"if (this.listnames.length == 1) {",
+			"value += 'Elements only in ';",
+		"} else {",
+			"value += 'Common elements in ';",
+		"}",
+		"for (name in this.listnames) {",
+			"value += this.listnames[name] + ' ';",
+		"}",
+		"value += ':\n';",
+		"for (val in this.list) {",
+			"value += this.list[val] + '\n';",
+		"}",
+		"$('#jvenn_list').text(value);",
+	"}")
+	
+	geneNames <- geneDataExpr$gene_name
+	names(geneNames) <- names(geneDataExpr)
+	for (n in nn) {
+		jsonList[[n]] <- makeJVennData(cpList[[n]],pcut=pcut,
+			altNames=geneNames[rownames(cpList[[n]])])
+		jsonList[[n]]$fnClickCallback <- callback
+	}
+	
+	# Add extra data, serialize and import the plots to Dexie
+	preImport <- vector("list",length(jsonList))
+	for (i in 1:length(jsonList)) {
+		preImport[[i]] <- list(
+			name=paste("venn",nn[i],sep="_"),
+			type="venn",
+			subtype="generic",
+			json=jsonList[[i]]
+		)
+	}
+	toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
+	
+	# Import script
+	cat("<script type=\"text/javascript\">")
+	cat("db.plots.bulkAdd(",toImport,");",sep="")
+	cat("</script>")
 	
 	cat("<h4><strong>Venn diagram of differentially expressed ",transLevel,
 		"s</strong></h4>",sep="")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$venn,
 	    "<br/><br/></div>",sep="")
-	cat("<div id='jvenn_container'></div>")
+	    
+	# Create a selector for each contrast
+	items <- paste("<option value=",paste("venn",nn,sep="_"),">",
+		gsub("_vs_"," vs ",nn),"</option>",sep="")
+	cat("<div>")
+	cat("<div class=\"hc-selector-label\">Select a contrast to display Venn ",
+		"diagram for </div>",sep="")
+	cat("<select id=\"venn_selector\">",items,"</select>",sep="")
+	cat("</div>")
 	
-	cat("<script>$('#jvenn_container').jvenn(",toJSON(preJson,auto_unbox=TRUE),
-		");</script>",sep="")
+	cat("<div class=\"row\">")
+	cat("<div class=\"col-sm-7\"><div id=\"jvenn_container\"></div></div>")
+	cat("<div class=\"col-sm-5\">")
+	cat("<div class=\"hc-selector-label\">Click on a number on Venn diagrams ",
+		"to display the respective genes</div>",sep="")
+	cat("<textarea id=\"jvenn_list\" readonly></textarea></div>")
+	cat("</div>")
+	
+	cat("<script>$('#jvenn_container').jvenn(",.unquote_js_fun(toJSON(
+		jsonList[[1]],auto_unbox=TRUE)),");</script>",sep="")
 }
 ```
 
@@ -2501,6 +2594,12 @@ $("#biodist_selector").on('change',function() {
 		"biodist_chromosome_container");
 	getPlotFromDb({name: name,type: "biodist",subtype: "biotype"},
 		"biodist_biotype_container");
+});
+
+$("#venn_selector").on('change',function() {
+	var name = this.value;
+	getVennFromDb({name: name,type: "venn",subtype: "generic"},
+		"jvenn_container");
 });
 
 $("#detable_selector").on('change',function() {

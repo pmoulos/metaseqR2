@@ -1685,14 +1685,18 @@ getPresetOpts <- function(preset,org) {
 makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
     foldMat <- matrix(0,nrow(dataMatrix),length(conds)-1)
-    for (i in 2:length(conds)) { # First condition is ALWAYS reference
+    for (i in 1:(length(conds)-1)) { # Last condition is ALWAYS reference
+    #for (i in 2:length(conds)) { # First condition is ALWAYS reference
         samplesNom <- sampleList[[conds[i]]]
-        samplesDenom <- sampleList[[conds[1]]]
+        samplesDenom <- sampleList[[conds[length(conds)]]]
+        #samplesDenom <- sampleList[[conds[1]]]
         nom <- dataMatrix[,match(samplesNom,colnames(dataMatrix)),drop=FALSE]
         denom <- dataMatrix[,match(samplesDenom,colnames(dataMatrix)),
             drop=FALSE]
-        if (!is.matrix(nom)) nom <- as.matrix(nom) # Cover the case with no replicates...
-        if (!is.matrix(denom)) denom <- as.matrix(denom)
+        if (!is.matrix(nom)) 
+			nom <- as.matrix(nom) # Cover the case with no replicates...
+        if (!is.matrix(denom)) 
+			denom <- as.matrix(denom)
         meanNom <- apply(nom,1,mean)
         meanDenom <- apply(denom,1,mean)
         #meanNom <- ifelse(meanNom==0,logOffset,meanNom)
@@ -1701,21 +1705,24 @@ makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
         #meanDenom <- ifelse(meanDenom==0,logOffset,meanDenom)
         if (any(meanDenom==0)) 
 			meanDenom <- meanDenom + logOffset
-        foldMat[,i-1] <- meanNom/meanDenom
+        #foldMat[,i-1] <- meanNom/meanDenom
+        foldMat[,i] <- meanNom/meanDenom
     }
     rownames(foldMat) <- rownames(dataMatrix)
-    colnames(foldMat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
+    #colnames(foldMat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
+    colnames(foldMat) <- paste(conds[1:(length(conds)-1)],"_vs_",
+        conds[length(conds)],sep="")
     return(foldMat)
 }
 
 makeA <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
     aMat <- matrix(0,nrow(dataMatrix),length(conds)-1)
-    #for (i in 1:(length(conds)-1)) { # Last condition is ALWAYS reference
-    for (i in 2:length(conds)) { # First condition is ALWAYS reference
+    for (i in 1:(length(conds)-1)) { # Last condition is ALWAYS reference
+    #for (i in 2:length(conds)) { # First condition is ALWAYS reference
         samplesTrt <- sampleList[[conds[i]]]
-        #samplesCnt <- sampleList[[conds[length(conds)]]]
-        samplesCnt <- sampleList[[conds[1]]]
+        samplesCnt <- sampleList[[conds[length(conds)]]]
+        #samplesCnt <- sampleList[[conds[1]]]
         trt <- dataMatrix[,match(samplesTrt,colnames(dataMatrix)),drop=FALSE]
         cnt <- dataMatrix[,match(samplesCnt,colnames(dataMatrix)),drop=FALSE]
         meanTrt <- apply(trt,1,mean)
@@ -1724,8 +1731,8 @@ makeA <- function(contrast,sampleList,dataMatrix,logOffset=1) {
             meanTrt <- meanTrt + logOffset
         if (any(meanCnt==0)) 
             meanCnt <- meanCnt + logOffset
-        #aMat[,i] <- 0.5*(log2(meanTrt)+log2(meanCnt))
-        aMat[,i-1] <- 0.5*(log2(meanTrt)+log2(meanCnt))
+        aMat[,i] <- 0.5*(log2(meanTrt)+log2(meanCnt))
+        #aMat[,i-1] <- 0.5*(log2(meanTrt)+log2(meanCnt))
     }
     rownames(aMat) <- rownames(dataMatrix)
     colnames(aMat) <- paste(conds[1:(length(conds)-1)],"_vs_",
@@ -1736,23 +1743,33 @@ makeA <- function(contrast,sampleList,dataMatrix,logOffset=1) {
 
 makeAvgExpression <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
-    a.mat <- matrix(0,nrow(dataMatrix),length(conds)-1)
-    for (i in 2:length(conds)) { # First condition is ALWAYS reference
-        samples.nom <- sampleList[[conds[i]]]
-        samples.denom <- sampleList[[conds[1]]]
-        nom <- dataMatrix[,match(samples.nom,colnames(dataMatrix))]
-        denom <- dataMatrix[,match(samples.denom,colnames(dataMatrix))]
-        if (!is.matrix(nom)) nom <- as.matrix(nom) # Cover the case with no replicates...
-        if (!is.matrix(denom)) denom <- as.matrix(denom)
-        mean.nom <- apply(nom,1,mean)
-        mean.denom <- apply(denom,1,mean)
-        if (any(mean.nom==0)) mean.nom <- mean.nom + logOffset
-        if (any(mean.denom==0)) mean.denom <- mean.denom + logOffset
-        a.mat[,i-1] <- 0.5*(log2(mean.nom)+log2(mean.denom))
+    aMat <- matrix(0,nrow(dataMatrix),length(conds)-1)
+    for (i in 1:(length(conds)-1)) { # Last condition is ALWAYS reference
+    #for (i in 2:length(conds)) { # First condition is ALWAYS reference
+        samplesNom <- sampleList[[conds[i]]]
+        #samplesDenom <- sampleList[[conds[1]]]
+        samplesDenom <- sampleList[[conds[length(conds)]]]
+        nom <- dataMatrix[,match(samplesNom,colnames(dataMatrix)),drop=FALSE]
+        denom <- dataMatrix[,match(samplesDenom,colnames(dataMatrix)),
+			drop=FALSE]
+        if (!is.matrix(nom)) # Cover the case with no replicates...
+			nom <- as.matrix(nom) 
+        if (!is.matrix(denom)) 
+			denom <- as.matrix(denom)
+        meanNom <- apply(nom,1,mean)
+        meanDenom <- apply(denom,1,mean)
+        if (any(meanNom==0)) 
+			meanNom <- meanNom + logOffset
+        if (any(meanDenom==0)) 
+			meanDenom <- meanDenom + logOffset
+        aMat[,i] <- 0.5*(log2(meanNom)+log2(meanDenom))
+        #aMat[,i-1] <- 0.5*(log2(meanNom)+log2(meanDenom))
     }
-    rownames(a.mat) <- rownames(dataMatrix)
-    colnames(a.mat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
-    return(a.mat)
+    rownames(aMat) <- rownames(dataMatrix)
+    #colnames(aMat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
+    colnames(aMat) <- paste(conds[1:(length(conds)-1)],"_vs_",
+		conds[length(conds)],sep="")
+    return(aMat)
 }
 
 .makeHtmlCells <- function(mat,type="numeric",digits=3) {
@@ -2206,28 +2223,27 @@ makeReportMessages <- function(lang) {
                 "control charts that show the percentage of each biotype",
                 "in the genome (i.e. in the whole set of features provided,",
                 "for example, protein coding genes, non coding RNAs or",
-                "pseudogenes) in grey bars, which proportion has been",
+                "pseudogenes) in red bars, which proportion has been",
                 "detected in a sample before normalization and after a",
                 "basic filtering by removing features with zero counts in",
-                "red lined bars, and the percentage of each biotype within",
-                "the sample in solid red bars. The difference between grey",
-                "bars and solid red bars is that the grey bars show the",
-                "percentage of a feature in the genome while the solid red",
-                "bars show the percentage in the sample. Thus, the solid",
-                "red bars may be sometimes higher than the grey bars because",
-                "certain features (e.g. protein coding genes) may be",
-                "detected within a sample with a higher proportion",
-                "relatively to their presence in the genome, as compared",
-                "with other features. For example, while the percentage",
-                "of protein coding genes in the whole genome is already",
-                "higher than other biotypes, this percentage is expected",
-                "to be even higher in an RNA-Seq experiment where one",
+                "green bars, and the percentage of each biotype within the",
+                "sample in blue bars. The difference between red bars and",
+                "blue bars is that the red bars show the percentage of a",
+                "feature in the genome while the blue bars show the percentage",
+                "in the sample. Thus, the blue bars may be sometimes higher",
+                "than the green bars because certain features (e.g. protein",
+                "coding genes) may be detected within a sample with a higher",
+                "proportion relatively to their presence in the genome, as",
+                "compared with other features. For example, while the",
+                "percentage of protein coding genes in the whole genome is",
+                "already higher than other biotypes, this percentage is",
+                "expected to be even higher in an RNA-Seq experiment where one",
                 "expects protein-coding genes to exhibit greater abundance.",
-                "The vertical green line separates the most abundant",
+                "The vertical line separates the most abundant (yellow band)",
                 "biotypes (on the left-hand side, corresponding to the",
                 "left axis scale) from the rest (on the right-hand side,",
-                "corresponding to the right axis scale). Otherwise, the",
-                "lower abundance biotypes would be indistinguishable.",
+                "corresponding to the right axis scale, red band). Otherwise,",
+                "the lower abundance biotypes would be indistinguishable.",
                 "Unexpected outcomes in this quality control chart (e.g.",
                 "very low detection of protein coding genes) would signify",
                 "possible low quality of a sample.",collapse=" "
@@ -2296,38 +2312,24 @@ makeReportMessages <- function(lang) {
                 "The sample correlation plots depict the accordance among",
                 "the RNA-Seq samples, as this is manifested through the",
                 "read counts table used with the metaseqr pipeline, with",
-                "two representations that both use the correlation matrix",
+                "a representations that both use the correlation matrix",
                 "(a matrix which depicts all the pairwise correlations",
                 "between each pair of samples) of the read counts matrix.",
-                "The first is a correlation clustered heatmap which",
+                "The correlation representation is a clustered heatmap which",
                 "depicts the correlations among samples as color-scaled",
                 "image and the hierarchical clustering tree depicts the",
                 "grouping of the samples according to their correlation.",
                 "Samples from the same group that are not clustered together",
                 "provides an indication that there might be a quality",
-                "problem with the dataset. The second is a 'correlogram'",
-                "plot, where again the samples are hierarchically clustered",
-                "and grouped but this time correlations are presented as",
-                "ellipses inside each cell. Each cell represents a pairwise",
-                "comparison and each correlation coefficient is represented",
-                "by an ellipse whose 'diameter', direction and color",
-                "depict the accordance for that pair of samples. Highly",
-                "correlated samples are depicted as ellipses with narrow",
-                "diameter, while poorly correlated samples are depicted",
-                "as ellipses with wide diameters. Also, highly correlated",
-                "samples are depicted as ellipses with a left-to-right",
-                "upwards direction while poorly correlated samples are",
-                "depicted as ellipses with a right-to-left upwards direction.",
-                collapse=" "
+                "problem with the dataset.",collapse=" "
                     ),
                     pairwise=paste(
-                "The pairwise comparison plots are split in three parts:",
-                "the upper diagonal consists of simple scatterplots for",
-                "all pairwise sample comparisons, together with their",
-                "Pearson correlation coefficient. It is a simple measure",
+                "The pairwise comparison plots are split in two parts:",
+                "the upper part consists of a simple scatterplot for",
+                "all pairwise sample comparisons. It is a simple measure",
                 "of between sample correlation using all the available",
                 "data points instead of only the correlation matrix. The",
-                "lower diagonal consists of mean-difference plots for all",
+                "lower part consists of mean-difference plots for all",
                 "pairwise sample comparisons. A mean-difference plot (or",
                 "a Bland-Altman plots) is a method of data plotting used",
                 "in analyzing the agreement between two different",
@@ -2468,7 +2470,7 @@ makeReportMessages <- function(lang) {
                 "The mean-variance plot comprises a graphical means of",
                 "displaying a possible relationship between the means of",
                 "gene expression (counts) values and their variances",
-                "across replicates of the same biological condition. Thus",
+                "across replicates of a gene expression experiment. Thus",
                 "data can be inspected for possible overdispersion (greater",
                 "variability in a dataset than would be expected based on",
                 "a given simple statistical model). In such plots for",
@@ -2520,28 +2522,47 @@ makeReportMessages <- function(lang) {
                 "one in the lower part of the plot. You can always zoom in",
                 "when using interacting mode (the default).",collapse=" "
                     ),
-                 mastat="Description will be soon available!",
+                 mastat=paste(
+                 "A mean-difference (or MA) plot with overlaid statistical",
+                 "information (p-value and fold change thresholds manifested",
+                 "as points with different colors) is a very useful graphic",
+                 "that enables the visualization of the results of",
+                 "differential expression analysis. It differs from the",
+                 "volcano plot regarding what is displayed in the axes system.",
+                 "While a volcano plot displays the fold change (x-axis)",
+                 "versus the statistical significance (y-axis), an MA plot",
+                 "with statistical scores depicts average expression over the",
+                 "biological conditions that are compared (x-axis) versus the",
+                 "fold change of the comparison. Statistical significance",
+                 "categorization is added as point coloring and the",
+                 "statistical significance is indicated only by different",
+                 "colors and not by the position to the axes system as in the",
+                 "volcano plot. This plot is useful when it is of little",
+                 "interest how much statistically significant a",
+                 "gene/transcript is (we are interested only in the fact that",
+                 "it is) but someone is interested on actual expression and",
+                 "fold change values instead.",collapse=" "
+                 ),
                     biodist=paste(
                 "The chromosome and biotype distributions bar diagram for",
                 "Differentially Expressed Genes (DEGs) is split in two",
-                "panels: i) on the left panel DEGs are distributed per",
+                "panels: i) on the upper panel DEGs are distributed per",
                 "chromosome and the percentage of each chromosome in the",
-                "genome is presented in grey bars, the percentage of DEGs",
-                "in each chromosome is presented in red lined bars and the",
+                "genome is presented in red bars, the percentage of DEGs",
+                "in each chromosome is presented in green bars and the",
                 "percentage of certain chromosomes in the distribution of",
-                "DEGs is presented in solid red bars. ii) on the right panel,",
+                "DEGs is presented in blue bars. ii) on the lower panel,",
                 "DEGs are distributed per biotype and the percentage of",
                 "each biotype in the genome (i.e. in the whole set of",
                 "features provided, for example, protein coding genes, non",
-                "coding RNAs or pseudogenes) is presented in grey bars,",
+                "coding RNAs or pseudogenes) is presented in red bars,",
                 "the percentage of DEGs in each biotype is presented in",
-                "blue lined bars and the percentage of each biotype in",
-                "DEGs is presented in solid blue lines. The vertical green",
-                "line separates the most abundant biotypes (on the left-hand",
-                "side, corresponding to the left axis scale), from the rest",
-                "(on the right-hand side, corresponding to the right axis",
-                "scale). Otherwise, the lower abundance, biotypes would be",
-                "indistinguishable.",collapse=" "
+                "green bars and the percentage of each biotype in DEGs is",
+                "presented in blue lines. The vertical line separates the most",
+                "abundant biotypes (on the left-hand side, corresponding to",
+                "the left axis scale), from the rest(on the right-hand side,",
+                "corresponding to the right axis scale). Otherwise, the lower",
+                "abundance, biotypes would be indistinguishable.",collapse=" "
                     ),
                     filtered=paste(
                 "The chromosome and biotype distribution of filtered genes",
