@@ -2100,8 +2100,71 @@ metaseqr2 <- function(
     if (report) {
 		disp("Creating HTML report...")
 		
-		execTime <- elap2human(TB)
-		TEMP <- environment()
+		if (!is.null(qcPlots)) {
+            # First create zip archives of the figures
+            disp("Compressing figures...")
+            zipfiles <- file.path(PROJECT_PATH$plots,paste("metaseqr_figures_",
+                figFormat,".zip",sep=""))
+            names(zipfiles) <- figFormat
+            for (f in figFormat) {
+                files <- c(
+                    dir(PROJECT_PATH$qc,pattern=paste(".",f,sep=""),
+                        full.names=TRUE),
+                    dir(PROJECT_PATH$normalization,pattern=paste(".",f,sep=""),
+                        full.names=TRUE),
+                    dir(PROJECT_PATH$statistics,pattern=paste(".",f,sep=""),
+                        full.names=TRUE)
+                )
+                zip(zipfiles[f],files)
+            }
+            # Then create the final figure variables which brew will find...
+            figRaw <- figRaw[["png"]]
+            figUnorm <- figUnorm[["png"]]
+            figNorm <- figNorm[["png"]]
+            figStat <- figStat[["png"]]
+            figOther <- figOther[["png"]]
+            figVenn <- figVenn[["png"]]
+        }
+        else
+            figRaw <- figUnorm <- figNorm <- figStat <- figOther <-
+                figVenn <- NULL
+		
+		## Then see what is going of if default report changed
+        #if (tolower(reportTemplate)=="default") {
+        #    if (exists("TEMPLATE")) {
+        #        reportTemplate=list(
+        #            rmd=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
+        #            loader=file.path(TEMPLATE,"dna_loader.gif")
+        #        )
+        #    }
+        #    else
+        #        reportTemplate=list(rmd=NULL,loader=NULL)
+        #}
+        #if (!is.null(reportTemplate$rmd)) {
+        #    if (file.exists(reportTemplate$rmd)) {
+        #        template <- reportTemplate$rmd
+        #        hasTemplate <- TRUE
+        #    }
+        #    else {
+        #        warnwrap(paste("The template file",reportTemplate$rmd,
+        #            "was not ","found! The HTML report will NOT be generated."))
+        #        hasTemplate <- FALSE
+        #    }
+        #}
+        #else {
+        #    warnwrap(paste("The report option was enabled but no template ",
+        #        "file is provided! The HTML report will NOT be generated."))
+        #    hasTemplate <- FALSE
+        #}
+        #if (!is.null(reportTemplate$loader)) {
+        #    if (file.exists(reportTemplate$loader))
+        #        file.copy(from=reportTemplate$loader,to=PROJECT_PATH$media)
+        #    else
+        #        warnwrap(paste("The report logo image",reportTemplate$loader,
+        #            "was not found!"))
+        #}
+        #else
+        #    warnwrap(paste("The report loader image was not provided!"))
 		
 		# Here we must download all required libraries and put them in the js
 		# folder of the report to make it available offline
@@ -2141,136 +2204,36 @@ metaseqr2 <- function(
 					file.path(PROJECT_PATH$js,"jvenn.min.js"))
 		}
 		
-		#file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-		file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),overwrite=TRUE)
-		render(
-		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-		#	input="/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			input=file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
-		#	input="C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			output_file="index.html",
-		    output_dir=PROJECT_PATH$main,
-		#	output_format="html_document",
-		#	params=list(result=result),
-			envir=TEMP,
-			#output_options=list(
-			#	includes=list(
-			#		in_header=MDS_JSON
-			#	)
-			#),
-			encoding="UTF-8"
-		)
-        
-        # Remove the Rmd file after rendering the report
-		unlink(file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"))
-		
-		########################################################################
-		# Replace a jQuery incompatibility bug line... Hopefully to remove...
-		L <- readLines(file.path(PROJECT_PATH$main,"index.html"))
-		ln <- grep(paste("$(\".menu\").find(\"li[data-target=\" + window.page",
-			"+ \"]\").trigger(\"click\");"),L,fixed=TRUE)
-		if (length(ln) == 1)
-			L[ln] <- paste("$(\".menu\").find(\"li[data-target='\" +",
-			"window.page + \"']\").trigger(\"click\");")
-		cat(L,file=file.path(PROJECT_PATH$main,"index.html"),sep="\n")
-		########################################################################
-		
-        if (!is.null(qcPlots)) {
-            # First create zip archives of the figures
-            disp("Compressing figures...")
-            zipfiles <- file.path(PROJECT_PATH$plots,paste("metaseqr_figures_",
-                figFormat,".zip",sep=""))
-            names(zipfiles) <- figFormat
-            for (f in figFormat) {
-                files <- c(
-                    dir(PROJECT_PATH$qc,pattern=paste(".",f,sep=""),
-                        full.names=TRUE),
-                    dir(PROJECT_PATH$normalization,pattern=paste(".",f,sep=""),
-                        full.names=TRUE),
-                    dir(PROJECT_PATH$statistics,pattern=paste(".",f,sep=""),
-                        full.names=TRUE)
-                )
-                zip(zipfiles[f],files)
-            }
-            # Then create the final figure variables which brew will find...
-            figRaw <- figRaw[["png"]]
-            figUnorm <- figUnorm[["png"]]
-            figNorm <- figNorm[["png"]]
-            figStat <- figStat[["png"]]
-            figOther <- figOther[["png"]]
-            figVenn <- figVenn[["png"]]
-        }
-        else
-            figRaw <- figUnorm <- figNorm <- figStat <- figOther <-
-                figVenn <- NULL
-
-        #if (tolower(reportTemplate)=="default") {
-        #    if (exists("TEMPLATE")) {
-        #        reportTemplate=list(
-        #            html=file.path(TEMPLATE,"metaseqr_report.html"),
-        #            css=file.path(TEMPLATE,"styles.css"),
-        #            logo=file.path(TEMPLATE,"logo.png"),
-        #            loader=file.path(TEMPLATE,"loader.gif")
-        #        )
-        #    }
-        #    else
-        #        reportTemplate=list(html=NULL,css=NULL,logo=NULL,
-        #            loader=NULL)
-        #}
-
-        #if (!is.null(reportTemplate$html)) {
-        #    if (file.exists(reportTemplate$html)) {
-        #        template <- reportTemplate$html
-        #        hasTemplate <- TRUE
-        #    }
-        #    else {
-        #        warnwrap(paste("The template file",reportTemplate$html,
-        #            "was not ","found! The HTML report will NOT be generated."))
-        #        hasTemplate <- FALSE
-        #    }
-        #}
-        #else {
-        #    warnwrap(paste("The report option was enabled but no template ",
-        #        "file is provided! The HTML report will NOT be generated."))
-        #    hasTemplate <- FALSE
-        #}
-        #if (!is.null(reportTemplate$css)) {
-        #    if (file.exists(reportTemplate$css))
-        #        file.copy(from=reportTemplate$css,to=PROJECT_PATH$media)
-        #    else
-        #        warnwrap(paste("The stylesheet file",reportTemplate$css,
-        #            "was not ","found! The HTML report will NOT be styled."))
-        #}
-        #else
-        #    warnwrap(paste("The report stylesheet file was not provided! The ",
-        #        "HTML report will NOT be styled."))
-        #if (!is.null(reportTemplate$logo)) {
-        #    if (file.exists(reportTemplate$logo))
-        #        file.copy(from=reportTemplate$logo,to=PROJECT_PATH$media)
-        #    else
-        #        warnwrap(paste("The report logo image",reportTemplate$logo,
-        #            "was not found!"))
-        #}
-        #else
-        #    warnwrap(paste("The report logo image was not provided!"))
-        #if (!is.null(reportTemplate$loader)) {
-        #    if (file.exists(reportTemplate$loader))
-        #        file.copy(from=reportTemplate$loader,to=PROJECT_PATH$media)
-        #    else
-        #        warnwrap(paste("The report logo image",reportTemplate$loader,
-        #            "was not found!"))
-        #}
-        #else
-        #    warnwrap(paste("The report loader image was not provided!"))
-        #if (hasTemplate) {
-        #    execTime <- elap2human(TB)
-        #    TEMP <- environment()
-        #    brew(
-        #        file=reportTemplate$html,
-        #        output=file.path(PROJECT_PATH$main,"index.html"),
-        #        envir=TEMP
-        #    )
+		#if (hasTemplate) {
+			execTime <- elap2human(TB)
+            TEMP <- environment()
+            
+            #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
+            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
+				overwrite=TRUE)
+			render(
+				input=file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
+				output_file="index.html",
+				output_dir=PROJECT_PATH$main,
+				#output_format="html_document",
+				envir=TEMP,
+				encoding="UTF-8"
+			)
+			# Remove the Rmd file after rendering the report
+			unlink(file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"))
+			
+			####################################################################
+			# Replace a jQuery incompatibility bug line.. Hopefully to remove...
+			L <- readLines(file.path(PROJECT_PATH$main,"index.html"))
+			ln <- grep(paste("$(\".menu\").find(\"li[data-target=\" +",
+				"window.page + \"]\").trigger(\"click\");"),L,fixed=TRUE)
+			if (length(ln) == 1)
+				L[ln] <- paste("$(\".menu\").find(\"li[data-target='\" +",
+				"window.page + \"']\").trigger(\"click\");")
+			cat(L,file=file.path(PROJECT_PATH$main,"index.html"),sep="\n")
+			####################################################################
         #}
     }
 
