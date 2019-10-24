@@ -1861,6 +1861,11 @@ metaseqr2 <- function(
 				logOffset=logOffset,
 				report=FALSE
 			)$textTable
+			
+			if (!is.null(reportTop)) {
+				topi <- ceiling(reportTop*nrow(reportTables[[cnt]]))
+				reportTables[[cnt]] <- reportTables[[cnt]][1:topi,,drop=FALSE]
+			}
 		}
 
         # Adjust the export based on what statistics have been done and a 
@@ -1951,21 +1956,6 @@ metaseqr2 <- function(
         close(gzfh)
         if (outList)
             out[[cnt]] <- export
-
-        #if (report) {		
-            #theHtmlHeader <- .makeHtmlHeader(theExport$headers)
-            #if (!is.null(reportTop)) {
-            #    topi <- ceiling(reportTop*nrow(exportHtml))
-            #    theHtmlRows <- .makeHtmlRows(exportHtml[1:topi,])
-            #}
-            #else
-            #    theHtmlRows <- .makeHtmlRows(exportHtml)
-            #theHtmlBody <- .makeHtmlBody(theHtmlRows)
-            #theHtmlTable <- .makeHtmlTable(theHtmlBody,theHtmlHeader,
-            #    id=paste("table_",counter,sep=""))
-            #html[[cnt]] <- theHtmlTable
-            #counter <- counter+1
-        #}
 
         if (!is.null(geneCountsZero) || !is.null(geneCountsDead)) {
             disp("    Adding filtered data...")
@@ -2151,8 +2141,8 @@ metaseqr2 <- function(
 					file.path(PROJECT_PATH$js,"jvenn.min.js"))
 		}
 		
-		file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-		#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		#file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+		file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),overwrite=TRUE)
 		render(
 		#	input=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
@@ -2451,7 +2441,7 @@ metaseqr2 <- function(
         return(list(data=out,html=html,complete=complete))
     }
     
-} # End metaseqr
+} # End metaseqr2
 
 
 constructGeneModel <- function(countData,annoData,type,rc=NULL) {
