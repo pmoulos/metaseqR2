@@ -517,7 +517,8 @@ diagplotPairs <- function(x,output="x11",path=NULL,altNames=NULL,...) {
 					altnames=altNames,
 					user=list(counts=NULL,covar=NULL,covarname="X-Y")
 				)
-				jsonList$xy[[counter]] <- scatterToJSON(obj,out="list")
+				#jsonList$xy[[counter]] <- scatterToJSON(obj,out="list")
+				jsonList$xy[[counter]] <- scatterToJSON(obj)
 				
 				# MD
 				obj <- list(
@@ -534,7 +535,8 @@ diagplotPairs <- function(x,output="x11",path=NULL,altNames=NULL,...) {
 					user=list(counts=NULL,covar=NULL,
 						covarname="Mean-Difference")
 				)
-				jsonList$md[[counter]] <- scatterToJSON(obj,out="list")
+				#jsonList$md[[counter]] <- scatterToJSON(obj,out="list")
+				jsonList$md[[counter]] <- scatterToJSON(obj)
 			}
 		}
 		names(jsonList$xy) <- names(jsonList$md) <- plotNames
@@ -665,7 +667,8 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
 							user=list(counts=NULL,covar=NULL,
 								covarname="Mean-Difference")
 						)
-						json[[n]][[i]] <- scatterToJSON(obj,out="list")
+						#json[[n]][[i]] <- scatterToJSON(obj,out="list")
+						json[[n]][[i]] <- scatterToJSON(obj)
 						names(json[[n]])[i] <- paste(s1,"_vs_",s2,sep="")
 					}
 				}
@@ -850,8 +853,9 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                    altnames=covars$gene_name,
                    user=list(plotdata=diagplotDataSave,covars=covars)
                 )
-                json <- bioDetectionToJSON(obj,out="list")
-                names(json) <- samples
+                #json <- bioDetectionToJSON(obj,out="list")
+                json <- bioDetectionToJSON(obj)
+                #names(json) <- samples
                 #fil <- character(length(samples))
                 #names(fil) <- samples
                 #for (i in 1:length(samples)) {
@@ -913,7 +917,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 jsonList[["biotype"]] <- vector("list",length(bts))
                 #json <- countsBioToJSON(obj,by="sample")
                 jsonList[["sample"]] <- 
-					countsBioToJSON(obj,by="sample",out="list")
+					#countsBioToJSON(obj,by="sample",out="list")
+					countsBioToJSON(obj,by="sample")
                 #for (i in 1:length(samples)) {
                 #    fil[["sample"]][samples[i]] <- file.path(path,
                 #        paste(whichPlot,"_",samples[i],".json",sep=""))
@@ -922,7 +927,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 #}
                 #json <- countsBioToJSON(obj,by="biotype")
                 jsonList[["biotype"]] <- 
-					countsBioToJSON(obj,by="biotype",out="list")
+					#countsBioToJSON(obj,by="biotype",out="list")
+					countsBioToJSON(obj,by="biotype")
                 names(jsonList[["biotype"]]) <- bts
                 #names(json) <- samples
                 #for (i in 1:length(bts)) {
@@ -967,7 +973,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 names(jsonList) <- c("sample","biotype")
                 #json <- bioSaturationToJSON(obj,by="sample")
                 jsonList[["sample"]] <- 
-					bioSaturationToJSON(obj,by="sample",out="list")
+					#bioSaturationToJSON(obj,by="sample",out="list")
+					bioSaturationToJSON(obj,by="sample")
                 names(jsonList[["sample"]]) <- samples
                 #for (i in 1:length(samples)) {
                 #    fil[["sample"]][samples[i]] <- file.path(path,
@@ -977,7 +984,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 #}
                 #json <- bioSaturationToJSON(obj,by="biotype")
                 jsonList[["biotype"]] <- 
-					bioSaturationToJSON(obj,by="biotype",out="list")
+					#bioSaturationToJSON(obj,by="biotype",out="list")
+					bioSaturationToJSON(obj,by="biotype")
 				#names(jsonList[["sample"]]) <- samples
                 #fil[["biotype"]] <- character(length(json))
                 #names(fil[["biotype"]]) <- names(json)
@@ -1150,9 +1158,11 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 jsonList <- vector("list",2)
                 names(jsonList) <- c("chromosome","biotype")
                 jsonList[["chromosome"]] <- 
-					biodistToJSON(obj,by="chromosome",out="list")
+					#biodistToJSON(obj,by="chromosome",out="list")
+					biodistToJSON(obj,by="chromosome")
                 jsonList[["biotype"]] <- 
-					biodistToJSON(obj,by="biotype",out="list")
+					#biodistToJSON(obj,by="biotype",out="list")
+					biodistToJSON(obj,by="biotype")
                 return(jsonList)
 			}
         }
@@ -1374,7 +1384,8 @@ diagplotVolcano <- function(f,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
             user=list(up=up,down=down,unf=ff,unp=pp,ualt=altNamesNeutral,
                 con=con)
         )
-        json <- volcanoToJSON(obj,out="list")
+        #json <- volcanoToJSON(obj,out="list")
+        json <- volcanoToJSON(obj)
         #fil <- file.path(path,paste("volcano_",con,".json",sep=""))
         #write(json,fil)
         return(json)
@@ -1465,7 +1476,8 @@ diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
             altnames=altNames,
             user=list(p=p,con=conn)
         )
-        json <- maStatToJSON(obj,out="list")
+        #json <- maStatToJSON(obj,out="list")
+        json <- maStatToJSON(obj)
         return(json)
     }
 }

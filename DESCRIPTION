@@ -28,6 +28,7 @@ Imports:
     log4r,
     rmdformats,
     RSQLite,
+    htmltools,
     pander,
     DT
 Suggests:

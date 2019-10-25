@@ -17,41 +17,27 @@ filterExons <- function(theCounts,geneData,sampleList,exonFilters,rc=0.8) {
                         pass[[n]] <- theGenes
                         names(pass[[n]]) <- theGenes
                         pass[[n]] <- cmclapply(theCounts[[n]],function(x,f) {
-                            #if (length(x$count) == 1)
-                            #    if (x$count[1]!=0)
-                            #        return(FALSE)
-                            #    else
-                            #        return(TRUE)
-                            #else if (length(x$count) > 1 &&
-                            #    length(x$count) <= f$exonsPerGene)
-                            #    if (length(which(x$count!=0)) >= f$minExons)
-                            #        return(FALSE)
-                            #    else
-                            #        return(TRUE)
-                            #else
-                            #    if (length(which(x$count!=0)) >=
-                            #        ceiling(length(x$count)*f$frac))
-                            #        return(FALSE)
-                            #    else
-                            #        return(TRUE)
-                            if (length(x) == 1)
+                            if (length(x) == 1) {
                                 if (x[1]!=0)
                                     return(FALSE)
                                 else
                                     return(TRUE)
+                            }
                             else if (length(x) > 1 &&
-                                length(x) <= f$exonsPerGene)
+                                length(x) <= f$exonsPerGene) {
                                 if (length(which(x!=0)) >= f$minExons)
                                     return(FALSE)
                                 else
                                     return(TRUE)
-                            else
+                            }
+                            else {
                                 if (length(which(x!=0)) >=
                                     ceiling(length(x)*f$frac))
                                     return(FALSE)
                                 else
                                     return(TRUE)
-                            },exonFilters$minActiveExons,rc=rc)
+							}
+                        },exonFilters$minActiveExons,rc=rc)
                         pass[[n]] <- do.call("c",pass[[n]])
                     }
                     passMatrix <- do.call("cbind",pass)

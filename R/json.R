@@ -214,24 +214,24 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
     
     if (by=="sample") {
         cols <- .getColorScheme(length(biotypes))
-        box.list <- json <- vector("list",length(samplenames))
-        names(box.list) <- names(json) <- samplenames
+        boxList <- json <- vector("list",length(samplenames))
+        names(boxList) <- names(json) <- samplenames
         for (n in samplenames) {
-            box.list[[n]] <- vector("list",length(biotypes))
-            names(box.list[[n]]) <- biotypes
+            boxList[[n]] <- vector("list",length(biotypes))
+            names(boxList[[n]]) <- biotypes
             for (b in biotypes)
-                box.list[[n]][[b]] <- counts[covars$biotype==b,n]
+                boxList[[n]][[b]] <- counts[covars$biotype==b,n]
             
-            B <- boxplot(box.list[[n]],plot=FALSE)$stats
+            B <- boxplot(boxList[[n]],plot=FALSE)$stats
             colnames(B) <- biotypes
-            oList <- lapply(names(box.list[[n]]),function(x,M,b) {
+            oList <- lapply(names(boxList[[n]]),function(x,M,b) {
                 v <- b[,x]
                 o <- which(M[[x]]<v[1] | M[[x]]>v[5])
                 if (length(o)>0)
                     return(M[[x]][o])
                 else
                     return(NULL)
-            },box.list[[n]],B)
+            },boxList[[n]],B)
             names(oList) <- biotypes
     
             # Data series
@@ -256,7 +256,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
                 r <- round(d[,s])
                 series[[s]]$tooltip=list(
                     pointFormat=paste('<strong>Population: ',
-                        length(box.list[[n]][[s]]),'</strong><br/>',
+                        length(boxList[[n]][[s]]),'</strong><br/>',
                         'Maximum: ',r[6],'<br/>',
                         'Upper quartile: ',r[5],'<br/>',
                         'Median: ',r[4],'<br/>',
@@ -411,31 +411,35 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
                 }
             )
         }
-        if (out=="json")
-			return(.unquote_js_fun(toJSON(json,auto_unbox=TRUE,null="null")))
+        if (out=="json") {
+			for (i in 1:length(json))
+				json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
+					auto_unbox=TRUE,null="null"))
+			return(json)
+		}
 		else
 			return(json)
     }
     else if (by=="biotype") {
         cols <- .getColorScheme(length(samples))
-        box.list <- json <- vector("list",length(biotypes))
-        names(box.list) <- names(json) <- biotypes
+        boxList <- json <- vector("list",length(biotypes))
+        names(boxList) <- names(json) <- biotypes
         for (b in biotypes) {
-            box.list[[b]] <- vector("list",length(samplenames))
-            names(box.list[[b]]) <- samplenames
+            boxList[[b]] <- vector("list",length(samplenames))
+            names(boxList[[b]]) <- samplenames
             for (n in samplenames)
-                box.list[[b]][[n]] <- counts[covars$biotype==b,n]
+                boxList[[b]][[n]] <- counts[covars$biotype==b,n]
             
-            B <- boxplot(box.list[[b]],plot=FALSE)$stats
+            B <- boxplot(boxList[[b]],plot=FALSE)$stats
             colnames(B) <- samplenames
-            oList <- lapply(names(box.list[[b]]),function(x,M,b) {
+            oList <- lapply(names(boxList[[b]]),function(x,M,b) {
                 v <- b[,x]
                 o <- which(M[[x]]<v[1] | M[[x]]>v[5])
                 if (length(o)>0)
                     return(M[[x]][o])
                 else
                     return(NULL)
-            },box.list[[b]],B)
+            },boxList[[b]],B)
             names(oList) <- samplenames
     
             # Data series
@@ -518,7 +522,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
 						),
 						title=list(
 							text=paste("Detection for biotype ",b,
-								" (population: ",lengths(box.list[[b]])[1],
+								" (population: ",lengths(boxList[[b]])[1],
 								")",sep="")
 						),
 						legend=list(
@@ -623,8 +627,12 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
                 }
             )
         }
-        if (out=="json")
-			return(.unquote_js_fun(toJSON(json,auto_unbox=TRUE,null="null")))
+        if (out=="json") {
+			for (i in 1:length(json))
+				json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
+					auto_unbox=TRUE,null="null"))
+			return(json)
+		}
 		else
 			return(json)
     }
@@ -639,7 +647,7 @@ bioDetectionToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     plotdata <- obj$user$plotdata
     covars <- obj$user$covars
     
-    if (!is.null(samples)&& is.list(samples)) {
+    if (!is.null(samples) && is.list(samples)) {
         samplenames <- unlist(samples,use.names=FALSE)
         names(plotdata$biotables) <- samplenames
     }
@@ -824,8 +832,11 @@ bioDetectionToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         )
     }
     
-    if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
+    if (out=="json") {
+		for (i in 1:length(json))
+			json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
+		return(json)
+	}
 	else if (out=="list")
 		return(json)
 }
@@ -975,8 +986,11 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
             )
         }
         
-        if (out=="json")
-			return(toJSON(json,auto_unbox=TRUE,null="null"))
+        if (out=="json") {
+			for (i in 1:length(json))
+				json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
+			return(json)
+		}
 		else if (out=="list")
 			return(json)
     }
@@ -1080,8 +1094,11 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
                 }
             )
         }
-        if (out=="json")
-			return(toJSON(json,auto_unbox=TRUE,null="null"))
+        if (out=="json") {
+			for (i in 1:length(json))
+				json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
+			return(json)
+		}
 		else if (out=="list") {
 			names(json) <- biotypes
 			return(json)

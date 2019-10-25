@@ -13,6 +13,7 @@ output:
     gallery: true
     cards: true
     use_bookdown: false
+    mathjax: null
 ---
 
 ```{r knitr_init, echo=FALSE, cache=FALSE}
@@ -49,9 +50,12 @@ if (offlineReport) {
 		"</script>",sep="")
 	cat("<script type=\"text/javascript\" src=\"js/export-data.js\"></script>",
 		sep="")
-	cat("<script src=\"js/dexie.min.js\"></script>",sep="")
 	cat("<script src=\"js/canvas2svg.js\"></script>",sep="")
 	cat("<script src=\"js/jvenn.min.js\"></script>",sep="")
+	if (reportDb == "sqlite")
+		cat("<script src=\"js/sql.js\"></script>",sep="")
+	else if (reportDb == "dexie")
+		cat("<script src=\"js/dexie.js\"></script>",sep="")
 } else {
 	cat("<script type=\"text/javascript\" src=\"https://raw.github.com/",
 		"HubSpot/pace/v1.0.0/pace.min.js\"></script>",sep="")
@@ -65,15 +69,21 @@ if (offlineReport) {
 		"modules/offline-exporting.js\"></script>",sep="")
 	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
 		"modules/export-data.js\"></script>",sep="")
-	cat("<script src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
-		"</script>",sep="")
 	cat("<script src=\"http://jvenn.toulouse.inra.fr/app/js/canvas2svg.js\">",
 		"</script>",sep="")
 	cat("<script src=\"http://jvenn.toulouse.inra.fr/app/js/jvenn.min.js\">",
 		"</script>",sep="")
+	if (reportDb == "sqlite")
+		cat("<script src=\"",
+		"https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js\">",
+		"</script>",sep="")
+	else if (reportDb == "dexie")
+		cat("<script src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
+			"</script>",sep="")
 }
 ```
 
+<!---
 <script>
 var db = new Dexie("plotdb");
 db.version(1).stores({
@@ -81,25 +91,107 @@ db.version(1).stores({
 });
 db.plots.clear().then(console.log("Previous plots cleared!"));
 </script>
+-->
 
 <script type="text/javascript">
-/*getPlotFromDb = function(query,renderId) {
+getPlotFromDb = function(query,renderId) {
 	var xhr = new XMLHttpRequest();
 	xhr.open('GET', './data/reportdb.sqlite',true);
 	xhr.responseType = 'arraybuffer';
 	xhr.onload = function(e) {
-	  var uInt8Array = new Uint8Array(this.response);
-	  var db = new SQL.Database(uInt8Array);
-	  var contents = db.exec(query);
-	  var chartData = JSON.parse(contents[0].values[0][0]);
-	  //console.log(chartData)
-	  chartData.chart.renderTo = renderId;
-	  var chart = new Highcharts.Chart(chartData);
+		var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + "'" +
+            " AND type='" + query.type + "'" + " AND subtype='" + 
+            query.subtype + "';";
+		var uInt8Array = new Uint8Array(this.response);
+		var db = new SQL.Database(uInt8Array);
+		var contents = db.exec(sqlQuery);
+		var chartData = JSON.parse(contents[0].values[0][0]);
+		console.log(chartData)
+		chartData.chart.renderTo = renderId;
+		var chart = new Highcharts.Chart(chartData);
 	};
 	xhr.send();
-}*/
+}
 
-getPlotFromDb = function(query,renderId) {
+getPlotWithFunFromDb = function(query,renderId) {
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', './data/reportdb.sqlite',true);
+	xhr.responseType = 'arraybuffer';
+	xhr.onload = function(e) {
+		var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + "'" +
+            " AND type='" + query.type + "'" + " AND subtype='" + 
+            query.subtype + "';";
+		var uInt8Array = new Uint8Array(this.response);
+		var db = new SQL.Database(uInt8Array);
+		var contents = db.exec(sqlQuery);
+		var chartData = JSON.parse(contents[0].values[0][0]);
+		
+		// Deserialize the stored functions - only in a couple of cases
+		if (query.type === "countsbio") {
+			chartData.yAxis.labels.formatter = new Function('return ' +
+				chartData.yAxis.labels.formatter)()
+				
+			chartData.plotOptions.scatter.tooltip.pointFormatter = 
+				new Function('return ' +
+					chartData.plotOptions.scatter.tooltip.pointFormatter)()
+			
+			chartData.plotOptions.boxplot.events.legendItemClick = 
+				new Function('return ' + 
+					chartData.plotOptions.boxplot.events.legendItemClick)()
+		}
+		if (query.type === "boxplot") {
+			chartData.plotOptions.boxplot.tooltip.pointFormatter = 
+				new Function('return ' +
+					chartData.plotOptions.boxplot.tooltip.pointFormatter)()
+			
+			chartData.plotOptions.boxplot.events.legendItemClick = 
+				new Function('return ' + 
+					chartData.plotOptions.boxplot.events.legendItemClick)()
+		}
+		
+		chartData.chart.renderTo = renderId;
+		var chart = new Highcharts.Chart(chartData);
+	};
+	xhr.send();
+}
+
+getVennFromDb = function(query,renderId) {
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', './data/reportdb.sqlite',true);
+	xhr.responseType = 'arraybuffer';
+	xhr.onload = function(e) {
+		var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + "'" +
+            " AND type='" + query.type + "'" + " AND subtype='" + 
+            query.subtype + "';";
+		
+		var uInt8Array = new Uint8Array(this.response);
+		var db = new SQL.Database(uInt8Array);
+		var contents = db.exec(sqlQuery);
+		var chartData = JSON.parse(contents[0].values[0][0]);
+		chartData.fnClickCallback = function() {
+			var value = '';
+			if (this.listnames.length == 1) {
+				value += 'Elements only in ';
+			} else {
+				value += 'Common elements in ';
+			}
+			for (name in this.listnames) {
+				value += this.listnames[name] + ' ';
+			}
+			value += ':\n';
+			for (val in this.list) {
+				value += this.list[val] + '\n';
+			}
+			$('#jvenn_list').text(value);
+		}
+		
+		//$('#'+renderId).empty();
+		$('#'+renderId).jvenn(chartData);
+	};
+	xhr.send();
+}
+
+/*getPlotFromDb = function(query,renderId) {
 	db.plots.get({
 		name: query.name,
 		type: query.type,
@@ -109,9 +201,9 @@ getPlotFromDb = function(query,renderId) {
 		chartData.chart.renderTo = renderId;
 		var chart = new Highcharts.Chart(chartData);
 	});
-}
+}*/
 
-getPlotWithFunFromDb = function(query,renderId) {
+/*getPlotWithFunFromDb = function(query,renderId) {
 	db.plots.get({
 		name: query.name,
 		type: query.type,
@@ -145,9 +237,9 @@ getPlotWithFunFromDb = function(query,renderId) {
 		
 		var chart = new Highcharts.Chart(chartData);
 	});
-}
+}*/
 
-getVennFromDb = function(query,renderId) {
+/*getVennFromDb = function(query,renderId) {
 	db.plots.get({
 		name: query.name,
 		type: query.type,
@@ -173,7 +265,7 @@ getVennFromDb = function(query,renderId) {
 		//$('#'+renderId).empty();
 		$('#'+renderId).jvenn(chartData);
 	});
-}
+}*/
 </script>
 
 <style>
@@ -320,6 +412,8 @@ library(pander)
 
 # Initialize some variables used throughout the report
 samples <- unlist(sampleList,use.names=FALSE)
+biotypes <- as.character(geneData$biotype)
+
 qualPlots <- c("mds","biodetection","countsbio","saturation","readnoise",
 	"correl","pairwise","filtered")
 normPlots <- c("boxplot","gcbias","lengthbias","meandiff","meanvar","rnacomp")
@@ -1219,16 +1313,6 @@ if (any(qcPlots %in% qualPlots)) {
 }
                 
 ```
-<!---
-# Quality control
-
-## Quality control figures {.tabset .tabset-pills}
-
-The following figures summarize the quality control steps and assessment 
-performed by the ```metaseqr2``` pipeline. Each figure category is accompanied
-by an explanatory text. All figures are interactive wih additional controls on
-the top right of the figure.
--->
 
 ```{r analysis_figures_mds}
 if ("mds" %in% qcPlots) {
@@ -1252,29 +1336,6 @@ if ("mds" %in% qcPlots) {
 if ("biodetection" %in% qcPlots) {
 	pandoc.header("Biodetection",level=3)
 	
-	# Get chart data as list
-	log <- capture.output({
-		json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-			whichPlot="biodetection",output="json")
-	})
-	
-	# Add extra data, serialize and import the plots to Dexie
-	preImport <- vector("list",length(json))
-	for (i in 1:length(json)) {
-		preImport[[i]] <- list(
-			name=paste("biodetection",samples[i],sep="_"),
-			type="biodetection",
-			subtype="generic",
-			json=json[[samples[i]]]
-		)
-	}
-	toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImport,");",sep="")
-	cat("</script>")
-	
 	cat("<h4><strong>Biotype detection</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
 	    "<br/><br/></div>",sep="")
@@ -1290,57 +1351,46 @@ if ("biodetection" %in% qcPlots) {
 	
 	# Container div
 	cat("<div class=\"hc-rect-sm\" id=\"biodetection_container\"></div>",sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#biodetection_container').highcharts(",
-		toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-		sep="")
+	
+	if (reportDb == "sqlite") {
+		# Initialize first plot with triggering
+		#cat("<script>$('#biodetection_selector').trigger('change');</script>")
+	}
+	else if (reportDb == "dexie") {
+		# Get chart data as list
+		log <- capture.output({
+			json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+				whichPlot="biodetection",output="json")
+		})
+		
+		# Add extra data, serialize and import the plots to Dexie
+		preImport <- vector("list",length(json))
+		for (i in 1:length(json)) {
+			preImport[[i]] <- list(
+				name=paste("biodetection",samples[i],sep="_"),
+				type="biodetection",
+				subtype="generic",
+				json=json[[samples[i]]]
+			)
+		}
+		toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImport,");",sep="")
+		cat("</script>")
+		
+		# Initialize first plot with serialized JSON
+		cat("<script>$('#biodetection_container').highcharts(",
+			toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),
+			");</script>",sep="")
+	}
 }
 ```
 
 ```{r analysis_figures_countsbio}
 if ("countsbio" %in% qcPlots) {
 	pandoc.header("Biocounts",level=3)
-	
-	# Get the chart data as list
-	jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-		whichPlot="countsbio",output="json")
-	
-	# Add extra data, serialize and import the plots to Dexie per sample
-	preImportSample <- vector("list",length(jsonList$sample))
-	for (i in 1:length(jsonList$sample)) {
-		preImportSample[[i]] <- list(
-			name=paste("countsbio",samples[i],sep="_"),
-			type="countsbio",
-			subtype="sample",
-			json=jsonList$sample[[samples[i]]]
-		)
-	}
-	toImportSample <- toJSON(preImportSample,auto_unbox=TRUE,null="null")
-	#toImportSample <- .unquote_js_fun(toImportSample)
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportSample,");",sep="")
-	cat("</script>")
-	
-	# Add extra data, serialize and import the plots to Dexie per biotype
-	preImportBiotype <- vector("list",length(jsonList$biotype))
-	biotypes <- names(jsonList$biotype)
-	for (i in 1:length(jsonList$biotype)) {
-		preImportBiotype[[i]] <- list(
-			name=paste("countsbio",biotypes[i],sep="_"),
-			type="countsbio",
-			subtype="biotype",
-			json=jsonList$biotype[[biotypes[i]]]
-		)
-	}
-	toImportBiotype <- toJSON(preImportBiotype,auto_unbox=TRUE,null="null")
-	#toImportBiotype <- .unquote_js_fun(toImportBiotype)
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportBiotype,");",sep="")
-	cat("</script>")
 	
 	cat("<h4><strong>Biotype representation</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$countsbio,
@@ -1360,10 +1410,10 @@ if ("countsbio" %in% qcPlots) {
 	# Container div - sample
 	cat("<div class=\"hc-rect-sm\" id=\"countsbio_sample_container\"></div>",
 		sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#countsbio_sample_container').highcharts(",
-	    .unquote_js_fun(toJSON(preImportSample[[1]]$json,auto_unbox=TRUE,
-	    null="null")),");</script>",sep="")
+	# Container div - biotype
+	cat("<div class=\"hc-rect-sm\" id=\"countsbio_biotype_container\">",
+		"</div>",sep="")
+	
 	
 	cat("<br/><h4><em>Biotype representation across samples</em></h4>")
 	
@@ -1376,13 +1426,60 @@ if ("countsbio" %in% qcPlots) {
 	cat("<select id=\"countsbio_biotype_selector\">",items,"</select>",sep="")
 	cat("</div>")
 	
-	# Container div - biotype
-	cat("<div class=\"hc-rect-sm\" id=\"countsbio_biotype_container\">",
-		"</div>",sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#countsbio_biotype_container').highcharts(",
-	    .unquote_js_fun(toJSON(preImportBiotype[[1]]$json,auto_unbox=TRUE,
-		null="null")),");</script>",sep="")
+	if (reportDb == "sqlite") {
+		# Stump
+	}
+	else if (reportDb == "dexie") {
+		# Get the chart data as list
+		jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+			whichPlot="countsbio",output="json")
+		
+		# Add extra data, serialize and import the plots to Dexie per sample
+		preImportSample <- vector("list",length(jsonList$sample))
+		for (i in 1:length(jsonList$sample)) {
+			preImportSample[[i]] <- list(
+				name=paste("countsbio",samples[i],sep="_"),
+				type="countsbio",
+				subtype="sample",
+				json=jsonList$sample[[samples[i]]]
+			)
+		}
+		toImportSample <- toJSON(preImportSample,auto_unbox=TRUE,null="null")
+		#toImportSample <- .unquote_js_fun(toImportSample)
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImportSample,");",sep="")
+		cat("</script>")
+		
+		# Add extra data, serialize and import the plots to Dexie per biotype
+		preImportBiotype <- vector("list",length(jsonList$biotype))
+		biotypes <- names(jsonList$biotype)
+		for (i in 1:length(jsonList$biotype)) {
+			preImportBiotype[[i]] <- list(
+				name=paste("countsbio",biotypes[i],sep="_"),
+				type="countsbio",
+				subtype="biotype",
+				json=jsonList$biotype[[biotypes[i]]]
+			)
+		}
+		toImportBiotype <- toJSON(preImportBiotype,auto_unbox=TRUE,null="null")
+		#toImportBiotype <- .unquote_js_fun(toImportBiotype)
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImportBiotype,");",sep="")
+		cat("</script>")
+		
+		# Initialize first plot with serialized JSON
+		cat("<script>$('#countsbio_sample_container').highcharts(",
+			.unquote_js_fun(toJSON(preImportSample[[1]]$json,auto_unbox=TRUE,
+			null="null")),");</script>",sep="")
+		# Initialize first plot with serialized JSON
+		cat("<script>$('#countsbio_biotype_container').highcharts(",
+			.unquote_js_fun(toJSON(preImportBiotype[[1]]$json,auto_unbox=TRUE,
+			null="null")),");</script>",sep="")
+	}	
 }
 ```
 
@@ -2056,6 +2153,10 @@ if ("deheatmap" %in% qcPlots) {
 			mat <- as.matrix(normGenesExpr[ind,s])
 		else
 			mat <- as.matrix(normGenesExpr[,s])
+		if (!is.null(reportTop)) {
+			topi <- ceiling(reportTop*nrow(mat))
+			mat <- mat[1:topi,,drop=FALSE]
+		}
 		hList[[cnt]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
 			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",con)) %>%
 			layout(width=720,height=840)
@@ -2484,7 +2585,7 @@ var timer = setInterval(function() {
 ```{r export_links}
 if (exportCountsTable) {
 	cat("<br/><div class=\"figure-hint link-box\">")
-	if (file.exists(file.path(PROJECT.PATH[["lists"]],
+	if (file.exists(file.path(PROJECT_PATH[["lists"]],
 		"raw_counts_table.txt.gz")))
 		cat("<strong><a href=\"lists/raw_counts_table.txt.gz\" download>",
 			"Download</a> the raw read counts table for the experiment.",
@@ -2613,4 +2714,9 @@ $("#detable_selector").on('change',function() {
 	var id = $('#'+name+"_").find("table")[1].id;
 	$('#'+id).DataTable().columns.adjust();
 });
+
+// Initialize some by changing plots (harmless for dexie, required for sqlite)
+$('#biodetection_selector').trigger('change');
+$('#countsbio_sample_selector').trigger('change');
+$('#countsbio_biotype_selector').trigger('change');
 </script>
