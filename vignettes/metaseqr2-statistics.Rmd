@@ -129,11 +129,11 @@ the examples in the main help page. Below, an example and the command window
 output follow:
 
 ```{r data-1, eval=TRUE, echo=TRUE}
-data("mm9.gene.data",package="metaseqR")
+data("mm9GeneData",package="metaseqR2")
 ```
 
 ```{r head-1, eval=TRUE, echo=TRUE}
-head(mm9.gene.counts)
+head(mm9GeneCounts)
 ```
 
 ```{r random-1, eval=TRUE, echo=TRUE}
@@ -143,6 +143,8 @@ sampleListMm9
 ```{r random-2, eval=TRUE, echo=TRUE}
 libsizeListMm9
 ```
+
+### Analysis at the gene level with gene counts
 
 Following, a full example with the informative messages that are printed in the
 command window:
@@ -158,7 +160,7 @@ print(outDir)
 result <- metaseqr2(
 	counts=mm9GeneCounts,
 	sampleList=sampleListMm9,
-	contrast=c("e14.5_vs_adult_8_weeks"),
+	contrast=c("adult_8_weeks_vs_e14.5"),
 	libsizeList=libsizeListMm9,
 	annotation="embedded",
 	org="mm9",
@@ -167,8 +169,7 @@ result <- metaseqr2(
 	statistics="edger",
 	pcut=0.05,
 	figFormat=c("png","pdf"),
-	exportWhat=c("annotation","p_value","adj_p_value",
-		"fold_change"),
+	exportWhat=c("annotation","p_value","adj_p_value","fold_change"),
 	exportScale=c("natural","log2"),
 	exportValues="normalized",
 	exportStats=c("mean","sd","cv"),
@@ -219,7 +220,7 @@ print(outDir2)
 result <- metaseqr2(
 	counts=mm9GeneCounts,
 	sampleList=sampleListMm9,
-	contrast=c("e14.5_vs_adult_8_weeks"),
+	contrast=c("adult_8_weeks_vs_e14.5"),
 	libsizeList=libsizeListMm9,
 	annotation="embedded",
 	org="mm9",
@@ -231,7 +232,7 @@ result <- metaseqr2(
 	qcPlots=c(
 		"mds","biodetection","countsbio","saturation","readnoise","filtered",
 		"correl","pairwise","boxplot","gcbias","lengthbias","meandiff",
-		"meanvar","rnacomp","deheatmap","volcano","biodist","venn"
+		"meanvar","rnacomp","deheatmap","volcano","mastat","biodist","venn"
 	),
 	figFormat=c("png","pdf"),
 	preset="medium_normal",
@@ -252,20 +253,20 @@ outDir3 <- tempdir()
 print(outDir3)
 
 result <- metaseqr2(
-       counts=mm9GeneCounts,
-       sampleList=sampleListMm9,
-       contrast=c("e14.5_vs_adult_8_weeks"),
-       libsizeList=libsizeListMm9,
-       annotation="embedded",
-       org="mm9",
-       countType="gene",
-       normalization="edaseq",
-       statistics=c("deseq","edger"),
-       metaP="fisher",
-       figFormat=c("png","pdf"),
-       preset="medium_normal",
-       outList=TRUE,
-       exportWhere=outDir3
+   counts=mm9GeneCounts,
+   sampleList=sampleListMm9,
+   contrast=c("adult_8_weeks_vs_e14.5"),
+   libsizeList=libsizeListMm9,
+   annotation="embedded",
+   org="mm9",
+   countType="gene",
+   normalization="edaseq",
+   statistics=c("deseq","edger"),
+   metaP="fisher",
+   figFormat=c("png","pdf"),
+   preset="medium_normal",
+   outList=TRUE,
+   exportWhere=outDir3
 )
 ```
 
@@ -280,157 +281,177 @@ outDir3 <- tempdir()
 print(outDir3)
 
 result <- metaseqr2(
-       counts=mm9GeneCounts,
-       sampleList=sampleListMm9,
-       contrast=c("e14.5_vs_adult_8_weeks"),
-       libsizeList=libsizeListMm9,
-       annotation="embedded",
-       org="mm9",
-       countType="gene",
-       normalization="edaseq",
-       statistics=c("deseq","edger"),
-       metaP="fisher",
-       figFormat=c("png","pdf"),
-       preset="medium_normal",
-       outList=TRUE,
-       exportWhere=outDir3
+   counts=mm9GeneCounts,
+   sampleList=sampleListMm9,
+   contrast=c("adult_8_weeks_vs_e14.5"),
+   libsizeList=libsizeListMm9,
+   annotation="embedded",
+   org="mm9",
+   countType="gene",
+   normalization="edaseq",
+   statistics=c("deseq","edger"),
+   metaP="fisher",
+   figFormat=c("png","pdf"),
+   preset="medium_normal",
+   outList=TRUE,
+   exportWhere=outDir3
 )
 ```
 
-An additional example with human exon data (if you have a multiple core system,
-be very careful on how you are using the restrict.cores option and generally how
-many cores you are using with scripts purely written in R. The analysis with exon
-read data can very easily cause memory problems, so unless you have more than 64Gb
-of RAM available, consider setting restrict.cores to something like 0.2):
+### Analysis at the gene level with exon counts
 
-<<example-4, eval=FALSE, echo=TRUE, tidy=FALSE>>=
+**Note**: Be sure to have constructed a metaseqR2 annotation database prior to
+continuing with the following examples!
+
+An additional example with human exon data follows. If you have a multiple core 
+system, be careful on how you are using the ```restrictCores``` option and 
+generally how many cores you are using with scripts purely written in R. The 
+analysis with exon read data can cause memory problems when a lot of BAM files 
+are imported, so unless you have more than 64Gb of RAM available, consider 
+setting ```restrictCores``` to something like ```0.2```. Generally, although the
+```metaseqR2``` gene model construction process from exon data is much faster
+and memory-efficient now, it requires some caution especially for large
+experiments. As example BAM files do not fit within the Bioconductor package,
+you can find a small (3 chromosomes) example dataset [here](https://drive.google.com/uc?export=download&id=1AuFAJSGO3wwubH_Xq949ZHd_hB68wT3P)
+
+```{r example-4, eval=FALSE, echo=TRUE, tidy=FALSE}
 # A full example pipeline with exon counts
-data("hg19.exon.data",package="metaseqR")
-out.dir <- tempdir()
-print(out.dir)
-metaseqr2(
-       counts=hg19.exon.counts,
-       sample.list=sample.list.hg19,
-       contrast=c("normal_vs_paracancerous","normal_vs_cancerous",
-          "normal_vs_paracancerous_vs_cancerous"),
-       libsize.list=libsize.list.hg19,
-       id.col=4,
-       annotation="download",
-       org="hg19",
-       count.type="exon",
-       normalization="edaseq",
-       statistics="deseq",
-       pcut=0.05,
-       qc.plots=c(
-             "mds","biodetection","countsbio","saturation","rnacomp","pairwise",
-             "boxplot","gcbias","lengthbias","meandiff","meanvar","correl",
-             "deheatmap","volcano","biodist","filtered"
-       ),
-       fig.format=c("png","pdf"),
-       export.what=c("annotation","p.value","adj.p.value","fold.change","stats","counts"),
-       export.scale=c("natural","log2","log10","vst"),
-       export.values=c("raw","normalized"),
-       export.stats=c("mean","median","sd","mad","cv","rcv"),
-       restrict.cores=0.8,
-       gene.filters=list(
-             length=list(
-                    length=500
-             ),
-             avg.reads=list(
-                    average.per.bp=100,
-                    quantile=0.25
-             ),
-             expression=list(
-                    median=TRUE,
-                    mean=FALSE
-             ),
-             biotype=get.defaults("biotype.filter","hg19")
-       ),
-       export.where=out.dir
+
+outDir4 <- tempdir()
+print(outDir4)
+
+lnk <- "https://drive.google.com/uc?export=download&id=1AuFAJSGO3wwubH_Xq949ZHd_hB68wT3P"
+download.file(lnk,outDir4)
+unzip(file.path(outDir4,"3i4_data.zip"),exdir=outDir4,junkpaths=TRUE)
+
+targetsDf <- data.frame(
+	samplename=c("CON1","CON2","DOX1","DOX2"),
+	filename=dir(outDir4,pattern=".bam",full.names=TRUE),
+	condition=c("CON","CON","DOX","DOX"),
+	paired=rep("single",4),
+	stranded=rep("forward",4)
 )
-@
+
+metaseqr2(
+	sampleList=targetsDf,
+	contrast="DOX_vs_CON",
+	org="hg19",
+	countType="exon",
+	normalization="deseq",
+	statistics="deseq",
+	pcut=0.05,
+	qcPlots=c(
+		 "mds","biodetection","countsbio","saturation","rnacomp","pairwise",
+		 "boxplot","gcbias","lengthbias","meandiff","meanvar","correl",
+		 "deheatmap","volcano","mastat","biodist","filtered"
+	),
+	figFormat=c("png","pdf"),
+	exportWhat=c("annotation","p_value","adj_p_value","fold_change",
+		"stats","counts"),
+	exportScale=c("natural","log2","log10","vst"),
+	exportValues=c("raw","normalized"),
+	exportStats=c("mean","median","sd","mad","cv","rcv"),
+	restrictCores=0.8,
+	geneFilters=list(
+		length=list(
+			length=500
+		),
+		avgReads=list(
+			averagePerBp=100,
+			quantile=0.25
+		),
+		expression=list(
+			median=TRUE,
+			mean=FALSE
+		),
+		biotype=getDefaults("biotypeFilter","hg19")
+	),
+	exportWhere=outDir4
+)
+```
 
 or in a more simplified version
 
-<<example-5, eval=FALSE, echo=TRUE, tidy=FALSE>>=
+```{r example-5, eval=FALSE, echo=TRUE, tidy=FALSE}
 # A full example pipeline with exon counts
 data("hg19.exon.data",package="metaseqR")
 out.dir <- tempdir()
 print(out.dir)
 metaseqr(
-       counts=hg19.exon.counts,
-       sample.list=sample.list.hg19,
-       contrast=c("normal_vs_paracancerous","normal_vs_cancerous",
-          "normal_vs_paracancerous_vs_cancerous"),
-       libsize.list=libsize.list.hg19,
-       id.col=4,
-       annotation="download",
-       org="hg19",
-       count.type="exon",
-       normalization="edaseq",
-       statistics="deseq",
-       preset="medium.normal",
-       restrict.cores=0.8,
-       export.where=out.dir
+sampleList=targetsDf,
+	contrast="DOX_vs_CON",
+	org="hg19",
+	countType="exon",
+	normalization="deseq",
+	statistics="deseq",
+	preset="medium_normal",
+	restrictCores=0.8,
+	exportWhere=outDir4
 )
-@
+```
 
-One of the main strong points of metaseqR is the use of the area under False
-Discovery Curves to assess the performance of each statistical test with
-simulated datasets created from true datasets (e.g. your dataset). Then, the
-performance assessment can be used to construct p-value weights for each test
-and use these weights to supply the ``weight'' parameter of metaseqr when
-``meta.p'' is ``weight'' or ``whitlock'' (see the next sections for p-value
-combination methods). The following example shows how to create such weights
-(depending on the size of the dataset, it might take some time to run):
+In metaseqR2, the PANDORA algorithm is expaned with additional 3 algorithms.
+Briefly, PANDORA use of the area under False Discovery Curves to assess the 
+performance of each statistical test with simulated datasets created from true 
+datasets (e.g. your own dataset, as long as it has a sufficient number of
+replicates). Then, the performance assessment can be used to construct p-value 
+weights for each test and use these weights to supply the ```weight``` parameter 
+of metaseqr when ```metaP``` is ```weight```, ```pandora``` or ```whitlock`` 
+(see the next sections for p-value combination methods). The following example 
+shows how to create such weights (depending on the size of the dataset, it might 
+take some time to run):
 
-<<example-6, eval=TRUE, echo=TRUE, tidy=FALSE>>=
-data("mm9.gene.data",package="metaseqR")
-multic <- check.parallel(0.8)
-weights <- estimate.aufc.weights(
-    counts=as.matrix(mm9.gene.counts[,9:12]),
+```{rexample-6, eval=TRUE, echo=TRUE, tidy=FALSE}
+data("mm9GeneData",package="metaseqR2")
+weights <- estimateAufcWeights(
+    counts=as.matrix(mm9GeneCounts[,9:12]),
     normalization="edaseq",
     statistics=c("edger","limma"),
-    nsim=1,N=10,ndeg=c(2,2),top=4,model.org="mm9",
-    seed=42,multic=multic,libsize.gt=1e+5
+    nsim=1,N=10,ndeg=c(2,2),top=4,modelOrg="mm9",
+    seed=42,rc=0.5,libsizeGt=1e+5
 )
-@
+```
 
 ...and the weights...
 
-<<head-3, eval=TRUE, echo=TRUE>>=
+```{r head-3, eval=TRUE, echo=TRUE}
 weights
-@
+```
 
-\section{metaseqR components}
+## metaseqR2 components
 
-The metaseqR package includes several functions which are responsible for running
-each part of the pipeline (data reading and summarization, filtering, normalization,
-statistical analysis and meta-analysis and reporting). Although metaseqR is
-designed to run as a pipeline, where all the parameters for each individual part
-can be passed in the main function, several of the individual functions can be run
-separately so that the more experienced user can build custom pipelines. All the
-HTML help pages contain analytical documentation on how to run these functions,
-their inputs and outputs and contain basic examples. For example, runnning
+The metaseqR2 package includes several functions which are responsible for 
+running each part of the pipeline (data reading and summarization, filtering, 
+normalization, statistical analysis and meta-analysis and reporting). Although 
+metaseqR2 is designed to run as a pipeline, where all the parameters for each 
+individual part can be passed in the main function, several of the individual 
+functions can be run separately so that the more experienced user can build 
+custom pipelines. All the HTML help pages contain analytical documentation on 
+how to run these functions, their inputs and outputs and contain basic examples. 
+For example, runnning
 
-<<help-2, eval=FALSE, echo=TRUE>>=
-help(stat.edgeR)
-@
+```{r help-2, eval=FALSE, echo=TRUE}
+help(statEdger)
+```
 
-will open the help page of the wrapper function over the edgeR statistical testing
-algorithm which contains an example of data generation, processing, up to
-statistical selection.
+will open the help page of the wrapper function over the edgeR statistical 
+testing algorithm which contains an example of data generation, processing, up 
+to statistical selection.
 
-Most of the diagnostic plots, work with simple matrices as inputs, so they can be
-easily used outside the main pipeline, as long as all the necessary arguments are
-given. It should be noted that a report can be generated only when running the
-whole metaseqr pipeline and in the current version there is no support for
-generating custom reports.
+Most of the diagnostic plots, work with simple matrices as inputs, so they can 
+be easily used outside the main pipeline, as long as all the necessary arguments 
+are given. In metaseqR2, most of the individual diagnostic plot creation 
+functions are not exported, mostly for documentation simplicity and avoidance of
+confusion for non-experts. They can still be used by calling them as 
+non-exported objects (e.g. ```metaseqR2:::diagplotMds```). Finally, it should be
+noted that a report can be generated only when running the whole ```metaseqr2``` 
+pipeline and in the current version there is no support for generating custom 
+reports. The final reports contains full interactive graphs and the required
+JavaScript libraries to generate them are automatically downloaded.
 
-A very detailed documentation on how to run metaseqr and explanation for all its
-parameters can be obtained by
+A very detailed documentation on how to run ```metaseqr2``` and explanation for 
+all its parameters can be obtained by
 
-<<help-3, eval=FALSE, echo=TRUE>>=
-help(metaseqr)
-@
-
+```{r help-3, eval=FALSE, echo=TRUE}
+help(metaseqr2)
+```

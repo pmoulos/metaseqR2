@@ -9,3 +9,74 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+Simple, flexible and reusable annotation for metaseqR2 pipeline
+================================================================================
+
+When using the first version of metaseqR, one had to either embed the annotation
+to the gene/exon/3' UTR counts, or to download and construct on-the-fly the
+required annotation when starting from BAM files. Although the counting and gene
+model construction results could (anf still can) be saved and re-used with other
+analysis parameters changed (e.g. statistical algorithms), one could not easily
+add for example new data to an existing dataset without re-running the whole
+pipeline and re-downloading annotation. On top of that, many times, the main
+Ensembl servers (when using Ensembl annotations) do not respond well to 
+```biomaRt``` calls, so the whole pipeline may stall until the servers are back.
+
+Another main issue with the annotation used by metaseqR was that there was no 
+straightforward way, provided by metaseqR, to archive and version the annotation
+used by a specific analysis and was up to the user to take care of 
+reproducibility at this level. Furthermore, there was no straightforward way for 
+a user to plugin own annotation elements (e.g. in the form of a GTF file) and 
+use it in the same manner as standard annotations supported by metaseqR, e.g. 
+when analyzing data from not-so-often studied organisms such as insects. 
+Plugging-in own annotation was possible but usually a painful procedure, which
+has become now very easy.
+
+The annotation database builder for metaseqR2 remedies the above situations. The
+```buildAnnotationDatabase``` function should be run once with the organisms one
+requires to have locally to work with and then that's it! Of course you can
+manage your database by adding and removing specific annotations (and you even
+can play with an SQLite browser, although not advised, as the database structure 
+is rather simple). Furthermore, you can use the metaseqR2 annotation database
+and management mechanism for any other type of analysis where you require to 
+have a simple tab-delimited annotation file, acquired with very little effort.
+
+## Supported organisms
+
+The following organisms (essentially genome versions) are supported for 
+automatic database builds:
+
+* Human (*Homo sapiens*) genome version ```hg38```
+* Human (*Homo sapiens*) genome version ```hg19```
+* Human (*Homo sapiens*) genome version ```hg18```
+* Mouse (*Mus musculus*) genome version ```mm10```
+* Mouse (*Mus musculus*) genome version ```mm9```
+* Rat (*Rattus norvegicus*) genome version ```rn6```
+* Rat (*Rattus norvegicus*) genome version ```rn5```
+* Fruitfly (*Drosophila melanogaster*) genome version ```dm6```
+* Fruitfly (*Drosophila melanogaster*) genome version ```dm3```
+
+rn5=paste("rat (Rattus norvegicus),",
+	"genome version  alias rn5"),
+rn6=paste("rat (Rattus norvegicus),",
+	"genome version alias rn6"),
+dm3=paste("fruitfly (Drosophila melanogaster),",
+	"genome version alias dm3"),
+danrer7=paste("zebrafish (Danio rerio),",
+	"genome version alias danRer7"),
+pantro5=paste("chimpanzee (Pan troglodytes),",
+	"genome version alias panTro5"),
+susscr3=paste("pig (Sus scrofa),",
+	"genome version alias susScr3"),
+tair10=paste("arabidopsis (Arabidobsis thaliana)",
+	",","genome version alias TAIR10")
+
+## Setup the database
+
+By default, the database file will be written in the
+```system.file(package="metaseqR2")``` directory. You can specify another
+prefered destination for it using the ```db``` argument in the function call, 
+but if you do that, you will have to supply the ```localDb``` argument pointing
+to the SQLite database file you created to every ```metaseqr2``` call you 
+perform, otherwise, the pipeline will download and use annotations on-the-fly.

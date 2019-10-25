@@ -2209,8 +2209,8 @@ metaseqr2 <- function(
             TEMP <- environment()
             
             #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+            file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
 			render(
