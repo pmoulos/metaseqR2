@@ -1653,6 +1653,7 @@ if ("correl" %in% qcPlots) {
 	else
 		notecex <- 0.7
 
+	# FIXME: Spawns a x11 somewhere.. Maybe do as with DE heatmap
 	heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,cellnote=labs,
 		colors=colorRampPalette(c("yellow","grey","blue")),
 		k_col=length(sampleList),k_row=length(sampleList)) %>%
@@ -2181,8 +2182,8 @@ if ("mastat" %in% qcPlots) {
 			for (contr in colnames(m)) {
 				index <- index + 1
 				namc <- c(namc,contr)
-				json[[index]] <- diagplotMa(m[,contr],a[,contr],sumpList[[n]],contr,
-					altNames=geneDataExpr$gene_name,output="json")
+				json[[index]] <- diagplotMa(m[,contr],a[,contr],sumpList[[n]],
+					contr,altNames=geneDataExpr$gene_name,output="json")
 			}
 		}
 		names(json) <- namc
