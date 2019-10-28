@@ -413,8 +413,9 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
         }
         if (out=="json") {
 			for (i in 1:length(json))
-				json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
-					auto_unbox=TRUE,null="null"))
+				#json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
+				#	auto_unbox=TRUE,null="null"))
+				json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
 			return(json)
 		}
 		else
@@ -629,8 +630,9 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
         }
         if (out=="json") {
 			for (i in 1:length(json))
-				json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
-					auto_unbox=TRUE,null="null"))
+				#json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
+				#	auto_unbox=TRUE,null="null"))
+				json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
 			return(json)
 		}
 		else
@@ -661,56 +663,56 @@ bioDetectionToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     names(json) <- samplenames
     for (n in samplenames) {
         # Data series
-        series.abu <- vector("list",3)
-        names(series.abu) <- c("genome","detectionVSgenome","detectionVSsample")
-        series.abu$genome <- list()
-        series.abu$genome$id <- "abu_genome"
-        series.abu$genome$name <- "% in genome"
-        series.abu$genome$color <- cols$trans[1]
-        series.abu$genome$pointPlacement <- -0.2
-        series.abu$genome$data <- round(as.numeric(plotdata$genome[abu]),3)
-        series.abu$detectionVSgenome <- list()
-        series.abu$detectionVSgenome$id <- "abu_detected"
-        series.abu$detectionVSgenome$name <- "% detected"
-        series.abu$detectionVSgenome$color <- cols$trans[2]
-        series.abu$detectionVSgenome$pointPlacement <- 0
-        series.abu$detectionVSgenome$data <- round(as.numeric(
+        seriesAbu <- vector("list",3)
+        names(seriesAbu) <- c("genome","detectionVSgenome","detectionVSsample")
+        seriesAbu$genome <- list()
+        seriesAbu$genome$id <- "abu_genome"
+        seriesAbu$genome$name <- "% in genome"
+        seriesAbu$genome$color <- cols$trans[1]
+        seriesAbu$genome$pointPlacement <- -0.2
+        seriesAbu$genome$data <- round(as.numeric(plotdata$genome[abu]),3)
+        seriesAbu$detectionVSgenome <- list()
+        seriesAbu$detectionVSgenome$id <- "abu_detected"
+        seriesAbu$detectionVSgenome$name <- "% detected"
+        seriesAbu$detectionVSgenome$color <- cols$trans[2]
+        seriesAbu$detectionVSgenome$pointPlacement <- 0
+        seriesAbu$detectionVSgenome$data <- round(as.numeric(
             plotdata$biotables[[n]][1,abu]),3)
-        series.abu$detectionVSsample <- list()
-        series.abu$detectionVSsample$id <- "abu_sample"
-        series.abu$detectionVSsample$name <- "% in sample"
-        series.abu$detectionVSsample$color <- cols$trans[3]
-        series.abu$detectionVSsample$pointPlacement <- 0.2
-        series.abu$detectionVSsample$data <- round(as.numeric(
+        seriesAbu$detectionVSsample <- list()
+        seriesAbu$detectionVSsample$id <- "abu_sample"
+        seriesAbu$detectionVSsample$name <- "% in sample"
+        seriesAbu$detectionVSsample$color <- cols$trans[3]
+        seriesAbu$detectionVSsample$pointPlacement <- 0.2
+        seriesAbu$detectionVSsample$data <- round(as.numeric(
             plotdata$biotables[[n]][2,abu]),3)
-        series.nabu <- vector("list",3)
-        names(series.nabu) <- c("genome","detectionVSgenome",
+        seriesNabu <- vector("list",3)
+        names(seriesNabu) <- c("genome","detectionVSgenome",
             "detectionVSsample")
-        series.nabu$genome <- list()
-        series.nabu$genome$name <- "% in genome"
-        series.nabu$genome$yAxis <- 1
-        series.nabu$genome$pointStart <- length(abu)
-        series.nabu$genome$linkedTo <- "abu_genome"
-        series.nabu$genome$color <- cols$trans[1]
-        series.nabu$genome$pointPlacement <- -0.2
-        series.nabu$genome$data <- round(as.numeric(plotdata$genome[nabu]),3)
-        series.nabu$detectionVSgenome <- list()
-        series.nabu$detectionVSgenome$name <- "% detected"
-        series.nabu$detectionVSgenome$yAxis <- 1
-        series.nabu$detectionVSgenome$pointStart <- length(abu)
-        series.nabu$detectionVSgenome$linkedTo <- "abu_detected"
-        series.nabu$detectionVSgenome$color <- cols$trans[2]
-        series.nabu$detectionVSgenome$pointPlacement <- 0
-        series.nabu$detectionVSgenome$data <- round(as.numeric(
+        seriesNabu$genome <- list()
+        seriesNabu$genome$name <- "% in genome"
+        seriesNabu$genome$yAxis <- 1
+        seriesNabu$genome$pointStart <- length(abu)
+        seriesNabu$genome$linkedTo <- "abu_genome"
+        seriesNabu$genome$color <- cols$trans[1]
+        seriesNabu$genome$pointPlacement <- -0.2
+        seriesNabu$genome$data <- round(as.numeric(plotdata$genome[nabu]),3)
+        seriesNabu$detectionVSgenome <- list()
+        seriesNabu$detectionVSgenome$name <- "% detected"
+        seriesNabu$detectionVSgenome$yAxis <- 1
+        seriesNabu$detectionVSgenome$pointStart <- length(abu)
+        seriesNabu$detectionVSgenome$linkedTo <- "abu_detected"
+        seriesNabu$detectionVSgenome$color <- cols$trans[2]
+        seriesNabu$detectionVSgenome$pointPlacement <- 0
+        seriesNabu$detectionVSgenome$data <- round(as.numeric(
             plotdata$biotables[[n]][1,nabu]),3)
-        series.nabu$detectionVSsample <- list()
-        series.nabu$detectionVSsample$name <- "% in sample"
-        series.nabu$detectionVSsample$yAxis <- 1
-        series.nabu$detectionVSsample$pointStart <- length(abu)
-        series.nabu$detectionVSsample$linkedTo <- "abu_sample"
-        series.nabu$detectionVSsample$color <- cols$trans[3]
-        series.nabu$detectionVSsample$pointPlacement <- 0.2
-        series.nabu$detectionVSsample$data <- round(as.numeric(
+        seriesNabu$detectionVSsample <- list()
+        seriesNabu$detectionVSsample$name <- "% in sample"
+        seriesNabu$detectionVSsample$yAxis <- 1
+        seriesNabu$detectionVSsample$pointStart <- length(abu)
+        seriesNabu$detectionVSsample$linkedTo <- "abu_sample"
+        seriesNabu$detectionVSsample$color <- cols$trans[3]
+        seriesNabu$detectionVSsample$pointPlacement <- 0.2
+        seriesNabu$detectionVSsample$data <- round(as.numeric(
             plotdata$biotables[[n]][2,nabu]),3)
         
         json[[n]] <- switch(jl,
@@ -826,7 +828,7 @@ bioDetectionToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 							)
 						)
 					),
-					series=c(unname(series.abu),unname(series.nabu))
+					series=c(unname(seriesAbu),unname(seriesNabu))
 				)
             }
         )
@@ -882,27 +884,27 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
                 )
             )
             
-            abu.series <- vector("list",2)
-            names(abu.series) <- names(abu)
-            for (s in names(abu.series)) {
+            abuSeries <- vector("list",2)
+            names(abuSeries) <- names(abu)
+            for (s in names(abuSeries)) {
                 counter <- counter + 1
-                abu.series[[s]] <- list()
-                abu.series[[s]]$id <- s
-                abu.series[[s]]$name <- s
-                abu.series[[s]]$color <- cols$fill[counter]
-                abu.series[[s]]$data <- makeHighchartsPoints(depth,
+                abuSeries[[s]] <- list()
+                abuSeries[[s]]$id <- s
+                abuSeries[[s]]$name <- s
+                abuSeries[[s]]$color <- cols$fill[counter]
+                abuSeries[[s]]$data <- makeHighchartsPoints(depth,
                     round(M[,s]))
             }
             
-            nabu.series <- vector("list",length(3:ncol(M)))
-            names(nabu.series) <- names(nabu)
-            for (s in names(nabu.series)) {
+            nabuSeries <- vector("list",length(3:ncol(M)))
+            names(nabuSeries) <- names(nabu)
+            for (s in names(nabuSeries)) {
                 counter <- counter + 1
-                nabu.series[[s]] <- list()
-                nabu.series[[s]]$id <- s
-                nabu.series[[s]]$name <- s
-                nabu.series[[s]]$color <- cols$fill[counter]
-                nabu.series[[s]]$data <- makeHighchartsPoints(depth,
+                nabuSeries[[s]] <- list()
+                nabuSeries[[s]]$id <- s
+                nabuSeries[[s]]$name <- s
+                nabuSeries[[s]]$color <- cols$fill[counter]
+                nabuSeries[[s]]$data <- makeHighchartsPoints(depth,
                     round(M[,s]))
             }
             
@@ -980,7 +982,7 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
 							)
 						),
 						series=c(unname(global.series),
-							unname(abu.series),unname(nabu.series))
+							unname(abuSeries),unname(nabuSeries))
 					)
                 }
             )
@@ -1468,7 +1470,7 @@ boxplotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         }
     )
     if (out=="json")
-		return(.unquote_js_fun(toJSON(json,auto_unbox=TRUE,null="null")))
+		return(toJSON(json,auto_unbox=TRUE,null="null"))
 	else
 		return(json)
 }
@@ -2817,8 +2819,10 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 			)
         }
     )
-    #return(unquoteJsFun(json))
-    return(json)
+    if (out == "json")
+		return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else if (out == "list")
+		return(json)
 }
 
 .unquote_js_fun <- function(js) {

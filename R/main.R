@@ -92,7 +92,7 @@ metaseqr2 <- function(
     verbose=TRUE,
     runLog=TRUE,
     reportDb=c("sqlite","dexie"),
-    localDb=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
+    localDb=file.path(system.file(package="metaseqR2"),"annotation.sqlite"),
     progressFun=NULL,
     offlineReport=TRUE,
     ...
@@ -2205,8 +2205,8 @@ metaseqr2 <- function(
 			jsonList <- diagplotPairs(geneCounts,output="json")
 			for (name in names(jsonList$xy)) {
 				disp("    ",name)
-				.dbImportPlot(con,name,"pairwise","xy",jsonList$xy[[s]])
-				.dbImportPlot(con,name,"pairwise","md",jsonList$md[[s]])
+				.dbImportPlot(con,name,"pairwise","xy",jsonList$xy[[name]])
+				.dbImportPlot(con,name,"pairwise","md",jsonList$md[[name]])
 			}
 		}
 		if ("filtered" %in% qcPlots) {
@@ -2258,11 +2258,9 @@ metaseqr2 <- function(
 				whichPlot="meandiff",output="json")
 			for (n in names(jsonUnorm)) {
 				for (s in names(jsonUnorm[[n]])) {
-					nam <- paste(n,s,sep="_")
-					.dbImportPlot(con,"MeanDifference","meandiff","unorm",
-						jsonUnorm)
-					.dbImportPlot(con,"MeanDifference","meandiff","norm",
-						jsonNorm)
+					#nam <- paste(n,s,sep="_")
+					.dbImportPlot(con,s,"meandiff","unorm",jsonUnorm[[n]][[s]])
+					.dbImportPlot(con,s,"meandiff","norm",jsonNorm[[n]][[s]])
 				}
 			}
 		}
@@ -2308,7 +2306,7 @@ metaseqr2 <- function(
 					disp("    ",n," ",contr)
 					json <- diagplotMa(m[,contr],a[,contr],sumpList[[n]],
 						contr,altNames=geneDataExpr$gene_name,output="json")
-					.dbImportPlot(con,paste("volcano",contr,sep="_"),
+					.dbImportPlot(con,paste("mastat",contr,sep="_"),
 						"mastat","generic",json)
 				}
 			}
@@ -2317,7 +2315,7 @@ metaseqr2 <- function(
 			disp("  Importing biodist")
 			nn <- names(contrastList)
 			for (n in nn) {
-				disp("    ",n,)
+				disp("    ",n)
 				json <- diagplotNoiseq(normGenesExpr,sampleList,
 					covars=covarsStat,whichPlot="biodist",
 					biodistOpts=list(p=cpList[[cnt]],pcut=pcut,name=cnt),
@@ -2328,9 +2326,22 @@ metaseqr2 <- function(
 					"biotype",json$biotype)
 			}
 		}
+		if ("venn" %in% qcPlots) {
+			disp("  Importing venn")
+			nn <- names(contrastList)
+			geneNames <- as.character(geneDataExpr$gene_name)
+			names(geneNames) <- names(geneDataExpr)
+			for (n in nn) {
+				disp("    ",n)
+				json <- makeJVennData(cpList[[n]],pcut=pcut,
+					altNames=geneNames[rownames(cpList[[n]])])
+				.dbImportPlot(con,paste("venn",n,sep="_"),"venn","generic",
+					toJSON(json,auto_unbox=TRUE,null="null"))
+			}
+		}
 		
+		# Close SQLite connection
 		dbDisconnect(con)
-		
 		
 		disp("Creating HTML report...")
 		
@@ -2452,8 +2463,8 @@ metaseqr2 <- function(
             TEMP <- environment()
             
             #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
 			invisible(knitr::knit_meta(class=NULL,clean=TRUE))
@@ -2825,7 +2836,8 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			"subtype TEXT,",
 			"json TEXT",
 			");"
-		)
+		),
+		clear="DELETE FROM plot;"
 	))
 }
 

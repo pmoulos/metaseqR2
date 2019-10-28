@@ -45,7 +45,7 @@
             "meandiff", "meanvar", "rnacomp", "deheatmap", 
             "volcano", "biodist"),
         figFormat = c("png", "jpg", "tiff", "bmp", "pdf", "ps"),
-        outListre = FALSE, exportWhere = NA,
+        outList = FALSE, exportWhere = NA,
         exportWhat = c("annotation", "p_value", "adj_p_value", 
             "meta_p_value", "adj_meta_p_value", "fold_change", 
             "stats", "counts","flags"),
@@ -57,8 +57,11 @@
         exportCountsTable = FALSE,
         restrictCores = 0.6, report = TRUE, reportTop = 0.1,
         reportTemplate = "default", saveGeneModel = TRUE,
-        verbose = TRUE, runLog = TRUE, progressFun = NULL, 
-        offlineReport = TRUE, ...)
+        verbose = TRUE, runLog = TRUE, 
+        reportDb = c("sqlite", "dexie"), 
+        localDb = file.path(system.file(package = "metaseqR2"),
+            "annotation.sqlite"),
+        progressFun = NULL, offlineReport = TRUE, ...)
 }
 \arguments{
     \item{counts}{a text tab-delimited file containing gene,
@@ -367,6 +370,14 @@
     run using package log4r. Defaults to \code{TRUE}. The
     filename will be auto-generated.}
     
+    \item{reportDb}{database system to use for storing the
+    report intereactive graphs. Can be \code{"sqlite"} (default)
+    or \code{"dexie"}. See Details for further explanation on
+    what should be used.}
+    
+    \item{localDb}{the metaseqR2 annotaation database location.
+    See also \code{link{buildAnnotationDatabase}}.}
+    
     \item{progressFun}{a function which updates a 
     \code{Progress} object from shiny. This function must
     accept a \code{detail} argument. See 
@@ -664,7 +675,7 @@
     \code{nperm} so that the user can supply his/her 
     own seeds.
     
-    Reagrding \code{qcPlots} The \code{"mds"} stands
+    Regarding \code{qcPlots} The \code{"mds"} stands
     for Mutlti-Dimensional Scaling and it creates a PCA-like
     plot but using the MDS dimensionality reduction instead.
     It has been succesfully used for NGS data (e.g. see the
@@ -708,8 +719,45 @@
     one is a correlogram plot, which summarizes the
     correlation matrix in the form of ellipses (for an
     explanation please see the vignette/documentation of the
-    R package corrplot. Set \code{qc.plots=NULL} if you don't
+    R package corrplot. Set \code{qcPlots=NULL} if you don't
     want any diagnostic plots created.
+    
+    Regarding \code{reportDb}, contrary with the first version of
+    metaseqR, all graphs in the metaseqR2 report are interactive
+    with the usage of the JavaScript libraries Highcharts, plotly
+    (heatmaply) and jvenn.js. However, this adds a great burden
+    regarding rendering the final HTML file and its content,
+    a burden which becomes heavier by the fact the metaseqR2
+    report is rendered using \code{knitr} and \code{rmarkdown} 
+    instead of raw HTML (previously, \code{brew}). Therefore, the
+    pre-calculated JSON objects representing the graphs are stored
+    either in a report-specific SQLite database and then queried
+    using \code{sql.js} 
+    (\link{https://github.com/kripken/sql.js/}) or in an 
+    IndexedDB (\link{https://javascript.info/indexeddb}) flavor
+    called Dexie (\link{https://dexie.org/}). An SQLite (the
+    default) database is prefered because although Dexie is very
+    efficient, \code{knitr} and \code{\link{render}} from
+    \code{rmarkdown} have memory leaks when rendering very big
+    HTML files. A large HTML file may be produced when using all
+    available graphs produced by metaseqR2 because all JSON
+    plot objects are embedded. This does not cause performance
+    issues when viewing the report as they are stored to Dexie.
+    However, there are problems when rendering the report.
+    Size-related problems are mitigated when using an SQLite
+    database as the JSON serialized objects are stored in
+    the database and not embedded in the page. However, modern
+    browsers will not display the report if viewed locally (i.e.
+    not server through a web browser). The only browser allowing
+    this is Microsoft Edge. Alternatively, Google Chrome should
+    be started with the \code{--allow-file-access-from-files}
+    switch. We have chosen the default to be 
+    \code{reportDb="sqlite"} because usually, the report is
+    provided by a facility to end users through a web server.
+    If you are a Chrome user, there are extensions that will run
+    a local web-server and mitigate the viewing problems. Use
+    \code{reportDb="dexie"} when you need only 2-3 diagnostic
+    plots on relatively small dataset.
 }
 \note{
     Currently only gene and exon annotation from Ensembl

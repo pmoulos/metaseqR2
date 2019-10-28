@@ -83,6 +83,8 @@ if (offlineReport) {
 }
 ```
 
+<div id="loader" class="loading"></div>
+
 <!---
 <script>
 var db = new Dexie("plotdb");
@@ -106,11 +108,17 @@ getPlotFromDb = function(query,renderId) {
 		var db = new SQL.Database(uInt8Array);
 		var contents = db.exec(sqlQuery);
 		var chartData = JSON.parse(contents[0].values[0][0]);
-		console.log(chartData)
+		//console.log(chartData)
 		chartData.chart.renderTo = renderId;
+		chartData.chart.events = {
+			load: function() {
+				$("#loader").hide();
+			}
+		};
 		var chart = new Highcharts.Chart(chartData);
 	};
 	xhr.send();
+	$("#loader").show();
 }
 
 getPlotWithFunFromDb = function(query,renderId) {
@@ -150,9 +158,15 @@ getPlotWithFunFromDb = function(query,renderId) {
 		}
 		
 		chartData.chart.renderTo = renderId;
+		chartData.chart.events = {
+			load: function() {
+				$("#loader").hide();
+			}
+		};
 		var chart = new Highcharts.Chart(chartData);
 	};
 	xhr.send();
+	$("#loader").show();
 }
 
 getVennFromDb = function(query,renderId) {
@@ -185,13 +199,14 @@ getVennFromDb = function(query,renderId) {
 			$('#jvenn_list').text(value);
 		}
 		
-		//$('#'+renderId).empty();
 		$('#'+renderId).jvenn(chartData);
+		$("#loader").hide();
 	};
 	xhr.send();
+	$("#loader").show();
 }
 
-/*getPlotFromDb = function(query,renderId) {
+getPlotFromDexieDb = function(query,renderId) {
 	db.plots.get({
 		name: query.name,
 		type: query.type,
@@ -201,9 +216,9 @@ getVennFromDb = function(query,renderId) {
 		chartData.chart.renderTo = renderId;
 		var chart = new Highcharts.Chart(chartData);
 	});
-}*/
+}
 
-/*getPlotWithFunFromDb = function(query,renderId) {
+getPlotWithFunFromDexieDb = function(query,renderId) {
 	db.plots.get({
 		name: query.name,
 		type: query.type,
@@ -237,9 +252,9 @@ getVennFromDb = function(query,renderId) {
 		
 		var chart = new Highcharts.Chart(chartData);
 	});
-}*/
+}
 
-/*getVennFromDb = function(query,renderId) {
+getVennFromDexieDb = function(query,renderId) {
 	db.plots.get({
 		name: query.name,
 		type: query.type,
@@ -265,7 +280,7 @@ getVennFromDb = function(query,renderId) {
 		//$('#'+renderId).empty();
 		$('#'+renderId).jvenn(chartData);
 	});
-}*/
+}
 </script>
 
 <style>
@@ -350,6 +365,36 @@ p {
 	height: 300px;
 }
 
+/******************************* Chart loading ********************************/
+.loading {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  height: 100%;
+  width: 100%;
+  overflow: show;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: radial-gradient(rgba(76, 51, 204, 0.7), rgba(0, 0, 0, .8));
+  background: -webkit-radial-gradient(rgba(76, 51, 204, 0.7), rgba(0, 0, 0,.8));
+}
+
+.loading:before {
+  content: 'Loading...';
+  font-size: 92px;
+  font-weight: 400;
+  color: white;
+  display: block;
+  position: fixed;
+  top: 40%;
+  left: 35%;
+  width: 100%;
+  height: 100%;
+}
+
 /********************************** Pace.js ***********************************/
 .pace {
   -webkit-pointer-events: none;
@@ -412,12 +457,12 @@ library(pander)
 
 # Initialize some variables used throughout the report
 samples <- unlist(sampleList,use.names=FALSE)
-biotypes <- as.character(geneData$biotype)
+biotypes <- unique(as.character(geneData$biotype))
 
 qualPlots <- c("mds","biodetection","countsbio","saturation","readnoise",
 	"correl","pairwise","filtered")
 normPlots <- c("boxplot","gcbias","lengthbias","meandiff","meanvar","rnacomp")
-statPlots <- c("deheatmap","volcano","biodist","venn")
+statPlots <- c("deheatmap","volcano","mastat","biodist","venn")
 
 covarsRaw <- covarsStat <- NULL
 if (any(qcPlots %in% c("biodetection","countsbio","saturation","rnacomp",
@@ -1352,11 +1397,7 @@ if ("biodetection" %in% qcPlots) {
 	# Container div
 	cat("<div class=\"hc-rect-sm\" id=\"biodetection_container\"></div>",sep="")
 	
-	if (reportDb == "sqlite") {
-		# Initialize first plot with triggering
-		#cat("<script>$('#biodetection_selector').trigger('change');</script>")
-	}
-	else if (reportDb == "dexie") {
+	if (reportDb == "dexie") {
 		# Get chart data as list
 		log <- capture.output({
 			json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
@@ -1410,10 +1451,6 @@ if ("countsbio" %in% qcPlots) {
 	# Container div - sample
 	cat("<div class=\"hc-rect-sm\" id=\"countsbio_sample_container\"></div>",
 		sep="")
-	# Container div - biotype
-	cat("<div class=\"hc-rect-sm\" id=\"countsbio_biotype_container\">",
-		"</div>",sep="")
-	
 	
 	cat("<br/><h4><em>Biotype representation across samples</em></h4>")
 	
@@ -1426,10 +1463,11 @@ if ("countsbio" %in% qcPlots) {
 	cat("<select id=\"countsbio_biotype_selector\">",items,"</select>",sep="")
 	cat("</div>")
 	
-	if (reportDb == "sqlite") {
-		# Stump
-	}
-	else if (reportDb == "dexie") {
+	# Container div - biotype
+	cat("<div class=\"hc-rect-sm\" id=\"countsbio_biotype_container\">",
+		"</div>",sep="")
+	
+	if (reportDb == "dexie") {
 		# Get the chart data as list
 		jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 			whichPlot="countsbio",output="json")
@@ -1471,11 +1509,11 @@ if ("countsbio" %in% qcPlots) {
 		cat("db.plots.bulkAdd(",toImportBiotype,");",sep="")
 		cat("</script>")
 		
-		# Initialize first plot with serialized JSON
+		# Initialize first sample plot with serialized JSON
 		cat("<script>$('#countsbio_sample_container').highcharts(",
 			.unquote_js_fun(toJSON(preImportSample[[1]]$json,auto_unbox=TRUE,
 			null="null")),");</script>",sep="")
-		# Initialize first plot with serialized JSON
+		# Initialize first biotype plot with serialized JSON
 		cat("<script>$('#countsbio_biotype_container').highcharts(",
 			.unquote_js_fun(toJSON(preImportBiotype[[1]]$json,auto_unbox=TRUE,
 			null="null")),");</script>",sep="")
@@ -1486,45 +1524,6 @@ if ("countsbio" %in% qcPlots) {
 ```{r analysis_figures_saturation}
 if ("saturation" %in% qcPlots) {
 	pandoc.header("Saturation",level=3)
-	
-	# Get the chart data as list
-	jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-		whichPlot="saturation",output="json")
-	
-	# Add extra data, serialize and import the plots to Dexie per sample
-	preImportSample <- vector("list",length(jsonList$sample))
-	for (i in 1:length(jsonList$sample)) {
-		preImportSample[[i]] <- list(
-			name=paste("saturation",samples[i],sep="_"),
-			type="saturation",
-			subtype="sample",
-			json=jsonList$sample[[samples[i]]]
-		)
-	}
-	toImportSample <- toJSON(preImportSample,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportSample,");",sep="")
-	cat("</script>")
-	
-	# Add extra data, serialize and import the plots to Dexie per biotype
-	preImportBiotype <- vector("list",length(jsonList$biotype))
-	biotypes <- names(jsonList$biotype)
-	for (i in 1:length(jsonList$biotype)) {
-		preImportBiotype[[i]] <- list(
-			name=paste("saturation",biotypes[i],sep="_"),
-			type="saturation",
-			subtype="biotype",
-			json=jsonList$biotype[[biotypes[i]]]
-		)
-	}
-	toImportBiotype <- toJSON(preImportBiotype,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportBiotype,");",sep="")
-	cat("</script>")
 	
 	cat("<h4><strong>Biotype representation</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$saturation,
@@ -1544,10 +1543,6 @@ if ("saturation" %in% qcPlots) {
 	# Container div - sample
 	cat("<div class=\"hc-rect-sm\" id=\"saturation_sample_container\"></div>",
 		sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#saturation_sample_container').highcharts(",toJSON(
-		preImportSample[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-		sep="")
 	
 	cat("<br/><h4><em>Read saturation per sample for all biotypes</em></h4>")
 	
@@ -1563,10 +1558,57 @@ if ("saturation" %in% qcPlots) {
 	# Container div - biotype
 	cat("<div class=\"hc-rect-sm\" id=\"saturation_biotype_container\">",
 		"</div>",sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#saturation_biotype_container').highcharts(",toJSON(
-		preImportBiotype[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-		sep="")
+	
+	
+	if (reportDb == "dexie") {
+		# Get the chart data as list
+		jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+			whichPlot="saturation",output="json")
+		
+		# Add extra data, serialize and import the plots to Dexie per sample
+		preImportSample <- vector("list",length(jsonList$sample))
+		for (i in 1:length(jsonList$sample)) {
+			preImportSample[[i]] <- list(
+				name=paste("saturation",samples[i],sep="_"),
+				type="saturation",
+				subtype="sample",
+				json=jsonList$sample[[samples[i]]]
+			)
+		}
+		toImportSample <- toJSON(preImportSample,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImportSample,");",sep="")
+		cat("</script>")
+		
+		# Add extra data, serialize and import the plots to Dexie per biotype
+		preImportBiotype <- vector("list",length(jsonList$biotype))
+		biotypes <- names(jsonList$biotype)
+		for (i in 1:length(jsonList$biotype)) {
+			preImportBiotype[[i]] <- list(
+				name=paste("saturation",biotypes[i],sep="_"),
+				type="saturation",
+				subtype="biotype",
+				json=jsonList$biotype[[biotypes[i]]]
+			)
+		}
+		toImportBiotype <- toJSON(preImportBiotype,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImportBiotype,");",sep="")
+		cat("</script>")
+		
+		# Initialize first sample plot with serialized JSON
+		cat("<script>$('#saturation_sample_container').highcharts(",toJSON(
+			preImportSample[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+			sep="")
+		# Initialize first biotype plot with serialized JSON
+		cat("<script>$('#saturation_biotype_container').highcharts(",toJSON(
+			preImportBiotype[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+			sep="")
+	}
 }
 ```
 
@@ -1664,52 +1706,23 @@ if ("pairwise" %in% qcPlots) {
     #
     #cat("</div>")
     
-    # Get the chart data as list
-	jsonList <- diagplotPairs(geneCounts,output="json")
-	nams <- names(jsonList$xy)
-	
-	# Add extra data, serialize and import the plots to Dexie per sample
-	preImportXY <- vector("list",length(jsonList$xy))
-	for (i in 1:length(jsonList$xy)) {
-		preImportXY[[i]] <- list(
-			name=nams[i],
-			type="pairwise",
-			subtype="xy",
-			json=jsonList$xy[[nams[i]]]
-		)
-	}
-	toImportXY <- toJSON(preImportXY,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportXY,");",sep="")
-	cat("</script>")
-	
-	# Add extra data, serialize and import the plots to Dexie per biotype
-	preImportMD <- vector("list",length(jsonList$md))
-	for (i in 1:length(jsonList$md)) {
-		preImportMD[[i]] <- list(
-			name=nams[i],
-			type="pairwise",
-			subtype="md",
-			json=jsonList$md[[nams[i]]]
-		)
-	}
-	toImportMD <- toJSON(preImportMD,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportMD,");",sep="")
-	cat("</script>")
-	
-	cat("<h4><strong>Pairwise sample correlations</strong></h4>")
+    cat("<h4><strong>Pairwise sample correlations</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
 	    "<br/><br/></div>",sep="")
-	
-	#cat("<h4><em>X-Y plots</em></h4>")
+	    
+	nams <- colnames(geneCounts)
+	n <- ncol(geneCounts)
+	plotNames <- character(n*(n-1)/2)
+	counter <- 0
+	for (i in 1:(n-1)) {
+		for (j in (i+1):n) {
+			counter <- counter + 1
+			plotNames[counter] <- paste(nams[i],nams[j],sep="_vs_")
+		}
+	}
 	
 	# Create a selector for each sample
-	items <- paste("<option value=",nams,">",gsub("_vs_"," vs ",nams),
+	items <- paste("<option value=",plotNames,">",gsub("_vs_"," vs ",plotNames),
 		"</option>",sep="")
 	cat("<div>")
 	cat("<div class=\"hc-selector-label\">Select a pair to display plot for",
@@ -1717,23 +1730,64 @@ if ("pairwise" %in% qcPlots) {
 	cat("<select id=\"pairwise_selector\">",items,"</select>",sep="")
 	cat("</div>")
 	
+	cat("<h4><em>X-Y plots</em></h4>")
 	# Container div - sample
 	cat("<div class=\"hc-rect-sm\" id=\"pairwise_xy_container\"></div>",
 		sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#pairwise_xy_container').highcharts(",toJSON(
-		preImportXY[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-		sep="")
 	
 	cat("<br/><h4><em>M-D plots</em></h4>")
-	
 	# Container div - sample
 	cat("<div class=\"hc-rect-sm\" id=\"pairwise_md_container\"></div>",
 		sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#pairwise_md_container').highcharts(",toJSON(
-		preImportMD[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-		sep="")
+    
+    if (reportDb == "dexie") {
+		# Get the chart data as list
+		jsonList <- diagplotPairs(geneCounts,output="json")
+		#nams <- names(jsonList$xy)
+		
+		# Add extra data, serialize and import the plots to Dexie per sample
+		preImportXY <- vector("list",length(jsonList$xy))
+		for (i in 1:length(jsonList$xy)) {
+			preImportXY[[i]] <- list(
+				name=nams[i],
+				type="pairwise",
+				subtype="xy",
+				json=jsonList$xy[[nams[i]]]
+			)
+		}
+		toImportXY <- toJSON(preImportXY,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImportXY,");",sep="")
+		cat("</script>")
+		
+		# Add extra data, serialize and import the plots to Dexie per biotype
+		preImportMD <- vector("list",length(jsonList$md))
+		for (i in 1:length(jsonList$md)) {
+			preImportMD[[i]] <- list(
+				name=nams[i],
+				type="pairwise",
+				subtype="md",
+				json=jsonList$md[[nams[i]]]
+			)
+		}
+		toImportMD <- toJSON(preImportMD,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImportMD,");",sep="")
+		cat("</script>")
+		
+		# Initialize first xy plot with serialized JSON
+		cat("<script>$('#pairwise_xy_container').highcharts(",toJSON(
+			preImportXY[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+			sep="")
+		# Initialize first md plot with serialized JSON
+		cat("<script>$('#pairwise_md_container').highcharts(",toJSON(
+			preImportMD[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+			sep="")
+	}
 }
 ```
 
@@ -1788,11 +1842,11 @@ if ("boxplot" %in% qcPlots) {
 		sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"boxplot_norm_container\"></div>",
 		sep="")
-	cat("<script>$('#boxplot_unorm_container').highcharts(",jsonUnorm,
-		");</script>",sep="")
+	cat("<script>$('#boxplot_unorm_container').highcharts(",
+		.unquote_js_fun(jsonUnorm),");</script>",sep="")
 	cat("<br/><br/>")
-	cat("<script>$('#boxplot_norm_container').highcharts(",jsonNorm,
-		");</script>",sep="")
+	cat("<script>$('#boxplot_norm_container').highcharts(",
+		.unquote_js_fun(jsonNorm),");</script>",sep="")
 }
 ```
 
@@ -1850,64 +1904,28 @@ if ("lengthbias" %in% qcPlots) {
 if ("meandiff" %in% qcPlots) {
 	pandoc.header("Mean-Difference",level=3)
 	
-	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
-		whichPlot="meandiff",output="json")
-	jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
-		whichPlot="meandiff",output="json")
-	
-	np <- sum(lengths(jsonUnorm))
-		
-	# Add extra data, serialize and import the plots to Dexie per sample
-	preImportUnorm <- vector("list",np)
-	index <- 0
-	for (i in 1:length(jsonUnorm)) {
-		for (j in 1:length(jsonUnorm[[i]])) {
-			index <- index + 1
-			preImportUnorm[[index]] <- list(
-				name=names(jsonUnorm[[i]])[j],
-				type="meandiff",
-				subtype="unorm",
-				json=jsonUnorm[[i]][[j]]
-			)
-		}
-	}
-	toImportUnorm <- toJSON(preImportUnorm,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportUnorm,");",sep="")
-	cat("</script>")
-	
-	# Add extra data, serialize and import the plots to Dexie per sample
-	preImportNorm <- vector("list",np)
-	index <- 0
-	for (i in 1:length(jsonNorm)) {
-		for (j in 1:length(jsonNorm[[i]])) {
-			index <- index + 1
-			preImportNorm[[index]] <- list(
-				name=names(jsonNorm[[i]])[j],
-				type="meandiff",
-				subtype="norm",
-				json=jsonNorm[[i]][[j]]
-			)
-		}
-	}
-	toImportNorm <- toJSON(preImportNorm,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportNorm,");",sep="")
-	cat("</script>")
-	
 	cat("<h4><strong>Mean-difference plots for normalization assessment",
 		"</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$meandiff,
 		"<br/><br/></div>",sep="")
 	
 	# Create a selector for each sample
+	namList <- vector("list",length(sampleList))
+	names(namList) <- names(sampleList)
+	for (n in names(sampleList)) {
+		pairMatrix <- combn(1:length(sampleList[[n]]),2)
+		nm <- character(0)
+		for (i in 1:ncol(pairMatrix)) {
+			s1 <- sampleList[[n]][pairMatrix[1,i]]
+			s2 <- sampleList[[n]][pairMatrix[2,i]]
+			nm <- c(nm,paste(s1,"_vs_",s2,sep=""))
+		}
+		namList[[n]] <- nm
+	}
+	
 	html <- ""
-	for (n in names(jsonUnorm)) {
-		nams <- names(jsonUnorm[[n]])
+	for (n in names(namList)) {
+		nams <- namList[[n]]
 		items <- paste("<option value=",nams,">",gsub("_vs_"," vs ",nams),
 			"</option>",sep="")
 		html <- paste(html,"<optgroup label=\"",n,"\">",items,"</optgroup>",
@@ -1923,18 +1941,69 @@ if ("meandiff" %in% qcPlots) {
 	# Container div - sample
 	cat("<div class=\"hc-rect-sm\" id=\"meandiff_unorm_container\"></div>",
 		sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#meandiff_unorm_container').highcharts(",toJSON(
-		preImportUnorm[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-		sep="")
-	
 	# Container div - sample
 	cat("<div class=\"hc-rect-sm\" id=\"meandiff_norm_container\"></div>",
 		sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#meandiff_norm_container').highcharts(",toJSON(
-		preImportNorm[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-		sep="")
+	
+	if (reportDb == "dexie") {
+		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
+			whichPlot="meandiff",output="json")
+		jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
+			whichPlot="meandiff",output="json")
+		
+		np <- sum(lengths(jsonUnorm))
+			
+		# Add extra data, serialize and import the plots to Dexie per sample
+		preImportUnorm <- vector("list",np)
+		index <- 0
+		for (i in 1:length(jsonUnorm)) {
+			for (j in 1:length(jsonUnorm[[i]])) {
+				index <- index + 1
+				preImportUnorm[[index]] <- list(
+					name=names(jsonUnorm[[i]])[j],
+					type="meandiff",
+					subtype="unorm",
+					json=jsonUnorm[[i]][[j]]
+				)
+			}
+		}
+		toImportUnorm <- toJSON(preImportUnorm,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImportUnorm,");",sep="")
+		cat("</script>")
+		
+		# Add extra data, serialize and import the plots to Dexie per sample
+		preImportNorm <- vector("list",np)
+		index <- 0
+		for (i in 1:length(jsonNorm)) {
+			for (j in 1:length(jsonNorm[[i]])) {
+				index <- index + 1
+				preImportNorm[[index]] <- list(
+					name=names(jsonNorm[[i]])[j],
+					type="meandiff",
+					subtype="norm",
+					json=jsonNorm[[i]][[j]]
+				)
+			}
+		}
+		toImportNorm <- toJSON(preImportNorm,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImportNorm,");",sep="")
+		cat("</script>")
+		
+		# Initialize first un-normalized plot with serialized JSON
+		cat("<script>$('#meandiff_unorm_container').highcharts(",toJSON(
+			preImportUnorm[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+			sep="")
+		# Initialize first normalized plot with serialized JSON
+		cat("<script>$('#meandiff_norm_container').highcharts(",toJSON(
+			preImportNorm[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+			sep="")
+	}
 }
 ```
 
@@ -2008,46 +2077,21 @@ if (any(qcPlots %in% statPlots)) {
 if ("volcano" %in% qcPlots) {
 	pandoc.header("Volcano",level=3)
 	
-	nn <- names(contrastList)
-	json <- list()
-	
-	namc <- character(0)
-	index <- 0
-	for (n in nn) {
-		fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
-		for (contr in colnames(fc)) {
-			index <- index + 1
-			namc <- c(namc,contr)
-			json[[index]] <- diagplotVolcano(fc[,contr],sumpList[[n]],contr,
-				altNames=geneDataExpr$gene_name,output="json")
-		}
-	}
-	names(json) <- namc
-	
-	# Add extra data, serialize and import the plots to Dexie
-	preImport <- vector("list",length(json))
-	for (i in 1:length(json)) {
-		preImport[[i]] <- list(
-			name=paste("volcano",namc[i],sep="_"),
-			type="volcano",
-			subtype="generic",
-			json=json[[i]]
-		)
-	}
-	toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImport,");",sep="")
-	cat("</script>")
-	
 	cat("<h4><strong>Volcano plots</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$volcano,
 	    "<br/><br/></div>",sep="")
 	    
+	nn <- names(contrastList)
+	namc <- character(0)
+	for (n in nn) {
+		fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+		for (contr in colnames(fc))
+			namc <- c(namc,contr)
+	}
+	
 	# Create a selector for each contrast
-	items <- paste("<option value=",paste("volcano",nn,sep="_"),">",
-		gsub("_vs_"," vs ",nn),"</option>",sep="")
+	items <- paste("<option value=",paste("volcano",namc,sep="_"),">",
+		gsub("_vs_"," vs ",namc),"</option>",sep="")
 	cat("<div>")
 	cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
 		"for </div>",sep="")
@@ -2056,10 +2100,45 @@ if ("volcano" %in% qcPlots) {
 	
 	# Container div
 	cat("<div class=\"hc-rect-sm\" id=\"volcano_container\"></div>",sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#volcano_container').highcharts(",
-		toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-		sep="")
+	
+	if (reportDb == "dexie") {
+		json <- list()
+		
+		namc <- character(0)
+		index <- 0
+		for (n in nn) {
+			fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+			for (contr in colnames(fc)) {
+				index <- index + 1
+				namc <- c(namc,contr)
+				json[[index]] <- diagplotVolcano(fc[,contr],sumpList[[n]],contr,
+					altNames=geneDataExpr$gene_name,output="json")
+			}
+		}
+		names(json) <- namc
+		
+		# Add extra data, serialize and import the plots to Dexie
+		preImport <- vector("list",length(json))
+		for (i in 1:length(json)) {
+			preImport[[i]] <- list(
+				name=paste("volcano",namc[i],sep="_"),
+				type="volcano",
+				subtype="generic",
+				json=json[[i]]
+			)
+		}
+		toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImport,");",sep="")
+		cat("</script>")
+		
+		# Initialize first plot with serialized JSON
+		cat("<script>$('#volcano_container').highcharts(",
+			toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+			sep="")
+	}
 }
 ```
 
@@ -2067,47 +2146,21 @@ if ("volcano" %in% qcPlots) {
 if ("mastat" %in% qcPlots) {
 	pandoc.header("MA",level=3)
 	
-	nn <- names(contrastList)
-	json <- list()
-	
-	namc <- character(0)
-	index <- 0
-	for (n in nn) {
-		m <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
-		a <- makeA(n,sampleList,normGenesExpr,1)
-		for (contr in colnames(m)) {
-			index <- index + 1
-			namc <- c(namc,contr)
-			json[[index]] <- diagplotMa(m[,contr],a[,contr],sumpList[[n]],contr,
-				altNames=geneDataExpr$gene_name,output="json")
-		}
-	}
-	names(json) <- namc
-	
-	# Add extra data, serialize and import the plots to Dexie
-	preImport <- vector("list",length(json))
-	for (i in 1:length(json)) {
-		preImport[[i]] <- list(
-			name=paste("mastat",namc[i],sep="_"),
-			type="mastat",
-			subtype="generic",
-			json=json[[i]]
-		)
-	}
-	toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImport,");",sep="")
-	cat("</script>")
-	
 	cat("<h4><strong>Mean-Difference (MA) plots</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$mastat,
 	    "<br/><br/></div>",sep="")
-	    
+	
+	nn <- names(contrastList)
+	namc <- character(0)
+	for (n in nn) {
+		m <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+		for (contr in colnames(m))
+			namc <- c(namc,contr)
+	}
+	
 	# Create a selector for each contrast
-	items <- paste("<option value=",paste("mastat",nn,sep="_"),">",
-		gsub("_vs_"," vs ",nn),"</option>",sep="")
+	items <- paste("<option value=",paste("mastat",namc,sep="_"),">",
+		gsub("_vs_"," vs ",namc),"</option>",sep="")
 	cat("<div>")
 	cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
 		"for </div>",sep="")
@@ -2116,10 +2169,46 @@ if ("mastat" %in% qcPlots) {
 	
 	# Container div
 	cat("<div class=\"hc-rect-sm\" id=\"mastat_container\"></div>",sep="")
-	# Initialize first plot with serialized JSON
-	cat("<script>$('#mastat_container').highcharts(",
-		toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-		sep="")
+	
+	if (reportDb == "dexie") {
+		json <- list()
+	
+		namc <- character(0)
+		index <- 0
+		for (n in nn) {
+			m <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+			a <- makeA(n,sampleList,normGenesExpr,1)
+			for (contr in colnames(m)) {
+				index <- index + 1
+				namc <- c(namc,contr)
+				json[[index]] <- diagplotMa(m[,contr],a[,contr],sumpList[[n]],contr,
+					altNames=geneDataExpr$gene_name,output="json")
+			}
+		}
+		names(json) <- namc
+		
+		# Add extra data, serialize and import the plots to Dexie
+		preImport <- vector("list",length(json))
+		for (i in 1:length(json)) {
+			preImport[[i]] <- list(
+				name=paste("mastat",namc[i],sep="_"),
+				type="mastat",
+				subtype="generic",
+				json=json[[i]]
+			)
+		}
+		toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImport,");",sep="")
+		cat("</script>")
+		
+		# Initialize first plot with serialized JSON
+		cat("<script>$('#mastat_container').highcharts(",
+			toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
+			sep="")
+	}
 }
 ```
 
@@ -2158,7 +2247,7 @@ if ("deheatmap" %in% qcPlots) {
 			mat <- mat[1:topi,,drop=FALSE]
 		}
 		hList[[cnt]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
-			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",con)) %>%
+			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt)) %>%
 			layout(width=720,height=840)
 	}
 	setNames(hList,NULL)
@@ -2198,50 +2287,12 @@ $('#'+hids[0]).show();
 if ("biodist" %in% qcPlots) {
 	pandoc.header("Biodist",level=3)
 	
-	nn <- names(contrastList)
-	jsonList <- vector("list",length(nn))
-	names(jsonList) <- nn
-	
-	for (n in nn) {
-		log <- capture.output({
-			jsonList[[n]] <- diagplotNoiseq(normGenesExpr,sampleList,
-				covars=covarsStat,whichPlot="biodist",
-				biodistOpts=list(p=cpList[[cnt]],pcut=pcut,name=cnt),
-				output="json")
-		})
-	}
-	
-	# Add extra data, serialize and import the plots to Dexie
-	preImport <- vector("list",length(jsonList))
-	for (i in 1:length(jsonList)) {
-		preImport[[i]] <- list(
-			name=paste("biodist",nn[i],sep="_"),
-			type="biodist",
-			subtype="chromosome",
-			json=jsonList[[i]]$chromosome
-		)
-	}
-	toImportChromosome <- toJSON(preImport,auto_unbox=TRUE,null="null")
-	for (i in 1:length(jsonList)) {
-		preImport[[i]] <- list(
-			name=paste("biodist",nn[i],sep="_"),
-			type="biodist",
-			subtype="biotype",
-			json=jsonList[[i]]$biotype
-		)
-	}
-	toImportBiotype <- toJSON(preImport,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImportChromosome,");",sep="")
-	cat("db.plots.bulkAdd(",toImportBiotype,");",sep="")
-	cat("</script>")
-	
 	cat("<h4><strong>Chromosome and biotype distributions of differentially ",
 		"expressed ",transLevel,"s</strong></h4>",sep="")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$biodist,
 	    "<br/><br/></div>",sep="")
+	
+	nn <- names(contrastList)
 	
 	# Create a selector for each contrast
 	items <- paste("<option value=",paste("biodist",nn,sep="_"),">",
@@ -2251,21 +2302,64 @@ if ("biodist" %in% qcPlots) {
 		"for </div>",sep="")
 	cat("<select id=\"biodist_selector\">",items,"</select>",sep="")
 	cat("</div>")
-	    
+	
+	# Containers   
 	cat("<h4>Chromosome distribution of differentially expressed ",transLevel,
 		"s</h4>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"biodist_chromosome_container\"></div>",
 		sep="")
-	cat("<script>$('#biodist_chromosome_container').highcharts(",
-		toJSON(jsonList[[1]]$chromosome,auto_unbox=TRUE,null="null"),
-		");</script>",sep="")
 	cat("<h4>Biotype distribution of differentially expressed ",transLevel,
 		"s</h4>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"biodist_biotype_container\"></div>",
 		sep="")
-	cat("<script>$('#biodist_biotype_container').highcharts(",
+	
+	if (reportDb == "dexie") {
+		jsonList <- vector("list",length(nn))
+		names(jsonList) <- nn
+		for (n in nn) {
+			log <- capture.output({
+				jsonList[[n]] <- diagplotNoiseq(normGenesExpr,sampleList,
+					covars=covarsStat,whichPlot="biodist",
+					biodistOpts=list(p=cpList[[cnt]],pcut=pcut,name=cnt),
+					output="json")
+			})
+		}
+		
+		# Add extra data, serialize and import the plots to Dexie
+		preImport <- vector("list",length(jsonList))
+		for (i in 1:length(jsonList)) {
+			preImport[[i]] <- list(
+				name=paste("biodist",nn[i],sep="_"),
+				type="biodist",
+				subtype="chromosome",
+				json=jsonList[[i]]$chromosome
+			)
+		}
+		toImportChromosome <- toJSON(preImport,auto_unbox=TRUE,null="null")
+		for (i in 1:length(jsonList)) {
+			preImport[[i]] <- list(
+				name=paste("biodist",nn[i],sep="_"),
+				type="biodist",
+				subtype="biotype",
+				json=jsonList[[i]]$biotype
+			)
+		}
+		toImportBiotype <- toJSON(preImport,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImportChromosome,");",sep="")
+		cat("db.plots.bulkAdd(",toImportBiotype,");",sep="")
+		cat("</script>")
+		
+		# Initialize first plots
+		cat("<script>$('#biodist_chromosome_container').highcharts(",
+			toJSON(jsonList[[1]]$chromosome,auto_unbox=TRUE,null="null"),
+			");</script>",sep="")
+		cat("<script>$('#biodist_biotype_container').highcharts(",
 		toJSON(jsonList[[1]]$biotype,auto_unbox=TRUE,null="null"),
 		");</script>",sep="")
+	}
 }
 ```
 
@@ -2273,58 +2367,13 @@ if ("biodist" %in% qcPlots) {
 if ("venn" %in% qcPlots) {
 	pandoc.header("Venn",level=3)
 	
-	nn <- names(contrastList)
-	jsonList <- vector("list",length(nn))
-	names(jsonList) <- nn
-	
-	callback <- paste0("function() {",
-		"var value = '';",
-		"if (this.listnames.length == 1) {",
-			"value += 'Elements only in ';",
-		"} else {",
-			"value += 'Common elements in ';",
-		"}",
-		"for (name in this.listnames) {",
-			"value += this.listnames[name] + ' ';",
-		"}",
-		"value += ':\n';",
-		"for (val in this.list) {",
-			"value += this.list[val] + '\n';",
-		"}",
-		"$('#jvenn_list').text(value);",
-	"}")
-	
-	geneNames <- geneDataExpr$gene_name
-	names(geneNames) <- names(geneDataExpr)
-	for (n in nn) {
-		jsonList[[n]] <- makeJVennData(cpList[[n]],pcut=pcut,
-			altNames=geneNames[rownames(cpList[[n]])])
-		jsonList[[n]]$fnClickCallback <- callback
-	}
-	
-	# Add extra data, serialize and import the plots to Dexie
-	preImport <- vector("list",length(jsonList))
-	for (i in 1:length(jsonList)) {
-		preImport[[i]] <- list(
-			name=paste("venn",nn[i],sep="_"),
-			type="venn",
-			subtype="generic",
-			json=jsonList[[i]]
-		)
-	}
-	toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
-	
-	# Import script
-	cat("<script type=\"text/javascript\">")
-	cat("db.plots.bulkAdd(",toImport,");",sep="")
-	cat("</script>")
-	
 	cat("<h4><strong>Venn diagram of differentially expressed ",transLevel,
 		"s</strong></h4>",sep="")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$venn,
 	    "<br/><br/></div>",sep="")
 	    
 	# Create a selector for each contrast
+	nn <- names(contrastList)
 	items <- paste("<option value=",paste("venn",nn,sep="_"),">",
 		gsub("_vs_"," vs ",nn),"</option>",sep="")
 	cat("<div>")
@@ -2341,8 +2390,56 @@ if ("venn" %in% qcPlots) {
 	cat("<textarea id=\"jvenn_list\" readonly></textarea></div>")
 	cat("</div>")
 	
-	cat("<script>$('#jvenn_container').jvenn(",.unquote_js_fun(toJSON(
-		jsonList[[1]],auto_unbox=TRUE)),");</script>",sep="")
+	if (reportDb == "dexie") {
+		jsonList <- vector("list",length(nn))
+		names(jsonList) <- nn
+		
+		callback <- paste0("function() {",
+			"var value = '';",
+			"if (this.listnames.length == 1) {",
+				"value += 'Elements only in ';",
+			"} else {",
+				"value += 'Common elements in ';",
+			"}",
+			"for (name in this.listnames) {",
+				"value += this.listnames[name] + ' ';",
+			"}",
+			"value += ':\n';",
+			"for (val in this.list) {",
+				"value += this.list[val] + '\n';",
+			"}",
+			"$('#jvenn_list').text(value);",
+		"}")
+		
+		geneNames <- geneDataExpr$gene_name
+		names(geneNames) <- names(geneDataExpr)
+		for (n in nn) {
+			jsonList[[n]] <- makeJVennData(cpList[[n]],pcut=pcut,
+				altNames=geneNames[rownames(cpList[[n]])])
+			jsonList[[n]]$fnClickCallback <- callback
+		}
+		
+		# Add extra data, serialize and import the plots to Dexie
+		preImport <- vector("list",length(jsonList))
+		for (i in 1:length(jsonList)) {
+			preImport[[i]] <- list(
+				name=paste("venn",nn[i],sep="_"),
+				type="venn",
+				subtype="generic",
+				json=jsonList[[i]]
+			)
+		}
+		toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
+		
+		# Import script
+		cat("<script type=\"text/javascript\">")
+		cat("db.plots.bulkAdd(",toImport,");",sep="")
+		cat("</script>")
+
+		# Initialize first Venn
+		cat("<script>$('#jvenn_container').jvenn(",.unquote_js_fun(toJSON(
+			jsonList[[1]],auto_unbox=TRUE)),");</script>",sep="")
+	}
 }
 ```
 
@@ -2659,8 +2756,8 @@ $("#pairwise_selector").on('change',function() {
 	var name = this.value;
 	getPlotFromDb({name: name,type: "pairwise",subtype: "xy"},
 		"pairwise_xy_container");
-	//getPlotFromDb({name: name,type: "pairwise",subtype: "md"},
-	//	"pairwise_md_container");
+	getPlotFromDb({name: name,type: "pairwise",subtype: "md"},
+		"pairwise_md_container");
 });
 
 $("#meandiff_selector").on('change',function() {
@@ -2719,4 +2816,14 @@ $("#detable_selector").on('change',function() {
 $('#biodetection_selector').trigger('change');
 $('#countsbio_sample_selector').trigger('change');
 $('#countsbio_biotype_selector').trigger('change');
+$('#saturation_sample_selector').trigger('change');
+$('#saturation_biotype_selector').trigger('change');
+$('#pairwise_selector').trigger('change');
+$('#meandiff_selector').trigger('change');
+$("#volcano_selector").trigger('change');
+$("#mastat_selector").trigger('change');
+$("#biodist_selector").trigger('change');
+if ($("#venn_selector").length > 0) {
+	$("#venn_selector").trigger('change');
+}
 </script>
