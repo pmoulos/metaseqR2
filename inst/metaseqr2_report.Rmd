@@ -85,15 +85,18 @@ if (offlineReport) {
 
 <div id="loader" class="loading"></div>
 
-<!---
-<script>
-var db = new Dexie("plotdb");
-db.version(1).stores({
-	plots: '++_id,[name+type+subtype]'
-});
-db.plots.clear().then(console.log("Previous plots cleared!"));
-</script>
--->
+```{r decide_dexie}
+if (reportDb == "dexie") {
+	code <- paste0(
+		"var db = new Dexie('plotdb');",
+		"db.version(1).stores({",
+			"plots: '++_id,[name+type+subtype]'"
+		"});"
+		"db.plots.clear().then(console.log('Previous plots cleared!'));"
+	)
+	cat("<script>",code,"</script>")
+}
+```
 
 <script type="text/javascript">
 getPlotFromDb = function(query,renderId) {
@@ -2244,8 +2247,8 @@ if ("deheatmap" %in% qcPlots) {
 		else
 			mat <- as.matrix(normGenesExpr[,s])
 		if (!is.null(reportTop)) {
-			topi <- ceiling(reportTop*nrow(mat))
-			mat <- mat[1:topi,,drop=FALSE]
+			topg <- ceiling(reportTop*nrow(mat))
+			mat <- mat[1:topg,,drop=FALSE]
 		}
 		hList[[cnt]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
 			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt)) %>%
