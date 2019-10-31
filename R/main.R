@@ -226,9 +226,12 @@ metaseqr2 <- function(
     else
         PROJECT_PATH <- makeProjectPath(exportWhere,counts)
     assign("VERBOSE",verbose,envir=metaEnv)
-    if (runLog)
+    if (runLog) {
+		if (file.exists(file.path(PROJECT_PATH$logs,"metaseqr_run.log")))
+			unlink(file.path(PROJECT_PATH$logs,"metaseqr_run.log"))
         logger <- create.logger(logfile=file.path(PROJECT_PATH$logs,
             "metaseqr_run.log"),level=2,logformat="%d %c %m")
+	}
     else
         logger <- NULL
     assign("LOGGER",logger,envir=metaEnv)
@@ -2088,9 +2091,9 @@ metaseqr2 <- function(
         #assign("sampleList",sampleList,envir=parent.frame())
 		#assign("geneCounts",geneCounts,envir=parent.frame())
 		#assign("normGenes",normGenes,envir=parent.frame())
-		assign("normGenesExpr",normGenes,envir=parent.frame())
-		assign("sumpList",sumpList,envir=parent.frame())
-		assign("contrastList",contrastList,envir=parent.frame())
+		#assign("normGenesExpr",normGenes,envir=parent.frame())
+		#assign("sumpList",sumpList,envir=parent.frame())
+		#assign("contrastList",contrastList,envir=parent.frame())
 		#assign("geneData",geneData,envir=parent.frame())
 		########################################################################
     }
@@ -2471,10 +2474,12 @@ metaseqr2 <- function(
             TEMP <- environment()
             
             REPORT_ENV <- .makeReportEnv(environment())
+            
+            assign("REPORT_ENV",REPORT_ENV,envir=.GlobalEnv)
                         
             #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
 			invisible(knitr::knit_meta(class=NULL,clean=TRUE))
@@ -2484,8 +2489,9 @@ metaseqr2 <- function(
 				output_dir=PROJECT_PATH$main,
 				#output_format="html_document",
 				#envir=new.env(parent=globalenv()),
-				envir=TEMP#,
-				#encoding="UTF-8"
+				#envir=TEMP#,
+				#clean=FALSE,
+				envir=REPORT_ENV
 			)
 			gc(verbose=FALSE)
 			# Remove the Rmd file after rendering the report
@@ -2867,14 +2873,17 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 
 .makeReportEnv <- function(e) {
 	re <- new.env(parent=globalenv())
+	
     re$offlineReport <- e$offlineReport
     re$reportDb <- e$reportDb
+    re$org <- e$org
+    re$refdb <- e$refdb
     re$qcPlots <- e$qcPlots
     re$sampleList <- e$sampleList
     re$geneData <- e$geneData
     re$geneCounts <- e$geneCounts
-    re$geneData <- e$geneDataExpr
-    re$geneCounts <- e$normGenesExpr
+    re$geneDataExpr <- e$geneDataExpr
+    re$normGenesExpr <- e$normGenesExpr
     re$fromRaw <- e$fromRaw
     re$transLevel <- e$transLevel
     re$countType <- e$countType
@@ -2913,6 +2922,7 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
     re$geneDataFiltered <- e$geneDataFiltered
     re$totalGeneData <- e$totalGeneData
     re$normGenes <- e$normGenes
+    re$geneCountsZero <- e$geneCountsZero
     re$contrastList <- e$contrastList
     re$reportTop <- e$reportTop
     re$cpList <- e$cpList

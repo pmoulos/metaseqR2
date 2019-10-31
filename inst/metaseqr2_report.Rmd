@@ -4,6 +4,7 @@ subtitle: "`r basename(PROJECT_PATH$main)`"
 date: "`r format(Sys.time(), '%d/%m/%Y')`"
 output:
   rmdformats::material:
+    pandoc_args: ["+RTS","-K2048m","-RTS"]
     fig_width: 7
     fig_height: 7
     fig_caption: true
@@ -14,6 +15,7 @@ output:
     cards: true
     use_bookdown: false
     mathjax: null
+    self_contained: false
 ---
 
 ```{r knitr_init, echo=FALSE, cache=FALSE}
@@ -90,8 +92,8 @@ if (reportDb == "dexie") {
 	code <- paste0(
 		"var db = new Dexie('plotdb');",
 		"db.version(1).stores({",
-			"plots: '++_id,[name+type+subtype]'"
-		"});"
+			"plots: '++_id,[name+type+subtype]'",
+		"});",
 		"db.plots.clear().then(console.log('Previous plots cleared!'));"
 	)
 	cat("<script>",code,"</script>")
@@ -207,6 +209,23 @@ getVennFromDb = function(query,renderId) {
 	};
 	xhr.send();
 	$("#loader").show();
+}
+
+getTableFromDb = function(query) {
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', './data/reportdb.sqlite',true);
+	xhr.responseType = 'arraybuffer';
+	xhr.onload = function(e) {
+		var sqlQuery = "SELECT * FROM detable WHERE contrast='" + 
+			query.contrast + "';";
+		var uInt8Array = new Uint8Array(this.response);
+		var db = new SQL.Database(uInt8Array);
+		var contents = db.exec(sqlQuery);
+		var tableData = JSON.parse(contents[0].values[0][0]);
+		console.log(tableData)
+	};
+	xhr.send();
+	//$("#loader").show();
 }
 
 getPlotFromDexieDb = function(query,renderId) {
@@ -350,6 +369,12 @@ p {
     -webkit-border-radius: 5px;
     -khtml-border-radius: 5px;
     border-radius: 5px;
+}
+
+.hidden-element {
+	visibility: hidden;
+	width: 10px;
+	height: 10px;
 }
 
 #summary_log_container {
@@ -1366,8 +1391,8 @@ if (any(qcPlots %in% qualPlots)) {
 if ("mds" %in% qcPlots) {
 	pandoc.header("MDS",level=3)
 	
-	# Get chart data as serialized JSON
-	json <- diagplotMds(geneCounts,sampleList,output="json")
+	## Get chart data as serialized JSON
+	#json <- diagplotMds(geneCounts,sampleList,output="json")
 	
 	cat("<h4><strong>Multidimensional scaling</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$mds,
@@ -1375,8 +1400,10 @@ if ("mds" %in% qcPlots) {
 	
 	# Container div
 	cat("<div class=\"hc-rect-sm\" id=\"mds_container\"></div>",sep="")
-	# Render the chart
-	cat("<script>$('#mds_container').highcharts(",json,");</script>",sep="")
+	## Render the chart
+	#cat("<script>$('#mds_container').highcharts(",json,");</script>",sep="")
+	# A hidden element to trigger upon page load and fetch the plot
+	cat("<button id=\"_mds_trigger\" class=\"hidden-element\"></div>",sep="")
 }
 ```
 
@@ -1619,15 +1646,17 @@ if ("saturation" %in% qcPlots) {
 if ("readnoise" %in% qcPlots) {
 	pandoc.header("Reads noise",level=3)
 	
-	json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-			whichPlot="readnoise",output="json")
+	#json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+	#		whichPlot="readnoise",output="json")
 	
 	cat("<h4><strong>RNA_Seq reads noise</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$readnoise,
 	    "<br/><br/></div>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"readsnoise_container\"></div>",
 		sep="")
-	cat("<script>$('#readsnoise_container').highcharts(",json,");</script>",
+	#cat("<script>$('#readsnoise_container').highcharts(",json,");</script>",
+	#	sep="")
+	cat("<button id=\"_readnoise_trigger\" class=\"hidden-element\"></div>",
 		sep="")
 }
 ```
@@ -1655,12 +1684,12 @@ if ("correl" %in% qcPlots) {
 		notecex <- 0.9
 	else
 		notecex <- 0.7
-
-	# FIXME: Spawns a x11 somewhere.. Maybe do as with DE heatmap
-	heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,cellnote=labs,
-		colors=colorRampPalette(c("yellow","grey","blue")),
+	
+	h <- heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,
+		cellnote=labs,colors=colorRampPalette(c("yellow","grey","blue")),
 		k_col=length(sampleList),k_row=length(sampleList)) %>%
 		layout(width=640,height=480)
+	htmltools::tagList(setNames(h,NULL))
 }
 ```
 
@@ -1799,7 +1828,7 @@ if ("pairwise" %in% qcPlots) {
 if ("filtered" %in% qcPlots) {
 	pandoc.header("Filtered",level=3)
 	
-	jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,output="json")
+	#jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,output="json")
 	
 	cat("<h4><strong>Chromosome and biotype distribution of filtered ",
 		transLevel,"s</strong></h4>",sep="")
@@ -1808,13 +1837,15 @@ if ("filtered" %in% qcPlots) {
 	cat("<h4>Chromosome distribution of filtered",transLevel,"s</h4>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"chromosome_distr_container\"></div>",
 		sep="")
-	cat("<script>$('#chromosome_distr_container').highcharts(",
-		jsonList[["chromosome"]],");</script>",sep="")
+	#cat("<script>$('#chromosome_distr_container').highcharts(",
+	#	jsonList[["chromosome"]],");</script>",sep="")
 	cat("<h4>Biotype distribution of filtered ",transLevel,"s</h4>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"biotype_distr_container\"></div>",
 		sep="")
-	cat("<script>$('#biotype_distr_container').highcharts(",
-		jsonList[["biotype"]],");</script>",sep="")
+	#cat("<script>$('#biotype_distr_container').highcharts(",
+	#	jsonList[["biotype"]],");</script>",sep="")
+	cat("<button id=\"_filtered_trigger\" class=\"hidden-element\"></div>",
+		sep="")
 }
 ```
 
@@ -1835,10 +1866,10 @@ if (any(qcPlots %in% normPlots)) {
 if ("boxplot" %in% qcPlots) {
 	pandoc.header("Boxplots",level=3)
 	
-	jsonUnorm <- diagplotBoxplot(geneCounts,name=sampleList,isNorm=FALSE,
-		output="json")
-	jsonNorm <- diagplotBoxplot(normGenes,name=sampleList,isNorm=TRUE,
-		output="json")
+	#jsonUnorm <- diagplotBoxplot(geneCounts,name=sampleList,isNorm=FALSE,
+	#	output="json")
+	#jsonNorm <- diagplotBoxplot(normGenes,name=sampleList,isNorm=TRUE,
+	#	output="json")
 	
 	cat("<h4><strong>Boxplots</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$boxplot,"<br/><br/></div>",sep="")
@@ -1846,11 +1877,13 @@ if ("boxplot" %in% qcPlots) {
 		sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"boxplot_norm_container\"></div>",
 		sep="")
-	cat("<script>$('#boxplot_unorm_container').highcharts(",
-		.unquote_js_fun(jsonUnorm),");</script>",sep="")
+	#cat("<script>$('#boxplot_unorm_container').highcharts(",
+	#	.unquote_js_fun(jsonUnorm),");</script>",sep="")
 	cat("<br/><br/>")
-	cat("<script>$('#boxplot_norm_container').highcharts(",
-		.unquote_js_fun(jsonNorm),");</script>",sep="")
+	#cat("<script>$('#boxplot_norm_container').highcharts(",
+	#	.unquote_js_fun(jsonNorm),");</script>",sep="")
+	cat("<button id=\"_boxplot_trigger\" class=\"hidden-element\"></div>",
+		sep="")
 }
 ```
 
@@ -1858,11 +1891,11 @@ if ("boxplot" %in% qcPlots) {
 if ("gcbias" %in% qcPlots) {
 	pandoc.header("GC bias",level=3)
 	
-	covar <- as.numeric(geneData$gc_content)
-	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
-		whichPlot="gcbias",output="json")
-	jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,isNorm=TRUE,
-		whichPlot="gcbias",output="json")
+	#covar <- as.numeric(geneData$gc_content)
+	#jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
+	#	whichPlot="gcbias",output="json")
+	#jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,isNorm=TRUE,
+	#	whichPlot="gcbias",output="json")
 	
 	cat("<h4><strong>GC bias assessment plots</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$gcbias,
@@ -1871,11 +1904,13 @@ if ("gcbias" %in% qcPlots) {
 		sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"gcbias_norm_container\"></div>",
 		sep="")
-	cat("<script>$('#gcbias_unorm_container').highcharts(",jsonUnorm,
-		");</script>",sep="")
+	#cat("<script>$('#gcbias_unorm_container').highcharts(",jsonUnorm,
+	#	");</script>",sep="")
 	cat("<br/><br/>")
-	cat("<script>$('#gcbias_norm_container').highcharts(",jsonNorm,
-		");</script>",sep="")
+	#cat("<script>$('#gcbias_norm_container').highcharts(",jsonNorm,
+	#	");</script>",sep="")
+	cat("<button id=\"_gcbias_trigger\" class=\"hidden-element\"></div>",
+		sep="")
 }
 ```
 
@@ -1883,11 +1918,11 @@ if ("gcbias" %in% qcPlots) {
 if ("lengthbias" %in% qcPlots) {
 	pandoc.header("Length bias",level=3)
 	
-	covar <- width(geneData)
-	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
-		whichPlot="lengthbias",output="json")
-	jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,isNorm=TRUE,
-		whichPlot="lengthbias",output="json")
+	#covar <- width(geneData)
+	#jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,isNorm=FALSE,
+	#	whichPlot="lengthbias",output="json")
+	#jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,isNorm=TRUE,
+	#	whichPlot="lengthbias",output="json")
 	
 	cat("<h4><strong>Length bias assessment plots</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$lengthbias,
@@ -1896,11 +1931,13 @@ if ("lengthbias" %in% qcPlots) {
 		sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"lengthbias_norm_container\"></div>",
 		sep="")
-	cat("<script>$('#lengthbias_unorm_container').highcharts(",jsonUnorm,
-		");</script>",sep="")
+	#cat("<script>$('#lengthbias_unorm_container').highcharts(",jsonUnorm,
+	#	");</script>",sep="")
 	cat("<br/><br/>")
-	cat("<script>$('#lengthbias_norm_container').highcharts(",jsonNorm,
-		");</script>",sep="")
+	#cat("<script>$('#lengthbias_norm_container').highcharts(",jsonNorm,
+	#	");</script>",sep="")
+	cat("<button id=\"_lengthbias_trigger\" class=\"hidden-element\"></div>",
+		sep="")
 }
 ```
 
@@ -1942,10 +1979,10 @@ if ("meandiff" %in% qcPlots) {
 	cat("<select id=\"meandiff_selector\">",html,"</select>",sep="")
 	cat("</div>")
 	
-	# Container div - sample
+	# Container div - un-normalized
 	cat("<div class=\"hc-rect-sm\" id=\"meandiff_unorm_container\"></div>",
 		sep="")
-	# Container div - sample
+	# Container div - normalized
 	cat("<div class=\"hc-rect-sm\" id=\"meandiff_norm_container\"></div>",
 		sep="")
 	
@@ -2015,10 +2052,10 @@ if ("meandiff" %in% qcPlots) {
 if ("meanvar" %in% qcPlots) {
 	pandoc.header("Mean-Variance",level=3)
 	
-	jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
-		whichPlot="meanvar",output="json")
-	jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
-		whichPlot="meanvar",output="json")
+	#jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,isNorm=FALSE,
+	#	whichPlot="meanvar",output="json")
+	#jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
+	#	whichPlot="meanvar",output="json")
 	
 	cat("<h4><strong>Mean-variance plot for normalization assessment",
 		"</strong></h4>")
@@ -2028,10 +2065,12 @@ if ("meanvar" %in% qcPlots) {
 		sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"meanvar_norm_container\"></div>",
 		sep="")
-	cat("<script>$('#meanvar_unorm_container').highcharts(",jsonUnorm,
-		");</script>",sep="")
-	cat("<script>$('#meanvar_norm_container').highcharts(",jsonNorm,
-		");</script>",sep="")
+	#cat("<script>$('#meanvar_unorm_container').highcharts(",jsonUnorm,
+	#	");</script>",sep="")
+	#cat("<script>$('#meanvar_norm_container').highcharts(",jsonNorm,
+	#	");</script>",sep="")
+	cat("<button id=\"_meanvar_trigger\" class=\"hidden-element\"></div>",
+		sep="")
 }
 ```
 
@@ -2039,15 +2078,15 @@ if ("meanvar" %in% qcPlots) {
 if ("rnacomp" %in% qcPlots) {
 	pandoc.header("Rna composition",level=3)
 	
-	log1 <- capture.output({
-		jsonUnorm <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-			whichPlot="rnacomp",isNorm=FALSE,output="json")
-	})
+	#log1 <- capture.output({
+	#	jsonUnorm <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+	#		whichPlot="rnacomp",isNorm=FALSE,output="json")
+	#})
 	
-	log2 <- capture.output({
-		jsonNorm <- diagplotNoiseq(normGenes,sampleList,covars=covarsRaw,
-			whichPlot="rnacomp",isNorm=TRUE,output="json")
-	})
+	#log2 <- capture.output({
+	#	jsonNorm <- diagplotNoiseq(normGenes,sampleList,covars=covarsRaw,
+	#		whichPlot="rnacomp",isNorm=TRUE,output="json")
+	#})
 
 	cat("<h4><strong>RNA composition plot</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$rnacomp,
@@ -2055,11 +2094,13 @@ if ("rnacomp" %in% qcPlots) {
 		
 	cat("<div class=\"hc-rect-sm\" id=\"rnacomp_unorm_container\"></div>",
 		sep="")
-	cat("<script>$('#rnacomp_unorm_container').highcharts(",jsonUnorm,
-		");</script>",sep="")
+	#cat("<script>$('#rnacomp_unorm_container').highcharts(",jsonUnorm,
+	#	");</script>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"rnacomp_norm_container\"></div>",sep="")
-	cat("<script>$('#rnacomp_norm_container').highcharts(",jsonNorm,
-		");</script>",sep="")
+	#cat("<script>$('#rnacomp_norm_container').highcharts(",jsonNorm,
+	#	");</script>",sep="")
+	cat("<button id=\"_rnacomp_trigger\" class=\"hidden-element\"></div>",
+		sep="")
 }
 ```
 
@@ -2537,9 +2578,16 @@ for (cnt in contrast) {
 		fi <- fi[-c(1,2)]
 	ci <- numeric(length(sampleList))
 	N <- names(sampleList)
-	for (i in 1:length(N))
-		ci[i] <- grep(paste0("rpgm_normalized_mean_counts_",N[i]),
-			colnames(reportTables[[cnt]]))
+	if (length(grep("rpgm_normalized_mean_counts_",
+		colnames(reportTables[[cnt]]))) > 0) {
+		for (i in 1:length(N))
+			ci[i] <- grep(paste0("rpgm_normalized_mean_counts_",N[i]),
+				colnames(reportTables[[cnt]]))
+	}
+	else {
+		for (i in 1:length(N))
+			ci[i] <- grep(N[i],colnames(reportTables[[cnt]]),fixed=TRUE)
+	}
 	
 	# Get values before rounding for styling
 	brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
@@ -2816,7 +2864,62 @@ $("#detable_selector").on('change',function() {
 	$('#'+id).DataTable().columns.adjust();
 });
 
+// Hidden buttons
+$("#_mds_trigger").on('click',function() {
+	getPlotFromDb({name: "MDS",type: "mds",subtype: "generic"},
+		"mds_container");
+});
+$("#_readnoise_trigger").on('click',function() {
+	getPlotFromDb({name: "ReadNoise",type: "readoise",subtype: "generic"},
+		"readsnoise_container");
+});
+$("#_filtered_trigger").on('click',function() {
+	getPlotFromDb({name: "filtered_chromosome",type: "filtered",
+		subtype: "chromosome"},"chromosome_distr_container");
+	getPlotFromDb({name: "filtered_biotype",type: "filtered",
+		subtype: "biotype"},"biotype_distr_container");
+});
+$("#_boxplot_trigger").on('click',function() {
+	getPlotFromDb({name: "Boxplot",type: "boxplot",subtype: "unorm"},
+		"boxplot_unorm_container");
+	getPlotFromDb({name: "Boxplot",type: "boxplot",subtype: "norm"},
+		"boxplot_norm_container");
+});
+$("#_gcbias_trigger").on('click',function() {
+	getPlotFromDb({name: "GCBias",type: "gcbias",subtype: "unorm"},
+		"gcbias_unorm_container");
+	getPlotFromDb({name: "GCBias",type: "gcbias",subtype: "norm"},
+		"gcbias_norm_container");
+});
+$("#_lengthbias_trigger").on('click',function() {
+	getPlotFromDb({name: "LengthBias",type: "lengthbias",subtype: "unorm"},
+		"lengthbias_unorm_container");
+	getPlotFromDb({name: "LengthBias",type: "lengthbias",subtype: "norm"},
+		"lengthbias_norm_container");
+});
+$("#_meanvar_trigger").on('click',function() {
+	getPlotFromDb({name: "MeanVar",type: "meanvar",subtype: "unorm"},
+		"meanvar_unorm_container");
+	getPlotFromDb({name: "MeanVar",type: "meanvar",subtype: "norm"},
+		"meanvar_norm_container");
+});
+$("#_rnacomp_trigger").on('click',function() {
+	getPlotFromDb({name: "RnaComp",type: "rnacomp",subtype: "unorm"},
+		"rnacomp_unorm_container");
+	getPlotFromDb({name: "RnaComp",type: "rnacomp",subtype: "norm"},
+		"rnacomp_norm_container");
+});
+
 // Initialize some by changing plots (harmless for dexie, required for sqlite)
+$('#_mds_trigger').click();
+$("#_readnoise_trigger").click();
+$("#_filtered_trigger").click();
+$("#_boxplot_trigger").click();
+$("#_gcbias_trigger").click();
+$("#_lengthbias_trigger").click();
+$("#_meanvar_trigger").click();
+$("#_rnacomp_trigger").click();
+
 $('#biodetection_selector').trigger('change');
 $('#countsbio_sample_selector').trigger('change');
 $('#countsbio_biotype_selector').trigger('change');
