@@ -2857,7 +2857,7 @@ makeReportMessages <- function(lang) {
 #    return(stru)
 #}
 
-makeHighchartsPoints <- function(x,y,a=NULL,p=NULL) {
+makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
     if (length(x)>0) {
         n <- names(x)
         x <- unname(x)
@@ -2866,7 +2866,12 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL) {
             a <- unname(a)
         if (!is.null(p))
             p <- unname(p)
-        stru <- vector("list",length(x))
+        #stru <- vector("list",length(x))
+        if (simple) {
+            return(lapply(1:length(x),function(i,x,y) {
+                return(c(x[i],y[i]))
+           },x,y))
+        }
         if (is.null(a) && is.null(p)) {
             stru <- lapply(1:length(x),function(i,x,y,n) {
                 return(list(

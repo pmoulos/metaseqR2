@@ -251,7 +251,6 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
                 series[[s]] <- list()
                 series[[s]]$name <- s
                 series[[s]]$color <- cols$fill[counter]
-                #series[[s]]$turboThreshold <- 10000
                 series[[s]]$data <- list(unname(as.list(d[,s])))
                 r <- round(d[,s])
                 series[[s]]$tooltip=list(
@@ -276,7 +275,6 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
                 outliers[[o]]$name <- o
                 outliers[[o]]$type <- "scatter"
                 outliers[[o]]$showInLegend <- FALSE
-                #outliers[[o]]$turboThreshold <- 10000
                 outliers[[o]]$color <- cols$fill[counter]
                 outliers[[o]]$marker <- list(
                     fillColor=cols$fill[counter],
@@ -368,6 +366,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
 								whiskerLength="75%",
 								whiskerWidth=1,
 								grouping=FALSE,
+								turboThreshold=10000,
 								tooltip=list(
 									headerFormat=paste(
 										'<span style="font-size:1.1em;',
@@ -386,6 +385,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
 							),
 							scatter=list(
 								allowPointSelect=TRUE,
+								turboThreshold=10000,
 								tooltip=list(
 									headerFormat=paste(
 										'<span style="font-weight:bold;',
@@ -581,6 +581,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
 								whiskerLength="75%",
 								whiskerWidth=1,
 								grouping=FALSE,
+								turboThreshold=10000,
 								tooltip=list(
 									headerFormat=paste(
 										'<span style="font-size:1.1em;',
@@ -603,6 +604,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
 							),
 							scatter=list(
 								allowPointSelect=TRUE,
+								turboThreshold=10000,
 								tooltip=list(
 									headerFormat=paste(
 										'<span style="font-weight:bold;',
@@ -1142,7 +1144,7 @@ readNoiseToJSON <- function(obj,jl=c("highcharts"),seed=42,
         series[[n]] <- list()
         series[[n]]$name=n
         series[[n]]$color=cols$fill[counter]
-        series[[n]]$data <- makeHighchartsPoints(d[,1],d[,n])
+        series[[n]]$data <- makeHighchartsPoints(d[,1],d[,n],simple=TRUE)
         series[[n]]$tooltip=list(
             headerFormat=paste("<span style=",
                 "\"font-size:1.1em;color:{series.color};",
@@ -2009,7 +2011,7 @@ volcanoToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 		return(json)
 }
 
-scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
+scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
     jl <- tolower(jl[1])
     out <- tolower(out[1])
     
@@ -2032,6 +2034,14 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 		xLab <- paste("Expression for",samples[1])
 		yLab <- paste("Expression for",samples[2])
 	}
+	
+	# Too many points for mostly static, QC plots
+    if (length(x)>10000) {
+        set.seed(seed)
+        ii <- sample(1:length(x),10000)
+        x <- x[ii]
+        y <- y[ii]
+    }
     
     fit <- lowess(x,y)
     
@@ -2041,16 +2051,18 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     
     switch(jl,
         highcharts = {
-            if (is.null(altNames))
-                point.format=paste("<strong>Gene ID: </strong>{point.name}<br>",
-                    "<strong>",xLab,": </strong>{point.x}<br>",
-                    "<strong>",yLab,": </strong>{point.y}",sep="")
-            else
-                point.format=paste("<strong>Gene name: </strong>",
-                    "{point.alt_name}<br>",
-                    "<strong>Gene ID: </strong>{point.name}<br>",
-                    "<strong>",xLab,": </strong>{point.x}<br>",
-                    "<strong>",yLab,": </strong>{point.y}",sep="")
+            #if (is.null(altNames))
+            #    point.format=paste("<strong>Gene ID: </strong>{point.name}<br>",
+            #        "<strong>",xLab,": </strong>{point.x}<br>",
+            #        "<strong>",yLab,": </strong>{point.y}",sep="")
+            #else
+            #    point.format=paste("<strong>Gene name: </strong>",
+            #        "{point.alt_name}<br>",
+            #        "<strong>Gene ID: </strong>{point.name}<br>",
+            #        "<strong>",xLab,": </strong>{point.x}<br>",
+            #        "<strong>",yLab,": </strong>{point.y}",sep="")
+            point.format=paste("<strong>",xLab,": </strong>{point.x}<br>",
+				"<strong>",yLab,": </strong>{point.y}",sep="")
                 json <- list(
 					chart=list(
 					type="scatter",
@@ -2109,7 +2121,10 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 				),
 				plotOptions=list(
 					scatter=list(
-						turboThreshold=50000
+						turboThreshold=25000
+					),
+					line=list(
+						turboThreshold=25000
 					)
 				),
 				series=list(
@@ -2121,7 +2136,8 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 						marker=list(
 							radius=0.5
 						),
-						data=makeHighchartsPoints(x,y,unname(altNames)),
+						#data=makeHighchartsPoints(x,y,unname(altNames)),
+						data=makeHighchartsPoints(x,y,simple=TRUE),
 						tooltip=list(
 							followPointer=FALSE,
 							headerFormat=paste("<span style=",
