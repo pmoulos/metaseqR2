@@ -46,9 +46,8 @@ read2count <- function(targets,annotation,fileType=targets$type,
 	annotationGr <- backList$annotationGr
 	mergedAnnotation <- backList$mergedAnnotation
     
-    # FIXME: Correct the 3' UTR expansion as per Pantelis discussion
-    if (countType == "utr" && utrFlank > 0) {
-		disp("Flanking transcript 3' UTRs per ",utrFlank,"bp...")
+    if (countType == "utr" && !is.null(utrOpts)) {
+		disp("Resizing transcript 3' UTRs...")
 		w <- width(annotationGr)
 		#annotationGr <- promoters(annotationGr,upstream=utrFlank,downstream=0)
 		#annotationGr <- resize(annotationGr,width=w+2*utrFlank)
@@ -203,281 +202,6 @@ read2count <- function(targets,annotation,fileType=targets$type,
             return(list(counts=counts,libsize=libsize))
         },sampleFiles,paired,stranded,rc=rc)
         disp("  Finished counting!")
-    }
-    for (i in 1:length(retVal)) {
-        counts[,i] <- retVal[[i]]$counts
-        libsize[[i]] <- retVal[[i]]$libsize
-    }
-    
-    return(list(counts=counts,libsize=libsize,mergedann=mergedAnnotation))
-}
-
-read2countOld <- function(targets,annotation,fileType=targets$type,
-    transLevel="gene",utrFlank=500,interFeature=FALSE,rc=NULL) {
-    if (missing(targets))
-        stopwrap("You must provide the targets argument!")
-    if (missing(annotation))
-        stopwrap("You must provide an annotation data frame!")
-    if (!require(GenomicRanges))
-        stopwrap("The Bioconductor package GenomicRanges is required to ",
-            "proceed!")
-    if (fileType=="bed" && !require(rtracklayer))
-        stopwrap("The Bioconductor package rtracklayer is required to process ",
-            "BED files!")
-    if (fileType %in% c("sam","bam")) {
-        if (!require(Rsamtools))
-            stopwrap("The Bioconductor package Rsamtools is required to ",
-                "process BAM files!")
-    }
-    if (!is.list(targets) && file.exists(targets))
-        targets <- readTargets(targets)
-    else if (!is.list(targets) && !file.exists(targets))
-        stopwrap("You must provide a targets list or a valid targets file!")
-    
-    # Convert annotation to GRanges
-    annotationGr <- makeGRangesFromDataFrame(
-        df=annotation,
-        keep.extra.columns=TRUE,
-        seqnames.field="chromosome"
-    )
-    # annotationGr <- GRanges(annotation) also works for our structure
-    
-    # If the count type is "exon", we must reduce overlapping exons belonging to
-    # multiple transcripts, so as to avoid inflating the final read count when
-    # summing all exons
-    if (length(grep("exon",colnames(annotation)))>0) { # countType is exon
-        if (length(grep("MEX",annotation$exon_id[1]))) # Retrieved from previous
-            mergedAnnotation <- annotation
-        else {
-            if (transLevel=="gene") {
-                disp("Merging exons to create unique gene models...")
-                annotationGr <- reduceExons(annotationGr,rc=rc)
-            }
-            #else if (transLevel=="transcript") {
-            #   disp("Merging exons to create unique gene models...")
-            #   annotationGr <- reduceExonsTranscript(annotationGr,rc=rc)
-            #}
-            #mergedAnnotation <- as.data.frame(annotationGr) # Bug?
-            mergedAnnotation <- data.frame(
-                chromosome=as.character(seqnames(annotationGr)),
-                start=start(annotationGr),
-                end=end(annotationGr),
-                exon_id=if (!is.null(annotationGr$exon_id))
-                    as.character(annotationGr$exon_id) else
-                    as.character(annotationGr$name),
-                gene_id=if (!is.null(annotationGr$gene_id))
-                    as.character(annotationGr$gene_id) else
-                    as.character(annotationGr$name),
-                strand=as.character(strand(annotationGr)),
-                gene_name=if (!is.null(annotationGr$gene_name))
-                    as.character(annotationGr$gene_name) else 
-                    if (!is.null(annotationGr$symbol))
-                    as.character(annotationGr$name) else NULL,
-                biotype=if (!is.null(annotationGr$biotype))
-                    as.character(annotationGr$biotype) else NULL
-            )
-            rownames(mergedAnnotation) <- 
-                as.character(mergedAnnotation$exon_id)
-        }
-    }
-    else if (length(grep("transcript",colnames(annotation)))>0) {
-        # countType may be utr
-        if (length(grep("MET",annotation$transcript_id[1]))
-            || length(grep("MEU",annotation$transcript_id[1]))) 
-            # Retrieved from previous
-            mergedAnnotation <- annotation
-        else {
-            if (transLevel=="gene") {
-                disp("Merging transcript 3' UTRs to create unique ",
-                    "gene models...")
-                annotationGr <- reduceTranscriptsUtr(annotationGr,rc=rc)
-            }
-            if (transLevel=="transcript") {
-                disp("Merging transcript 3' UTRs to create unique ",
-                    "transcript models...")
-                annotationGr <- 
-                    reduceTranscriptsUtrTranscript(annotationGr,rc=rc)
-            }
-            if (utrFlank > 0) {
-                disp("Flanking merged transcript 3' UTRs per ",utrFlank,
-                    "bp...")
-                w <- width(annotationGr)
-                annotationGr <- promoters(annotationGr,upstream=utrFlank,
-                    downstream=0)
-                annotationGr <- resize(annotationGr,width=w+2*utrFlank)
-            }
-            #mergedAnnotation <- as.data.frame(annotationGr) # Bug?
-            mergedAnnotation <- data.frame(
-                chromosome=as.character(seqnames(annotationGr)),
-                start=start(annotationGr),
-                end=end(annotationGr),
-                transcript_id=if (!is.null(annotationGr$transcript_id))
-                    as.character(annotationGr$transcript_id) else
-                    as.character(annotationGr$name),
-                gene_id=if (!is.null(annotationGr$gene_id))
-                    as.character(annotationGr$gene_id) else
-                    as.character(annotationGr$name),
-                strand=as.character(strand(annotationGr)),
-                gene_name=if (!is.null(annotationGr$gene_name))
-                    as.character(annotationGr$gene_name) else 
-                    if (!is.null(annotationGr$symbol))
-                    as.character(annotationGr$name) else NULL,
-                biotype=if (!is.null(annotationGr$biotype))
-                    as.character(annotationGr$biotype) else NULL
-            )
-            rownames(mergedAnnotation) <- 
-                as.character(mergedAnnotation$transcript_id)
-        }
-        interFeature = FALSE # Quant-Seq
-    }
-    else
-        mergedAnnotation <- NULL
-    # Continue
-    filesList <- targets$files
-    sampleNames <- unlist(lapply(filesList,names),use.names=FALSE)
-    sampleFiles <- unlist(filesList,use.names=FALSE)
-    names(sampleFiles) <- sampleNames
-    if (!is.null(targets$paired)) {
-        paired <- unlist(targets$paired,use.names=FALSE)
-        names(paired) <- sampleNames
-    }
-    else
-        paired <- NULL
-    if (!is.null(targets$stranded)) {
-        stranded <- unlist(targets$stranded,use.names=FALSE)
-        names(stranded) <- sampleNames
-    }
-    else
-        stranded <- NULL
-    counts <- matrix(0,nrow=length(annotationGr),ncol=length(sampleNames))
-    if (length(grep("exon",colnames(annotation)))>0)
-        rownames(counts) <- as.character(annotationGr$exon_id)
-    else if (length(grep("transcript",colnames(annotation)))>0)
-        rownames(counts) <- as.character(annotationGr$transcript_id)
-    else
-        rownames(counts) <- as.character(annotationGr$gene_id)
-    colnames(counts) <- sampleNames
-    libsize <- vector("list",length(sampleNames))
-    names(libsize) <- sampleNames
-    if (fileType=="bed") {
-        retVal <- cmclapply(sampleNames,function(n,sampleFiles) {
-            disp("Reading bed file ",basename(sampleFiles[n]),
-                " for sample with name ",n,". This might take some time...")
-            bed <- import.bed(sampleFiles[n],trackLine=FALSE)
-            disp("  Checking for chromosomes not present in the annotation...")
-            bed <- bed[which(!is.na(match(as(seqnames(bed),"character"),
-                seqlevels(annotationGr))))]
-            libsize <- length(bed)
-            if (length(bed)>0) {
-                disp("  Counting reads overlapping with given annotation...")
-                counts <- countOverlaps(annotationGr,bed)
-            }
-            else
-                warnwrap(paste("No reads left after annotation chromosome ",
-                    "presence check for sample ",n,sep=""))
-            gc(verbose=FALSE)
-            return(list(counts=counts,libsize=libsize))
-        },sampleFiles,rc=rc)
-    }
-    else if (fileType %in% c("sam","bam")) {
-        if (fileType=="sam") {
-            for (n in sampleNames) {
-                dest <- file.path(dirname(sampleFiles[n]),n)
-                disp("Converting sam file ",basename(sampleFiles[n]),
-                    " to bam file ",basename(dest),"...")
-                asBam(file=sampleFiles[n],destination=dest,overwrite=TRUE)
-                sampleFiles[n] <- paste(dest,"bam",sep=".")
-            }
-        }
-        retVal <- cmclapply(sampleNames,function(n,sampleFiles,paired,
-            stranded) {
-            disp("Reading bam file ",basename(sampleFiles[n])," for sample ",
-                "with name ",n,". This might take some time...")
-            if (!is.null(paired)) {
-                p <- tolower(paired[n])
-                if (p=="single") {
-                    singleEnd <- TRUE
-                    fragments <- FALSE
-                    asMates <- FALSE
-                }
-                else if (p=="paired") {
-                    singleEnd <- FALSE
-                    fragments <- FALSE
-                    asMates <- TRUE
-                }
-                else if (p=="mixed") {
-                    singleEnd <- FALSE
-                    fragments <- TRUE
-                    asMates <- TRUE
-                }
-                else {
-                    warnwrap("Information regarding single- or paired-end ",
-                        "reads is not correctly provided! Assuming single...")
-                    singleEnd <- TRUE
-                    fragments <- FALSE
-                    asMates <- FALSE
-                }
-            }
-            else {
-                singleEnd <- TRUE
-                fragments <- FALSE
-                asMates <- FALSE
-            }
-            if (!is.null(stranded)) {
-                s <- tolower(stranded[n])
-                if (s %in% c("forward","reverse"))
-                    ignoreStrand <- FALSE
-                else if (s=="no")
-                    ignoreStrand <- TRUE
-                else {
-                    warnwrap("Information regarding strandedness of the reads ",
-                        "is not correctly provided! Assuming unstranded...")
-                    ignoreStrand <- TRUE
-                }
-            }
-            else
-                ignoreStrand <- TRUE
-            # Check remoteness
-            if (length(grep("^(http|ftp)",sampleFiles[n],perl=TRUE))>=1) {
-                reads <- as(readGAlignments(file=sampleFiles[n]),"GRanges")
-                libsize <- length(reads)
-                isRemote <- TRUE
-            }
-            else {
-                reads <- BamFile(sampleFiles[n],asMates=asMates)
-                libsize <- countBam(reads,
-                param=ScanBamParam(scanBamFlag(isUnmappedQuery=FALSE)))$records
-                isRemote <- FALSE
-            }
-            if (libsize>0) {
-                disp("  Counting reads overlapping with given annotation...")
-                if (singleEnd & !fragments)
-                    disp("    ...for single-end reads...")
-                else if (!singleEnd & !fragments)
-                    disp("    ...for paired-end reads...")
-                else if (!singleEnd & fragments)
-                    disp("    ...for mixed single- and paired-end reads...")
-                if (ignoreStrand)
-                    disp("    ...ignoring strandedness...")
-                else {
-                    disp("    ...assuming ",s," sequenced reads...")
-                    if (s=="reverse")
-                        strand(annotationGr) <- ifelse(strand(
-                            annotationGr)=="+","-","+")
-                }
-                if (isRemote)
-                    disp("    ...for remote BAM file... might take longer...")
-                counts <- summarizeOverlaps(annotationGr,reads,
-                    singleEnd=singleEnd,fragments=fragments,
-                    ignore.strand=ignoreStrand,inter.feature=interFeature)
-                counts <- assays(counts)$counts
-            }
-            else
-                warnwrap(paste("No reads left after annotation chromosome ",
-                    "presence check for sample ",n,sep=""))
-            gc(verbose=FALSE)
-            return(list(counts=counts,libsize=libsize))
-        },sampleFiles,paired,stranded,rc=rc)
     }
     for (i in 1:length(retVal)) {
         counts[,i] <- retVal[[i]]$counts
@@ -722,3 +446,280 @@ readTargets <- function(input,path=NULL) {
         mergedAnnotation <- NULL
     return(list(annotationGr=annotationGr,mergedAnnotation=mergedAnnotation))
 }
+
+################################################################################
+
+#~ read2countOld <- function(targets,annotation,fileType=targets$type,
+#~     transLevel="gene",utrFlank=500,interFeature=FALSE,rc=NULL) {
+#~     if (missing(targets))
+#~         stopwrap("You must provide the targets argument!")
+#~     if (missing(annotation))
+#~         stopwrap("You must provide an annotation data frame!")
+#~     if (!require(GenomicRanges))
+#~         stopwrap("The Bioconductor package GenomicRanges is required to ",
+#~             "proceed!")
+#~     if (fileType=="bed" && !require(rtracklayer))
+#~         stopwrap("The Bioconductor package rtracklayer is required to process ",
+#~             "BED files!")
+#~     if (fileType %in% c("sam","bam")) {
+#~         if (!require(Rsamtools))
+#~             stopwrap("The Bioconductor package Rsamtools is required to ",
+#~                 "process BAM files!")
+#~     }
+#~     if (!is.list(targets) && file.exists(targets))
+#~         targets <- readTargets(targets)
+#~     else if (!is.list(targets) && !file.exists(targets))
+#~         stopwrap("You must provide a targets list or a valid targets file!")
+    
+#~     # Convert annotation to GRanges
+#~     annotationGr <- makeGRangesFromDataFrame(
+#~         df=annotation,
+#~         keep.extra.columns=TRUE,
+#~         seqnames.field="chromosome"
+#~     )
+#~     # annotationGr <- GRanges(annotation) also works for our structure
+    
+#~     # If the count type is "exon", we must reduce overlapping exons belonging to
+#~     # multiple transcripts, so as to avoid inflating the final read count when
+#~     # summing all exons
+#~     if (length(grep("exon",colnames(annotation)))>0) { # countType is exon
+#~         if (length(grep("MEX",annotation$exon_id[1]))) # Retrieved from previous
+#~             mergedAnnotation <- annotation
+#~         else {
+#~             if (transLevel=="gene") {
+#~                 disp("Merging exons to create unique gene models...")
+#~                 annotationGr <- reduceExons(annotationGr,rc=rc)
+#~             }
+#~             #else if (transLevel=="transcript") {
+#~             #   disp("Merging exons to create unique gene models...")
+#~             #   annotationGr <- reduceExonsTranscript(annotationGr,rc=rc)
+#~             #}
+#~             #mergedAnnotation <- as.data.frame(annotationGr) # Bug?
+#~             mergedAnnotation <- data.frame(
+#~                 chromosome=as.character(seqnames(annotationGr)),
+#~                 start=start(annotationGr),
+#~                 end=end(annotationGr),
+#~                 exon_id=if (!is.null(annotationGr$exon_id))
+#~                     as.character(annotationGr$exon_id) else
+#~                     as.character(annotationGr$name),
+#~                 gene_id=if (!is.null(annotationGr$gene_id))
+#~                     as.character(annotationGr$gene_id) else
+#~                     as.character(annotationGr$name),
+#~                 strand=as.character(strand(annotationGr)),
+#~                 gene_name=if (!is.null(annotationGr$gene_name))
+#~                     as.character(annotationGr$gene_name) else 
+#~                     if (!is.null(annotationGr$symbol))
+#~                     as.character(annotationGr$name) else NULL,
+#~                 biotype=if (!is.null(annotationGr$biotype))
+#~                     as.character(annotationGr$biotype) else NULL
+#~             )
+#~             rownames(mergedAnnotation) <- 
+#~                 as.character(mergedAnnotation$exon_id)
+#~         }
+#~     }
+#~     else if (length(grep("transcript",colnames(annotation)))>0) {
+#~         # countType may be utr
+#~         if (length(grep("MET",annotation$transcript_id[1]))
+#~             || length(grep("MEU",annotation$transcript_id[1]))) 
+#~             # Retrieved from previous
+#~             mergedAnnotation <- annotation
+#~         else {
+#~             if (transLevel=="gene") {
+#~                 disp("Merging transcript 3' UTRs to create unique ",
+#~                     "gene models...")
+#~                 annotationGr <- reduceTranscriptsUtr(annotationGr,rc=rc)
+#~             }
+#~             if (transLevel=="transcript") {
+#~                 disp("Merging transcript 3' UTRs to create unique ",
+#~                     "transcript models...")
+#~                 annotationGr <- 
+#~                     reduceTranscriptsUtrTranscript(annotationGr,rc=rc)
+#~             }
+#~             if (utrFlank > 0) {
+#~                 disp("Flanking merged transcript 3' UTRs per ",utrFlank,
+#~                     "bp...")
+#~                 w <- width(annotationGr)
+#~                 annotationGr <- promoters(annotationGr,upstream=utrFlank,
+#~                     downstream=0)
+#~                 annotationGr <- resize(annotationGr,width=w+2*utrFlank)
+#~             }
+#~             #mergedAnnotation <- as.data.frame(annotationGr) # Bug?
+#~             mergedAnnotation <- data.frame(
+#~                 chromosome=as.character(seqnames(annotationGr)),
+#~                 start=start(annotationGr),
+#~                 end=end(annotationGr),
+#~                 transcript_id=if (!is.null(annotationGr$transcript_id))
+#~                     as.character(annotationGr$transcript_id) else
+#~                     as.character(annotationGr$name),
+#~                 gene_id=if (!is.null(annotationGr$gene_id))
+#~                     as.character(annotationGr$gene_id) else
+#~                     as.character(annotationGr$name),
+#~                 strand=as.character(strand(annotationGr)),
+#~                 gene_name=if (!is.null(annotationGr$gene_name))
+#~                     as.character(annotationGr$gene_name) else 
+#~                     if (!is.null(annotationGr$symbol))
+#~                     as.character(annotationGr$name) else NULL,
+#~                 biotype=if (!is.null(annotationGr$biotype))
+#~                     as.character(annotationGr$biotype) else NULL
+#~             )
+#~             rownames(mergedAnnotation) <- 
+#~                 as.character(mergedAnnotation$transcript_id)
+#~         }
+#~         interFeature = FALSE # Quant-Seq
+#~     }
+#~     else
+#~         mergedAnnotation <- NULL
+#~     # Continue
+#~     filesList <- targets$files
+#~     sampleNames <- unlist(lapply(filesList,names),use.names=FALSE)
+#~     sampleFiles <- unlist(filesList,use.names=FALSE)
+#~     names(sampleFiles) <- sampleNames
+#~     if (!is.null(targets$paired)) {
+#~         paired <- unlist(targets$paired,use.names=FALSE)
+#~         names(paired) <- sampleNames
+#~     }
+#~     else
+#~         paired <- NULL
+#~     if (!is.null(targets$stranded)) {
+#~         stranded <- unlist(targets$stranded,use.names=FALSE)
+#~         names(stranded) <- sampleNames
+#~     }
+#~     else
+#~         stranded <- NULL
+#~     counts <- matrix(0,nrow=length(annotationGr),ncol=length(sampleNames))
+#~     if (length(grep("exon",colnames(annotation)))>0)
+#~         rownames(counts) <- as.character(annotationGr$exon_id)
+#~     else if (length(grep("transcript",colnames(annotation)))>0)
+#~         rownames(counts) <- as.character(annotationGr$transcript_id)
+#~     else
+#~         rownames(counts) <- as.character(annotationGr$gene_id)
+#~     colnames(counts) <- sampleNames
+#~     libsize <- vector("list",length(sampleNames))
+#~     names(libsize) <- sampleNames
+#~     if (fileType=="bed") {
+#~         retVal <- cmclapply(sampleNames,function(n,sampleFiles) {
+#~             disp("Reading bed file ",basename(sampleFiles[n]),
+#~                 " for sample with name ",n,". This might take some time...")
+#~             bed <- import.bed(sampleFiles[n],trackLine=FALSE)
+#~             disp("  Checking for chromosomes not present in the annotation...")
+#~             bed <- bed[which(!is.na(match(as(seqnames(bed),"character"),
+#~                 seqlevels(annotationGr))))]
+#~             libsize <- length(bed)
+#~             if (length(bed)>0) {
+#~                 disp("  Counting reads overlapping with given annotation...")
+#~                 counts <- countOverlaps(annotationGr,bed)
+#~             }
+#~             else
+#~                 warnwrap(paste("No reads left after annotation chromosome ",
+#~                     "presence check for sample ",n,sep=""))
+#~             gc(verbose=FALSE)
+#~             return(list(counts=counts,libsize=libsize))
+#~         },sampleFiles,rc=rc)
+#~     }
+#~     else if (fileType %in% c("sam","bam")) {
+#~         if (fileType=="sam") {
+#~             for (n in sampleNames) {
+#~                 dest <- file.path(dirname(sampleFiles[n]),n)
+#~                 disp("Converting sam file ",basename(sampleFiles[n]),
+#~                     " to bam file ",basename(dest),"...")
+#~                 asBam(file=sampleFiles[n],destination=dest,overwrite=TRUE)
+#~                 sampleFiles[n] <- paste(dest,"bam",sep=".")
+#~             }
+#~         }
+#~         retVal <- cmclapply(sampleNames,function(n,sampleFiles,paired,
+#~             stranded) {
+#~             disp("Reading bam file ",basename(sampleFiles[n])," for sample ",
+#~                 "with name ",n,". This might take some time...")
+#~             if (!is.null(paired)) {
+#~                 p <- tolower(paired[n])
+#~                 if (p=="single") {
+#~                     singleEnd <- TRUE
+#~                     fragments <- FALSE
+#~                     asMates <- FALSE
+#~                 }
+#~                 else if (p=="paired") {
+#~                     singleEnd <- FALSE
+#~                     fragments <- FALSE
+#~                     asMates <- TRUE
+#~                 }
+#~                 else if (p=="mixed") {
+#~                     singleEnd <- FALSE
+#~                     fragments <- TRUE
+#~                     asMates <- TRUE
+#~                 }
+#~                 else {
+#~                     warnwrap("Information regarding single- or paired-end ",
+#~                         "reads is not correctly provided! Assuming single...")
+#~                     singleEnd <- TRUE
+#~                     fragments <- FALSE
+#~                     asMates <- FALSE
+#~                 }
+#~             }
+#~             else {
+#~                 singleEnd <- TRUE
+#~                 fragments <- FALSE
+#~                 asMates <- FALSE
+#~             }
+#~             if (!is.null(stranded)) {
+#~                 s <- tolower(stranded[n])
+#~                 if (s %in% c("forward","reverse"))
+#~                     ignoreStrand <- FALSE
+#~                 else if (s=="no")
+#~                     ignoreStrand <- TRUE
+#~                 else {
+#~                     warnwrap("Information regarding strandedness of the reads ",
+#~                         "is not correctly provided! Assuming unstranded...")
+#~                     ignoreStrand <- TRUE
+#~                 }
+#~             }
+#~             else
+#~                 ignoreStrand <- TRUE
+#~             # Check remoteness
+#~             if (length(grep("^(http|ftp)",sampleFiles[n],perl=TRUE))>=1) {
+#~                 reads <- as(readGAlignments(file=sampleFiles[n]),"GRanges")
+#~                 libsize <- length(reads)
+#~                 isRemote <- TRUE
+#~             }
+#~             else {
+#~                 reads <- BamFile(sampleFiles[n],asMates=asMates)
+#~                 libsize <- countBam(reads,
+#~                 param=ScanBamParam(scanBamFlag(isUnmappedQuery=FALSE)))$records
+#~                 isRemote <- FALSE
+#~             }
+#~             if (libsize>0) {
+#~                 disp("  Counting reads overlapping with given annotation...")
+#~                 if (singleEnd & !fragments)
+#~                     disp("    ...for single-end reads...")
+#~                 else if (!singleEnd & !fragments)
+#~                     disp("    ...for paired-end reads...")
+#~                 else if (!singleEnd & fragments)
+#~                     disp("    ...for mixed single- and paired-end reads...")
+#~                 if (ignoreStrand)
+#~                     disp("    ...ignoring strandedness...")
+#~                 else {
+#~                     disp("    ...assuming ",s," sequenced reads...")
+#~                     if (s=="reverse")
+#~                         strand(annotationGr) <- ifelse(strand(
+#~                             annotationGr)=="+","-","+")
+#~                 }
+#~                 if (isRemote)
+#~                     disp("    ...for remote BAM file... might take longer...")
+#~                 counts <- summarizeOverlaps(annotationGr,reads,
+#~                     singleEnd=singleEnd,fragments=fragments,
+#~                     ignore.strand=ignoreStrand,inter.feature=interFeature)
+#~                 counts <- assays(counts)$counts
+#~             }
+#~             else
+#~                 warnwrap(paste("No reads left after annotation chromosome ",
+#~                     "presence check for sample ",n,sep=""))
+#~             gc(verbose=FALSE)
+#~             return(list(counts=counts,libsize=libsize))
+#~         },sampleFiles,paired,stranded,rc=rc)
+#~     }
+#~     for (i in 1:length(retVal)) {
+#~         counts[,i] <- retVal[[i]]$counts
+#~         libsize[[i]] <- retVal[[i]]$libsize
+#~     }
+    
+#~     return(list(counts=counts,libsize=libsize,mergedann=mergedAnnotation))
+#~ }

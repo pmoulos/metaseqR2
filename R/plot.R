@@ -790,6 +790,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
     if (missing(covars))
         stopwrap("\"covars\" argument is required with NOISeq specific plots!")
     else {
+		if (is.null(covars$gc))
+			covars$gc <- rep(0.5,nrow(x))
         covars$biotype <- as.character(covars$biotype)
         names(covars$length) <- names(covars$gc) <-
             rownames(covars$chromosome) <- names(covars$biotype) <-

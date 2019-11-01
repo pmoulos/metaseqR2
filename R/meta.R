@@ -56,7 +56,7 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
             },rc=rc)
         },
         weight = {
-            sumpList <- wapply(cpList,function(x) {
+            sumpList <- cmclapply(cpList,function(x) {
                 return(apply(x,1,combineWeight,weight))
             },rc=rc)
         },
@@ -162,8 +162,6 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
                 sumpList[[cc]] <- apply(pc,1,function(y,m) 
                     return(length(which(y[1:(m-1)]<y[m]))/(m-1)),ly)
             }
-            #assign("perm.list",tempPList,envir=.GlobalEnv)
-            #assign("oList",originalPList,envir=.GlobalEnv)
         },
         none = {
             # A default value must be there to use with volcanos, we say the one
@@ -209,8 +207,8 @@ metaPerm <- function(contrast,counts,sampleList,statistics,statArgs,
     else
         stopwrap("reprod must be either a logical or a numeric vector!")
     disp("  Resampling procedure started...")
-    # In this case, we must not use wapply as we want to be able to track progress
-    # through mc.preschedule...
+    # In this case, we must not use cmclapply as we want to be able to track 
+    # progress through mc.preschedule...
     if (!is.null(rc))
         pp <- mclapply(relist,metaWorker,counts,sampleList,contrast,
             statistics,replace,statArgs,libsizeList,select,weight,

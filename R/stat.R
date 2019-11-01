@@ -705,6 +705,8 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     }
     else {
         gcContent <- geneData$gc_content
+        if (is.null(geneData$gc_content))
+			gcContent <- rep(0.5,nrow(geneData))
         biotype <- as.character(geneData$biotype)
         names(gcContent) <- names(biotype) <- rownames(geneData)
         if (is.null(attr(geneData,"geneLength")))

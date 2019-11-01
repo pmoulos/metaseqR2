@@ -38,10 +38,6 @@ opts_chunk$set(
 opts_knit$set(width=75)
 ```
 
-```{js sql_opts}
-Module = { TOTAL_MEMORY: 134217728 };
-```
-
 ```{r load_js}
 if (offlineReport) {
 	cat("<script type=\"text/javascript\" src=\"js/pace.min.js\"></script>",
@@ -60,9 +56,11 @@ if (offlineReport) {
 		sep="")
 	cat("<script type=\"text/javascript\" src=\"js/jvenn.min.js\"></script>",
 		sep="")
-	if (reportDb == "sqlite")
+	if (reportDb == "sqlite") {
+		cat("<script>Module = { TOTAL_MEMORY: 134217728 };</script>")
 		cat("<script type=\"text/javascript\" src=\"js/sql.js\"></script>",
 			sep="")
+	}
 	else if (reportDb == "dexie")
 	   cat("<script type=\"text/javascript\" src=\"js/dexie.min.js\"></script>",
 			sep="")
@@ -79,16 +77,21 @@ if (offlineReport) {
 		"modules/offline-exporting.js\"></script>",sep="")
 	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
 		"modules/export-data.js\"></script>",sep="")
-	cat("<script src=\"http://jvenn.toulouse.inra.fr/app/js/canvas2svg.js\">",
+	cat("<script type=\"text/javascript\ ",
+		"src=\"http://jvenn.toulouse.inra.fr/app/js/canvas2svg.js\">",
 		"</script>",sep="")
-	cat("<script src=\"http://jvenn.toulouse.inra.fr/app/js/jvenn.min.js\">",
+	cat("<script type=\"text/javascript\" ",
+		"src=\"http://jvenn.toulouse.inra.fr/app/js/jvenn.min.js\">",
 		"</script>",sep="")
-	if (reportDb == "sqlite")
-		cat("<script src=\"",
+	if (reportDb == "sqlite") {
+		cat("<script>Module = { TOTAL_MEMORY: 134217728 };</script>")
+		cat("<script type=\"text/javascript\" src=\"",
 		"https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js\">",
 		"</script>",sep="")
+	}
 	else if (reportDb == "dexie")
-		cat("<script src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
+		cat("<script type=\"text/javascript\" ",
+			"src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
 			"</script>",sep="")
 }
 if (reportDb == "dexie")
@@ -97,7 +100,9 @@ if (reportDb == "dexie")
 
 ```{js pace_opts}
 Pace.options = {
-	ajax: false
+	ajax: false,
+	restartOnPushState: false,
+	restartOnRequestAfter: false
 }
 ```
 
@@ -122,6 +127,7 @@ cat("<script>\n",code,"\n</script>")
 ```{js define_getplot_funs}
 getPlotFromDb = function(query,renderId) {
 	if (DEXIE) {
+		$("#loader").show();
 		db.plots.get({
 			name: query.name,
 			type: query.type,
@@ -129,6 +135,11 @@ getPlotFromDb = function(query,renderId) {
 		},function(res) {
 			var chartData = res.json;
 			chartData.chart.renderTo = renderId;
+			chartData.chart.events = {
+                load: function() {
+                    $("#loader").hide();
+                }
+            };
 			var chart = new Highcharts.Chart(chartData);
 		});
 	}
@@ -160,6 +171,7 @@ getPlotFromDb = function(query,renderId) {
 
 getPlotWithFunFromDb = function(query,renderId) {
 	if (DEXIE) {
+		$("#loader").show();
 		db.plots.get({
 			name: query.name,
 			type: query.type,
@@ -191,6 +203,11 @@ getPlotWithFunFromDb = function(query,renderId) {
 						chartData.plotOptions.boxplot.events.legendItemClick)()
 			}
 			
+			chartData.chart.events = {
+                load: function() {
+                    $("#loader").hide();
+                }
+            };
 			var chart = new Highcharts.Chart(chartData);
 		});
 	}
@@ -245,6 +262,32 @@ getPlotWithFunFromDb = function(query,renderId) {
 
 getVennFromDb = function(query,renderId) {
 	if (DEXIE) {
+		$("#loader").show();
+		db.plots.get({
+			name: query.name,
+			type: query.type,
+			subtype: query.subtype
+		},function(res) {
+			var chartData = res.json;
+			chartData.fnClickCallback = function() {
+				var value = '';
+				if (this.listnames.length == 1) {
+					value += 'Elements only in ';
+				} else {
+					value += 'Common elements in ';
+				}
+				for (name in this.listnames) {
+					value += this.listnames[name] + ' ';
+				}
+				value += ':\n';
+				for (val in this.list) {
+					value += this.list[val] + '\n';
+				}
+				$('#jvenn_list').text(value);
+			}
+			$('#'+renderId).jvenn(chartData);
+			$("#loader").hide();
+		});
 	}
 	else {
 		var xhr = new XMLHttpRequest();
@@ -281,52 +324,6 @@ getVennFromDb = function(query,renderId) {
 		};
 		xhr.send();
 		$("#loader").show();
-	}
-}
-
-getTableFromDb = function(query) {
-	if (DEXIE) {
-		db.plots.get({
-			name: query.name,
-			type: query.type,
-			subtype: query.subtype
-		},function(res) {
-			var chartData = res.json;
-			chartData.fnClickCallback = function() {
-				var value = '';
-				if (this.listnames.length == 1) {
-					value += 'Elements only in ';
-				} else {
-					value += 'Common elements in ';
-				}
-				for (name in this.listnames) {
-					value += this.listnames[name] + ' ';
-				}
-				value += ':\n';
-				for (val in this.list) {
-					value += this.list[val] + '\n';
-				}
-				$('#jvenn_list').text(value);
-			}
-			//$('#'+renderId).empty();
-			$('#'+renderId).jvenn(chartData);
-		});
-	}
-	else {
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', './data/reportdb.sqlite',true);
-		xhr.responseType = 'arraybuffer';
-		xhr.onload = function(e) {
-			var sqlQuery = "SELECT * FROM detable WHERE contrast='" + 
-				query.contrast + "';";
-			var uInt8Array = new Uint8Array(this.response);
-			var db = new SQL.Database(uInt8Array);
-			var contents = db.exec(sqlQuery);
-			var tableData = JSON.parse(contents[0].values[0][0]);
-			console.log(tableData)
-		};
-		xhr.send();
-		//$("#loader").show();
 	}
 }
 ```
@@ -444,7 +441,7 @@ p {
 }
 
 .loading:before {
-  content: 'Loading...';
+  content: 'Loading plots...';
   font-size: 92px;
   font-weight: 400;
   color: white;
@@ -952,8 +949,10 @@ cat(countType)
 ```
 
 ```{r summary_input_options_10}
-if (countType=="utr" && utrFlank>0) {
-	cat("<strong>3' UTR flanking :</strong> ",utrFlank)
+if (countType=="utr" && !is.null(utrOpts)) {
+	cat("<strong>3' UTR fraction:</strong> ",utrOpts$frac)
+	cat("<strong>3' UTR minimum length:</strong> ",utrOpts$minLength,"bps")
+	cat("<strong>3' UTR downstream:</strong> ",utrOpts$downstream,"bps")
 }
 ```
 
@@ -1615,7 +1614,11 @@ if ("correl" %in% qcPlots) {
 		k_col=length(sampleList),k_row=length(sampleList)) %>%
 		layout(width=640,height=480))
 	setNames(h,NULL)
-	htmltools::tagList(tags$div(class="deheatmap-container",h[[1]]))
+	htmltools::tagList(tags$div(id="cormap",class="coheatmap-container",h[[1]]))
+	#heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,
+	#	cellnote=labs,colors=colorRampPalette(c("yellow","grey","blue")),
+	#	k_col=length(sampleList),k_row=length(sampleList)) %>%
+	#	layout(width=640,height=480)
 }
 ```
 
@@ -1904,45 +1907,6 @@ if ("volcano" %in% qcPlots) {
 	
 	# Container div
 	cat("<div class=\"hc-rect-sm\" id=\"volcano_container\"></div>",sep="")
-	
-	if (reportDb == "dexie") {
-		json <- list()
-		
-		namc <- character(0)
-		index <- 0
-		for (n in nn) {
-			fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
-			for (contr in colnames(fc)) {
-				index <- index + 1
-				namc <- c(namc,contr)
-				json[[index]] <- diagplotVolcano(fc[,contr],sumpList[[n]],contr,
-					altNames=geneDataExpr$gene_name,output="json")
-			}
-		}
-		names(json) <- namc
-		
-		# Add extra data, serialize and import the plots to Dexie
-		preImport <- vector("list",length(json))
-		for (i in 1:length(json)) {
-			preImport[[i]] <- list(
-				name=paste("volcano",namc[i],sep="_"),
-				type="volcano",
-				subtype="generic",
-				json=json[[i]]
-			)
-		}
-		toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
-		
-		# Import script
-		cat("<script type=\"text/javascript\">")
-		cat("db.plots.bulkAdd(",toImport,");",sep="")
-		cat("</script>")
-		
-		# Initialize first plot with serialized JSON
-		cat("<script>$('#volcano_container').highcharts(",
-			toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),");</script>",
-			sep="")
-	}
 }
 ```
 
@@ -2033,7 +1997,6 @@ if ("deheatmap" %in% qcPlots) {
 	#	tags$div(id=paste("deheatmap",gsub("\\.","__",names(contrastList)[2]),
 	#		sep="_"),class="deheatmap-container",hList[[2]])
 	#)
-	#htmltools::tagList(setNames(hList,NULL))
 }
 ```
 
@@ -2098,8 +2061,8 @@ if ("venn" %in% qcPlots) {
 	cat("</div>")
 	
 	cat("<div class=\"row\">")
-	cat("<div class=\"col-sm-7\"><div id=\"jvenn_container\"></div></div>")
-	cat("<div class=\"col-sm-5\">")
+	cat("<div class=\"col-sm-8\"><div id=\"jvenn_container\"></div></div>")
+	cat("<div class=\"col-sm-4\">")
 	cat("<div class=\"hc-selector-label\">Click on a number on Venn diagrams ",
 		"to display the respective genes</div>",sep="")
 	cat("<textarea id=\"jvenn_list\" readonly></textarea></div>")
@@ -2195,8 +2158,11 @@ for (cnt in contrast) {
 	# and meta FDR
 	if (length(statistics) > 1)
 		fi <- fi[-c(1,2)]
-	ci <- numeric(length(sampleList))
-	N <- names(sampleList)
+	#ci <- numeric(length(sampleList))
+	#N <- names(sampleList)
+	ci <- numeric(length(contrastList[[cnt]]))
+	N <- unique(unlist(contrastList[[cnt]],use.names=FALSE))
+	
 	if (length(grep("rpgm_normalized_mean_counts_",
 		colnames(reportTables[[cnt]]))) > 0) {
 		for (i in 1:length(N))
@@ -2285,6 +2251,7 @@ for (cnt in contrast) {
 		extensions="Buttons",
 		options=list(
 			scrollX=TRUE,
+			order=list(list(pi+1,"asc")),
 			columnDefs=list(
 				list(
 					targets=0:1,
@@ -2391,8 +2358,7 @@ for (r in refs)
 cat("</ol></div>")
 ```
 
-<!--- Bind change on all selectboxes -->
-<script>
+```{js bind_event_changes}
 $("#biodetection_selector").on('change',function() {
 	var name = this.value;
 	getPlotFromDb({name: name,type: "biodetection",subtype: "generic"},
@@ -2551,4 +2517,4 @@ $("#biodist_selector").trigger('change');
 if ($("#venn_selector").length > 0) {
 	$("#venn_selector").trigger('change');
 }
-</script>
+```

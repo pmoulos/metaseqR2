@@ -22,7 +22,7 @@
     \code{\link{metaseqr2}} function for the case of
     auto-guessing.}
     
-    \item{utrFlank}{a named list with members \code{frac} 
+    \item{utrOpts}{a named list with members \code{frac} 
     which is the fraction (0-1) of the 3' UTR region to count 
     reads in, \code{minLength} the minimum acceptable 3'UTR
     length irrespective of \code{frac} and \code{downstream} 

@@ -44,15 +44,15 @@ checkNumArgs <- function(argName,argValue,argType,argBounds,direction) {
             if (!missing(argBounds)) {
                 switch(direction,
                     both = {
-                        if (argValue<=argBounds[1] ||
-                            argValue>=argBounds[2])
+                        if (argValue<argBounds[1] ||
+                            argValue>argBounds[2])
                             stopwrap("\"",argName,"\""," parameter must be a ",
                                 "numeric ","value larger than or equal to ",
                                 argBounds[1]," and smaller than or equal to ",
                                 argBounds[2],"!")
                     },
                     botheq = {
-                        if (argValue<argBounds[1] || argValue>argBounds[2])
+                        if (argValue<=argBounds[1] || argValue>=argBounds[2])
                             stopwrap("\"",argName,"\""," parameter must be a ",
                                 "numeric value larger than ",argBounds[1],
                                 " and smaller than ",argBounds[2],"!")
@@ -88,19 +88,18 @@ checkNumArgs <- function(argName,argValue,argType,argBounds,direction) {
             if (!missing(argBounds)) {
                 switch(direction,
                     both = {
-                        if (argValue<=argBounds[1] ||
-                            argValue>=argBounds[2])
+                        if (argValue<argBounds[1] ||
+                            argValue>argBounds[2])
                             stopwrap("\"",argName,"\""," parameter must be ",
                                 "an integer larger than or equal to ",
                                 argBounds[1]," and smaller than or equal to ",
                                 argBounds[2],"!")
                     },
                     botheq = {
-                        if (argValue<argBounds[1] || argValue>argBounds[2])
+                        if (argValue<=argBounds[1] || argValue>=argBounds[2])
                             stopwrap("\"",argName,"\""," parameter must be ",
-                                "an integer larger than or equal to ",
-                                argBounds[1]," and smaller than or equal to ",
-                                argBounds[2],"!")
+                                "an integer larger than ",argBounds[1],
+                                " and smaller than ",argBounds[2],"!")
                     },
                     gt = {
                         if (argValue<=argBounds[1])

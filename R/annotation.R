@@ -1141,13 +1141,14 @@ reduceTranscriptsUtr <- function(gr) {
     lens <- lengths(grList)
     inds <- unlist(lapply(lens,function(j) return(1:j)),use.names=FALSE)
     grNew <- unname(unlist(grList))
-    transcript_id <- paste(trans,"MEU",inds,sep="_")
+    transcript_id <- paste(rep(trans,lens),"MEU",inds,sep="_")
     gene_id <- rep(gi,lens)
     gene_name <- rep(gn,lens)
     biotype <- rep(bt,lens)
     newMeta <- DataFrame(
 		transcript_id=transcript_id,
-		gene_id=gene_id,
+		#gene_id=gene_id,
+		gene_id=rep(trans,lens),
 		gene_name=gene_name,
 		biotype=biotype
     )

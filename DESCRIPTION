@@ -78,6 +78,7 @@ Collate:
     'metaseqR-package.R'
     'plot.R'
     'query.R'
+    'reportdb.R'
     'sim.R'
     'stat.R'
     'util.R'

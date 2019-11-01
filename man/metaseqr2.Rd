@@ -730,34 +730,37 @@
     a burden which becomes heavier by the fact the metaseqR2
     report is rendered using \code{knitr} and \code{rmarkdown} 
     instead of raw HTML (previously, \code{brew}). Therefore, the
-    pre-calculated JSON objects representing the graphs are stored
-    either in a report-specific SQLite database and then queried
-    using \code{sql.js} 
-    (\link{https://github.com/kripken/sql.js/}) or in an 
-    IndexedDB (\link{https://javascript.info/indexeddb}) flavor
-    called Dexie (\link{https://dexie.org/}). An SQLite (the
-    default) database is prefered because although Dexie is very
-    efficient, \code{knitr} and \code{\link{render}} from
-    \code{rmarkdown} have memory leaks when rendering very big
-    HTML files. A large HTML file may be produced when using all
-    available graphs produced by metaseqR2 because all JSON
-    plot objects are embedded. This does not cause performance
-    issues when viewing the report as they are stored to Dexie.
-    However, there are problems when rendering the report.
-    Size-related problems are mitigated when using an SQLite
-    database as the JSON serialized objects are stored in
-    the database and not embedded in the page. However, modern
-    browsers will not display the report if viewed locally (i.e.
-    not server through a web browser). The only browser allowing
-    this is Microsoft Edge. Alternatively, Google Chrome should
-    be started with the \code{--allow-file-access-from-files}
-    switch. We have chosen the default to be 
-    \code{reportDb="sqlite"} because usually, the report is
-    provided by a facility to end users through a web server.
-    If you are a Chrome user, there are extensions that will run
-    a local web-server and mitigate the viewing problems. Use
-    \code{reportDb="dexie"} when you need only 2-3 diagnostic
-    plots on relatively small dataset.
+    pre-calculated JSON objects representing the graphs are 
+    stored either in a report-specific IndexedDB 
+    (\link{https://javascript.info/indexeddb}) flavor called 
+    Dexie (\link{https://dexie.org/}) (default) or in an SQLite 
+    database and then queried using \code{sql.js} 
+    (\link{https://github.com/kripken/sql.js/}). Dexie is 
+    prefered because it is very efficient and can produce an 
+    independent report that does not need to be served through 
+    a web-server and can be viewed locally. Although Dexie is 
+    very efficient, some caution is required as \code{knitr} and 
+    \code{\link{render}} from \code{rmarkdown} are not very 
+    memory efficient when rendering larger HTML files. A large 
+    HTML file may be produced when analyzing a large dataset
+    with a lot of contrasts that may result in a lot of tables.
+    In such cases, if the report generation crashes with errors
+    related to memory, try lowering the \code{reportTop}
+    argument. \code{reportTop} does not affect the final lists
+    of differentially expressed genes, only the report tables.
+    The same must be applied also if the report takes too much
+    time to load. If the report is to be served through a web
+    server like Apache (e.g. when the report is provided by a 
+    facility to end users), \code{reportDb="sqlite"} may be
+    preferred as the total report size will be smaller because
+    of an SQLite database hosting all plots which are queried
+    when required but from the SQLite database and not from
+    the in-browser database (Dexie). **Note** that when using
+    an SQLite database, you will **NOT** be able to view the
+    report in any browser other than Microsoft Edge because
+    of security policies regarding local file access. **Note**
+    also that \code{sql.js} is a rather large JavaScript library
+    (around 2.5MB).
 }
 \note{
     Currently only gene and exon annotation from Ensembl

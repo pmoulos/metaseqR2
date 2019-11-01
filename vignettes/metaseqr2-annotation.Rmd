@@ -56,21 +56,14 @@ automatic database builds:
 * Rat (*Rattus norvegicus*) genome version ```rn5```
 * Fruitfly (*Drosophila melanogaster*) genome version ```dm6```
 * Fruitfly (*Drosophila melanogaster*) genome version ```dm3```
-
-rn5=paste("rat (Rattus norvegicus),",
-	"genome version  alias rn5"),
-rn6=paste("rat (Rattus norvegicus),",
-	"genome version alias rn6"),
-dm3=paste("fruitfly (Drosophila melanogaster),",
-	"genome version alias dm3"),
-danrer7=paste("zebrafish (Danio rerio),",
-	"genome version alias danRer7"),
-pantro5=paste("chimpanzee (Pan troglodytes),",
-	"genome version alias panTro5"),
-susscr3=paste("pig (Sus scrofa),",
-	"genome version alias susScr3"),
-tair10=paste("arabidopsis (Arabidobsis thaliana)",
-	",","genome version alias TAIR10")
+* Zebrafish (*Danio rerio*) genome version ```danRer7```
+* Zebrafish (*Danio rerio*) genome version ```danRer10```
+* Zebrafish (*Danio rerio*) genome version ```danRer11```
+* Chimpanzee (*Pan troglodytes*) genome version ```panTro4```
+* Chimpanzee (*Pan troglodytes*) genome version ```panTro5```
+* Pig (*Sus scrofa*) genome version ```susScr3```
+* Pig (*Sus scrofa*) genome version ```susScr11```
+* Arabidopsis (*Arabidobsis thaliana*) genome version ```TAIR10```
 
 ## Setup the database
 
@@ -80,3 +73,36 @@ prefered destination for it using the ```db``` argument in the function call,
 but if you do that, you will have to supply the ```localDb``` argument pointing
 to the SQLite database file you created to every ```metaseqr2``` call you 
 perform, otherwise, the pipeline will download and use annotations on-the-fly.
+
+In this vignette, we will build a minimal database comprising only the mouse
+```mm9``` genome version from Ensembl. The database will be build in a temporary
+directory acquired by ```tempdir()```.
+
+```{r example-1, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+library(metaseqR2)
+
+buildDir <- tempdir()
+
+# Since we are using Ensembl, we can also ask for a version
+organisms <- list(mm9=67)
+sources <- "ensembl"
+
+# If the example is not running in a multicore system, rc is ignored
+buildAnnotationDatabase(organisms,sources,forceDownload=FALSE,
+    db=file.path(buildDir,"testann.sqlite"),rc=0.5)
+```
+
+## Use the database
+
+Now, that a small database is in place, let's retrieve some data. Remember that
+since the built database is not in the default location, we need to pass the
+database file in each data retrieval function.
+
+```{r example-2, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+genes <- loadAnnotation()
+
+
+loadAnnotation(org,refdb,
+				level=transLevel,type=countType,version=version,db=localDb,
+				summarized=TRUE,rc=restrictCores)
+```
