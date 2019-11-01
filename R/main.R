@@ -2206,8 +2206,8 @@ metaseqr2 <- function(
             REPORT_ENV <- .makeReportEnv(environment())
             
             #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
 			invisible(knitr::knit_meta(class=NULL,clean=TRUE))
@@ -2934,17 +2934,18 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 	}
 
 	plots <- list()
+	listIndex <- 0
 	
 	if ("mds" %in% qcPlots) {
 		disp("  Importing mds...")
 		json <- diagplotMds(geneCounts,sampleList,output="json")
-		preImport <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="MDS",
 			type="mds",
 			subtype="generic",
 			json=fromJSON(json)
 		)
-		plots <- c(plots,preImport)
 	}
 	
 	if ("biodetection" %in% qcPlots) {
@@ -2955,14 +2956,14 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 				whichPlot="biodetection",output="json")
 		})
 		for (i in 1:length(json)) {
-			preImport[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("biodetection",samples[i],sep="_"),
 				type="biodetection",
 				subtype="generic",
 				json=fromJSON(json[[samples[i]]])
 			)
 		}
-		plots <- c(plots,preImport)
 	}
 	
 	if ("countsbio" %in% qcPlots) {
@@ -2971,109 +2972,107 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 				whichPlot="countsbio",output="json")
 		})
-		preImportSample <- vector("list",length(jsonList$sample))
 		for (i in 1:length(jsonList$sample)) {
-			preImportSample[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("countsbio",samples[i],sep="_"),
 				type="countsbio",
 				subtype="sample",
 				json=fromJSON(jsonList$sample[[samples[i]]])
 			)
 		}	
-		preImportBiotype <- vector("list",length(jsonList$biotype))
 		biotypes <- names(jsonList$biotype)
 		for (i in 1:length(jsonList$biotype)) {
-			preImportBiotype[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("countsbio",biotypes[i],sep="_"),
 				type="countsbio",
 				subtype="biotype",
 				json=fromJSON(jsonList$biotype[[biotypes[i]]])
 			)
 		}
-		plots <- c(plots,preImportSample,preImportBiotype)
 	}
 	
 	if ("saturation" %in% qcPlots) {
 		disp("  Importing saturation...")
 		jsonList <- diagplotNoiseq(geneCounts,sampleList,
 			covars=covarsRaw,whichPlot="saturation",output="json")
-		preImportSample <- vector("list",length(jsonList$sample))
 		for (i in 1:length(jsonList$sample)) {
-			preImportSample[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("saturation",samples[i],sep="_"),
 				type="saturation",
 				subtype="sample",
 				json=fromJSON(jsonList$sample[[samples[i]]])
 			)
 		}
-		preImportBiotype <- vector("list",length(jsonList$biotype))
 		biotypes <- names(jsonList$biotype)
 		for (i in 1:length(jsonList$biotype)) {
-			preImportBiotype[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("saturation",biotypes[i],sep="_"),
 				type="saturation",
 				subtype="biotype",
 				json=fromJSON(jsonList$biotype[[biotypes[i]]])
 			)
 		}
-		plots <- c(plots,preImportSample,preImportBiotype)
 	}
 	
 	if ("readnoise" %in% qcPlots) {
 		disp("  Importing readnoise...")
 		json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 			whichPlot="readnoise",output="json")
-		preImport <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="ReadNoise",
 			type="readnoise",
 			subtype="generic",
 			json=fromJSON(json)
 		)
-		plots <- c(plots,preImport)
 	}
 	
 	if ("pairwise" %in% qcPlots) {
 		disp("  Importing pairwise...")
 		jsonList <- diagplotPairs(geneCounts,output="json")
 		nams <- names(jsonList$xy)
-		preImportXY <- vector("list",length(jsonList$xy))
 		for (i in 1:length(jsonList$xy)) {
-			preImportXY[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=nams[i],
 				type="pairwise",
 				subtype="xy",
 				json=fromJSON(jsonList$xy[[nams[i]]])
 			)
 		}
-		preImportMD <- vector("list",length(jsonList$md))
 		for (i in 1:length(jsonList$md)) {
-			preImportMD[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=nams[i],
 				type="pairwise",
 				subtype="md",
 				json=fromJSON(jsonList$md[[nams[i]]])
 			)
 		}
-		plots <- c(plots,preImportXY,preImportMD)
 	}
 	
 	if ("filtered" %in% qcPlots) {
 		disp("  Importing filtered...")
 		jsonList <- diagplotFiltered(geneDataFiltered,totalGeneData,
 			output="json")
-		preImportChromosome <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="filtered_chromosome",
 			type="filtered",
 			subtype="chromosome",
 			json=fromJSON(jsonList[["chromosome"]])
 		)
-		preImportBiotype <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="filtered_biotype",
 			type="filtered",
 			subtype="biotype",
 			json=fromJSON(jsonList[["biotype"]])
 		)
-		plots <- c(plots,preImportChromosome,preImportBiotype)
 	}
 
 	if ("boxplot" %in% qcPlots) {
@@ -3082,19 +3081,20 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			isNorm=FALSE,output="json")
 		jsonNorm <- diagplotBoxplot(normGenes,name=sampleList,
 			isNorm=FALSE,output="json")
-		preImportUnorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="Boxplot",
 			type="boxplot",
 			subtype="unorm",
 			json=fromJSON(jsonUnorm)
 		)
-		preImportNorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="Boxplot",
 			type="boxplot",
 			subtype="norm",
 			json=fromJSON(jsonNorm)
 		)
-		plots <- c(plots,preImportUnorm,preImportNorm)
 	}
 	
 	if ("gcbias" %in% qcPlots) {
@@ -3104,19 +3104,20 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			isNorm=FALSE,whichPlot="gcbias",output="json")
 		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
 			isNorm=TRUE,whichPlot="gcbias",output="json")
-		preImportUnorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="GCBias",
 			type="gcbias",
 			subtype="unorm",
 			json=fromJSON(jsonUnorm)
 		)
-		preImportNorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="GCBias",
 			type="gcbias",
 			subtype="norm",
 			json=fromJSON(jsonNorm)
 		)
-		plots <- c(plots,preImportUnorm,preImportNorm)
 	}
 
 	if ("lengthbias" %in% qcPlots) {
@@ -3126,19 +3127,20 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			isNorm=FALSE,whichPlot="lengthbias",output="json")
 		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
 			isNorm=TRUE,whichPlot="lengthbias",output="json")
-		preImportUnorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="LengthBias",
 			type="lengthbias",
 			subtype="unorm",
 			json=fromJSON(jsonUnorm)
 		)
-		preImportNorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="LengthBias",
 			type="lengthbias",
 			subtype="norm",
 			json=fromJSON(jsonNorm)
 		)
-		plots <- c(plots,preImportUnorm,preImportNorm)
 	}
 
 	if ("meandiff" %in% qcPlots) {
@@ -3148,12 +3150,10 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 		jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
 			whichPlot="meandiff",output="json")
 		np <- sum(lengths(jsonUnorm))
-		preImportUnorm <- vector("list",np)
-		index <- 0
 		for (i in 1:length(jsonUnorm)) {
 			for (j in 1:length(jsonUnorm[[i]])) {
-				index <- index + 1
-				preImportUnorm[[index]] <- list(
+				listIndex <- listIndex + 1
+				plots[[listIndex]] <- list(
 					name=names(jsonUnorm[[i]])[j],
 					type="meandiff",
 					subtype="unorm",
@@ -3161,12 +3161,10 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 				)
 			}
 		}
-		preImportNorm <- vector("list",np)
-		index <- 0
 		for (i in 1:length(jsonNorm)) {
 			for (j in 1:length(jsonNorm[[i]])) {
-				index <- index + 1
-				preImportNorm[[index]] <- list(
+				listIndex <- listIndex + 1
+				plots[[listIndex]] <- list(
 					name=names(jsonNorm[[i]])[j],
 					type="meandiff",
 					subtype="norm",
@@ -3174,7 +3172,6 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 				)
 			}
 		}
-		plots <- c(plots,preImportUnorm,preImportNorm)
 	}
 	
 	if ("meanvar" %in% qcPlots) {
@@ -3183,19 +3180,20 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			whichPlot="meanvar",output="json")
 		jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
 			whichPlot="meanvar",output="json")
-		preImportUnorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="MeanVar",
 			type="meanvar",
 			subtype="unorm",
 			json=fromJSON(jsonUnorm)
 		)
-		preImportNorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="MeanVar",
 			type="meanvar",
 			subtype="norm",
 			json=fromJSON(jsonNorm)
 		)
-		plots <- c(plots,preImportUnorm,preImportNorm)
 	}
 	
 	if ("rnacomp" %in% qcPlots) {
@@ -3208,19 +3206,20 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			jsonNorm <- diagplotNoiseq(normGenes,sampleList,covars=covarsRaw,
 				whichPlot="rnacomp",isNorm=TRUE,output="json")
 		})
-		preImportUnorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="RnaComp",
 			type="rnacomp",
 			subtype="unorm",
 			json=fromJSON(jsonUnorm)
 		)
-		preImportNorm <- list(
+		listIndex <- listIndex + 1
+		plots[[listIndex]] <- list(
 			name="RnaComp",
 			type="rnacomp",
 			subtype="norm",
 			json=fromJSON(jsonNorm)
 		)
-		plots <- c(plots,preImportUnorm,preImportNorm)
 	}
 	
 	if ("volcano" %in% qcPlots) {
@@ -3240,16 +3239,15 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			}
 		}
 		names(json) <- namc
-		preImport <- vector("list",length(json))
 		for (i in 1:length(json)) {
-			preImport[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("volcano",namc[i],sep="_"),
 				type="volcano",
 				subtype="generic",
 				json=fromJSON(json[[i]])
 			)
 		}
-		plots <- c(plots,preImport)
 	}
 	
 	if ("mastat" %in% qcPlots) {
@@ -3270,9 +3268,9 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			}
 		}
 		names(json) <- namc
-		preImport <- vector("list",length(json))
 		for (i in 1:length(json)) {
-			preImport[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("mastat",namc[i],sep="_"),
 				type="mastat",
 				subtype="generic",
@@ -3296,10 +3294,9 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 					output="json")
 			})
 		}
-		preImportChromosome <- preImportBiotype <- 
-			vector("list",length(jsonList))
 		for (i in 1:length(jsonList)) {
-			preImportChromosome[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("biodist",nn[i],sep="_"),
 				type="biodist",
 				subtype="chromosome",
@@ -3307,14 +3304,14 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 			)
 		}
 		for (i in 1:length(jsonList)) {
-			preImportBiotype[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("biodist",nn[i],sep="_"),
 				type="biodist",
 				subtype="biotype",
 				json=fromJSON(jsonList[[i]]$biotype)
 			)
 		}
-		plots <- c(plots,preImportChromosome,preImportChromosome)
 	}
 	
 	if ("venn" %in% qcPlots) {
@@ -3327,16 +3324,15 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 		for (n in nn)
 			jsonList[[n]] <- makeJVennData(cpList[[n]],pcut=pcut,
 				altNames=geneNames[rownames(cpList[[n]])])
-		preImport <- vector("list",length(jsonList))
 		for (i in 1:length(jsonList)) {
-			preImport[[i]] <- list(
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
 				name=paste("venn",nn[i],sep="_"),
 				type="venn",
 				subtype="generic",
-				json=fromJSON(jsonList[[i]])
+				json=jsonList[[i]]
 			)
 		}
-		plots <- c(plots,preImport)
 	}
 	
 	disp("Writing plot database in ",file.path(PROJECT_PATH$data,"reportdb.js"))

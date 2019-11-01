@@ -119,210 +119,217 @@ if (reportDb == "dexie") {
 cat("<script>\n",code,"\n</script>")
 ```
 
-<script type="text/javascript">
+```{js define_getplot_funs}
 getPlotFromDb = function(query,renderId) {
-	var xhr = new XMLHttpRequest();
-	xhr.open('GET', './data/reportdb.sqlite',true);
-	xhr.responseType = 'arraybuffer';
-	xhr.onload = function(e) {
-		var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + "'" +
-            " AND type='" + query.type + "'" + " AND subtype='" + 
-            query.subtype + "';";
-		var uInt8Array = new Uint8Array(this.response);
-		var db = new SQL.Database(uInt8Array);
-		var contents = db.exec(sqlQuery);
-		var chartData = JSON.parse(contents[0].values[0][0]);
-		//console.log(chartData)
-		chartData.chart.renderTo = renderId;
-		chartData.chart.events = {
-			load: function() {
-				$("#loader").hide();
-			}
+	if (DEXIE) {
+		db.plots.get({
+			name: query.name,
+			type: query.type,
+			subtype: query.subtype
+		},function(res) {
+			var chartData = res.json;
+			chartData.chart.renderTo = renderId;
+			var chart = new Highcharts.Chart(chartData);
+		});
+	}
+	else {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', './data/reportdb.sqlite',true);
+		xhr.responseType = 'arraybuffer';
+		xhr.onload = function(e) {
+			var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + 
+				"'" +" AND type='" + query.type + "'" + " AND subtype='" + 
+				query.subtype + "';";
+			var uInt8Array = new Uint8Array(this.response);
+			var db = new SQL.Database(uInt8Array);
+			var contents = db.exec(sqlQuery);
+			var chartData = JSON.parse(contents[0].values[0][0]);
+			//console.log(chartData)
+			chartData.chart.renderTo = renderId;
+			chartData.chart.events = {
+				load: function() {
+					$("#loader").hide();
+				}
+			};
+			var chart = new Highcharts.Chart(chartData);
 		};
-		var chart = new Highcharts.Chart(chartData);
-	};
-	xhr.send();
-	$("#loader").show();
+		xhr.send();
+		$("#loader").show();
+	}
 }
 
 getPlotWithFunFromDb = function(query,renderId) {
-	var xhr = new XMLHttpRequest();
-	xhr.open('GET', './data/reportdb.sqlite',true);
-	xhr.responseType = 'arraybuffer';
-	xhr.onload = function(e) {
-		var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + "'" +
-            " AND type='" + query.type + "'" + " AND subtype='" + 
-            query.subtype + "';";
-		var uInt8Array = new Uint8Array(this.response);
-		var db = new SQL.Database(uInt8Array);
-		var contents = db.exec(sqlQuery);
-		var chartData = JSON.parse(contents[0].values[0][0]);
-		
-		// Deserialize the stored functions - only in a couple of cases
-		if (query.type === "countsbio") {
-			chartData.yAxis.labels.formatter = new Function('return ' +
-				chartData.yAxis.labels.formatter)()
+	if (DEXIE) {
+		db.plots.get({
+			name: query.name,
+			type: query.type,
+			subtype: query.subtype
+		},function(res) {
+			var chartData = res.json;
+			chartData.chart.renderTo = renderId;
+			
+			// Deserialize the stored functions - only in a couple of cases
+			if (query.type === "countsbio") {
+				chartData.yAxis.labels.formatter = new Function('return ' +
+					chartData.yAxis.labels.formatter)()
+					
+				chartData.plotOptions.scatter.tooltip.pointFormatter = 
+					new Function('return ' +
+						chartData.plotOptions.scatter.tooltip.pointFormatter)()
 				
-			chartData.plotOptions.scatter.tooltip.pointFormatter = 
-				new Function('return ' +
-					chartData.plotOptions.scatter.tooltip.pointFormatter)()
-			
-			chartData.plotOptions.boxplot.events.legendItemClick = 
-				new Function('return ' + 
-					chartData.plotOptions.boxplot.events.legendItemClick)()
-		}
-		if (query.type === "boxplot") {
-			chartData.plotOptions.boxplot.tooltip.pointFormatter = 
-				new Function('return ' +
-					chartData.plotOptions.boxplot.tooltip.pointFormatter)()
-			
-			chartData.plotOptions.boxplot.events.legendItemClick = 
-				new Function('return ' + 
-					chartData.plotOptions.boxplot.events.legendItemClick)()
-		}
-		
-		chartData.chart.renderTo = renderId;
-		chartData.chart.events = {
-			load: function() {
-				$("#loader").hide();
+				chartData.plotOptions.boxplot.events.legendItemClick = 
+					new Function('return ' + 
+						chartData.plotOptions.boxplot.events.legendItemClick)()
 			}
+			if (query.type === "boxplot") {
+				chartData.plotOptions.boxplot.tooltip.pointFormatter = 
+					new Function('return ' +
+						chartData.plotOptions.boxplot.tooltip.pointFormatter)()
+				
+				chartData.plotOptions.boxplot.events.legendItemClick = 
+					new Function('return ' + 
+						chartData.plotOptions.boxplot.events.legendItemClick)()
+			}
+			
+			var chart = new Highcharts.Chart(chartData);
+		});
+	}
+	else {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', './data/reportdb.sqlite',true);
+		xhr.responseType = 'arraybuffer';
+		xhr.onload = function(e) {
+			var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + 
+				"'" + " AND type='" + query.type + "'" + " AND subtype='" + 
+				query.subtype + "';";
+			var uInt8Array = new Uint8Array(this.response);
+			var db = new SQL.Database(uInt8Array);
+			var contents = db.exec(sqlQuery);
+			var chartData = JSON.parse(contents[0].values[0][0]);
+			
+			// Deserialize the stored functions - only in a couple of cases
+			if (query.type === "countsbio") {
+				chartData.yAxis.labels.formatter = new Function('return ' +
+					chartData.yAxis.labels.formatter)()
+					
+				chartData.plotOptions.scatter.tooltip.pointFormatter = 
+					new Function('return ' +
+						chartData.plotOptions.scatter.tooltip.pointFormatter)()
+				
+				chartData.plotOptions.boxplot.events.legendItemClick = 
+					new Function('return ' + 
+						chartData.plotOptions.boxplot.events.legendItemClick)()
+			}
+			if (query.type === "boxplot") {
+				chartData.plotOptions.boxplot.tooltip.pointFormatter = 
+					new Function('return ' +
+						chartData.plotOptions.boxplot.tooltip.pointFormatter)()
+				
+				chartData.plotOptions.boxplot.events.legendItemClick = 
+					new Function('return ' + 
+						chartData.plotOptions.boxplot.events.legendItemClick)()
+			}
+			
+			chartData.chart.renderTo = renderId;
+			chartData.chart.events = {
+				load: function() {
+					$("#loader").hide();
+				}
+			};
+			var chart = new Highcharts.Chart(chartData);
 		};
-		var chart = new Highcharts.Chart(chartData);
-	};
-	xhr.send();
-	$("#loader").show();
+		xhr.send();
+		$("#loader").show();
+	}
 }
 
 getVennFromDb = function(query,renderId) {
-	var xhr = new XMLHttpRequest();
-	xhr.open('GET', './data/reportdb.sqlite',true);
-	xhr.responseType = 'arraybuffer';
-	xhr.onload = function(e) {
-		var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + "'" +
-            " AND type='" + query.type + "'" + " AND subtype='" + 
-            query.subtype + "';";
-		
-		var uInt8Array = new Uint8Array(this.response);
-		var db = new SQL.Database(uInt8Array);
-		var contents = db.exec(sqlQuery);
-		var chartData = JSON.parse(contents[0].values[0][0]);
-		chartData.fnClickCallback = function() {
-			var value = '';
-			if (this.listnames.length == 1) {
-				value += 'Elements only in ';
-			} else {
-				value += 'Common elements in ';
+	if (DEXIE) {
+	}
+	else {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', './data/reportdb.sqlite',true);
+		xhr.responseType = 'arraybuffer';
+		xhr.onload = function(e) {
+			var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + 
+				"'" +" AND type='" + query.type + "'" + " AND subtype='" + 
+				query.subtype + "';";
+			
+			var uInt8Array = new Uint8Array(this.response);
+			var db = new SQL.Database(uInt8Array);
+			var contents = db.exec(sqlQuery);
+			var chartData = JSON.parse(contents[0].values[0][0]);
+			chartData.fnClickCallback = function() {
+				var value = '';
+				if (this.listnames.length == 1) {
+					value += 'Elements only in ';
+				} else {
+					value += 'Common elements in ';
+				}
+				for (name in this.listnames) {
+					value += this.listnames[name] + ' ';
+				}
+				value += ':\n';
+				for (val in this.list) {
+					value += this.list[val] + '\n';
+				}
+				$('#jvenn_list').text(value);
 			}
-			for (name in this.listnames) {
-				value += this.listnames[name] + ' ';
-			}
-			value += ':\n';
-			for (val in this.list) {
-				value += this.list[val] + '\n';
-			}
-			$('#jvenn_list').text(value);
-		}
-		
-		$('#'+renderId).jvenn(chartData);
-		$("#loader").hide();
-	};
-	xhr.send();
-	$("#loader").show();
+			
+			$('#'+renderId).jvenn(chartData);
+			$("#loader").hide();
+		};
+		xhr.send();
+		$("#loader").show();
+	}
 }
 
 getTableFromDb = function(query) {
-	var xhr = new XMLHttpRequest();
-	xhr.open('GET', './data/reportdb.sqlite',true);
-	xhr.responseType = 'arraybuffer';
-	xhr.onload = function(e) {
-		var sqlQuery = "SELECT * FROM detable WHERE contrast='" + 
-			query.contrast + "';";
-		var uInt8Array = new Uint8Array(this.response);
-		var db = new SQL.Database(uInt8Array);
-		var contents = db.exec(sqlQuery);
-		var tableData = JSON.parse(contents[0].values[0][0]);
-		console.log(tableData)
-	};
-	xhr.send();
-	//$("#loader").show();
-}
-
-getPlotFromDexieDb = function(query,renderId) {
-	db.plots.get({
-		name: query.name,
-		type: query.type,
-		subtype: query.subtype
-	},function(res) {
-		var chartData = res.json;
-		chartData.chart.renderTo = renderId;
-		var chart = new Highcharts.Chart(chartData);
-	});
-}
-
-getPlotWithFunFromDexieDb = function(query,renderId) {
-	db.plots.get({
-		name: query.name,
-		type: query.type,
-		subtype: query.subtype
-	},function(res) {
-		var chartData = res.json;
-		chartData.chart.renderTo = renderId;
-		
-		// Deserialize the stored functions - only in a couple of cases
-		if (query.type === "countsbio") {
-			chartData.yAxis.labels.formatter = new Function('return ' +
-				chartData.yAxis.labels.formatter)()
-				
-			chartData.plotOptions.scatter.tooltip.pointFormatter = 
-				new Function('return ' +
-					chartData.plotOptions.scatter.tooltip.pointFormatter)()
-			
-			chartData.plotOptions.boxplot.events.legendItemClick = 
-				new Function('return ' + 
-					chartData.plotOptions.boxplot.events.legendItemClick)()
-		}
-		if (query.type === "boxplot") {
-			chartData.plotOptions.boxplot.tooltip.pointFormatter = 
-				new Function('return ' +
-					chartData.plotOptions.boxplot.tooltip.pointFormatter)()
-			
-			chartData.plotOptions.boxplot.events.legendItemClick = 
-				new Function('return ' + 
-					chartData.plotOptions.boxplot.events.legendItemClick)()
-		}
-		
-		var chart = new Highcharts.Chart(chartData);
-	});
-}
-
-getVennFromDexieDb = function(query,renderId) {
-	db.plots.get({
-		name: query.name,
-		type: query.type,
-		subtype: query.subtype
-	},function(res) {
-		var chartData = res.json;
-		chartData.fnClickCallback = function() {
-			var value = '';
-			if (this.listnames.length == 1) {
-				value += 'Elements only in ';
-			} else {
-				value += 'Common elements in ';
+	if (DEXIE) {
+		db.plots.get({
+			name: query.name,
+			type: query.type,
+			subtype: query.subtype
+		},function(res) {
+			var chartData = res.json;
+			chartData.fnClickCallback = function() {
+				var value = '';
+				if (this.listnames.length == 1) {
+					value += 'Elements only in ';
+				} else {
+					value += 'Common elements in ';
+				}
+				for (name in this.listnames) {
+					value += this.listnames[name] + ' ';
+				}
+				value += ':\n';
+				for (val in this.list) {
+					value += this.list[val] + '\n';
+				}
+				$('#jvenn_list').text(value);
 			}
-			for (name in this.listnames) {
-				value += this.listnames[name] + ' ';
-			}
-			value += ':\n';
-			for (val in this.list) {
-				value += this.list[val] + '\n';
-			}
-			$('#jvenn_list').text(value);
-		}
-		//$('#'+renderId).empty();
-		$('#'+renderId).jvenn(chartData);
-	});
+			//$('#'+renderId).empty();
+			$('#'+renderId).jvenn(chartData);
+		});
+	}
+	else {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', './data/reportdb.sqlite',true);
+		xhr.responseType = 'arraybuffer';
+		xhr.onload = function(e) {
+			var sqlQuery = "SELECT * FROM detable WHERE contrast='" + 
+				query.contrast + "';";
+			var uInt8Array = new Uint8Array(this.response);
+			var db = new SQL.Database(uInt8Array);
+			var contents = db.exec(sqlQuery);
+			var tableData = JSON.parse(contents[0].values[0][0]);
+			console.log(tableData)
+		};
+		xhr.send();
+		//$("#loader").show();
+	}
 }
-</script>
+```
 
 <style>
 p {
@@ -2388,38 +2395,20 @@ cat("</ol></div>")
 <script>
 $("#biodetection_selector").on('change',function() {
 	var name = this.value;
-	if (DEXIE) {
-		getPlotFromDexieDb({name: name,type: "biodetection",subtype: "generic"},
-			"biodetection_container");
-	}
-	else {
-		getPlotFromDb({name: name,type: "biodetection",subtype: "generic"},
-			"biodetection_container");
-	}
+	getPlotFromDb({name: name,type: "biodetection",subtype: "generic"},
+		"biodetection_container");
 });
 
 $("#countsbio_sample_selector").on('change',function() {
 	var name = this.value;
-	if (DEXIE) {
-		getPlotWithFunFromDexieDb({name: name,type: "countsbio",
-			subtype: "sample"},"countsbio_sample_container");
-	}
-	else {
-		getPlotWithFunFromDb({name: name,type: "countsbio",subtype: "sample"},
-			"countsbio_sample_container");
-	}
+	getPlotWithFunFromDb({name: name,type: "countsbio",subtype: "sample"},
+		"countsbio_sample_container");
 });
 
 $("#countsbio_biotype_selector").on('change',function() {
 	var name = this.value;
-	if (DEXIE) {
-		getPlotWithFunFromDexieDb({name: name,type: "countsbio",
-			subtype: "biotype"},"countsbio_biotype_container");
-	}
-	else {
-		getPlotWithFunFromDb({name: name,type: "countsbio",subtype: "biotype"},
-			"countsbio_biotype_container");
-	}
+	getPlotWithFunFromDb({name: name,type: "countsbio",subtype: "biotype"},
+		"countsbio_biotype_container");
 });
 
 $("#saturation_sample_selector").on('change',function() {
@@ -2496,24 +2485,11 @@ $("#detable_selector").on('change',function() {
 
 // Hidden buttons
 $("#_mds_trigger").on('click',function() {
-	if (DEXIE) {
-		getPlotFromDexieDb({name: "MDS",type: "mds",subtype: "generic"},
-			"mds_container");
-	}
-	else {
-		getPlotFromDb({name: "MDS",type: "mds",subtype: "generic"},
-			"mds_container");
-	}
+	getPlotFromDb({name: "MDS",type: "mds",subtype: "generic"},"mds_container");
 });
 $("#_readnoise_trigger").on('click',function() {
-	if (DEXIE) {
-		getPlotFromDexieDb({name: "ReadNoise",type: "readnoise",subtype: "generic"},
-			"readsnoise_container");
-	}
-	else {
-		getPlotFromDb({name: "ReadNoise",type: "readnoise",subtype: "generic"},
-			"readsnoise_container");
-	}
+	getPlotFromDb({name: "ReadNoise",type: "readnoise",subtype: "generic"},
+		"readsnoise_container");
 });
 $("#_filtered_trigger").on('click',function() {
 	getPlotFromDb({name: "filtered_chromosome",type: "filtered",
