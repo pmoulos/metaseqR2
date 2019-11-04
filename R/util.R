@@ -2601,12 +2601,29 @@ makeReportMessages <- function(lang) {
                 "fractions per biotype should be proportional to the biotype",
                 "fraction relative to the genome.",collapse=" "
                     ),
-                    venn=paste(
+                    statvenn=paste(
                     "The Venn diagrams are an intuitive way of presenting",
                     "overlaps between lists, based on the overlap of basic",
                     "geometrical shapes. The numbers of overlapping genes per",
                     "statistical algorithm are shown in the different areas",
-                    "of the Venn diagrams, one for each contrast.",collapse=" "
+                    "of the Venn diagrams, one for each contrast. Apart from",
+                    "a p-value cutoff, a fold change threshold of 0.5 in log",
+                    "<sub>2</sub> scale is applied for each contrast. For",
+                    "multi-condition contrasts, the first condition is used to",
+                    "calculate the fold change against the reference.",
+                    collapse=" "
+                    ),
+                    foldvenn=paste(
+                    "The Venn diagrams are an intuitive way of presenting",
+                    "overlaps between lists, based on the overlap of basic",
+                    "geometrical shapes. The numbers of overlapping genes per",
+                    "statistical contrast are shown in the different areas",
+                    "of the Venn diagrams, one for each contrast. Apart from",
+                    "a p-value cutoff, a fold change threshold of 0.5 in log",
+                    "<sub>2</sub> scale is applied for each contrast. For",
+                    "multi-condition contrasts, the first condition is used to",
+                    "calculate the fold change against the reference.",
+                    collapse=" "
                     )
                 ),
                 references=list(
@@ -2616,10 +2633,10 @@ makeReportMessages <- function(lang) {
 						"patterns. Nucleic Acids Research 43(4), e25."),
                     filein=list(
                         sam=paste("Statham, A.L., Strbenac, D., Coolen, M.W.,",
-                            "Stirzaker, C., Clark, S.J., Robinson, M.D. (2010).",
-                            "Repitools: an R package for the analysis of",
-                            "enrichment-based epigenomic data. Bioinformatics",
-                            "26(13), 1662-1663."),
+                            "Stirzaker, C., Clark, S.J., Robinson, M.D.",
+                            " (2010). Repitools: an R package for the analysis",
+                            "of enrichment-based epigenomic data.",
+                            "Bioinformatics 26(13), 1662-1663."),
                         bam=paste("Statham, A.L., Strbenac, D., Coolen, M.W.,",
                             "Stirzaker, C., Clark, S.J., Robinson, M.D. (2010).",
                             "Repitools: an R package for the analysis of",
@@ -2671,8 +2688,8 @@ makeReportMessages <- function(lang) {
                             "Differential expression analysis for sequence",
                             "count data. Genome Biol 11, R106."),
                         deseq2=paste("Love, M.I., Huber, W., Anders, S.",
-                            "Moderated estimation of fold change and dispersion",
-                            "for RNA-seq data with DESeq2.",
+                            "Moderated estimation of fold change and",
+                            "dispersion for RNA-seq data with DESeq2.",
                             "Genome Biology 15(12):550 (2014)"),
                         edger=paste("Robinson, M.D., McCarthy, D.J., and",
                             "Smyth, G.K. (2010). edgeR: a Bioconductor package",
@@ -2815,7 +2832,11 @@ makeReportMessages <- function(lang) {
                             "Dopazo, J., Ferrer, A., and Conesa, A. (2011).",
                             "Differential expression in RNA-seq: a matter of",
                             "depth. Genome Res 21, 2213-2223."),
-                        venn=paste("Chen, H., and Boutros, P.C. (2011).",
+                        statvenn=paste("Chen, H., and Boutros, P.C. (2011).",
+                            "VennDiagram: a package for the generation of",
+                            "highly-customizable Venn and Euler diagrams in R.",
+                            "BMC Bioinformatics 12, 35."),
+                        foldvenn=paste("Chen, H., and Boutros, P.C. (2011).",
                             "VennDiagram: a package for the generation of",
                             "highly-customizable Venn and Euler diagrams in R.",
                             "BMC Bioinformatics 12, 35."),

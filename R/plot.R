@@ -2,7 +2,8 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     pList=NULL,thresholds=list(p=0.05,f=1),plotType=c("mds","biodetection",
     "countsbio","saturation","readnoise","rnacomp","correl","pairs","boxplot",
     "gcbias","lengthbias","meandiff","meanvar","deheatmap","volcano","biodist",
-    "filtered","mastat","venn"),isNorm=FALSE,output="x11",path=NULL,...) {
+    "filtered","mastat","statvenn","foldvenn"),isNorm=FALSE,output="x11",
+    path=NULL,...) {
     if (is(object,"GenomicRanges")) {
 		object <- as.data.frame(object)
 		object <- object[,c(1:3,6,7,5,8,9)]
@@ -16,19 +17,21 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
         stopwrap("annotation argument is needed when plotType is ",
             "\"biodetection\", \"countsbio\",\"saturation\",\"rnacomp\", ",
             "\"readnoise\", \"biodist\", \"gcbias\", \"lengthbias\", ",
-            "\"filtered\" or \"venn\"!")
+            "\"filtered\", \"statvenn\" or \"foldvenn\"!")
     if (any(plotType %in% c("deheatmap","volcano","biodist","venn"))) {
         if (is.null(contrastList))
             stopwrap("contrastList argument is needed when plotType is ",
-                "\"deheatmap\",\"volcano\", \"biodist\" or \"venn\"!")
+                "\"deheatmap\",\"volcano\", \"biodist\", \"statvenn\" or ",
+                "\"foldvenn\"!")
         if (is.null(pList))
             stopwrap("The p argument which is a list of p-values for each ",
                 "contrast is needed when plotType is \"deheatmap\", ",
-                "\"volcano\", \"biodist\" or \"venn\"!")
+                "\"volcano\", \"biodist\", \"statvenn\" or \"foldvenn\"!")
         if (is.na(thresholds$p) || is.null(thresholds$p) || thresholds$p==1) {
             warnwrap(paste("The p-value threshold when plotType is ",
-            "\"deheatmap\", \"volcano\", \"biodist\" or \"venn\" must allow ",
-            "the normal plotting of DEG diagnostic plots! Setting to 0.05..."))
+            "\"deheatmap\", \"volcano\", \"biodist\", \"statvenn\" or ",
+            "\"foldvenn\"! must allow the normal plotting of DEG diagnostic ",
+            "plots! Setting to 0.05..."))
             thresholds$p <- 0.05
         }
     }
@@ -61,7 +64,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
         "rnacomp")
     statPlots <- c("deheatmap","volcano","mastat","biodist")
     otherPlots <- c("filtered")
-    vennPlots <- c("venn")
+    vennPlots <- c("statvenn","foldvenn")
     files <- list()
     
     for (p in plotType) {
@@ -192,7 +195,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
         }
         if (p %in% vennPlots) {
             switch(p,
-                venn = {
+                statvenn = {
                     for (cnt in names(contrastList)) {
                         disp("  Contrast: ",cnt)
                         if (!is.null(annotation)) {
@@ -1885,14 +1888,13 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     return(fil)
 }
 
-makeJVennData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
+makeJVennStatData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     direction=c("dereg","up","down"),altNames=NULL,...) {
+	direction <- direction[1]
     checkTextArgs("direction",direction,c("dereg","up","down"))
     if (is.na(pcut) || is.null(pcut) || pcut==1)
         warnwrap("Invalid pcut argument! Using the default (0.05)")
         
-    assign("pmat2",pmat,envir=.GlobalEnv)    
-    
     algs <- colnames(pmat)
     if (is.null(algs))
         stopwrap("The p-value matrices must have the colnames attribute ",
@@ -1925,19 +1927,84 @@ makeJVennData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
                 for (a in algs)
                     results[[a]] <-
                         genes[which(pmat[,algs[a]]<pcut & abs(
-                        fcmat[,algs[a]])>=fcut)]
+							fcmat[,algs[a]])>=fcut)]
             },
             up = {
                 for (a in algs)
                     results[[a]] <-
                         genes[which(pmat[,algs[a]]<pcut &
-                        fcmat[,algs[a]]>=fcut)]
+							fcmat[,algs[a]]>=fcut)]
             },
             down = {
                 for (a in algs)
                     results[[a]] <-
                         genes[which(pmat[,algs[a]]<pcut &
-                        fcmat[,algs[a]]<=-fcut)]
+							fcmat[,algs[a]]<=-fcut)]
+            }
+        )
+    }
+    
+    series <- lapply(names(results),function(n,r) {
+		return(list(
+			name=n,
+			data=if (is.null(altNames)) r[[n]] else altNames[r[[n]]]
+		))
+	},results)
+	
+	return(list(series=series))
+}
+
+makeJVennFoldData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
+    direction=c("dereg","up","down"),altNames=NULL,...) {
+    checkTextArgs("direction",direction,c("dereg","up","down"))
+    if (is.na(pcut) || is.null(pcut) || pcut==1)
+        warnwrap("Invalid pcut argument! Using the default (0.05)")
+        
+    conts <- colnames(pmat)
+    if (is.null(conts))
+        stopwrap("The p-value matrices must have the colnames attribute ",
+            "(names of contrasts)!")
+    if (!is.null(fcmat) && (is.null(colnames(fcmat)) ||
+        length(intersect(colnames(pmat),colnames(fcmat)))!=length(conts)))
+        stopwrap("The fold change matrices must have the colnames attribute ",
+            "(names of contrasts) and must be the same as in the p-value ",
+            "matrices!")
+    ncon <- length(conts)
+    if(ncon>6) {
+        warnwrap(paste("Cannot create a JVenn diagram for more than 6 result ",
+            "sets! ",ncon,"found, only the first 6 will be used..."))
+        conts <- conts[1:6]
+        ncon <- 6
+    }
+    
+    genes <- rownames(pmat)
+    # Initially populate the results and counts lists so they can be used to 
+    # create the rest of the intersections
+    results <- vector("list",ncon)
+    names(results) <- names(conts) <- conts
+    if (is.null(fcmat)) {
+        for (a in conts)
+            results[[a]] <- genes[which(pmat[,conts[a]]<pcut)]
+    }
+    else {
+        switch(direction,
+            dereg = {
+                for (a in conts)
+                    results[[a]] <-
+                        genes[which(pmat[,conts[a]]<pcut & abs(
+							fcmat[,conts[a]])>=fcut)]
+            },
+            up = {
+                for (a in conts)
+                    results[[a]] <-
+                        genes[which(pmat[,conts[a]]<pcut &
+							fcmat[,conts[a]]>=fcut)]
+            },
+            down = {
+                for (a in conts)
+                    results[[a]] <-
+                        genes[which(pmat[,conts[a]]<pcut &
+							fcmat[,conts[a]]<=-fcut)]
             }
         )
     }

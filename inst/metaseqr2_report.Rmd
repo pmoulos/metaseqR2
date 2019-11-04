@@ -40,8 +40,8 @@ opts_knit$set(width=75)
 
 ```{r load_js}
 if (offlineReport) {
-	cat("<script type=\"text/javascript\" src=\"js/pace.min.js\"></script>",
-		sep="")
+	#cat("<script type=\"text/javascript\" src=\"js/pace.min.js\"></script>",
+	#	sep="")
 	cat("<script type=\"text/javascript\" src=\"js/highcharts.js\"></script>",
 		sep="")
 	cat("<script type=\"text/javascript\" src=\"js/highcharts-more.js\">",
@@ -65,8 +65,8 @@ if (offlineReport) {
 	   cat("<script type=\"text/javascript\" src=\"js/dexie.min.js\"></script>",
 			sep="")
 } else {
-	cat("<script type=\"text/javascript\" src=\"https://raw.github.com/",
-		"HubSpot/pace/v1.0.0/pace.min.js\"></script>",sep="")
+	#cat("<script type=\"text/javascript\" src=\"https://raw.github.com/",
+	#	"HubSpot/pace/v1.0.0/pace.min.js\"></script>",sep="")
 	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
 		"highcharts.js\"></script>",sep="")
 	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
@@ -283,7 +283,16 @@ getVennFromDb = function(query,renderId) {
 				for (val in this.list) {
 					value += this.list[val] + '\n';
 				}
-				$('#jvenn_list').text(value);
+				if (query.subtype === "stat_dereg" 
+					|| query.subtype === "stat_up"
+					|| query.subtype === "stat_down") {
+                    $('#jvenn_stat_list').text(value);
+                }
+                if (query.subtype === "fold_dereg" 
+					|| query.subtype === "fold_up"
+					|| query.subtype === "fold_down") {
+                    $('#jvenn_fold_list').text(value);
+                }
 			}
 			$('#'+renderId).jvenn(chartData);
 			$("#loader").hide();
@@ -316,9 +325,17 @@ getVennFromDb = function(query,renderId) {
 				for (val in this.list) {
 					value += this.list[val] + '\n';
 				}
-				$('#jvenn_list').text(value);
+				if (query.subtype === "stat_dereg" 
+					|| query.subtype === "stat_up"
+					|| query.subtype === "stat_down") {
+                    $('#jvenn_stat_list').text(value);
+                }
+                if (query.subtype === "fold_dereg" 
+					|| query.subtype === "fold_up"
+					|| query.subtype === "fold_down") {
+                    $('#jvenn_fold_list').text(value);
+                }
 			}
-			
 			$('#'+renderId).jvenn(chartData);
 			$("#loader").hide();
 		};
@@ -407,6 +424,13 @@ p {
 	height: 10px;
 }
 
+.jvenn_list {
+	font-size: 0.9em;
+	font-wight: 600;
+	width: 100%;
+	height: 300px;
+}
+
 #summary_log_container {
 	font-family: "Courier New", Courier, monospace;
 	font-size: 0.9em;
@@ -414,13 +438,6 @@ p {
 	overflow-y: scroll;
 	overflow-x: hidden;
 	overflow-wrap: normal;
-}
-
-#jvenn_list {
-	font-size: 0.9em;
-	font-wight: 600;
-	width: 100%;
-	height: 300px;
 }
 
 /******************************* Chart loading ********************************/
@@ -520,7 +537,7 @@ biotypes <- unique(as.character(geneData$biotype))
 qualPlots <- c("mds","biodetection","countsbio","saturation","readnoise",
 	"correl","pairwise","filtered")
 normPlots <- c("boxplot","gcbias","lengthbias","meandiff","meanvar","rnacomp")
-statPlots <- c("deheatmap","volcano","mastat","biodist","venn")
+statPlots <- c("deheatmap","volcano","mastat","biodist","statvenn","foldvenn")
 
 covarsRaw <- covarsStat <- NULL
 if (any(qcPlots %in% c("biodetection","countsbio","saturation","rnacomp",
@@ -556,6 +573,32 @@ if ("biodist" %in% qcPlots) {
 	)
 }
 ```
+
+# Instructions {.tabset .tabset-pills}
+
+Welcome to metaseqR2 report! If you are familiar with metaseqR report, then you
+will find out that there are not so many differences with respect to the 
+presented information. Some diagnostic and exploration plots were added. The 
+most notable difference is that __*all*__ plots are interactive. This helps a 
+lot with exploration and interpretation but also add a lot of computational
+burden. However, relatively modern systems with recent browser versions should
+be enough to render all the graphics. metaseqR2 report has been tested with
+Google Chrome, Mozilla Firefox and Microsoft Edge. It has **not** been tested
+with Internet Explorer and Opera most probably will not be. Other Chromium 
+browsers (e.g. Brave) should be also fine.
+
+metaseqR2 report has the following sections, depending also on which diagnostic
+and exploration plots have been asked from the run command. As plots are 
+categorized, if no plot from a specific category is asked, then this category
+will not appear. Below, the categories:
+
+## Summary
+
+lorem ipsum
+
+## Quality control 
+
+lorem ipsum
 
 # Summary {.tabset .tabset-pills}
 
@@ -2041,31 +2084,68 @@ if ("biodist" %in% qcPlots) {
 }
 ```
 
-```{r analysis_figures_venn}
-if ("venn" %in% qcPlots) {
-	pandoc.header("Venn",level=3)
+```{r analysis_figures_statvenn}
+if ("statvenn" %in% qcPlots) {
+	pandoc.header("StatVenn",level=3)
 	
 	cat("<h4><strong>Venn diagram of differentially expressed ",transLevel,
 		"s</strong></h4>",sep="")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$venn,
+	cat("<div class=\"figure-hint\">",reportMessages$explain$statvenn,
 	    "<br/><br/></div>",sep="")
 	    
 	# Create a selector for each contrast
 	nn <- names(contrastList)
-	items <- paste("<option value=",paste("venn",nn,sep="_"),">",
+	items <- paste("<option value=",paste("statvenn",nn,sep="_"),">",
+		gsub("_vs_"," vs ",nn),"</option>",sep="")
+	deupdo <- paste("<option value=",c("dereg","up","down"),">",
+		c("Deregulated","Up regulated","Down downregulated"),"</option>",sep="")
+	cat("<div class=\"row\"><div class=\"col-sm-8\">")
+	cat("<div class=\"row\"><div class=\"col-sm-6\">")
+	cat("<div class=\"hc-selector-label\">Select a contrast to display Venn ",
+		"diagram for </div>",sep="")
+	cat("<select id=\"statvenn_contrast_selector\">",items,"</select>",sep="")
+	cat("</div><div class=\"col-sm-6\">")
+	cat("<div class=\"hc-selector-label\">Select a direction to display Venn ",
+		"diagram for </div>",sep="")
+	cat("<select id=\"statvenn_direction_selector\">",deupdo,"</select>",sep="")
+	cat("</div></div></div></div>")
+	
+	cat("<div class=\"row\">")
+	cat("<div class=\"col-sm-8\"><div id=\"jvenn_stat_container\"></div></div>")
+	cat("<div class=\"col-sm-4\">")
+	cat("<div class=\"hc-selector-label\">Click on a number on Venn diagrams ",
+		"to display the respective genes</div>",sep="")
+	cat("<textarea id=\"jvenn_stat_list\" class=\"jvenn_list\" readonly>",
+		"</textarea></div>",sep="")
+	cat("</div>")
+}
+
+```{r analysis_figures_foldvenn}
+if ("foldvenn" %in% qcPlots) {
+	pandoc.header("FoldVenn",level=3)
+	
+	cat("<h4><strong>Venn diagram of differentially expressed ",transLevel,
+		"s</strong></h4>",sep="")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$foldvenn,
+	    "<br/><br/></div>",sep="")
+	    
+	# Create a selector for each contrast
+	nn <- names(contrastList)
+	items <- paste("<option value=",paste("foldvenn",nn,sep="_"),">",
 		gsub("_vs_"," vs ",nn),"</option>",sep="")
 	cat("<div>")
 	cat("<div class=\"hc-selector-label\">Select a contrast to display Venn ",
 		"diagram for </div>",sep="")
-	cat("<select id=\"venn_selector\">",items,"</select>",sep="")
+	cat("<select id=\"foldvenn_selector\">",items,"</select>",sep="")
 	cat("</div>")
 	
 	cat("<div class=\"row\">")
-	cat("<div class=\"col-sm-8\"><div id=\"jvenn_container\"></div></div>")
+	cat("<div class=\"col-sm-8\"><div id=\"jvenn_fold_container\"></div></div>")
 	cat("<div class=\"col-sm-4\">")
 	cat("<div class=\"hc-selector-label\">Click on a number on Venn diagrams ",
 		"to display the respective genes</div>",sep="")
-	cat("<textarea id=\"jvenn_list\" readonly></textarea></div>")
+	cat("<textarea id=\"jvenn_fold_list\" class=\"jvenn_list\" readonly>",
+		"</textarea></div>",sep="")
 	cat("</div>")
 }
 ```
@@ -2431,10 +2511,28 @@ $("#biodist_selector").on('change',function() {
 		"biodist_biotype_container");
 });
 
-$("#venn_selector").on('change',function() {
+$("#statvenn_contrast_selector").on('change',function() {
 	var name = this.value;
-	getVennFromDb({name: name,type: "venn",subtype: "generic"},
-		"jvenn_container");
+	var suffix = $("#statvenn_direction_selector").val();
+	var newName = name + "_" + suffix;
+	var newSubtype = "stat_" + suffix;
+	getVennFromDb({name: newName,type: "statvenn",subtype: newSubtype},
+		"jvenn_stat_container");
+});
+
+$("#statvenn_direction_selector").on('change',function() {
+	var name = this.value;
+	var prefix = $("#statvenn_contrast_selector").val();
+	var newName = prefix + "_" + name;
+	var newSubtype = "stat_" + name;
+	getVennFromDb({name: newName,type: "statvenn",subtype: newSubtype},
+		"jvenn_stat_container");
+});
+
+$("#foldvenn_selector").on('change',function() {
+	var name = this.value;
+	getVennFromDb({name: name,type: "foldvenn",subtype: "fold"},
+		"jvenn_fold_container");
 });
 
 $("#detable_selector").on('change',function() {
@@ -2514,7 +2612,10 @@ $('#meandiff_selector').trigger('change');
 $("#volcano_selector").trigger('change');
 $("#mastat_selector").trigger('change');
 $("#biodist_selector").trigger('change');
-if ($("#venn_selector").length > 0) {
-	$("#venn_selector").trigger('change');
+if ($("#statvenn_contrast_selector").length > 0) {
+	$("#statvenn_contrast_selector").trigger('change');
+}
+if ($("#foldvenn_selector").length > 0) {
+	$("#foldvenn_selector").trigger('change');
 }
 ```

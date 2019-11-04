@@ -73,7 +73,8 @@ metaseqr2 <- function(
     qcPlots=c(
         "mds","biodetection","countsbio","saturation","readnoise","filtered",
         "correl","pairwise","boxplot","gcbias","lengthbias","meandiff",
-        "meanvar","rnacomp","deheatmap","volcano","biodist","mastat","venn"
+        "meanvar","rnacomp","deheatmap","volcano","biodist","mastat","statvenn",
+        "foldvenn"
     ),
     figFormat=c("png","jpg","tiff","bmp","pdf","ps"),
     outList=FALSE,
@@ -155,6 +156,8 @@ metaseqr2 <- function(
                 exonFilters$min.active.exons <- NULL
             }
         }
+        if ("venn" %in% qcPlots)
+			qcPlots[which(qcPlots == "venn")] <- "statvenn"
     }
     else
         # Check if there are any mispelled or invalid parameters and throw a
@@ -405,7 +408,7 @@ metaseqr2 <- function(
         checkTextArgs("qcPlots",qcPlots,c("mds","biodetection","countsbio",
             "saturation","readnoise","correl","pairwise","boxplot","gcbias",
             "lengthbias","meandiff","meanvar","rnacomp","deheatmap","volcano",
-            "biodist","filtered","mastat","venn"),multiarg=TRUE)
+            "biodist","filtered","mastat","statvenn","foldvenn"),multiarg=TRUE)
     if (!is.na(restrictCores)) checkNumArgs("restrictCores",restrictCores,
         "numeric",c(0,1),"botheq")
     if (!is.na(pcut)) 
@@ -512,17 +515,19 @@ metaseqr2 <- function(
 			qcPlots <- qcPlots[-which(qcPlots == "gcbias")]
 	}
     
-    # Check if drawing a Venn diagram is possible
-    if ("venn" %in% qcPlots && length(statistics)==1) {
-        warnwrap("The creation of a Venn diagram is possible only when more ",
-            "than one statistical algorithms are used (meta-analysis)! ",
-            "Removing from figures list...")
-        toRemove <- match("venn",qcPlots)
-        noMatch <- which(is.na(toRemove))
-        if (length(noMatch)>0)
-            toRemove <- toRemove[-noMatch]
-        if (length(toRemove)>0)
-            qcPlots <- qcPlots[-toRemove]
+    # Check if drawing a Venn diagram among tests is possible
+    if ("statvenn" %in% qcPlots && length(statistics)==1) {
+        warnwrap("The creation of a Venn diagram among different statistical ",
+			"tests is possible only when more than one statistical algorithms ",
+			"are used! Removing from figures list...")
+		qcPlots <- qcPlots[-which(qcPlots == "statvenn")]
+    }
+    # Check if drawing a Venn diagram among contrasts is possible
+    if ("foldvenn" %in% qcPlots && length(contrast)==1) {
+        warnwrap("The creation of a Venn diagram among different statistical ",
+			"comparisons is possible only when more than one contrast defined!",
+			" Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "foldvenn")]
     }
     
     # Check additional input arguments for normalization and statistics
@@ -2048,7 +2053,7 @@ metaseqr2 <- function(
                 "rnacomp"),
             stat=c("deheatmap","volcano","mastat","biodist"),
             other=c("filtered"),
-            venn=c("venn")
+            venn=c("statvenn","foldvenn")
         )
         figRaw <- figUnorm <- figNorm <- figStat <- figOther <- figVenn <- 
             vector("list",length(figFormat))
@@ -2089,7 +2094,7 @@ metaseqr2 <- function(
             else 
                 figOther[[fig]] <- NULL
             
-            if ("venn" %in% qcPlots)
+            if ("statvenn" %in% qcPlots)
                 figVenn[[fig]] <- metaseqrPlot(normGenesExpr,
                     sampleList,annotation=geneDataExpr,
                     contrastList=contrastList,pList=cpList,
@@ -2209,8 +2214,15 @@ metaseqr2 <- function(
 		
 		# Here we must download all required libraries and put them in the js
 		# folder of the report to make it available offline
-		if (offlineReport)
+		if (offlineReport) {
 			.downloadJsLibs(PROJECT_PATH,reportDb)
+			paceHeader <- paste0("<script type=\"text/javascript\" ",
+				"src=\"js/pace.min.js\"></script>")
+		}
+		else
+			paceHeader <- paste0("<script type=\"text/javascript\" ",
+				"src=\"https://raw.github.com/HubSpot/pace/v1.0.0/",
+				"pace.min.js\"></script>")
 		
 		#if (hasTemplate) {
 			execTime <- elap2human(TB)
@@ -2223,6 +2235,7 @@ metaseqr2 <- function(
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
 			invisible(knitr::knit_meta(class=NULL,clean=TRUE))
+			
 			render(
 				input=file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				output_file="index.html",
@@ -2238,7 +2251,14 @@ metaseqr2 <- function(
 			
 			####################################################################
 			# Replace a jQuery incompatibility bug line.. Hopefully to remove...
+			# Also add pace.js in header on the top... header-includes does not
+			# work...
 			L <- readLines(file.path(PROJECT_PATH$main,"index.html"))
+			# pace.js
+			hi <- grep("<head>",L)
+			if (length(hi) > 0)
+				L[hi] <- paste0(L[hi],"\n",paceHeader)
+			# jQuery bug
 			ln <- grep(paste("$(\".menu\").find(\"li[data-target=\" +",
 				"window.page + \"]\").trigger(\"click\");"),L,fixed=TRUE)
 			if (length(ln) == 1)

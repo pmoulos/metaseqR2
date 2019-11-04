@@ -1,4 +1,3 @@
-
 .makeReportEnv <- function(e) {
 	re <- new.env(parent=globalenv())
 	
@@ -315,16 +314,51 @@
 				"biotype",json$biotype)
 		}
 	}
-	if ("venn" %in% qcPlots) {
-		disp("  Importing venn")
+	if ("statvenn" %in% qcPlots) {
+		disp("  Importing statvenn")
 		nn <- names(contrastList)
 		geneNames <- as.character(geneDataExpr$gene_name)
 		names(geneNames) <- names(geneDataExpr)
 		for (n in nn) {
 			disp("    ",n)
-			json <- makeJVennData(cpList[[n]],pcut=pcut,
+			fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+			# To narrow We take always the first condition versus the reference
+			# to narrow down a bit the list of DE genes
+			fc <- fc[,1,drop=FALSE]
+			fcmat <- matrix(data=apply(fc,2,function(x) {
+				rep(x,length(colnames(cpList[[n]])))
+			}),ncol=ncol(fc)*ncol(cpList[[n]]))
+			colnames(fcmat) <- colnames(cpList[[n]])
+			# Deregulated
+			json <- makeJVennStatData(cpList[[n]],fcmat=fcmat,pcut=pcut,
+				direction="dereg",altNames=geneNames[rownames(cpList[[n]])])
+			.dbImportPlot(con,paste("statvenn",n,"dereg",sep="_"),"statvenn",
+				"stat_dereg",toJSON(json,auto_unbox=TRUE,null="null"))
+			# Up
+			json <- makeJVennStatData(cpList[[n]],fcmat=fcmat,pcut=pcut,
+				direction="up",altNames=geneNames[rownames(cpList[[n]])])
+			.dbImportPlot(con,paste("statvenn",n,"up",sep="_"),"statvenn",
+				"stat_up",toJSON(json,auto_unbox=TRUE,null="null"))
+			# Down
+			json <- makeJVennStatData(cpList[[n]],fcmat=fcmat,pcut=pcut,
+				direction="down",altNames=geneNames[rownames(cpList[[n]])])
+			.dbImportPlot(con,paste("statvenn",n,"down",sep="_"),"statvenn",
+				"stat_down",toJSON(json,auto_unbox=TRUE,null="null"))
+		}
+	}
+	
+	if ("foldvenn" %in% qcPlots) {
+		disp("  Importing foldvenn")
+		nn <- names(contrastList)
+		geneNames <- as.character(geneDataExpr$gene_name)
+		names(geneNames) <- names(geneDataExpr)
+		for (n in nn) {
+			disp("    ",n)
+			fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+			fcmat <- fc[,1,drop=FALSE]
+			json <- makeJVennFoldData(sumpList[[n]],fcmat=fcmat,pcut=pcut,
 				altNames=geneNames[rownames(cpList[[n]])])
-			.dbImportPlot(con,paste("venn",n,sep="_"),"venn","generic",
+			.dbImportPlot(con,paste("foldvenn",n,sep="_"),"foldvenn","fold",
 				toJSON(json,auto_unbox=TRUE,null="null"))
 		}
 	}
@@ -767,22 +801,71 @@
 		}
 	}
 	
-	if ("venn" %in% qcPlots) {
-		disp("  Importing venn")
+	if ("statvenn" %in% qcPlots) {
+		disp("  Importing statvenn")
 		nn <- names(contrastList)
 		jsonList <- vector("list",length(nn))
 		names(jsonList) <- nn
 		geneNames <- geneDataExpr$gene_name
 		names(geneNames) <- names(geneDataExpr)
-		for (n in nn)
-			jsonList[[n]] <- makeJVennData(cpList[[n]],pcut=pcut,
+		for (n in nn) {
+			disp("    ",n)
+			jsonList[[n]] <- list(dereg=NULL,up=NULL,down=NULL)
+			fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+			# To narrow We take always the first condition versus the reference
+			# to narrow down a bit the list of DE genes
+			fc <- fc[,1,drop=FALSE]
+			fcmat <- matrix(data=apply(fc,2,function(x) {
+				rep(x,length(colnames(cpList[[n]])))
+			}),ncol=ncol(fc)*ncol(cpList[[n]]))
+			colnames(fcmat) <- colnames(cpList[[n]])
+			jsonList[[n]]$dereg <- makeJVennStatData(cpList[[n]],fcmat=fcmat,
+				pcut=pcut,direction="dereg",
 				altNames=geneNames[rownames(cpList[[n]])])
+			jsonList[[n]]$up <- makeJVennStatData(cpList[[n]],fcmat=fcmat,
+				pcut=pcut,direction="up",
+				altNames=geneNames[rownames(cpList[[n]])])
+			jsonList[[n]]$down <- makeJVennStatData(cpList[[n]],fcmat=fcmat,
+				pcut=pcut,direction="down",
+				altNames=geneNames[rownames(cpList[[n]])])
+		}
+		for (i in 1:length(jsonList)) {
+			for (d in names(jsonList[[i]])) {
+				listIndex <- listIndex + 1
+				plots[[listIndex]] <- list(
+					name=paste("statvenn",nn[i],d,sep="_"),
+					type="statvenn",
+					subtype=paste0("stat_",d),
+					json=jsonList[[i]][[d]]
+				)
+			}
+		}
+	}
+	
+	
+	
+	if ("foldvenn" %in% qcPlots) {
+		disp("  Importing foldvenn")
+		nn <- names(contrastList)
+		# We must calculate all pairwise contrasts
+		#++
+		jsonList <- vector("list",length(nn))
+		names(jsonList) <- nn
+		geneNames <- as.character(geneDataExpr$gene_name)
+		names(geneNames) <- names(geneDataExpr)
+		for (n in nn) {
+			disp("    ",n)
+			fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+			fcmat <- fc[,1,drop=FALSE]
+			jsonList[[n]] <- makeJVennFoldData(sumpList[[n]],fcmat=fcmat,
+				pcut=pcut,altNames=geneNames[rownames(cpList[[n]])])
+		}
 		for (i in 1:length(jsonList)) {
 			listIndex <- listIndex + 1
 			plots[[listIndex]] <- list(
-				name=paste("venn",nn[i],sep="_"),
-				type="venn",
-				subtype="generic",
+				name=paste("foldvenn",nn[i],sep="_"),
+				type="foldvenn",
+				subtype="fold",
 				json=jsonList[[i]]
 			)
 		}
@@ -901,16 +984,24 @@
 			if ("gene_id" %in% names(x)) # transLevel = "gene"
 				x$gene_id <- paste('<a href="',h,'/Gene/Summary?g=',x$gene_id,
 					'" target="_blank">',x$gene_id,'</a>',sep="")
-			else if ("transcript_id" %in% names(x)) # transLevel = "transcript"
-			else if ("exon_id" %in% names(x)) # transLevel = "exon"
+			else if ("transcript_id" %in% names(x)) {# transLevel = "transcript"
+				# Stub
+			}
+			else if ("exon_id" %in% names(x)) { # transLevel = "exon"
+				# Stub
+			}
 		}
 		else if (r == "refseq") {
 			if ("gene_id" %in% names(x)) # transLevel = "gene"
 				x$gene_id <- paste('<a href="https://www.ncbi.nlm.nih.gov/',
 					'nuccore/',x$gene_id,'" target="_blank">',x$gene_id,'</a>',
 					sep="")
-			else if ("transcript_id" %in% names(x)) # transLevel = "transcript"
-			else if ("exon_id" %in% names(x)) # transLevel = "exon"
+			else if ("transcript_id" %in% names(x)) { # transLevel = "transcript"
+				# Stub
+			}
+			else if ("exon_id" %in% names(x)) { # transLevel = "exon"
+				# Stub
+			}
 		}
 	}
 	
