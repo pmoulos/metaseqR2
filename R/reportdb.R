@@ -77,6 +77,7 @@
 	cpList <- obj$cpList
 	sumpList <- obj$sumpList
 	pcut <- obj$pcut
+	metaP <- obj$metaP
 	PROJECT_PATH <- obj$PROJECT_PATH
 	
 	samples <- unlist(sampleList)
@@ -350,16 +351,57 @@
 	if ("foldvenn" %in% qcPlots) {
 		disp("  Importing foldvenn")
 		nn <- names(contrastList)
-		geneNames <- as.character(geneDataExpr$gene_name)
-		names(geneNames) <- names(geneDataExpr)
+		
+		# We need to construct a matrix with p-values for each contrast and
+		# each statistical algorithm
+		if (ncol(cpList[[1]]) > 1) {
+			N <- names(cpList)
+			prePmat <- lapply(N,function(n,C,S) {
+				many <- C[[n]]
+				one <- S[[n]]
+				mat <- cbind(many,one)
+				colnames(mat)[ncol(mat)] <- metaP
+				return(mat)
+			},cpList,sumpList)
+			names(prePmat) <- N
+		}
+		else
+			prePmat <- sumpList
+		
+		# Now we need to reformat prePmat to a list names according to each
+		# algorithm
+		algs <- colnames(prePmat[[1]])
+		pmat <- lapply(algs,function(a,P) {
+			algMat <- matrix(NA,nrow(P[[1]]),length(P))
+			colnames(algMat) <- names(P)
+			rownames(algMat) <- rownames(P[[1]])
+			for (cnt in names(P))
+				algMat[,cnt] <- prePmat[[cnt]][,a]
+			return(algMat)
+		},prePmat)
+		
+		# We need to construct a matrix with fold changes for each contrast
+		fList <- vector("list",length(nn))
+		names(fList) <- nn
 		for (n in nn) {
-			disp("    ",n)
 			fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
-			fcmat <- fc[,1,drop=FALSE]
-			json <- makeJVennFoldData(sumpList[[n]],fcmat=fcmat,pcut=pcut,
-				altNames=geneNames[rownames(cpList[[n]])])
-			.dbImportPlot(con,paste("foldvenn",n,sep="_"),"foldvenn","fold",
-				toJSON(json,auto_unbox=TRUE,null="null"))
+			fc <- fc[,1,drop=FALSE]
+			fList[[n]] <- fc
+		}
+		fcmat <- do.call("cbind",fList)
+		fcmat <- fcmat[rownames(pmat),]
+		
+		# Based on pmat and fcmat, we calculate Venns
+		geneNames <- geneDataExpr$gene_name
+		names(geneNames) <- names(geneDataExpr)
+		for (n in names(pmat)) {
+			disp("    ",n)
+			jsonList[[n]] <- list(dereg=NULL,up=NULL,down=NULL)
+			for (d in c("dereg","up","down"))
+				json <- makeJVennFoldData(pmat=pmat,fcmat=fcmat,pcut=pcut,
+					direction=d,altNames=geneNames[rownames(pmat[[n]])])
+				.dbImportPlot(con,paste("foldvenn",n,d,sep="_"),"foldvenn",
+					paste0("fold_",d),toJSON(json,auto_unbox=TRUE,null="null"))
 		}
 	}
 
@@ -381,6 +423,7 @@
 	cpList <- obj$cpList
 	sumpList <- obj$sumpList
 	pcut <- obj$pcut
+	metaP <- obj$metaP
 	PROJECT_PATH <- obj$PROJECT_PATH
 	
 	samples <- unlist(sampleList)
@@ -437,7 +480,6 @@
 	
 	if ("biodetection" %in% qcPlots) {
 		disp("  Importing biodetection...")
-		preImport <- vector("list",length(json))
 		cap <- capture.output({
 			json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
 				whichPlot="biodetection",output="json")
@@ -764,7 +806,6 @@
 				json=fromJSON(json[[i]])
 			)
 		}
-		plots <- c(plots,preImport)
 	}
 	
 	if ("biodist" %in% qcPlots) {
@@ -842,33 +883,90 @@
 		}
 	}
 	
-	
-	
 	if ("foldvenn" %in% qcPlots) {
 		disp("  Importing foldvenn")
 		nn <- names(contrastList)
-		# We must calculate all pairwise contrasts
-		#++
-		jsonList <- vector("list",length(nn))
-		names(jsonList) <- nn
-		geneNames <- as.character(geneDataExpr$gene_name)
-		names(geneNames) <- names(geneDataExpr)
+		
+		# We need to construct a matrix with p-values for each contrast and
+		# each statistical algorithm
+		if (ncol(cpList[[1]]) > 1) {
+			N <- names(cpList)
+			prePmat <- lapply(N,function(n,C,S) {
+				many <- C[[n]]
+				one <- S[[n]]
+				mat <- cbind(many,one)
+				colnames(mat)[ncol(mat)] <- metaP
+				return(mat)
+			},cpList,sumpList)
+			names(prePmat) <- N
+		}
+		else
+			prePmat <- sumpList
+		
+		# Now we need to reformat prePmat to a list names according to each
+		# algorithm
+		algs <- colnames(prePmat[[1]])
+		pmat <- lapply(algs,function(a,P) {
+			algMat <- matrix(NA,nrow(P[[1]]),length(P))
+			colnames(algMat) <- names(P)
+			rownames(algMat) <- rownames(P[[1]])
+			for (cnt in names(P))
+				algMat[,cnt] <- prePmat[[cnt]][,a]
+			return(algMat)
+		},prePmat)
+		names(pmat) <- algs
+		
+		## We need to construct a matrix with p-values for each contrast
+		#pmat <- do.call("cbind",lapply(sumpList,function(x) {
+		#	return(x[,1,drop=FALSE])
+		#}))
+		#colnames(pmat) <- names(sumpList)
+		
+		# We need to construct a matrix with fold changes for each contrast
+		fList <- vector("list",length(nn))
+		names(fList) <- nn
 		for (n in nn) {
-			disp("    ",n)
 			fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
-			fcmat <- fc[,1,drop=FALSE]
-			jsonList[[n]] <- makeJVennFoldData(sumpList[[n]],fcmat=fcmat,
-				pcut=pcut,altNames=geneNames[rownames(cpList[[n]])])
+			fc <- fc[,1,drop=FALSE]
+			fList[[n]] <- fc
 		}
-		for (i in 1:length(jsonList)) {
-			listIndex <- listIndex + 1
-			plots[[listIndex]] <- list(
-				name=paste("foldvenn",nn[i],sep="_"),
-				type="foldvenn",
-				subtype="fold",
-				json=jsonList[[i]]
-			)
+		fcmat <- do.call("cbind",fList)
+		fcmat <- fcmat[rownames(pmat[[1]]),]
+		
+		# Based on pmat and fcmat, we calculate Venns
+		jsonList <- vector("list",length(pmat))
+		names(jsonList) <- names(pmat)
+		geneNames <- geneDataExpr$gene_name
+		names(geneNames) <- names(geneDataExpr)
+		for (n in names(jsonList)) {
+			disp("    ",n)
+			jsonList[[n]] <- list(dereg=NULL,up=NULL,down=NULL)
+			for (d in c("dereg","up","down"))
+				jsonList[[n]][[d]] <- makeJVennFoldData(pmat=pmat[[n]],
+					fcmat=fcmat,pcut=pcut,direction=d,
+					altNames=geneNames[rownames(pmat[[n]])])
 		}
+		for (n in names(jsonList)) {
+			for (d in names(jsonList[[n]])) {
+				listIndex <- listIndex + 1
+				plots[[listIndex]] <- list(
+					name=paste("foldvenn",n,d,sep="_"),
+					type="foldvenn",
+					subtype=paste0("fold_",d),
+					json=jsonList[[n]][[d]]
+				)
+			}
+		}
+		
+		#for (n in names(jsonList)) {
+		#	listIndex <- listIndex + 1
+		#	plots[[listIndex]] <- list(
+		#		name=paste("foldvenn",n,sep="_"),
+		#		type="foldvenn",
+		#		subtype="fold",
+		#		json=jsonList[[n]]
+		#	)
+		#}
 	}
 	
 	disp("Writing plot database in ",file.path(PROJECT_PATH$data,"reportdb.js"))

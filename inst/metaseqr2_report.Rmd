@@ -576,8 +576,8 @@ if ("biodist" %in% qcPlots) {
 
 # Instructions {.tabset .tabset-pills}
 
-Welcome to metaseqR2 report! If you are familiar with metaseqR report, then you
-will find out that there are not so many differences with respect to the 
+Welcome to **metaseqR2** report! If you are familiar with metaseqR report, then 
+you will find out that there are not so many differences with respect to the 
 presented information. Some diagnostic and exploration plots were added. The 
 most notable difference is that __*all*__ plots are interactive. This helps a 
 lot with exploration and interpretation but also add a lot of computational
@@ -587,6 +587,14 @@ Google Chrome, Mozilla Firefox and Microsoft Edge. It has **not** been tested
 with Internet Explorer and Opera most probably will not be. Other Chromium 
 browsers (e.g. Brave) should be also fine.
 
+One particular characteristic of the metaseqR2 report is that all plots are
+interactive. This is achieved by using the standard graphics underlying data
+with libraries including (Highcharts)[https://www.highcharts.com/],
+(Plotly)[https://plot.ly/] and 
+(jvenn)[http://jvenn.toulouse.inra.fr/app/index.html] to create more 
+user-friendly and directly explorable plots. Some instructions on the usage of
+these plots follow:
+
 metaseqR2 report has the following sections, depending also on which diagnostic
 and exploration plots have been asked from the run command. As plots are 
 categorized, if no plot from a specific category is asked, then this category
@@ -594,12 +602,94 @@ will not appear. Below, the categories:
 
 ## Summary
 
-lorem ipsum
+The **Summary** section is further categorized in several subsections. 
+Specifically:
+
+* **Analysis summary:** This section contains an auto-generated text that 
+analytically describes the computational process followed and summarized the
+results of each step. This text can be used as is or with slight modifications
+in a <u>Methods</u> section of an article.
+* **Input options:** This section provides a list of the input arguments to the
+pipeline in a more human-readable format.
+* **Filtering:** This section reports in detail the number of filtered genes
+decomposed according to the number of genes removed by each applied filter.
+* **Differential expression:** This section reports in detail the number of
+differentially expressed genes for each contrast, both when using only a p-value
+cutoff as well as an FDR cutoff (numbers in parentheses), that is, genes passing
+the multiple testing correction procedure selected. These numbers also are 
+calculated based on a simple fold change cutoff in log<sub>2</sub> scale. 
+Finally, when multiple algorithms are used with p-value combination, this
+section reports all the findings analytically per algorithm.
+* **Command:** This section contains the command used to run the ```metaseqr2```
+pipeline for users that want to experiment.
+* **Run log:** This section contains critical messages displayed within the
+```R``` session running ```metaseqr2``` displayed as a log.
 
 ## Quality control 
 
-lorem ipsum
+The **Quality** control section contains several interactive plots concerning 
+the overall quality control of each sample provided as well as overall 
+assessments. The quality control plots are the *Multidimensional Scaling* 
+(**MDS**) plot, the *Biotypes detection* (**Biodetection**) plot, the 
+*Biotype abundance* (**Countsbio**) plot, the *Read saturation* (**Saturation**) 
+plot, the *Read noise* (**ReadNoise**) plot, the *Correlation heatmap* 
+(**Correlation**), the *Pairwise sample scatterplots* (**Pairwise**) and the 
+*Filtered entities* (**Filtered**) plot. Each plot is accompanied by a detailed
+description of what it depicts. Where multiple plot are available (e.g. one for
+each sample), a selection list on the top of the respective  section allows the
+selection of the sample to be displayed.
 
+## Normalization
+
+The **Normalization** section contains several interactive plots that can be 
+used to inspect and assess the normalization procedure. Therefore, normalization
+plots are usually paired, showing the same data instance normalized and not
+normalized. The normalization plots are the *Expression boxplots* (**Boxplots**)
+plots, the *GC content bias* (**GC bias**) plots, the *Gene length bias* 
+(**Length bias**) plots, the *Within condition mean-difference*
+(**Mean-Difference**) plots, the *Mean-variance relationship* 
+(**Mean-Variance**) plot and the *RNA composition* (**Rna composition**) plot.
+Each plot is accompanied by a detailed description of what it depicts. Where 
+multiple plot are available (e.g. one for each sample), a selection list on the 
+top of the respective section allows the selection of the sample to be 
+displayed.
+
+## Statistics
+
+The **Statistics** section contains several interactive plots that can be used
+to inspect and explore the outcome of statistical testing procedures. The 
+statistics plots are the *Volcano plot* (**Volcano**), the 
+*MA or Mean-Difference across conditions* (**MA**) plot, the 
+*Expression heatmap* (**Heatmap**) plot, the 
+*Chromosome and biotype distributions* (**Biodist**) plot, the
+*Venn diagram across statistical tests* (**StatVenn**) and the 
+*Venn diagram across contrasts* (**FoldVenn**). Each plot is accompanied by a 
+detailed description of what it depicts. Please note that the heatmap plots
+show only the top percentage of differentially expressed genes as this is
+controlled by the ```reportTop``` parameter of the ```metaseqr2``` pipeline.
+When multiple plot are available (e.g. one for each contrast), a selection list 
+on the top of the respective section allows the selection of the sample to be 
+displayed.
+
+## Results
+
+The **Results** section contains a snapshot of the differentially expressed 
+genes in table format with basic information about each gene and some links to
+external resources. Certain columns of the table are colored according to
+significance. Larger bars and more intense colors indicate higher significance.
+For example, bar in the *p_value* column is larger if the genes has higher
+statistical significance and the fold change cell background is bright red if
+the gene is highly up-regulated. From the **Results** section, full gene lists
+can be downloaded in text tab-delimited format and viewed with a spreadsheet
+application like MS Excel. A selector on the top of the section above the table
+allows the display of different contrasts.
+
+## References
+
+The **References** section contains bibliographical references regading the
+algorihtms used by the ```metaseqr2``` pipeline and is adjusted according to the
+algorithms selected.
+ 
 # Summary {.tabset .tabset-pills}
 
 ## Analysis summary
@@ -2130,14 +2220,25 @@ if ("foldvenn" %in% qcPlots) {
 	    "<br/><br/></div>",sep="")
 	    
 	# Create a selector for each contrast
-	nn <- names(contrastList)
-	items <- paste("<option value=",paste("foldvenn",nn,sep="_"),">",
-		gsub("_vs_"," vs ",nn),"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a contrast to display Venn ",
+	if (length(statistics) > 1)
+		nn <- c(statistics,metaP)
+	else
+		nn <- statistics
+	
+	items <- paste("<option value=",paste("foldvenn",nn,sep="_"),">",nn,
+		"</option>",sep="")
+	deupdo <- paste("<option value=",c("dereg","up","down"),">",
+		c("Deregulated","Up regulated","Down downregulated"),"</option>",sep="")
+	cat("<div class=\"row\"><div class=\"col-sm-8\">")
+	cat("<div class=\"row\"><div class=\"col-sm-6\">")
+	cat("<div class=\"hc-selector-label\">Select an algorithm to display Venn ",
 		"diagram for </div>",sep="")
-	cat("<select id=\"foldvenn_selector\">",items,"</select>",sep="")
-	cat("</div>")
+	cat("<select id=\"foldvenn_algo_selector\">",items,"</select>",sep="")
+	cat("</div><div class=\"col-sm-6\">")
+	cat("<div class=\"hc-selector-label\">Select a direction to display Venn ",
+		"diagram for </div>",sep="")
+	cat("<select id=\"foldvenn_direction_selector\">",deupdo,"</select>",sep="")
+	cat("</div></div></div></div>")
 	
 	cat("<div class=\"row\">")
 	cat("<div class=\"col-sm-8\"><div id=\"jvenn_fold_container\"></div></div>")
@@ -2529,9 +2630,21 @@ $("#statvenn_direction_selector").on('change',function() {
 		"jvenn_stat_container");
 });
 
-$("#foldvenn_selector").on('change',function() {
+$("#foldvenn_algo_selector").on('change',function() {
 	var name = this.value;
-	getVennFromDb({name: name,type: "foldvenn",subtype: "fold"},
+	var suffix = $("#foldvenn_direction_selector").val();
+	var newName = name + "_" + suffix;
+	var newSubtype = "fold_" + suffix;
+	getVennFromDb({name: newName,type: "foldvenn",subtype: newSubtype},
+		"jvenn_fold_container");
+});
+
+$("#foldvenn_direction_selector").on('change',function() {
+	var name = this.value;
+	var prefix = $("#foldvenn_algo_selector").val();
+	var newName = prefix + "_" + name;
+	var newSubtype = "fold_" + name;
+	getVennFromDb({name: newName,type: "foldvenn",subtype: newSubtype},
 		"jvenn_fold_container");
 });
 
@@ -2615,7 +2728,7 @@ $("#biodist_selector").trigger('change');
 if ($("#statvenn_contrast_selector").length > 0) {
 	$("#statvenn_contrast_selector").trigger('change');
 }
-if ($("#foldvenn_selector").length > 0) {
-	$("#foldvenn_selector").trigger('change');
+if ($("#foldvenn_algo_selector").length > 0) {
+	$("#foldvenn_algo_selector").trigger('change');
 }
 ```

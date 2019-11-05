@@ -1978,9 +1978,14 @@ metaseqr2 <- function(
         # If report requested, build a more condensed summary table, while the
         # complete tables are available for download
         if (report) { 
-			if (length(statistics) > 1)
+			if (length(statistics) > 1) {
 				ew <- c("annotation","meta_p_value","adj_meta_p_value",
 					"fold_change","stats")
+				if (is.null(adjSumpList))
+					adjSumpList <- cmclapply(sumpList,
+						function(x,a) return(p.adjust(x,a)),
+							adjustMethod,rc=restrictCores)
+			}
 			else
 				ew <- c("annotation","p_value","adj_p_value","fold_change",
 					"stats")
@@ -2104,13 +2109,15 @@ metaseqr2 <- function(
         }
         
         ########################################################################
-        #assign("sampleList",sampleList,envir=parent.frame())
-		#assign("geneCounts",geneCounts,envir=parent.frame())
-		#assign("normGenes",normGenes,envir=parent.frame())
-		#assign("normGenesExpr",normGenes,envir=parent.frame())
-		#assign("sumpList",sumpList,envir=parent.frame())
-		#assign("contrastList",contrastList,envir=parent.frame())
-		#assign("geneData",geneData,envir=parent.frame())
+        assign("sampleList",sampleList,envir=parent.frame())
+		assign("geneCounts",geneCounts,envir=parent.frame())
+		assign("normGenes",normGenes,envir=parent.frame())
+		assign("normGenesExpr",normGenes,envir=parent.frame())
+		assign("sumpList",sumpList,envir=parent.frame())
+		assign("cpList",cpList,envir=parent.frame())
+		assign("contrastList",contrastList,envir=parent.frame())
+		assign("geneData",geneData,envir=parent.frame())
+		assign("geneDataExpr",geneDataExpr,envir=parent.frame())
 		########################################################################
     }
 
@@ -2137,6 +2144,7 @@ metaseqr2 <- function(
 			cpList=cpList,
 			sumpList=sumpList,
 			pcut=pcut,
+			metaP=metaP,
 			PROJECT_PATH=PROJECT_PATH
 		)
 		if (reportDb == "sqlite")

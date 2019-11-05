@@ -2607,8 +2607,8 @@ makeReportMessages <- function(lang) {
                     "geometrical shapes. The numbers of overlapping genes per",
                     "statistical algorithm are shown in the different areas",
                     "of the Venn diagrams, one for each contrast. Apart from",
-                    "a p-value cutoff, a fold change threshold of 0.5 in log",
-                    "<sub>2</sub> scale is applied for each contrast. For",
+                    "a p-value cutoff, a fold change threshold of 0.5 in",
+                    "log<sub>2</sub> scale is applied for each contrast. For",
                     "multi-condition contrasts, the first condition is used to",
                     "calculate the fold change against the reference.",
                     collapse=" "
@@ -2619,8 +2619,8 @@ makeReportMessages <- function(lang) {
                     "geometrical shapes. The numbers of overlapping genes per",
                     "statistical contrast are shown in the different areas",
                     "of the Venn diagrams, one for each contrast. Apart from",
-                    "a p-value cutoff, a fold change threshold of 0.5 in log",
-                    "<sub>2</sub> scale is applied for each contrast. For",
+                    "a p-value cutoff, a fold change threshold of 0.5 in",
+                    "log<sub>2</sub> scale is applied for each contrast. For",
                     "multi-condition contrasts, the first condition is used to",
                     "calculate the fold change against the reference.",
                     collapse=" "
