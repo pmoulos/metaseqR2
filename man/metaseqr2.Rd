@@ -43,7 +43,8 @@
             "saturation", "readnoise", "filtered", "correl", 
             "pairwise", "boxplot", "gcbias", "lengthbias", 
             "meandiff", "meanvar", "rnacomp", "deheatmap", 
-            "volcano", "biodist"),
+            "volcano", "mastat", "biodist", "statvenn", 
+            "foldvenn"),
         figFormat = c("png", "jpg", "tiff", "bmp", "pdf", "ps"),
         outList = FALSE, exportWhere = NA,
         exportWhat = c("annotation", "p_value", "adj_p_value", 
@@ -271,7 +272,8 @@
     \code{"readnoise"}, \code{"filtered"}, \code{"boxplot"},
     \code{"gcbias"}, \code{"lengthbias"}, \code{"meandiff"},
     \code{"meanvar"}, \code{"deheatmap"}, \code{"volcano"},
-    \code{"biodist"}, \code{"venn"}. See also Details.}
+    \code{"mastat"}, \code{"biodist"}, \code{"statvenn"},
+    \code{"foldvenn"}. See also Details.}
 
     \item{figFormat}{the format of the output diagnostic
     plots. It can be one or more of \code{"png"},

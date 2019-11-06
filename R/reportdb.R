@@ -957,16 +957,6 @@
 				)
 			}
 		}
-		
-		#for (n in names(jsonList)) {
-		#	listIndex <- listIndex + 1
-		#	plots[[listIndex]] <- list(
-		#		name=paste("foldvenn",n,sep="_"),
-		#		type="foldvenn",
-		#		subtype="fold",
-		#		json=jsonList[[n]]
-		#	)
-		#}
 	}
 	
 	disp("Writing plot database in ",file.path(PROJECT_PATH$data,"reportdb.js"))

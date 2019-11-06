@@ -1491,6 +1491,156 @@ diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
     }
 }
 
+diagplotDeregulogram <- function(fmat,pmat,fcut=1,pcut=0.05,altNames=NULL,
+    output="x11",path=NULL,...) { # output can be json here...
+    if (is.null(path)) path <- getwd()
+    # colnames of at least one of fmat, pmat must be given
+    if (is.null(colnames(fmat) && is.null(colnames(pmat))))
+		stopwrap("At least fmat or pmat must have column names!")
+	if (is.null(colnames(fmat) && !is.null(colnames(pmat))))
+		colnames(fmat) <- colnames(pmat)
+    if (!is.null(colnames(fmat) && is.null(colnames(pmat))))
+		colnames(pmat) <- colnames(fmat)
+    
+    
+    
+    fil <- file.path(path,paste("deregulogram_",
+		paste(colnames(fmat),collapse="__"),".",output,sep=""))
+    if (output!="json") {
+        if (output %in% c("pdf","ps","x11"))
+            graphicsOpen(output,fil,width=10,height=8)
+        else
+            graphicsOpen(output,fil,width=1024,height=768,res=100)
+    }
+    
+    # Ensure order/subsets
+    fmat <- fmat[rownames(pmat),]
+    # Fix problem with extremely low p-values, only for display purposes though
+    pZero <- which(pmat==0)
+    if (length(pZero)>0)
+        pmat[pZero] <- runif(length(pZero),0,1e-256)
+        
+    # Remove non-signicant always
+    allbad <- which(apply(pmat,1,function(x) all(x>=pcut)))
+    if (length(allbad) > 0) {
+		pmat <- pmat[-allbad,]
+		fmat <- fmat[-allbad,]
+	}
+        
+    ylim <- c(-max(abs(fmat[,2])),max(abs(fmat[,2])))
+    xlim <- c(-max(abs(fmat[,1])),max(abs(fmat[,1])))
+    
+    # red
+    upupstat <- which(apply(fmat,1,function(x) all(x >= fcut)) &
+		apply(pmat,1,function(x) all(x < pcut)))
+	# green
+    downdownstat <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
+		apply(pmat,1,function(x) all(x < pcut)))
+	# red3
+    upup <- which(apply(fmat,1,function(x) all(x >= fcut)) &
+		apply(pmat,1,function(x) any(x >= pcut)))
+    # green3
+    downdown <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
+		apply(pmat,1,function(x) any(x >= pcut)))
+	# orange
+	updownstat <- which(apply(fmat,1,function(x) x[1] >= fcut & x[2] <= -fcut) &
+		apply(pmat,1,function(x) all(x < pcut)))
+	# blue
+	downupstat <- which(apply(fmat,1,function(x) x[1] <= -fcut & x[2] >= fcut) &
+		apply(pmat,1,function(x) all(x < pcut)))
+	# orange3
+	updown <- which(apply(fmat,1,function(x) x[1] >= fcut & x[2] <= -fcut) &
+		apply(pmat,1,function(x) any(x >= pcut)))
+	# blue3
+	downup <- which(apply(fmat,1,function(x) x[1] <= -fcut & x[2] >= fcut) &
+		apply(pmat,1,function(x) any(x >= pcut)))
+	# black
+	poor <- which(apply(pmat,1,function(x) all(x < pcut)) &
+		apply(fmat,1,function(x) any(abs(x) < fcut)))
+	# gray70
+	nones <- which(apply(pmat,1,function(x) any(x >= pcut)) &
+		apply(fmat,1,function(x) all(abs(x) < fcut)))
+	# gray40
+    neutral <- setdiff(1:nrow(fmat),
+        Reduce("union",list(upupstat,downdownstat,upup,downdown,updownstat,
+			downupstat,updown,downup,poor,nones)))
+    
+    if (output!="json") {
+        par(cex.main=1.1,cex.lab=1.1,cex.axis=1.1,font.lab=2,font.axis=2,
+            pty="m",lwd=1.5)
+        plot.new()
+        plot.window(xlim,ylim)
+        axis(1,at=pretty(xlim,10),labels=as.character(pretty(xlim,10)))
+        axis(2,at=pretty(ylim,10))
+        title(paste(main="Deregulogram",colnames(fmat)[1],"and",
+			colnames(fmat)[2]),xlab=paste("Fold change",colnames(fmat)[1]),
+			ylab=paste("Fold change",colnames(fmat)[2]))
+		
+		if (length(neutral) > 0)
+			points(fmat[neutral,1],fmat[neutral,2],pch=20,col="gray40",cex=0.5)
+		if (length(nones) > 0)
+			points(fmat[nones,1],fmat[nones,2],pch=20,col="gray70",cex=0.5)
+		if (length(poor) > 0)
+			points(fmat[poor,1],fmat[poor,2],pch=20,col="black",cex=0.5)
+		if (length(downup) > 0)
+			points(fmat[downup,1],fmat[downup,2],pch=20,col="blue3",cex=0.5)
+		if (length(updown) > 0)
+			points(fmat[updown,1],fmat[updown,2],pch=20,col="orange3",cex=0.5)
+		if (length(downupstat) > 0)
+			points(fmat[downupstat,1],fmat[downupstat,2],pch=20,col="blue",cex=0.5)
+		if (length(updownstat) > 0)
+			points(fmat[updownstat,1],fmat[updownstat,2],pch=20,col="orange",cex=0.5)
+		if (length(downdown) > 0)
+			points(fmat[downdown,1],fmat[downdown,2],pch=20,col="green3",cex=0.5)
+		if (length(upup) > 0)
+			points(fmat[upup,1],fmat[upup,2],pch=20,col="red3",cex=0.5)
+		if (length(downdownstat) > 0)
+			points(fmat[downdownstat,1],fmat[downdownstat,2],pch=20,col="green",cex=0.5)
+		if (length(upupstat) > 0)
+			points(fmat[upupstat,1],fmat[upupstat,2],pch=20,col="red",cex=0.5)
+		
+		abline(h=-fcut,lty=2)
+		abline(h=fcut,lty=2)
+		abline(v=-fcut,lty=2)
+		abline(v=fcut,lty=2)
+		
+		grid()
+		graphics::legend(
+			x="topleft",
+			legend=c("significantly both up-regulated",
+				"significantly both down-regulated","both up-regulated",
+				"both down-regulated","significantly up-down-regulated",
+				"significantly down-up-regulated","up-down-regulated",
+				"down-up-regulated","poorly regulated","no regulated","neutral",
+				"fold change threshold"),
+			col=c("red","green","red3","green3","orange","blue","orange3",
+				"blue3","black","gray70","gray40","black"),
+			pch=c(rep(20,11),NA),lty=c(rep(NA,11),2),xjust=1,yjust=0,
+			box.lty=0,x.intersp=0.5,cex=0.7,text.font=2
+		)
+        graphicsClose(output)
+        return(fil)
+    }
+    else {
+        obj <- list(
+            x=a,
+            y=m,
+            plot=NULL,
+            samples=NULL,
+            xlim=xlim,
+            ylim=ylim,
+            status=NULL,
+            pcut=pcut,
+            fcut=fcut,
+            altnames=altNames,
+            user=list(p=p,con=conn)
+        )
+        #json <- maStatToJSON(obj,out="list")
+        json <- maStatToJSON(obj)
+        return(json)
+    }
+}
+
 diagplotDeHeatmap <- function(x,scale=c("asis","zscore"),con=NULL,output="x11",
 	path=NULL,...) {
     if (is.null(path)) path <- getwd()

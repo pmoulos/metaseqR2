@@ -394,7 +394,7 @@ p {
 	width: 740px;
 	height: 860px;
 	text-align: center;
-	margin: auto;
+	margin: 25px auto 5px;
 }
 
 .coheatmap-container {
@@ -2134,15 +2134,21 @@ if ("deheatmap" %in% qcPlots) {
 	items <- paste("<option value=",
 		paste("deheatmap",gsub("\\.","__",names(contrastList)),sep="_"),">",
 		gsub("_vs_"," vs ",names(contrastList)),"</option>",sep="")
-	cat("<div>")
+	scal <- paste("<option value=",c("asis","zscore"),">",
+		c("log2 reads","z-scores"),"</option>",sep="")
+	cat("<div class=\"row\"><div class=\"col-sm-12\">",sep="")
+	cat("<div class=\"row\"><div class=\"col-sm-6\">")
 	cat("<div class=\"hc-selector-label\">Select a contrast to display ",
 		"heatmap for </div>",sep="")
-	cat("<select id=\"heatmap_selector\">",items,"</select>",sep="")
-	cat("</div><br/><br/><br/>")
+	cat("<select id=\"heatmap_contrast_selector\">",items,"</select>",sep="")
+	cat("</div><div class=\"col-sm-6\">")
+	cat("<div class=\"pull-right\">")
+	cat("<div class=\"hc-selector-label\">Select a scale to display heatmap ",
+		"for </div>",sep="")
+	cat("<select id=\"heatmap_scale_selector\">",scal,"</select>",sep="")
+	cat("</div></div></div></div></div>")
 	
-	#hList <- vector("list",length(contrastList))
 	hList <- vector("list",length(contrastList)*2)
-	#names(hList) <- names(contrastList)
 	hNames <- character(length(contrastList)*2)
 	hInd <- 0
 	for (cnt in names(contrastList)) {
@@ -2160,14 +2166,16 @@ if ("deheatmap" %in% qcPlots) {
 		}
 		# As is scale
 		hInd <- hInd + 1
+		hNames[hInd] <- paste0("deheatmap_",gsub("\\.","__",cnt),"_asis")
 		hList[[hInd]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
-			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt)) %>%
+			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt,"log2 reads")) %>%
 			layout(width=720,height=840)
 		# z-scores
 		M <- t(scale(t(nat2log(mat))))
 		hInd <- hInd + 1
+		hNames[hInd] <- paste0("deheatmap_",gsub("\\.","__",cnt),"_zscore")
 		hList[[hInd]] <- heatmaply(M,trace="none",colors=bluered(64),
-			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt)) %>%
+			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt,"z-scores")) %>%
 			layout(width=720,height=840)
 	}
 	setNames(hList,NULL)
@@ -2176,11 +2184,8 @@ if ("deheatmap" %in% qcPlots) {
 	toEval <- "htmltools::tagList("
 	hItems <- character(length(hList))
 	for (i in 1:length(hList))
-		hItems[i] <- paste0(
-			"tags$div(id='deheatmap_",
-			gsub("\\.","__",names(contrastList)[i]),
-			"', class='deheatmap-container',hList[[i]])"
-		)
+		hItems[i] <- paste0("tags$div(id='",hNames[i],
+			"', class='deheatmap-container',hList[[",i,"]])")
 	toEval <- paste0(toEval,paste(hItems,collapse=","),")")
 	eval(parse(text=toEval))
 	
@@ -2658,10 +2663,20 @@ $("#mastat_selector").on('change',function() {
 		"mastat_container");
 });
 
-$("#heatmap_selector").on('change',function() {
+$("#heatmap_contrast_selector").on('change',function() {
 	var name = this.value;
+	var suffix = $("#heatmap_scale_selector").val();
+	var newName = name + "_" + suffix;
 	$(".deheatmap-container").hide(0);
-	$("#"+name).show();
+	$("#"+newName).show();
+});
+
+$("#heatmap_scale_selector").on('change',function() {
+	var name = this.value;
+	var prefix = $("#heatmap_contrast_selector").val();
+	var newName = prefix + "_" + name;
+	$(".deheatmap-container").hide(0);
+	$("#"+newName).show();
 });
 
 $("#biodist_selector").on('change',function() {

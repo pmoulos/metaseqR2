@@ -2238,8 +2238,8 @@ metaseqr2 <- function(
             assign("REPORT_ENV",REPORT_ENV,envir=.GlobalEnv)
             
             #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+            file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
 			invisible(knitr::knit_meta(class=NULL,clean=TRUE))
