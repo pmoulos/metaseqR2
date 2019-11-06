@@ -589,11 +589,60 @@ browsers (e.g. Brave) should be also fine.
 
 One particular characteristic of the metaseqR2 report is that all plots are
 interactive. This is achieved by using the standard graphics underlying data
-with libraries including (Highcharts)[https://www.highcharts.com/],
-(Plotly)[https://plot.ly/] and 
-(jvenn)[http://jvenn.toulouse.inra.fr/app/index.html] to create more 
+with libraries including [Highcharts](https://www.highcharts.com/),
+[Plotly](https://plot.ly/) and 
+[jvenn](http://jvenn.toulouse.inra.fr/app/index.html) to create more 
 user-friendly and directly explorable plots. Some instructions on the usage of
 these plots follow:
+
+* All plots are interactively **explorable**. This means that if you move your 
+mouse **inside** the plot area (a move called *mouse-over*), you can find 
+information on each single data point. This applies to all plots. More 
+specifically:
+  + In **scatterplots**, if you mouse-over each point, information about this 
+  point is presented, depending on the type of the plot. The data series from 
+  which the point comes from is also presented. For example, in a Volcano plot, 
+  fold change and significance, as well as the name of the gene and the data 
+  category (e.g. up-regulated) will be presented.
+  + In **barplots**, if you mouse-over each bar, information about this bar is 
+  presented, like the value it represents and the data series from which it
+  comes from. If the barplot contains groups of bars, then information about
+  each group is displayed. For example, in a Biodetection plot, each bar group
+  presents the percentage of a biotype in the examined genome, the percentage
+  in the sample and the detected percentage according to the read counts.
+  + In **boxplots**, if you mouse-over the boxes, the information about the 
+  underlying distribution are displayed (maximum, upper quartile, median, lower
+  quartile and minimum) as well as the data series. If you mouse-over an 
+  outlier, then information on this single point is presented (e.g. value).
+  + Some **barplots** have a **two** y-axis system corresponding to 
+  **different** measurements or scales. For example in the Biodetection 
+  barplots, the left y-axis presents abundant features while the right y-axis 
+  presents non-abundant features. In the Filtered barplot, y-axes present 
+  different values (numbers and fractions).
+  + **Line plots** can be mouse-overed too. Depending on the plot type, exact 
+  values may or may not be shown, depending on how important it is to display 
+  them, and to avoid over-crowding the plots. For example in the Reads noise 
+  plot, we are interested in the trend and not so much in exact values.
+  + **Heatmaps** can be mouse-overed too. Information on each heatmap cell will be
+  displayed.
+* All scatterplots and heatmaps are **zoomable**. You need to press the left 
+mouse button inside a plot area and draw a square area to zoom-in. If you wish 
+to reset the zoom, there is a **button** appearing for this when zooming-in.
+* Data series in scatterplots, barplots and boxplots can be **toggled** on or 
+off by **clicking** on the **legend** name of each data series which is placed 
+**below** each plot. For example, in the Volcano plot, if you click on the 
+name "Unregulated", then the respective data series will stop appearing in the 
+plot. You can bring it **back** by clicking the legend again.
+* All plots are **exportable**. On the **top right** corner of each scatterplot, 
+barplot and boxplot, there is a menu button with several functionalities, 
+including **exporting** in various formats and presenting the plot in 
+**full-screen** mode. For heatmaps, this functionality is offered by a set of 
+small buttons that appear if you mouse-over at the **top** of the heatmap.
+* In Venn diagrams, if you **click** on the **number** for each category, the 
+respective gene/transcript names will appear in the **box** on the right of the 
+diagram.
+* All plots can be **downloaded** in static formats (in formats according to 
+```metaseqr2``` call) from the Results section.
 
 metaseqR2 report has the following sections, depending also on which diagnostic
 and exploration plots have been asked from the run command. As plots are 
@@ -2091,8 +2140,11 @@ if ("deheatmap" %in% qcPlots) {
 	cat("<select id=\"heatmap_selector\">",items,"</select>",sep="")
 	cat("</div><br/><br/><br/>")
 	
-	hList <- vector("list",length(contrastList))
-	names(hList) <- names(contrastList)
+	#hList <- vector("list",length(contrastList))
+	hList <- vector("list",length(contrastList)*2)
+	#names(hList) <- names(contrastList)
+	hNames <- character(length(contrastList)*2)
+	hInd <- 0
 	for (cnt in names(contrastList)) {
 		s <- names(unlist(contrastList[[cnt]]))
 		if (is.na(pcut))
@@ -2106,7 +2158,15 @@ if ("deheatmap" %in% qcPlots) {
 			topg <- ceiling(reportTop*nrow(mat))
 			mat <- mat[1:topg,,drop=FALSE]
 		}
-		hList[[cnt]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
+		# As is scale
+		hInd <- hInd + 1
+		hList[[hInd]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
+			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt)) %>%
+			layout(width=720,height=840)
+		# z-scores
+		M <- t(scale(t(nat2log(mat))))
+		hInd <- hInd + 1
+		hList[[hInd]] <- heatmaply(M,trace="none",colors=bluered(64),
 			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt)) %>%
 			layout(width=720,height=840)
 	}

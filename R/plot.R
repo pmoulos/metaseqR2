@@ -150,8 +150,12 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
                 mat <- as.matrix(object[,match(samples,colnames(object))])
                 switch(p,
                     deheatmap = {
-                        files$deheatmap[[cnt]] <- diagplotDeHeatmap(mat,cnt,
-                            output=output,path=path)
+                        files$deheatmap[[cnt]] <- c(
+							diagplotDeHeatmap(mat,scale="asis",cnt,
+								output=output,path=path),
+							diagplotDeHeatmap(mat,scale="zscore",cnt,
+								output=output,path=path)
+						)
                     },
                     volcano = {
                         fc <- log2(makeFoldChange(cnt,sampleList,object,1))
@@ -1487,7 +1491,8 @@ diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
     }
 }
 
-diagplotDeHeatmap <- function(x,con=NULL,output="x11",path=NULL,...) {
+diagplotDeHeatmap <- function(x,scale=c("asis","zscore"),con=NULL,output="x11",
+	path=NULL,...) {
     if (is.null(path)) path <- getwd()
     if (is.null(con))
         con <- conn <- ""
@@ -1496,8 +1501,10 @@ diagplotDeHeatmap <- function(x,con=NULL,output="x11",path=NULL,...) {
         con <- paste("for ",con)
     }
     y <- nat2log(x,2,1)
+    if (scale == "zscore")
+		y <- t(scale(t(y)))
     # First plot the normal image
-    fil <- file.path(path,paste("de_heatmap_",conn,".",output,sep=""))
+    fil <- file.path(path,paste("de_heatmap_",conn,"_",scale,".",output,sep=""))
     if (output %in% c("pdf","ps","x11"))
         graphicsOpen(output,fil,width=10,height=10)
     else
