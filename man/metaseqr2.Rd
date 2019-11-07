@@ -44,7 +44,7 @@
             "pairwise", "boxplot", "gcbias", "lengthbias", 
             "meandiff", "meanvar", "rnacomp", "deheatmap", 
             "volcano", "mastat", "biodist", "statvenn", 
-            "foldvenn"),
+            "foldvenn", "deregulogram"),
         figFormat = c("png", "jpg", "tiff", "bmp", "pdf", "ps"),
         outList = FALSE, exportWhere = NA,
         exportWhat = c("annotation", "p_value", "adj_p_value", 

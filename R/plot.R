@@ -2,8 +2,8 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     pList=NULL,thresholds=list(p=0.05,f=1),plotType=c("mds","biodetection",
     "countsbio","saturation","readnoise","rnacomp","correl","pairs","boxplot",
     "gcbias","lengthbias","meandiff","meanvar","deheatmap","volcano","biodist",
-    "filtered","mastat","statvenn","foldvenn"),isNorm=FALSE,output="x11",
-    path=NULL,...) {
+    "filtered","mastat","deregulogram","statvenn","foldvenn"),isNorm=FALSE,
+    output="x11",path=NULL,...) {
     if (is(object,"GenomicRanges")) {
 		object <- as.data.frame(object)
 		object <- object[,c(1:3,6,7,5,8,9)]
@@ -18,20 +18,22 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
             "\"biodetection\", \"countsbio\",\"saturation\",\"rnacomp\", ",
             "\"readnoise\", \"biodist\", \"gcbias\", \"lengthbias\", ",
             "\"filtered\", \"statvenn\" or \"foldvenn\"!")
-    if (any(plotType %in% c("deheatmap","volcano","biodist","venn"))) {
+    if (any(plotType %in% c("deheatmap","volcano","biodist","mastat",
+		"deregulogram","statvenn","foldvenn"))) {
         if (is.null(contrastList))
             stopwrap("contrastList argument is needed when plotType is ",
-                "\"deheatmap\",\"volcano\", \"biodist\", \"statvenn\" or ",
-                "\"foldvenn\"!")
+                "\"deheatmap\",\"volcano\", \"biodist\", \"deregulogram\", ",
+                "\"mastat\", \"statvenn\" or \"foldvenn\"!")
         if (is.null(pList))
             stopwrap("The p argument which is a list of p-values for each ",
                 "contrast is needed when plotType is \"deheatmap\", ",
-                "\"volcano\", \"biodist\", \"statvenn\" or \"foldvenn\"!")
+                "\"volcano\", \"mastat\", \"biodist\", \"deregulogram\", ",
+                "\"statvenn\" or \"foldvenn\"!")
         if (is.na(thresholds$p) || is.null(thresholds$p) || thresholds$p==1) {
             warnwrap(paste("The p-value threshold when plotType is ",
-            "\"deheatmap\", \"volcano\", \"biodist\", \"statvenn\" or ",
-            "\"foldvenn\"! must allow the normal plotting of DEG diagnostic ",
-            "plots! Setting to 0.05..."))
+            "\"deheatmap\", \"volcano\", \"biodist\", \"mastat\", ",
+            "\"deregulogram\", \"statvenn\" or \"foldvenn\"! must allow ",
+            "the normal plotting of DEG diagnostic plots! Setting to 0.05..."))
             thresholds$p <- 0.05
         }
     }
@@ -63,7 +65,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     normPlots <- c("boxplot","gcbias","lengthbias","meandiff","meanvar",
         "rnacomp")
     statPlots <- c("deheatmap","volcano","mastat","biodist")
-    otherPlots <- c("filtered")
+    otherPlots <- c("filtered","deregulogram")
     vennPlots <- c("statvenn","foldvenn")
     files <- list()
     
@@ -170,10 +172,6 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
                         m <- log2(makeFoldChange(cnt,sampleList,object,1))
                         a <- makeA(cnt,sampleList,object,1)
                         for (contrast in colnames(m)) {
-                            #files$mastat[[contrast]] <- diagplotVolcano(
-                            #    fc[,contrast],pList[[cnt]],contrast,
-                            #    fcut=thresholds$f,pcut=thresholds$p,
-                            #    output=output,path=path)
                             files$mastat[[contrast]] <- diagplotMa(
                                 m[,contrast],a[,contrast],pList[[cnt]],
                                 contrast,fcut=thresholds$f,pcut=thresholds$p,
@@ -194,7 +192,25 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
                 filtered = {
                     files$filtered <- diagplotFiltered(object,annotation,
                         output=output,path=path)
-                }
+                },
+                deregulogram = {
+					cntPairs <- combn(names(contrastList),2)
+					files$deregulogram <- character(ncol(cntPairs))
+					for (i in 1:ncol(cntPairs)) {
+						fmat <- cbind(
+							log2(makeFoldChange(cntPairs[1,i],sampleList,
+								object,1))[,1,drop=FALSE],
+							log2(makeFoldChange(cntPairs[2,i],sampleList,
+								object,1))[,1,drop=FALSE]
+						)
+						pmat <- do.call("cbind",cpList[c(cntPairs[1,i],
+							cntPairs[2,i])])
+						colnames(pmat) <- colnames(fmat)
+						files$deregulogram[i] <- diagplotDeregulogram(fmat,pmat,
+							fcut=thresholds$f,pcut=thresholds$p,output=output,
+							path=path) 
+					}
+				}
             )
         }
         if (p %in% vennPlots) {
@@ -1501,8 +1517,6 @@ diagplotDeregulogram <- function(fmat,pmat,fcut=1,pcut=0.05,altNames=NULL,
 		colnames(fmat) <- colnames(pmat)
     if (!is.null(colnames(fmat) && is.null(colnames(pmat))))
 		colnames(pmat) <- colnames(fmat)
-    
-    
     
     fil <- file.path(path,paste("deregulogram_",
 		paste(colnames(fmat),collapse="__"),".",output,sep=""))

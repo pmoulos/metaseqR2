@@ -74,7 +74,7 @@ metaseqr2 <- function(
         "mds","biodetection","countsbio","saturation","readnoise","filtered",
         "correl","pairwise","boxplot","gcbias","lengthbias","meandiff",
         "meanvar","rnacomp","deheatmap","volcano","biodist","mastat","statvenn",
-        "foldvenn"
+        "foldvenn","deregulogram"
     ),
     figFormat=c("png","jpg","tiff","bmp","pdf","ps"),
     outList=FALSE,
@@ -408,7 +408,8 @@ metaseqr2 <- function(
         checkTextArgs("qcPlots",qcPlots,c("mds","biodetection","countsbio",
             "saturation","readnoise","correl","pairwise","boxplot","gcbias",
             "lengthbias","meandiff","meanvar","rnacomp","deheatmap","volcano",
-            "biodist","filtered","mastat","statvenn","foldvenn"),multiarg=TRUE)
+            "biodist","filtered","mastat","statvenn","foldvenn","deregulogram"),
+            multiarg=TRUE)
     if (!is.na(restrictCores)) checkNumArgs("restrictCores",restrictCores,
         "numeric",c(0,1),"botheq")
     if (!is.na(pcut)) 
@@ -528,6 +529,13 @@ metaseqr2 <- function(
 			"comparisons is possible only when more than one contrast defined!",
 			" Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "foldvenn")]
+    }
+    # Check if drawing a deregulogram for contrast pairs
+    if ("deregulogram" %in% qcPlots && length(contrast)==1) {
+        warnwrap("The creation of a deregulogram for pairwise statistical ",
+			"comparisons is possible only when more than one contrast defined!",
+			" Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "deregulogram")]
     }
     
     # Check additional input arguments for normalization and statistics
@@ -2238,8 +2246,8 @@ metaseqr2 <- function(
             assign("REPORT_ENV",REPORT_ENV,envir=.GlobalEnv)
             
             #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
 			invisible(knitr::knit_meta(class=NULL,clean=TRUE))

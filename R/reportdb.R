@@ -916,12 +916,6 @@
 		},prePmat)
 		names(pmat) <- algs
 		
-		## We need to construct a matrix with p-values for each contrast
-		#pmat <- do.call("cbind",lapply(sumpList,function(x) {
-		#	return(x[,1,drop=FALSE])
-		#}))
-		#colnames(pmat) <- names(sumpList)
-		
 		# We need to construct a matrix with fold changes for each contrast
 		fList <- vector("list",length(nn))
 		names(fList) <- nn
