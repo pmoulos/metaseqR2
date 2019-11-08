@@ -537,7 +537,8 @@ biotypes <- unique(as.character(geneData$biotype))
 qualPlots <- c("mds","biodetection","countsbio","saturation","readnoise",
 	"correl","pairwise","filtered")
 normPlots <- c("boxplot","gcbias","lengthbias","meandiff","meanvar","rnacomp")
-statPlots <- c("deheatmap","volcano","mastat","biodist","statvenn","foldvenn")
+statPlots <- c("deheatmap","volcano","mastat","biodist","statvenn","foldvenn",
+	"deregulogram")
 
 covarsRaw <- covarsStat <- NULL
 if (any(qcPlots %in% c("biodetection","countsbio","saturation","rnacomp",
@@ -2073,7 +2074,7 @@ if ("volcano" %in% qcPlots) {
 	nn <- names(contrastList)
 	namc <- character(0)
 	for (n in nn) {
-		fc <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+		fc <- log2(makeFoldChange(n,sampleList,normGenesExpr[1:3,],1))
 		for (contr in colnames(fc))
 			namc <- c(namc,contr)
 	}
@@ -2103,7 +2104,7 @@ if ("mastat" %in% qcPlots) {
 	nn <- names(contrastList)
 	namc <- character(0)
 	for (n in nn) {
-		m <- log2(makeFoldChange(n,sampleList,normGenesExpr,1))
+		m <- log2(makeFoldChange(n,sampleList,normGenesExpr[1:3,],1))
 		for (contr in colnames(m))
 			namc <- c(namc,contr)
 	}
@@ -2236,6 +2237,36 @@ if ("biodist" %in% qcPlots) {
 		"s</h4>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"biodist_biotype_container\"></div>",
 		sep="")
+}
+```
+
+```{r analysis_figures_deregulogram}
+if ("deregulogram" %in% qcPlots) {
+	pandoc.header("Deregulogram",level=3)
+	
+	cat("<h4><strong>Deregulograms</strong></h4>")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$deregulogram,
+	    "<br/><br/></div>",sep="")
+	
+	cntPairs <- combn(names(contrastList),2)
+	namc <- character(ncol(cntPairs))
+	counter <- 0
+	for (i in 1:ncol(cntPairs)) {
+		counter <- counter + 1
+		namc[counter] <- paste0(cntPairs[1,i],"__",cntPairs[2,i])
+	}
+	
+	# Create a selector for each pair of contrasts
+	items <- paste("<option value=",paste("deregulogram",namc,sep="_"),">",
+		gsub("__"," against ",namc),"</option>",sep="")
+	cat("<div>")
+	cat("<div class=\"hc-selector-label\">Select a pair of contrasts to ",
+		"display plot for </div>",sep="")
+	cat("<select id=\"deregulo_selector\">",items,"</select>",sep="")
+	cat("</div>")
+	
+	# Container div
+	cat("<div class=\"hc-rect-sm\" id=\"deregulo_container\"></div>",sep="")
 }
 ```
 
@@ -2663,6 +2694,12 @@ $("#mastat_selector").on('change',function() {
 		"mastat_container");
 });
 
+$("#deregulo_selector").on('change',function() {
+	var name = this.value;
+	getPlotFromDb({name: name,type: "deregulogram",subtype: "generic"},
+		"deregulo_container");
+});
+
 $("#heatmap_contrast_selector").on('change',function() {
 	var name = this.value;
 	var suffix = $("#heatmap_scale_selector").val();
@@ -2799,6 +2836,7 @@ $('#pairwise_selector').trigger('change');
 $('#meandiff_selector').trigger('change');
 $("#volcano_selector").trigger('change');
 $("#mastat_selector").trigger('change');
+$("#deregulo_selector").trigger('change');
 $("#biodist_selector").trigger('change');
 if ($("#statvenn_contrast_selector").length > 0) {
 	$("#statvenn_contrast_selector").trigger('change');

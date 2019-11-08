@@ -2559,6 +2559,19 @@ makeReportMessages <- function(lang) {
                  "it is) but someone is interested on actual expression and",
                  "fold change values instead.",collapse=" "
                  ),
+                deregulogram=paste(
+				"The de-regulogram is a scatterplot of fold changes between ",
+				"two different contrasts. It depicts whether the DEGs between",
+				"the two selected contrasts follow a concordant or discordant",
+				"regulatory pattern. For each (common) DEG, the x-axis and",
+				"y-axis represent the log<sub>2</sub> fold change of the two",
+				"contrasts. The location of each point along the four",
+				"quartiles can directly show its regulatory pattern in the two",
+				"comparisons. Therefore, the dots localized in the second or",
+				"the fourth quartile, illustrate DEGs with a common regulatory",
+				"pattern, while those localized in the first or third quartile",
+				"represent DEGs with opposite patterns of regulation."
+                 ),
                     biodist=paste(
                 "The chromosome and biotype distributions bar diagram for",
                 "Differentially Expressed Genes (DEGs) is split in two",

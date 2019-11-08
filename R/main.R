@@ -615,7 +615,10 @@ metaseqr2 <- function(
         for (n in names(libsizeList))
             disp("  ",paste(n,libsizeList[[n]],sep=": "))
     }
-    disp("Annotation: ",annotation)
+    if (!is.null(annotation) && !is.list(annotation))
+		disp("Annotation: ",annotation)
+	if (is.list(annotation))
+		disp("Annotation: user provided GTF file")
     disp("Organism: ",org)
     disp("Reference source: ",refdb)
     disp("Count type: ",countType)
@@ -716,8 +719,6 @@ metaseqr2 <- function(
         progressFun(detail=text)
     }
     ############################################################################
-	
-	# Somewhere here we must load and/or construct annotation
 	
 	# geneData are always required, unless annotation is embedded, where we
 	# need only geneData as embedded annotation is not allowed anywhere else
@@ -2064,7 +2065,7 @@ metaseqr2 <- function(
                 "correl","pairwise"),
             norm=c("boxplot","gcbias","lengthbias","meandiff","meanvar",
                 "rnacomp"),
-            stat=c("deheatmap","volcano","mastat","biodist"),
+            stat=c("deheatmap","volcano","mastat","biodist","deregulogram"),
             other=c("filtered"),
             venn=c("statvenn","foldvenn")
         )
@@ -2099,6 +2100,7 @@ metaseqr2 <- function(
                 pList=sumpList,thresholds=list(p=pcut,f=1),
                 plotType=intersect(qcPlots,plots$stat),isNorm=TRUE,
                 output=fig,path=PROJECT_PATH$statistics)
+
             if (!is.null(geneDataFiltered))
                 figOther[[fig]] <- metaseqrPlot(geneDataFiltered,
                     sampleList,annotation=totalGeneData,
@@ -2117,15 +2119,15 @@ metaseqr2 <- function(
         }
         
         ########################################################################
-        assign("sampleList",sampleList,envir=parent.frame())
-		assign("geneCounts",geneCounts,envir=parent.frame())
-		assign("normGenes",normGenes,envir=parent.frame())
-		assign("normGenesExpr",normGenes,envir=parent.frame())
-		assign("sumpList",sumpList,envir=parent.frame())
-		assign("cpList",cpList,envir=parent.frame())
-		assign("contrastList",contrastList,envir=parent.frame())
-		assign("geneData",geneData,envir=parent.frame())
-		assign("geneDataExpr",geneDataExpr,envir=parent.frame())
+        #assign("sampleList",sampleList,envir=parent.frame())
+		#assign("geneCounts",geneCounts,envir=parent.frame())
+		#assign("normGenes",normGenes,envir=parent.frame())
+		#assign("normGenesExpr",normGenes,envir=parent.frame())
+		#assign("sumpList",sumpList,envir=parent.frame())
+		#assign("cpList",cpList,envir=parent.frame())
+		#assign("contrastList",contrastList,envir=parent.frame())
+		#assign("geneData",geneData,envir=parent.frame())
+		#assign("geneDataExpr",geneDataExpr,envir=parent.frame())
 		########################################################################
     }
 
@@ -2352,7 +2354,7 @@ metaseqr2 <- function(
                     sumpList[[n]] <- c(sumpList[[n]],filler)
                     sumpList[[n]] <- sumpList[[n]][rownames(tmp)]
                 }
-           }
+            }
         }
         if (!is.null(adjSumpList)) {
            for (n in names(adjSumpList)) {

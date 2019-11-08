@@ -6,7 +6,8 @@
         level = c("gene", "transcript", "exon"),
 	    type = c("gene", "exon", "utr"), version="auto",
 	    db = file.path(system.file(package = "metaseqR2"),
-	        "annotation.sqlite"),summarized = FALSE, rc = NULL)
+	        "annotation.sqlite"),summarized = FALSE, 
+	        asdf = FALSE, rc = NULL)
 }
 \arguments{
     \item{genome}{a \code{\link{metaseqr2}} supported
@@ -28,6 +29,9 @@
     
     \item{db}{same as the \code{db} in 
     \code{\link{buildAnnotationDatabase}}.}
+    
+    \item{asdf}{return the result as a \code{\link{data.frame}}
+    (default \code{FALSE}).}
     
     \item{rc}{same as the \code{rc} in 
     \code{\link{buildAnnotationDatabase}}.}

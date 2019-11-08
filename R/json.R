@@ -2908,8 +2908,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         radius=3
                     ),
                     data=makeHighchartsPoints(
-                        x=fcmat[upupstat,1],
-                        y=fcmat[upupstat,2],
+                        x=fmat[upupstat,1],
+                        y=fmat[upupstat,2],
                         a=unname(altNames[upupstat])
                     )
                 )
@@ -2923,8 +2923,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         radius=3
                     ),
                     data=makeHighchartsPoints(
-                        x=fcmat[downdownstat,1],
-                        y=fcmat[downdownstat,2],
+                        x=fmat[downdownstat,1],
+                        y=fmat[downdownstat,2],
                         a=unname(altNames[downdownstat])
                     )
                 )
@@ -2938,8 +2938,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         radius=2
                     ),
                     data=makeHighchartsPoints(
-                        x=fcmat[upup,1],
-                        y=fcmat[upup,2],
+                        x=fmat[upup,1],
+                        y=fmat[upup,2],
                         a=unname(altNames[upup])
                     )
                 )
@@ -2953,8 +2953,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         radius=2
                     ),
                     data=makeHighchartsPoints(
-                        x=fcmat[downdown,1],
-                        y=fcmat[downdown,2],
+                        x=fmat[downdown,1],
+                        y=fmat[downdown,2],
                         a=unname(altNames[downdown])
                     )
                 )
@@ -2968,8 +2968,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         radius=3
                     ),
                     data=makeHighchartsPoints(
-                        x=fcmat[updownstat,1],
-                        y=fcmat[updownstat,2],
+                        x=fmat[updownstat,1],
+                        y=fmat[updownstat,2],
                         a=unname(altNames[updownstat])
                     )
                 )
@@ -2983,8 +2983,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         radius=3
                     ),
                     data=makeHighchartsPoints(
-                        x=fcmat[downupstat,1],
-                        y=fcmat[downupstat,2],
+                        x=fmat[downupstat,1],
+                        y=fmat[downupstat,2],
                         a=unname(altNames[downupstat])
                     )
                 )
@@ -2998,8 +2998,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         radius=2
                     ),
                     data=makeHighchartsPoints(
-                        x=fcmat[updown,1],
-                        y=fcmat[updown,2],
+                        x=fmat[updown,1],
+                        y=fmat[updown,2],
                         a=unname(altNames[updown])
                     )
                 )
@@ -3013,8 +3013,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         radius=2
                     ),
                     data=makeHighchartsPoints(
-                        x=fcmat[downup,1],
-                        y=fcmat[downup,2],
+                        x=fmat[downup,1],
+                        y=fmat[downup,2],
                         a=unname(altNames[downup])
                     )
                 )
@@ -3025,8 +3025,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                     name="Significant only",
                     color="#1F1F1F",
                     data=makeHighchartsPoints(
-                        x=fcmat[poor,1],
-                        y=fcmat[poor,2],
+                        x=fmat[poor,1],
+                        y=fmat[poor,2],
                         a=unname(altNames[poor])
                     )
                 )
@@ -3035,10 +3035,10 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                 counter <- counter + 1
                 series[[counter]] <- list(
                     name="Neutral",
-                    color="#606060",
+                    color="#00DADE",
                     data=makeHighchartsPoints(
-                        x=fcmat[neutral,1],
-                        y=fcmat[neutral,2],
+                        x=fmat[neutral,1],
+                        y=fmat[neutral,2],
                         a=unname(altNames[neutral])
                     )
                 )
@@ -3047,10 +3047,10 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                 counter <- counter + 1
                 series[[counter]] <- list(
                     name="No regulation",
-                    color="#A1A1A1",
+                    color="#CCCCCC",
                     data=makeHighchartsPoints(
-                        x=fcmat[nones,1],
-                        y=fcmat[nones,2],
+                        x=fmat[nones,1],
+                        y=fmat[nones,2],
                         a=unname(altNames[nones])
                     )
                 )
@@ -3062,7 +3062,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 				name="X up fold threshold",
 				color="#000000",
 				type="line",
-				dashStyle="dash",
+				dashStyle="Dash",
+				lineWidth=1,
 				marker=list(
 					enabled=FALSE
 				),
@@ -3072,7 +3073,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 					pointFormat=paste('<strong>Threshold: ',
 						'</strong>{point.x}<br/>',sep="")
 				),
-				data=list(round(c(fcut,ylim[1]),3),round(c(fcut,ylim[2]),3))
+				data=list(round(c(fcut,floor(ylim[1])),3),
+					round(c(fcut,ceiling(ylim[2])),3))
 			)
 			counter <- counter + 1
 			series[[counter]] <- list(
@@ -3080,6 +3082,7 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 				color="#000000",
 				type="line",
 				dashStyle="Dash",
+				lineWidth=1,
 				marker=list(
 					enabled=FALSE
 				),
@@ -3089,7 +3092,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 					pointFormat=paste('<strong>Threshold: ',
 						'</strong>{point.x}<br/>',sep="")
 				),
-				data=list(round(c(-fcut,ylim[1]),3),round(c(-fcut,ylim[2]),3))
+				data=list(round(c(-fcut,floor(ylim[1])),3),
+					round(c(-fcut,ceiling(ylim[2])),3))
 			)
 			counter <- counter + 1
 			series[[counter]] <- list(
@@ -3106,7 +3110,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 					pointFormat=paste('<strong>Threshold: ',
 						'</strong>{point.y}<br/>',sep="")
 				),
-				data=list(round(c(xlim[1],fcut),3),round(c(xlim[2],fcut),3))
+				data=list(round(c(floor(xlim[1]),fcut),3),
+					round(c(ceiling(xlim[2]),fcut),3))
 			)
 			counter <- counter + 1
 			series[[counter]] <- list(
@@ -3123,7 +3128,8 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 					pointFormat=paste('<strong>Threshold: ',
 						'</strong>{point.y}<br/>',sep="")
 				),
-				data=list(round(c(xlim[1],-fcut),3),round(c(xlim[2],-fcut),3))
+				data=list(round(c(floor(xlim[1]),-fcut),3),
+					round(c(ceiling(xlim[2]),-fcut),3))
 			)
         
             if (is.null(altNames))
@@ -3146,7 +3152,7 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 				),
 				xAxis=list(
 					title=list(
-						text=paste0("Fold change (log<sub>2</sub>)",conlabX)
+						text=paste0("Fold change (log<sub>2</sub>)",conlabX),
 						margin=20,
 						style=list(
 							color="#000000",
@@ -3170,7 +3176,7 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 				yAxis=list(
 					title=list(
 						useHTML=TRUE,
-						text=paste0("Fold change (log<sub>2</sub>)",conlabY)
+						text=paste0("Fold change (log<sub>2</sub>)",conlabY),
 						margin=25,
 						style=list(
 							color="#000000",

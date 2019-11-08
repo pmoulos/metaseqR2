@@ -578,7 +578,7 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 	type=c("gene","exon","utr"),version="auto",
 	db=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
-	summarized=FALSE,rc=NULL) {
+	summarized=FALSE,asdf=FALSE,rc=NULL) {
 	if (!require(RSQLite))
 		stop("R package RSQLite is required to load annotation from database!")
 	
@@ -627,9 +627,20 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 				version <- vers[1]
 			}
 			ann <- .loadPrebuiltAnnotation(con,genome,refdb,version,level,type,
-				summarized)
+				summarized,asdf)
 			dbDisconnect(con)
-			return(ann)
+			
+			if (asdf) {
+				a <- attr(ann,"activeLength")
+				ann <- as.data.frame(unname(ann))
+				ann <- ann[,c(1:3,6,7,5,8,9)]
+				names(ann)[1] <- "chromosome"
+				if (!is.null(a))
+					attr(ann,"activeLength") <- a
+				return(ann)
+			}
+			else
+				return(ann)
 		}
 	}
 	else
@@ -640,7 +651,18 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 			&& refdb %in% getSupportedRefDbs()) {
 			message("Getting latest annotation on the fly for ",genome," from ",
 				refdb)
-			return(.loadAnnotationOnTheFly(genome,refdb,level,type,rc))
+			ann <- .loadAnnotationOnTheFly(genome,refdb,level,type,rc)
+			if (asdf) {
+				a <- attr(ann,"activeLength")
+				ann <- as.data.frame(unname(ann))
+				ann <- ann[,c(1:3,6,7,5,8,9)]
+				names(ann)[1] <- "chromosome"
+				if (!is.null(a))
+					attr(ann,"activeLength") <- a
+				return(ann)
+			}
+			else
+				return(ann)
 		}
 		else {
 			stop("genome and refdb not in supported automatically download ",
@@ -1826,22 +1848,22 @@ ucscToEnsembl <- function() {
     return(list(
         hg18=67,
         hg19=74:75,
-        hg38=76:97,
+        hg38=76:98,
         mm9=67,
-        mm10=74:97,
+        mm10=74:98,
         rn5=74:79,
-        rn6=80:97,
+        rn6=80:98,
         dm3=c(67,74:78),
-        dm6=79:97,
+        dm6=79:98,
         danrer7=c(67,74:79),
         danrer10=80:91,
-        danrer11=92:97,
+        danrer11=92:98,
         pantro4=c(67,74:90),
-        pantro5=91:97,
+        pantro5=91:98,
         #pantro6=,
         susscr3=c(67,74:89),
-        susscr11=90:97,
-        equcab2=c(67,74:97)
+        susscr11=90:98,
+        equcab2=c(67,74:98)
     ))
 }
 

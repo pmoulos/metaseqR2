@@ -42,7 +42,7 @@ is rather simple). Furthermore, you can use the metaseqR2 annotation database
 and management mechanism for any other type of analysis where you require to 
 have a simple tab-delimited annotation file, acquired with very little effort.
 
-## Supported organisms
+# Supported organisms
 
 The following organisms (essentially genome versions) are supported for 
 automatic database builds:
@@ -65,6 +65,8 @@ automatic database builds:
 * Pig (*Sus scrofa*) genome version ```susScr11```
 * Arabidopsis (*Arabidobsis thaliana*) genome version ```TAIR10```
 
+# Using the local database
+
 ## Setup the database
 
 By default, the database file will be written in the
@@ -76,33 +78,223 @@ perform, otherwise, the pipeline will download and use annotations on-the-fly.
 
 In this vignette, we will build a minimal database comprising only the mouse
 ```mm9``` genome version from Ensembl. The database will be build in a temporary
-directory acquired by ```tempdir()```.
+directory inside session ```tempdir()```.
 
 ```{r example-1, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 library(metaseqR2)
 
-buildDir <- tempdir()
+buildDir <- file.path(tempdir(),"test_anndb")
+dir.create(buildDir)
+
+# The location of the custom database
+myDb <- file.path(buildDir,"testann.sqlite")
 
 # Since we are using Ensembl, we can also ask for a version
 organisms <- list(mm9=67)
 sources <- "ensembl"
 
 # If the example is not running in a multicore system, rc is ignored
-buildAnnotationDatabase(organisms,sources,forceDownload=FALSE,
-    db=file.path(buildDir,"testann.sqlite"),rc=0.5)
+buildAnnotationDatabase(organisms,sources,forceDownload=FALSE,db=myDb,rc=0.5)
 ```
 
 ## Use the database
 
 Now, that a small database is in place, let's retrieve some data. Remember that
 since the built database is not in the default location, we need to pass the
-database file in each data retrieval function.
+database file in each data retrieval function. The annotation is retrieved as
+a ```GRanges``` object by default.
 
 ```{r example-2, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
-genes <- loadAnnotation()
+# Load standard annotation based on gene body coordinates
+genes <- loadAnnotation(org="mm9",refdb="ensembl",level="gene",type="gene",
+	db=myDb)
+genes
 
+# Load standard annotation based on 3' UTR coordinates
+utrs <- loadAnnotation(org="mm9",refdb="ensembl",level="gene",type="utr",
+	db=myDb)
+utrs
 
-loadAnnotation(org,refdb,
-				level=transLevel,type=countType,version=version,db=localDb,
-				summarized=TRUE,rc=restrictCores)
+# Load summarized exon annotation based used with RNA-Seq analysis
+sumEx <- loadAnnotation(org="mm9",refdb="ensembl",level="gene",type="exon",
+	summarized=TRUE,db=myDb)
+sumEx
+
 ```
+
+Or you as a ```data.frame``` if you prefer using ```asdf=TRUE```. The 
+```data.frame``` however does not contain metadata like ```Seqinfo``` to be used
+for any susequent validations:
+
+```{r example-3, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+# Load standard annotation based on gene body coordinates
+genes <- loadAnnotation(org="mm9",refdb="ensembl",level="gene",type="gene",
+	db=myDb,asdf=TRUE)
+genes
+```
+
+## Add a custom annotation
+
+Apart from the supported organisms and databases, you can add a custom 
+annotation. Such an annotation can be: 
+
+* A non-supported organism (e.g. an insect or another mammal e.g. dog)
+* A modification or further curation you have done to existing/supported
+annotations
+* A supported organism but from a different source
+* Any other case where the provided annotations are not adequate
+
+This can be achieved through the usage of
+[GTF](https://www.ensembl.org/info/website/upload/gff.html) files, along with
+some simple metadata that you have to provide for proper import to the
+annotation database. This can be achieved through the usage of the
+```buildCustomAnnotation``` function. Details on required metadata can be found
+in the function's help page.
+
+Let's try a couple of exammples. The first one is a custom annotation for the
+Ebola virus from UCSC:
+
+```{r example-4, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+# Setup a temporary directory to download files etc.
+customDir <- file.path(tempdir(),"test_custom")
+dir.create(customDir)
+
+# Download data from UCSC
+goldenPath="http://hgdownload.cse.ucsc.edu/goldenPath/"
+# Gene annotation dump
+download.file(paste0(goldenPath,"eboVir3/database/ncbiGene.txt.gz"),
+	file.path(customDir,"eboVir3_ncbiGene.txt.gz"))
+# Chromosome information
+download.file(paste0(goldenPath,"eboVir3/database/chromInfo.txt.gz"),
+	file.path(customDir,"eboVir3_chromInfo.txt.gz"))
+
+# Prepare the build
+chromInfo <- read.delim(file.path(customDir,"eboVir3_chromInfo.txt.gz"),
+	header=FALSE)
+chromInfo <- chromInfo[,1:2]
+rownames(chromInfo) <- as.character(chromInfo[,1])
+chromInfo <- chromInfo[,2,drop=FALSE]
+
+# Build with the metadata list filled (you can also provide a version)
+buildCustomAnnotation(
+	gtfFile=file.path(customDir,"eboVir3_ncbiGene.txt.gz"),
+	metadata=list(
+		organism="eboVir3_test",
+		source="ucsc_test",
+		chromInfo=chromInfo
+	),
+	db=myDb
+)
+
+# Try to retrieve some data
+eboGenes <- loadAnnotation(org="eboVir3_test",refdb="ucsc_test",level="gene",
+	type="gene",db=myDb)
+eboGenes
+```
+
+Another example, the Atlantic cod from UCSC:
+
+```{r example-5, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+# Gene annotation dump
+download.file(paste0(goldenPath,"gadMor1/database/augustusGene.sql"),
+	file.path(customDir,"gadMori1_augustusGene.txt.gz"))
+# Chromosome information
+download.file(paste(goldenPath,"gadMor1/database/chromInfo.txt.gz",sep=""),
+	file.path(customDir,"gadMori1_chromInfo.txt.gz"))
+
+# Prepare the build
+chromInfo <- read.delim(file.path(customDir,"gadMori1_chromInfo.txt.gz"),
+	header=FALSE)
+chromInfo <- chromInfo[,1:2]
+rownames(chromInfo) <- as.character(chromInfo[,1])
+chromInfo <- chromInfo[,2,drop=FALSE]
+
+# Build with the metadata list filled (you can also provide a version)
+buildCustomAnnotation(
+	gtfFile=file.path(customDir,"gadMori1_augustusGene.txt.gz"),
+	metadata=list(
+		organism="gadMor1_test",
+		source="ucsc_test",
+		chromInfo=chromInfo
+	),
+	db=myDb
+)
+
+# Try to retrieve some data
+gadGenes <- loadAnnotation(org="gadMor1_test",refdb="ucsc_test",level="gene",
+	type="gene",db=myDb)
+eboGenes
+```
+
+## A complete build
+
+A quite complete build (with latest versions of Ensembl annotations) would look
+like (supposing the default annotation database location):
+
+```{r example-6, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+organisms <- list(
+	hg18=67,
+	hg19=75,
+	hg38=97:98,
+	mm9=67,
+	mm10=97:98,
+	rn5=79,
+	rn6=97:98,
+	dm3=78,
+	dm6=97:98,
+	danrer7=79,
+	danrer10=91,
+	danrer11=97:98,
+	pantro4=90,
+	pantro5=97:98,
+	susscr3=89,
+	susscr11=97:98,
+	equcab2=97:98
+)
+
+sources <- c("ensembl","ucsc","refseq")
+
+buildAnnotationDatabase(organisms,sources,forceDownload=FALSE,rc=0.5)
+```
+
+# Annotations on-the-fly
+
+If for some reason you do not want to build and use an annotation database for
+metaseqR2 analyses (not recommended) or you wish to perform an analysis with an
+organism that does not yet exist in the database, the ```loadAnnotation```
+function will perform all required actions (download and create a ```GRanges```
+object) on-the-fly as long as there is an internet connection. 
+
+However, ```loadAnnotation``` does not handle custom annotations in GTF files.
+In a scenario where you want to use a custom annotation only once, you should
+supply the ```annotation``` argument to the ```metaseqr2``` function, which is
+almost the same as the ```metadata``` argument used in 
+```buildCustomAnnotation```, actually augmented by a list member for the GTF
+file, that is:
+
+```
+annotation <- list(
+	gtf="PATH_TO_GTF"
+	organism="ORGANISM_NAME",
+	source="SOURCE_NAME",
+	chromInfo=CHROM_INFO
+)
+```
+
+or how it should look in a complete call:
+
+```
+metaseqr2(
+	...args...,
+	annotation=list(
+		gtf="PATH_TO_GTF"
+		organism="ORGANISM_NAME",
+		source="SOURCE_NAME",
+		chromInfo=CHROM_INFO
+	),
+	...args...
+)
+```
+
+For further details about custom annotations on the fly, please check
+```buildCustomAnnotation``` and ```importCustomAnnotation``` functions.

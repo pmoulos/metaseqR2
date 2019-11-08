@@ -72,7 +72,9 @@ protocol) which can be found towards the end of this page.
 Throughout the rest of this document, ```metaseqr2``` refers to the name of the  
 analysis pipeline while *metaseqR* refers to the name of the package.
 
-## Getting started
+# Getting started
+
+## Introduction
 
 ```{r load-library echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 library(metaseqR2)
@@ -154,8 +156,8 @@ library(metaseqR2)
 
 data("mm9GeneData",package="metaseqR2")
 
-outDir <- tempdir()
-print(outDir)
+# You can explore the results in the session's temporary directory
+print(tempdir())
 
 result <- metaseqr2(
 	counts=mm9GeneCounts,
@@ -173,7 +175,7 @@ result <- metaseqr2(
 	exportScale=c("natural","log2"),
 	exportValues="normalized",
 	exportStats=c("mean","sd","cv"),
-	exportWhere=out.dir,
+	exportWhere=file.path(tempdir(),"test1"),
 	restrictCores=0.8,
 	geneFilters=list(
 		 length=list(
@@ -214,9 +216,6 @@ library(metaseqR2)
 
 data("mm9GeneData",package="metaseqR2")
 
-outDir2 <- tempdir()
-print(outDir2)
-
 result <- metaseqr2(
 	counts=mm9GeneCounts,
 	sampleList=sampleListMm9,
@@ -236,7 +235,7 @@ result <- metaseqr2(
 	),
 	figFormat=c("png","pdf"),
 	preset="medium_normal",
-	exportWhere=outDir2,
+	exportWhere=file.path(tempdir(),"test2"),
 	outList=TRUE
 )
 ```
@@ -249,9 +248,6 @@ library(metaseqR2)
 
 data("mm9GeneData",package="metaseqR2")
 
-outDir3 <- tempdir()
-print(outDir3)
-
 result <- metaseqr2(
    counts=mm9GeneCounts,
    sampleList=sampleListMm9,
@@ -266,7 +262,7 @@ result <- metaseqr2(
    figFormat=c("png","pdf"),
    preset="medium_normal",
    outList=TRUE,
-   exportWhere=outDir3
+   exportWhere=file.path(tempdir(),"test3")
 )
 ```
 
@@ -277,9 +273,6 @@ library(metaseqR2)
 
 data("mm9GeneData",package="metaseqR2")
 
-outDir3 <- tempdir()
-print(outDir3)
-
 result <- metaseqr2(
    counts=mm9GeneCounts,
    sampleList=sampleListMm9,
@@ -294,7 +287,7 @@ result <- metaseqr2(
    figFormat=c("png","pdf"),
    preset="medium_normal",
    outList=TRUE,
-   exportWhere=outDir3
+   exportWhere=file.path(tempdir(),"test4")
 )
 ```
 
@@ -317,16 +310,13 @@ you can find a small (3 chromosomes) example dataset [here](https://drive.google
 ```{r example-4, eval=FALSE, echo=TRUE, tidy=FALSE}
 # A full example pipeline with exon counts
 
-outDir4 <- tempdir()
-print(outDir4)
-
 lnk <- "https://drive.google.com/uc?export=download&id=1AuFAJSGO3wwubH_Xq949ZHd_hB68wT3P"
-download.file(lnk,outDir4)
-unzip(file.path(outDir4,"3i4_data.zip"),exdir=outDir4,junkpaths=TRUE)
+download.file(lnk,tempdir())
+unzip(file.path(tempdir(),"3i4_data.zip"),exdir=outDir4,junkpaths=TRUE)
 
 targetsDf <- data.frame(
 	samplename=c("CON1","CON2","DOX1","DOX2"),
-	filename=dir(outDir4,pattern=".bam",full.names=TRUE),
+	filename=dir(tempdir(),pattern=".bam",full.names=TRUE),
 	condition=c("CON","CON","DOX","DOX"),
 	paired=rep("single",4),
 	stranded=rep("forward",4)
@@ -366,7 +356,7 @@ metaseqr2(
 		),
 		biotype=getDefaults("biotypeFilter","hg19")
 	),
-	exportWhere=outDir4
+	exportWhere=file.path(tempdir(),"test5")
 )
 ```
 
@@ -386,7 +376,7 @@ sampleList=targetsDf,
 	statistics="deseq",
 	preset="medium_normal",
 	restrictCores=0.8,
-	exportWhere=outDir4
+	exportWhere=file.path(tempdir(),"test6")
 )
 ```
 
@@ -418,7 +408,7 @@ weights <- estimateAufcWeights(
 weights
 ```
 
-## metaseqR2 components
+# metaseqR2 components
 
 The metaseqR2 package includes several functions which are responsible for 
 running each part of the pipeline (data reading and summarization, filtering, 
@@ -455,3 +445,7 @@ all its parameters can be obtained by
 ```{r help-3, eval=FALSE, echo=TRUE}
 help(metaseqr2)
 ```
+
+# The report
+
+Write about sqlite and dexie.

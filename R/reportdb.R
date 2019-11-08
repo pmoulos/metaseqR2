@@ -994,7 +994,7 @@
 			pmat <- do.call("cbind",sumpList[c(cntPairs[1,i],
 				cntPairs[2,i])])
 			colnames(pmat) <- colnames(fmat)
-			json[[counter]] <- diagplotDeregulogram(fmat,pmat,fcut=1,pcut=pcut,
+			json[[counter]] <- diagplotDeregulogram(fmat,pmat,fcut=0.3,pcut=pcut,
 				output="json")
 		}
 		for (i in 1:length(json)) {

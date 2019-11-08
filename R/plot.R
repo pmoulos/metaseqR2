@@ -64,8 +64,8 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
         "correl","pairwise")
     normPlots <- c("boxplot","gcbias","lengthbias","meandiff","meanvar",
         "rnacomp")
-    statPlots <- c("deheatmap","volcano","mastat","biodist")
-    otherPlots <- c("filtered","deregulogram")
+    statPlots <- c("deheatmap","volcano","mastat","biodist","deregulogram")
+    otherPlots <- c("filtered")
     vennPlots <- c("statvenn","foldvenn")
     files <- list()
     
@@ -147,7 +147,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
         }
         if (p %in% statPlots && isNorm) {
             for (cnt in names(contrastList)) {
-            disp("  Contrast: ",cnt)                
+				disp("  Contrast: ",cnt)                
                 samples <- names(unlist(contrastList[[cnt]]))
                 mat <- as.matrix(object[,match(samples,colnames(object))])
                 switch(p,
@@ -186,31 +186,31 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
                     }
                 )
             }
+            if ("deregulogram" %in% statPlots) {
+				cntPairs <- combn(names(contrastList),2)
+				files$deregulogram <- character(ncol(cntPairs))
+				for (i in 1:ncol(cntPairs)) {
+					fmat <- cbind(
+						log2(makeFoldChange(cntPairs[1,i],sampleList,
+							object,1))[,1,drop=FALSE],
+						log2(makeFoldChange(cntPairs[2,i],sampleList,
+							object,1))[,1,drop=FALSE]
+					)
+					pmat <- do.call("cbind",pList[c(cntPairs[1,i],
+						cntPairs[2,i])])
+					colnames(pmat) <- colnames(fmat)
+					files$deregulogram[i] <- diagplotDeregulogram(fmat,pmat,
+						fcut=thresholds$f,pcut=thresholds$p,output=output,
+						path=path) 
+				}
+			}
         }
         if (p %in% otherPlots) {
             switch(p,
                 filtered = {
                     files$filtered <- diagplotFiltered(object,annotation,
                         output=output,path=path)
-                },
-                deregulogram = {
-					cntPairs <- combn(names(contrastList),2)
-					files$deregulogram <- character(ncol(cntPairs))
-					for (i in 1:ncol(cntPairs)) {
-						fmat <- cbind(
-							log2(makeFoldChange(cntPairs[1,i],sampleList,
-								object,1))[,1,drop=FALSE],
-							log2(makeFoldChange(cntPairs[2,i],sampleList,
-								object,1))[,1,drop=FALSE]
-						)
-						pmat <- do.call("cbind",pList[c(cntPairs[1,i],
-							cntPairs[2,i])])
-						colnames(pmat) <- colnames(fmat)
-						files$deregulogram[i] <- diagplotDeregulogram(fmat,pmat,
-							fcut=thresholds$f,pcut=thresholds$p,output=output,
-							path=path) 
-					}
-				}
+                }
             )
         }
         if (p %in% vennPlots) {
@@ -1507,15 +1507,15 @@ diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
     }
 }
 
-diagplotDeregulogram <- function(fmat,pmat,fcut=1,pcut=0.05,altNames=NULL,
+diagplotDeregulogram <- function(fmat,pmat,fcut=0.5,pcut=0.05,altNames=NULL,
     output="x11",path=NULL,...) { # output can be json here...
     if (is.null(path)) path <- getwd()
     # colnames of at least one of fmat, pmat must be given
-    if (is.null(colnames(fmat) && is.null(colnames(pmat))))
+    if (is.null(colnames(fmat)) && is.null(colnames(pmat)))
 		stopwrap("At least fmat or pmat must have column names!")
-	if (is.null(colnames(fmat) && !is.null(colnames(pmat))))
+	if (is.null(colnames(fmat)) && !is.null(colnames(pmat)))
 		colnames(fmat) <- colnames(pmat)
-    if (!is.null(colnames(fmat) && is.null(colnames(pmat))))
+    if (!is.null(colnames(fmat)) && is.null(colnames(pmat)))
 		colnames(pmat) <- colnames(fmat)
     
     fil <- file.path(path,paste("deregulogram_",
@@ -1526,6 +1526,23 @@ diagplotDeregulogram <- function(fmat,pmat,fcut=1,pcut=0.05,altNames=NULL,
         else
             graphicsOpen(output,fil,width=1024,height=768,res=100)
     }
+    
+    # Ensure order/subsets
+    fmat <- fmat[rownames(pmat),]
+    # Fix problem with extremely low p-values, only for display purposes though
+    pZero <- which(pmat==0)
+    if (length(pZero)>0)
+        pmat[pZero] <- runif(length(pZero),0,1e-256)
+        
+    # Remove non-signicant always
+    allbad <- which(apply(pmat,1,function(x) all(x>=pcut)))
+    if (length(allbad) > 0) {
+		pmat <- pmat[-allbad,]
+		fmat <- fmat[-allbad,]
+	}
+        
+    ylim <- c(-max(abs(fmat[,2])),max(abs(fmat[,2])))
+    xlim <- c(-max(abs(fmat[,1])),max(abs(fmat[,1])))
     
     if (output!="json") {
 		# red
