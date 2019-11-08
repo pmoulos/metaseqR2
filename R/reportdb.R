@@ -404,6 +404,28 @@
 					paste0("fold_",d),toJSON(json,auto_unbox=TRUE,null="null"))
 		}
 	}
+	
+	if ("deregulogram" %in% qcPlots) {
+		disp("  Importing deregulogram")
+		cntPairs <- combn(names(contrastList),2)
+		for (i in 1:ncol(cntPairs)) {
+			disp("    ",cntPairs[1,i]," and ",cntPairs[2,i])
+			namc <- paste0(cntPairs[1,i],"__",cntPairs[2,i])
+			fmat <- cbind(
+				log2(makeFoldChange(cntPairs[1,i],sampleList,
+					normGenesExpr,1))[,1,drop=FALSE],
+				log2(makeFoldChange(cntPairs[2,i],sampleList,
+					normGenesExpr,1))[,1,drop=FALSE]
+			)
+			pmat <- do.call("cbind",sumpList[c(cntPairs[1,i],
+				cntPairs[2,i])])
+			colnames(pmat) <- colnames(fmat)
+			json <- diagplotDeregulogram(fmat,pmat,pcut=pcut,fcut=1,
+				output="json")
+			.dbImportPlot(con,paste("deregulogram",namc,sep="_"),"deregulogram",
+				"generic",json)
+		}
+	}
 
 	# Close SQLite connection
 	dbDisconnect(con)
@@ -950,6 +972,39 @@
 					json=jsonList[[n]][[d]]
 				)
 			}
+		}
+	}
+	
+	if ("deregulogram" %in% qcPlots) {
+		disp("  Importing deregulogram")
+		cntPairs <- combn(names(contrastList),2)
+		json <- vector("list",ncol(cntPairs))
+		namc <- character(ncol(cntPairs))
+		counter <- 0
+		for (i in 1:ncol(cntPairs)) {
+			counter <- counter + 1
+			disp("    ",cntPairs[1,i]," and ",cntPairs[2,i])
+			namc[counter] <- paste0(cntPairs[1,i],"__",cntPairs[2,i])
+			fmat <- cbind(
+				log2(makeFoldChange(cntPairs[1,i],sampleList,
+					normGenesExpr,1))[,1,drop=FALSE],
+				log2(makeFoldChange(cntPairs[2,i],sampleList,
+					normGenesExpr,1))[,1,drop=FALSE]
+			)
+			pmat <- do.call("cbind",sumpList[c(cntPairs[1,i],
+				cntPairs[2,i])])
+			colnames(pmat) <- colnames(fmat)
+			json[[counter]] <- diagplotDeregulogram(fmat,pmat,fcut=1,pcut=pcut,
+				output="json")
+		}
+		for (i in 1:length(json)) {
+			listIndex <- listIndex + 1
+			plots[[listIndex]] <- list(
+				name=paste("deregulogram",namc[i],sep="_"),
+				type="deregulogram",
+				subtype="generic",
+				json=fromJSON(json[[i]])
+			)
 		}
 	}
 	

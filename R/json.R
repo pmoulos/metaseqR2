@@ -2622,8 +2622,8 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     #stat <- obj$user$stat
     
     conlab <- strsplit(con,"_vs_")
-    #conlab <- paste(conlab[[1]][1],"against",conlab[[1]][2])
-    conlab <- paste(conlab[[1]][2],"against",conlab[[1]][1])
+    conlab <- paste(conlab[[1]][1],"against",conlab[[1]][2])
+    #conlab <- paste(conlab[[1]][2],"against",conlab[[1]][1])
     #statMap <- .getStatMap()
     #statlab <- statMap[[stat]]
    
@@ -2821,6 +2821,396 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 						#	legendItemClick=paste("function() {",
 						#		"return false; }")
 						#),
+						tooltip=list(
+							headerFormat=paste("<span style=",
+								"\"font-size:1.1em;color:{series.color};",
+								"font-weight:bold\">{series.name}<br>",
+								sep=""),
+							pointFormat=point.format
+						),
+						turboThreshold=50000
+					)
+				),
+				series=series
+			)
+        }
+    )
+    if (out == "json")
+		return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else if (out == "list")
+		return(json)
+}
+
+dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
+    jl <- tolower(jl[1])
+    out <- out[1]
+    
+    xlim <- obj$xlim
+    ylim <- obj$ylim
+    pcut <- obj$pcut
+    fcut <- obj$fcut
+    altNames <- obj$altnames
+    fmat <- obj$user$fmat
+    pmat <- obj$user$pmat
+    
+    conlabX <- strsplit(colnames(fmat)[1],"_vs_")
+    conlabX <- paste(conlabX[[1]][1],"against",conlabX[[1]][2])
+    conlabY <- strsplit(colnames(fmat)[2],"_vs_")
+    conlabY <- paste(conlabY[[1]][1],"against",conlabY[[1]][2])
+    
+    # red
+	upupstat <- which(apply(fmat,1,function(x) all(x >= fcut)) &
+		apply(pmat,1,function(x) all(x < pcut)))
+	# green
+	downdownstat <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
+		apply(pmat,1,function(x) all(x < pcut)))
+	# red3
+	upup <- which(apply(fmat,1,function(x) all(x >= fcut)) &
+		apply(pmat,1,function(x) any(x >= pcut)))
+	# green3
+	downdown <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
+		apply(pmat,1,function(x) any(x >= pcut)))
+	# orange
+	updownstat <- which(apply(fmat,1,
+		function(x) x[1] >= fcut & x[2] <= -fcut) &
+			apply(pmat,1,function(x) all(x < pcut)))
+	# blue
+	downupstat <- which(apply(fmat,1,
+		function(x) x[1] <= -fcut & x[2] >= fcut) &
+			apply(pmat,1,function(x) all(x < pcut)))
+	# orange3
+	updown <- which(apply(fmat,1,function(x) x[1] >= fcut & x[2] <= -fcut) &
+		apply(pmat,1,function(x) any(x >= pcut)))
+	# blue3
+	downup <- which(apply(fmat,1,function(x) x[1] <= -fcut & x[2] >= fcut) &
+		apply(pmat,1,function(x) any(x >= pcut)))
+	# black
+	poor <- which(apply(pmat,1,function(x) all(x < pcut)) &
+		apply(fmat,1,function(x) any(abs(x) < fcut)))
+	# gray70
+	nones <- which(apply(pmat,1,function(x) any(x >= pcut)) &
+		apply(fmat,1,function(x) all(abs(x) < fcut)))
+	# gray40
+	neutral <- setdiff(1:nrow(fmat),
+		Reduce("union",list(upupstat,downdownstat,upup,downdown,updownstat,
+			downupstat,updown,downup,poor,nones)))
+    
+    switch(jl,
+        highcharts = {
+            series <- list()
+            counter <- 0
+            if (length(upupstat)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Significantly both up-regulated",
+                    color="#EE0000",
+                    marker=list(
+                        radius=3
+                    ),
+                    data=makeHighchartsPoints(
+                        x=fcmat[upupstat,1],
+                        y=fcmat[upupstat,2],
+                        a=unname(altNames[upupstat])
+                    )
+                )
+            }
+            if (length(downdownstat)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Significantly both down-regulated",
+                    color="#00EE00",
+                    marker=list(
+                        radius=3
+                    ),
+                    data=makeHighchartsPoints(
+                        x=fcmat[downdownstat,1],
+                        y=fcmat[downdownstat,2],
+                        a=unname(altNames[downdownstat])
+                    )
+                )
+            }
+            if (length(upup)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Both up-regulated",
+                    color="#B80000",
+                    marker=list(
+                        radius=2
+                    ),
+                    data=makeHighchartsPoints(
+                        x=fcmat[upup,1],
+                        y=fcmat[upup,2],
+                        a=unname(altNames[upup])
+                    )
+                )
+            }
+            if (length(downdown)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Both down-regulated",
+                    color="#008000",
+                    marker=list(
+                        radius=2
+                    ),
+                    data=makeHighchartsPoints(
+                        x=fcmat[downdown,1],
+                        y=fcmat[downdown,2],
+                        a=unname(altNames[downdown])
+                    )
+                )
+            }
+            if (length(updownstat)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Significantly up-down-regulated",
+                    color="#FFB700",
+                    marker=list(
+                        radius=3
+                    ),
+                    data=makeHighchartsPoints(
+                        x=fcmat[updownstat,1],
+                        y=fcmat[updownstat,2],
+                        a=unname(altNames[updownstat])
+                    )
+                )
+            }
+            if (length(downupstat)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Significantly down-up-regulated",
+                    color="#0000FF",
+                    marker=list(
+                        radius=3
+                    ),
+                    data=makeHighchartsPoints(
+                        x=fcmat[downupstat,1],
+                        y=fcmat[downupstat,2],
+                        a=unname(altNames[downupstat])
+                    )
+                )
+            }
+            if (length(updown)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Up-down-regulated",
+                    color="#C68100",
+                    marker=list(
+                        radius=2
+                    ),
+                    data=makeHighchartsPoints(
+                        x=fcmat[updown,1],
+                        y=fcmat[updown,2],
+                        a=unname(altNames[updown])
+                    )
+                )
+            }
+            if (length(downup)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Down-up-regulated",
+                    color="#0000AB",
+                    marker=list(
+                        radius=2
+                    ),
+                    data=makeHighchartsPoints(
+                        x=fcmat[downup,1],
+                        y=fcmat[downup,2],
+                        a=unname(altNames[downup])
+                    )
+                )
+            }
+            if (length(poor)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Significant only",
+                    color="#1F1F1F",
+                    data=makeHighchartsPoints(
+                        x=fcmat[poor,1],
+                        y=fcmat[poor,2],
+                        a=unname(altNames[poor])
+                    )
+                )
+            }
+            if (length(neutral)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="Neutral",
+                    color="#606060",
+                    data=makeHighchartsPoints(
+                        x=fcmat[neutral,1],
+                        y=fcmat[neutral,2],
+                        a=unname(altNames[neutral])
+                    )
+                )
+            }
+            if (length(nones)>0) {
+                counter <- counter + 1
+                series[[counter]] <- list(
+                    name="No regulation",
+                    color="#A1A1A1",
+                    data=makeHighchartsPoints(
+                        x=fcmat[nones,1],
+                        y=fcmat[nones,2],
+                        a=unname(altNames[nones])
+                    )
+                )
+            }
+            
+            # Add fold lines
+            counter <- counter + 1
+            series[[counter]] <- list(
+				name="X up fold threshold",
+				color="#000000",
+				type="line",
+				dashStyle="dash",
+				marker=list(
+					enabled=FALSE
+				),
+				tooltip=list(
+					headerFormat=paste('<strong>{series.name}',
+						'</strong><br/>',sep=""),
+					pointFormat=paste('<strong>Threshold: ',
+						'</strong>{point.x}<br/>',sep="")
+				),
+				data=list(round(c(fcut,ylim[1]),3),round(c(fcut,ylim[2]),3))
+			)
+			counter <- counter + 1
+			series[[counter]] <- list(
+				name="X down fold threshold",
+				color="#000000",
+				type="line",
+				dashStyle="Dash",
+				marker=list(
+					enabled=FALSE
+				),
+				tooltip=list(
+					headerFormat=paste('<strong>{series.name}',
+						'</strong><br/>',sep=""),
+					pointFormat=paste('<strong>Threshold: ',
+						'</strong>{point.x}<br/>',sep="")
+				),
+				data=list(round(c(-fcut,ylim[1]),3),round(c(-fcut,ylim[2]),3))
+			)
+			counter <- counter + 1
+			series[[counter]] <- list(
+				name="Y up fold threshold",
+				color="#000000",
+				type="line",
+				dashStyle="Dash",
+				marker=list(
+					enabled=FALSE
+				),
+				tooltip=list(
+					headerFormat=paste('<strong>{series.name}',
+						'</strong><br/>',sep=""),
+					pointFormat=paste('<strong>Threshold: ',
+						'</strong>{point.y}<br/>',sep="")
+				),
+				data=list(round(c(xlim[1],fcut),3),round(c(xlim[2],fcut),3))
+			)
+			counter <- counter + 1
+			series[[counter]] <- list(
+				name="Y down fold threshold",
+				color="#000000",
+				type="line",
+				dashStyle="Dash",
+				marker=list(
+					enabled=FALSE
+				),
+				tooltip=list(
+					headerFormat=paste('<strong>{series.name}',
+						'</strong><br/>',sep=""),
+					pointFormat=paste('<strong>Threshold: ',
+						'</strong>{point.y}<br/>',sep="")
+				),
+				data=list(round(c(xlim[1],-fcut),3),round(c(xlim[2],-fcut),3))
+			)
+        
+            if (is.null(altNames))
+                point.format=paste("<strong>Gene ID: </strong>{point.name}<br>",
+                    "<strong>Fold change X: </strong>{point.x}<br>",
+                    "<strong>Fold change Y: </strong>{point.y}<br>",sep="")
+            else
+                point.format=paste("<strong>Gene name: </strong>",
+                    "{point.alt_name}<br>",
+                    "<strong>Gene ID: </strong>{point.name}<br>",
+                    "<strong>Fold change X: </strong>{point.x}<br>",
+                    "<strong>Fold change Y: </strong>{point.y}<br>",sep="")
+                json <- list(
+					chart=list(
+					type="scatter",
+					zoomType="xy"
+				),
+				title=list(
+					text=paste("Deregulogram")
+				),
+				xAxis=list(
+					title=list(
+						text=paste0("Fold change (log<sub>2</sub>)",conlabX)
+						margin=20,
+						style=list(
+							color="#000000",
+							fontSize="1.2em"
+						)
+					),
+					labels=list(
+						style=list(
+							color="#000000",
+							fontSize="1.1em",
+							fontWeight="bold"
+						)
+					),
+					startOnTick=TRUE,
+					endOnTick=TRUE,
+					showLastLabel=TRUE,
+					gridLineWidth=1,
+					min=round(xlim[1],3),
+					max=round(xlim[2],3)
+				),
+				yAxis=list(
+					title=list(
+						useHTML=TRUE,
+						text=paste0("Fold change (log<sub>2</sub>)",conlabY)
+						margin=25,
+						style=list(
+							color="#000000",
+							fontSize="1.2em"
+						)
+					),
+					labels=list(
+						style=list(
+							color="#000000",
+							fontSize="1.1em",
+							fontWeight="bold"
+						)
+					),
+					startOnTick=TRUE,
+					endOnTick=TRUE,
+					showLastLabel=TRUE,
+					gridLineWidth=1,
+					min=round(ylim[1],3),
+					max=round(ylim[2],3)
+				),
+				plotOptions=list(
+					scatter=list(
+						allowPointSelect=TRUE,
+						marker=list(
+							radius=2,
+							symbol="circle",
+							states=list(
+								hover=list(
+									enabled=TRUE,
+									lineColor="#333333"
+								)
+							)
+						),
+						states=list(
+							hover=list(
+								marker=list(
+									enabled=FALSE
+								)
+							)
+						),
 						tooltip=list(
 							headerFormat=paste("<span style=",
 								"\"font-size:1.1em;color:{series.color};",
