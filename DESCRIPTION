@@ -29,6 +29,8 @@ Imports:
     rmdformats,
     RSQLite,
     htmltools,
+    rmarkdown,
+    heatmaply,
     pander,
     DT
 Suggests:

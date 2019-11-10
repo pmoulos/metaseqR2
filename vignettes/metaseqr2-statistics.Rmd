@@ -201,7 +201,7 @@ result <- metaseqr2(
 To get a glimpse on the results, run:
 
 ```{r head-2, eval=TRUE, echo=TRUE}
-head(result[["data"]][["e14.5_vs_adult_8_weeks"]])
+head(result[["data"]][["adult_8_weeks_vs_e14.5"]])
 ```
 
 You may also want to check the interactive HTML report generated in the output 
@@ -222,6 +222,12 @@ result <- metaseqr2(
 	contrast=c("adult_8_weeks_vs_e14.5"),
 	libsizeList=libsizeListMm9,
 	annotation="embedded",
+	embedCols=list(
+		idCol=4,
+		gcCol=5,
+		nameCol=8,
+		btCol=7
+    ),
 	org="mm9",
 	countType="gene",
 	whenApplyFilter="prenorm",
@@ -231,7 +237,7 @@ result <- metaseqr2(
 	qcPlots=c(
 		"mds","biodetection","countsbio","saturation","readnoise","filtered",
 		"correl","pairwise","boxplot","gcbias","lengthbias","meandiff",
-		"meanvar","rnacomp","deheatmap","volcano","mastat","biodist","venn"
+		"meanvar","rnacomp","deheatmap","volcano","mastat","biodist","statvenn"
 	),
 	figFormat=c("png","pdf"),
 	preset="medium_normal",
@@ -249,20 +255,26 @@ library(metaseqR2)
 data("mm9GeneData",package="metaseqR2")
 
 result <- metaseqr2(
-   counts=mm9GeneCounts,
-   sampleList=sampleListMm9,
-   contrast=c("adult_8_weeks_vs_e14.5"),
-   libsizeList=libsizeListMm9,
-   annotation="embedded",
-   org="mm9",
-   countType="gene",
-   normalization="edaseq",
-   statistics=c("deseq","edger"),
-   metaP="fisher",
-   figFormat=c("png","pdf"),
-   preset="medium_normal",
-   outList=TRUE,
-   exportWhere=file.path(tempdir(),"test3")
+	counts=mm9GeneCounts,
+	sampleList=sampleListMm9,
+	contrast=c("adult_8_weeks_vs_e14.5"),
+	libsizeList=libsizeListMm9,
+	annotation="embedded",
+	embedCols=list(
+		idCol=4,
+		gcCol=5,
+		nameCol=8,
+		btCol=7
+	),
+	org="mm9",
+	countType="gene",
+	normalization="edaseq",
+	statistics=c("deseq","edger"),
+	metaP="fisher",
+	figFormat=c("png","pdf"),
+	preset="medium_normal",
+	outList=TRUE,
+	exportWhere=file.path(tempdir(),"test3")
 )
 ```
 
@@ -274,20 +286,26 @@ library(metaseqR2)
 data("mm9GeneData",package="metaseqR2")
 
 result <- metaseqr2(
-   counts=mm9GeneCounts,
-   sampleList=sampleListMm9,
-   contrast=c("adult_8_weeks_vs_e14.5"),
-   libsizeList=libsizeListMm9,
-   annotation="embedded",
-   org="mm9",
-   countType="gene",
-   normalization="edaseq",
-   statistics=c("deseq","edger"),
-   metaP="fisher",
-   figFormat=c("png","pdf"),
-   preset="medium_normal",
-   outList=TRUE,
-   exportWhere=file.path(tempdir(),"test4")
+	counts=mm9GeneCounts,
+	sampleList=sampleListMm9,
+	contrast=c("adult_8_weeks_vs_e14.5"),
+	libsizeList=libsizeListMm9,
+	annotation="embedded",
+	embedCols=list(
+		idCol=4,
+		gcCol=5,
+		nameCol=8,
+		btCol=7
+	),
+	org="mm9",
+	countType="gene",
+	normalization="edaseq",
+	statistics=c("deseq","edger"),
+	metaP="fisher",
+	figFormat=c("png","pdf"),
+	preset="medium_normal",
+	outList=TRUE,
+	exportWhere=file.path(tempdir(),"test4")
 )
 ```
 
@@ -448,4 +466,154 @@ help(metaseqr2)
 
 # The report
 
-Write about sqlite and dexie.
+In the end of each ```metaseqr2``` pipeline run, a detailed HTML report of the
+procedure and the findings is produced. Apart from description of the process,
+all the input parameters and other data related to the differential expression
+analysis, the report contains a lot of interactive graphs. Specifically, all the
+quality control and result inspection plots are interactive. This is achieved
+by making extensive use of the JavaScript libraries 
+[Highcharts](https://www.highcharts.com/), [Plotly](https://plot.ly/) and 
+[jvenn](http://jvenn.toulouse.inra.fr/app/index.html) to create more 
+user-friendly and directly explorable plots. By default ```metaseqr2``` produces
+all available diagnostic plots, according always to input. For example, if the
+```biotype``` feature is not available in a case where 
+```annotation="embedded"```, plots like ```biodetection``` and ```countsbio```
+will not be available. If all diagnostic plots are not required, a selection can
+be made with the ```qcPlots``` argument, possibly making the report "lighter"
+and less browser-demanding.
+
+The HTML report creation mechanism is through the packages ```rmarkdown``` and
+```knitr```. This means that the [Pandoc](https://pandoc.org/) libraries must be
+installed. A lot of details on this can be found in Pandoc's website as well as
+knitr and rmarkdown websites and guides. Although the generic mechanism is more
+computationally demanding than standard HTML (e.g. using ```brew``` as in the
+previous metaseqR), the results are mor standardized, cross-platform and fully
+reproducible.
+
+During development, we found out that ```knitr``` faces certain difficulties in
+our settings, that is embedding a lot of predefined graphs in ```JSON``` format
+and all required libraries and data in a single HTML page. This situation led to
+crashes because of memory usage and of course, very large HTML files. We 
+resolved this by using (according to usage scenario and where the report is
+intended to be seen):
+
+1. A flavor of [IndexedDB](https://javascript.info/indexeddb) called 
+[Dexie](https://dexie.org/)
+2. A JavaScript port of SQLite called 
+[sql.js](https://github.com/kripken/sql.js/)
+
+Regarding case (1), ```IndexedDB``` is a modern technology to create simple,
+in-browser object databases which has several usages, but mostly to avoid the
+burden of synchronously loading big-sized objects at the same time of simple 
+HTML rendering. ```IndexedDB``` is supported by all modern browser and is
+essentially a replacement for ```localStorage``` which had space limitations. 
+```Dexie``` is a simple interface to ```IndexedDB```. Thus, all the plot data
+are created and stored in ```Dexie``` for rendering when needed. This rendering
+method can be used both when the report is seen as a stand-alone document,
+locally, without the presence of a web server or internet connection, and is the
+default method.
+
+Regarding case (2), all the predefined plot data are stored in a report-specific 
+SQLite database which is then queried using ```sql.js```. This way can be chosen
+when it is known that the report will be presented through a web server (e.g. 
+Apache) as in any other case, modern web browser (except MS Edge) do not allow
+by default opening local files from an HTML page for security reasons. Also,
+```sql.js``` is quite large as a library (altough downloaded once for recurring
+reports). This method produces slightly smaller files but is slightly slower.
+Using ```Dexie``` is the preferred and safest method for both scenarios.
+
+In both cases, the ```JSON``` used for Highcharts and jvenn plots is placed in
+```data/reportdb.js``` when using ```Dexie``` or ```data/reportdb.sqlite```
+when using ```sql.js```. Experienced users can then open these files and tweak
+the plots as desired. The above paths are relative to the report's location
+```exportWhere``` aruments.
+
+metaseqR2 report has the following sections, depending also on which diagnostic
+and exploration plots have been asked from the run command. As plots are 
+categorized, if no plot from a specific category is asked, then this category
+will not appear. Below, the categories:
+
+## Summary
+
+The Summary section is further categorized in several subsections. Specifically:
+
+* Analysis summary: This section contains an auto-generated text that 
+analytically describes the computational process followed and summarized the
+results of each step. This text can be used as is or with slight modifications
+in a _Methods_ section of an article.
+* Input options: This section provides a list of the input arguments to the
+pipeline in a more human-readable format.
+* Filtering: This section reports in detail the number of filtered genes
+decomposed according to the number of genes removed by each applied filter.
+* Differential expression: This section reports in detail the number of
+differentially expressed genes for each contrast, both when using only a p-value
+cutoff as well as an FDR cutoff (numbers in parentheses), that is, genes passing
+the multiple testing correction procedure selected. These numbers also are 
+calculated based on a simple fold change cutoff in log<sub>2</sub> scale. 
+Finally, when multiple algorithms are used with p-value combination, this
+section reports all the findings analytically per algorithm.
+* Command: This section contains the command used to run the ```metaseqr2```
+pipeline for users that want to experiment.
+* Run log: This section contains critical messages displayed within the
+```R``` session running ```metaseqr2``` displayed as a log.
+
+## Quality control 
+
+The Quality control section contains several interactive plots concerning the 
+overall quality control of each sample provided as well as overall assessments. 
+The quality control plots are the Multidimensional Scaling (MDS) plot, the 
+Biotypes detection (Biodetection) plot, the Biotype abundance (Countsbio) plot, 
+the Read saturation (Saturation) plot, the Read noise (ReadNoise) plot, the 
+Correlation heatmap (Correlation), the Pairwise sample scatterplots (Pairwise) 
+and the Filtered entities (Filtered) plot. Each plot is accompanied by a 
+detailed description of what it depicts. Where multiple plot are available (e.g. 
+one for each sample), a selection list on the top of the respective  section 
+allows the selection of the sample to be displayed.
+
+## Normalization
+
+The Normalization section contains several interactive plots that can be used to 
+inspect and assess the normalization procedure. Therefore, normalization plots 
+are usually paired, showing the same data instance normalized and not 
+normalized. The normalization plots are the Expression boxplots (Boxplots)
+plots, the GC content bias (GC bias) plots, the Gene length bias (Length bias) 
+plots, the Within condition mean-difference (Mean-Difference) plots, the 
+Mean-variance relationship (Mean-Variance) plot and the RNA composition (Rna 
+composition) plot. Each plot is accompanied by a detailed description of what it 
+depicts. Where multiple plot are available (e.g. one for each sample), a 
+selection list on the top of the respective section allows the selection of the 
+sample to be displayed.
+
+## Statistics
+
+The Statistics section contains several interactive plots that can be used to 
+inspect and explore the outcome of statistical testing procedures. The 
+statistics plots are the Volcano plot (Volcano), the MA or Mean-Difference 
+across conditions (MA) plot, the Expression heatmap (Heatmap) plot, the 
+Chromosome and biotype distributions (Biodist) plot, the Venn diagram across 
+statistical tests (StatVenn), the Venn diagram across contrasts (FoldVenn) and
+the Deregulogram. Each plot is accompanied by a detailed description of what it 
+depicts. Please note that the heatmap plots show only the top percentage of 
+differentially expressed genes as this is controlled by the ```reportTop``` 
+parameter of the ```metaseqr2``` pipeline. When multiple plots are available 
+(e.g. one for each contrast), a selection list on the top of the respective 
+section allows the selection of the sample to be displayed.
+
+## Results
+
+The Results section contains a snapshot of the differentially expressed genes in
+table format with basic information about each gene and some links to external 
+resources. Certain columns of the table are colored according to significance. 
+Larger bars and more intense colors indicate higher significance. For example, 
+bar in the *p_value* column is larger if the genes has higher statistical 
+significance and the fold change cell background is bright red if the gene is 
+highly up-regulated. From the **Results** section, full gene lists can be 
+downloaded in text tab-delimited format and viewed with a spreadsheet
+application like MS Excel. A selector on the top of the section above the table
+allows the display of different contrasts.
+
+## References
+
+The References section contains bibliographical references regading the
+algorihtms used by the ```metaseqr2``` pipeline and is adjusted according to the
+algorithms selected. 

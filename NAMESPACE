@@ -66,6 +66,7 @@ importFrom("log4r",warn)
 
 importFrom("DT",datatable)
 importFrom("pander",pandoc.header)
+importFrom("render",rmarkdown)
 
 export(metaseqr2)
 export(buildAnnotationDatabase)

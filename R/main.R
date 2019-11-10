@@ -535,7 +535,7 @@ metaseqr2 <- function(
         warnwrap("The creation of a deregulogram for pairwise statistical ",
 			"comparisons is possible only when more than one contrast defined!",
 			" Removing from figures list...")
-        qcPlots <- qcPlots[-which(qcPlots == "deregulogram")]
+		qcPlots <- qcPlots[-which(qcPlots == "deregulogram")]
     }
     
     # Check additional input arguments for normalization and statistics
@@ -2155,6 +2155,7 @@ metaseqr2 <- function(
 			sumpList=sumpList,
 			pcut=pcut,
 			metaP=metaP,
+			whenApplyFilter=whenApplyFilter,
 			PROJECT_PATH=PROJECT_PATH
 		)
 		if (reportDb == "sqlite")
@@ -2248,8 +2249,8 @@ metaseqr2 <- function(
             assign("REPORT_ENV",REPORT_ENV,envir=.GlobalEnv)
             
             #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
 			invisible(knitr::knit_meta(class=NULL,clean=TRUE))

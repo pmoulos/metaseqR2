@@ -78,6 +78,7 @@
 	sumpList <- obj$sumpList
 	pcut <- obj$pcut
 	metaP <- obj$metaP
+	whenApplyFilter <- obj$whenApplyFilter
 	PROJECT_PATH <- obj$PROJECT_PATH
 	
 	samples <- unlist(sampleList)
@@ -211,10 +212,12 @@
 	}
 	if ("gcbias" %in% qcPlots) {
 		disp("  Importing gcbias...")
-		covar <- as.numeric(geneData$gc_content)
-		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
+		covarRaw <- as.numeric(geneData$gc_content)
+		# Covers whenApplyFilter="prenorm" case
+		covarNorm <- as.numeric(geneData[rownames(normGenes)]$gc_content)
+		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covarRaw,
 			isNorm=FALSE,whichPlot="gcbias",output="json")
-		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
+		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covarNorm,
 			isNorm=TRUE,whichPlot="gcbias",output="json")
 		.dbImportPlot(con,"GCBias","gcbias","unorm",jsonUnorm)
 		.dbImportPlot(con,"GCBias","gcbias","norm",jsonNorm)
@@ -222,10 +225,12 @@
 
 	if ("lengthbias" %in% qcPlots) {
 		disp("  Importing lengthbias...")
-		covar <- width(geneData)
-		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
+		covarRaw <- as.numeric(geneData$gc_content)
+		# Covers whenApplyFilter="prenorm" case
+		covarNorm <- as.numeric(geneData[rownames(normGenes)]$gc_content)
+		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covarRaw,
 			isNorm=FALSE,whichPlot="lengthbias",output="json")
-		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
+		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covarNorm,
 			isNorm=TRUE,whichPlot="lengthbias",output="json")
 		.dbImportPlot(con,"LengthBias","lengthbias","unorm",jsonUnorm)
 		.dbImportPlot(con,"LengthBias","lengthbias","norm",jsonNorm)
@@ -263,7 +268,8 @@
 				whichPlot="rnacomp",isNorm=FALSE,output="json")
 		})
 		cap2 <- capture.output({
-			jsonNorm <- diagplotNoiseq(normGenes,sampleList,covars=covarsRaw,
+			jsonNorm <- diagplotNoiseq(normGenes,sampleList,
+				covars=if (whenApplyFilter=="prenorm") covarsStat else covarsRaw,
 				whichPlot="rnacomp",isNorm=TRUE,output="json")
 		})
 		.dbImportPlot(con,"RnaComp","rnacomp","unorm",jsonUnorm)
@@ -446,6 +452,7 @@
 	sumpList <- obj$sumpList
 	pcut <- obj$pcut
 	metaP <- obj$metaP
+	whenApplyFilter <- obj$whenApplyFilter
 	PROJECT_PATH <- obj$PROJECT_PATH
 	
 	samples <- unlist(sampleList)
@@ -650,10 +657,12 @@
 	
 	if ("gcbias" %in% qcPlots) {
 		disp("  Importing gcbias...")
-		covar <- as.numeric(geneData$gc_content)
-		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
+		covarRaw <- as.numeric(geneData$gc_content)
+		# Covers whenApplyFilter="prenorm" case
+		covarNorm <- as.numeric(geneData[rownames(normGenes)]$gc_content)
+		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covarRaw,
 			isNorm=FALSE,whichPlot="gcbias",output="json")
-		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
+		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covarNorm,
 			isNorm=TRUE,whichPlot="gcbias",output="json")
 		listIndex <- listIndex + 1
 		plots[[listIndex]] <- list(
@@ -673,10 +682,12 @@
 
 	if ("lengthbias" %in% qcPlots) {
 		disp("  Importing lengthbias...")
-		covar <- width(geneData)
-		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covar,
+		covarRaw <- width(geneData[rownames(geneCounts)])
+		# Covers whenApplyFilter="prenorm" case
+		covarNorm <- as.numeric(geneData[rownames(normGenes)]$gc_content)
+		jsonUnorm <- diagplotEdaseq(geneCounts,sampleList,covar=covarRaw,
 			isNorm=FALSE,whichPlot="lengthbias",output="json")
-		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covar,
+		jsonNorm <- diagplotEdaseq(normGenes,sampleList,covar=covarNorm,
 			isNorm=TRUE,whichPlot="lengthbias",output="json")
 		listIndex <- listIndex + 1
 		plots[[listIndex]] <- list(
@@ -754,7 +765,8 @@
 				whichPlot="rnacomp",isNorm=FALSE,output="json")
 		})
 		cap2 <- capture.output({
-			jsonNorm <- diagplotNoiseq(normGenes,sampleList,covars=covarsRaw,
+			jsonNorm <- diagplotNoiseq(normGenes,sampleList,
+				covars=if (whenApplyFilter=="prenorm") covarsStat else covarsRaw,
 				whichPlot="rnacomp",isNorm=TRUE,output="json")
 		})
 		listIndex <- listIndex + 1

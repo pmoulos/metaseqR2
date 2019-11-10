@@ -712,14 +712,14 @@ statistics plots are the *Volcano plot* (**Volcano**), the
 *MA or Mean-Difference across conditions* (**MA**) plot, the 
 *Expression heatmap* (**Heatmap**) plot, the 
 *Chromosome and biotype distributions* (**Biodist**) plot, the
-*Venn diagram across statistical tests* (**StatVenn**) and the 
-*Venn diagram across contrasts* (**FoldVenn**). Each plot is accompanied by a 
-detailed description of what it depicts. Please note that the heatmap plots
-show only the top percentage of differentially expressed genes as this is
-controlled by the ```reportTop``` parameter of the ```metaseqr2``` pipeline.
-When multiple plot are available (e.g. one for each contrast), a selection list 
-on the top of the respective section allows the selection of the sample to be 
-displayed.
+*Venn diagram across statistical tests* (**StatVenn**), the 
+*Venn diagram across contrasts* (**FoldVenn**) and the *Deregulogram*. Each plot 
+is accompanied by a detailed description of what it depicts. Please note that 
+the heatmap plots show only the top percentage of differentially expressed genes 
+as this is controlled by the ```reportTop``` parameter of the ```metaseqr2``` 
+pipeline. When multiple plots are available (e.g. one for each contrast), a 
+selection list on the top of the respective section allows the selection of the 
+sample to be displayed.
 
 ## Results
 

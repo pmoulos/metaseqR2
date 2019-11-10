@@ -186,7 +186,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
                     }
                 )
             }
-            if ("deregulogram" %in% statPlots) {
+            if ("deregulogram" %in% plotType) {
 				cntPairs <- combn(names(contrastList),2)
 				files$deregulogram <- character(ncol(cntPairs))
 				for (i in 1:ncol(cntPairs)) {
@@ -627,6 +627,8 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
 	}
     if (is.null(covar)) 
 		covar <- rep(NA,nrow(x))
+	#if (!is.null(names(covar)))
+	#	x <- x[names(covar),,drop=FALSE]
     s <- newSeqExpressionSet(as.matrix(x),phenoData=AnnotatedDataFrame(
         data.frame(conditions=asClassVector(sampleList),
         row.names=colnames(x))),featureData=AnnotatedDataFrame(data.frame(
@@ -1163,7 +1165,6 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
 			}
 			else {
 				dataList <- deplot(dummy,chromosomes=NULL,q=biodistOpts$pcut)
-				assign("dataList",dataList,envir=.GlobalEnv)
 				
 				colnames(x) <- unlist(sampleList)
                 obj <- list(
@@ -1852,8 +1853,6 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
         algs <- algs[1:5]
         nalg <- 5
     }
-    
-    assign("pmat",pmat,envir=.GlobalEnv)
     
     lenalias <- c("two","three","four","five")
     aliases <- toupper(letters[1:nalg])
