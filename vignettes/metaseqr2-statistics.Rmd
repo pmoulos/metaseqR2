@@ -323,25 +323,35 @@ setting ```restrictCores``` to something like ```0.2```. Generally, although the
 ```metaseqR2``` gene model construction process from exon data is much faster
 and memory-efficient now, it requires some caution especially for large
 experiments. As example BAM files do not fit within the Bioconductor package,
-you can find a small (3 chromosomes) example dataset [here](https://drive.google.com/uc?export=download&id=1AuFAJSGO3wwubH_Xq949ZHd_hB68wT3P)
+you can find a small (3 chromosomes) example dataset
+[here](https://drive.google.com/uc?export=download&id=1AuFAJSGO3wwubH_Xq949ZHd_hB68wT3P).
+The reference genome for this example is hg19. If you have already buit a
+metaseqR2 annotation database, please provide it with the ```localDb```
+argument, otherwise, an on-the-fly annotation will be downloaded and constructed
+for this example.
 
 ```{r example-4, eval=FALSE, echo=TRUE, tidy=FALSE}
 # A full example pipeline with exon counts
 
+# Download sample data
 lnk <- "https://drive.google.com/uc?export=download&id=1AuFAJSGO3wwubH_Xq949ZHd_hB68wT3P"
-download.file(lnk,tempdir())
-unzip(file.path(tempdir(),"3i4_data.zip"),exdir=outDir4,junkpaths=TRUE)
+download.file(lnk,file.path(tempdir(),"test_data.zip"))
+unzip(file.path(tempdir(),"test_data.zip"),exdir=tempdir(),junkpaths=TRUE)
 
+# Construct targets file
 targetsDf <- data.frame(
 	samplename=c("CON1","CON2","DOX1","DOX2"),
-	filename=dir(tempdir(),pattern=".bam",full.names=TRUE),
+	filename=dir(tempdir(),pattern=".bam$",full.names=TRUE),
 	condition=c("CON","CON","DOX","DOX"),
 	paired=rep("single",4),
 	stranded=rep("forward",4)
 )
+targetsFile <- file.path(tempdir(),"targets.txt")
+write.table(targetsDf,file=targetsFile,sep="\t",quote=FALSE,row.names=FALSE)
 
+# Run the pipeline
 metaseqr2(
-	sampleList=targetsDf,
+	sampleList=targetsFile,
 	contrast="DOX_vs_CON",
 	org="hg19",
 	countType="exon",

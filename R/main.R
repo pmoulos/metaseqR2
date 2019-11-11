@@ -168,10 +168,10 @@ metaseqr2 <- function(
     fromRaw <- fromPrevious <- FALSE
     if (missing(counts) && (missing(sampleList) || is.list(sampleList)))
         stop("You must provide a file with genomic region (gene, exon, etc.) ",
-            "counts or an input targets file to create input from! If the ",
-            "counts file is missing, sampleList cannot be missing or it must ",
-            "be a targets file with at least three columns! See the ",
-            "readTargets function. counts may also be a gene model list ",
+            "counts\nor an input targets file to create input from! If the ",
+            "counts file is\nmissing, sampleList cannot be missing or it must ",
+            "be a targets file\nwith at least three columns! See the ",
+            "readTargets function.\ncounts may also be a gene model list ",
             "(see the documentation)")
     if (!missing(counts) && !missing(sampleList) && is.character(counts) 
         && file.exists(counts) && length(grep(".RData$",counts))>0) {
@@ -2249,8 +2249,8 @@ metaseqr2 <- function(
             assign("REPORT_ENV",REPORT_ENV,envir=.GlobalEnv)
             
             #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+            file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
 			invisible(knitr::knit_meta(class=NULL,clean=TRUE))
