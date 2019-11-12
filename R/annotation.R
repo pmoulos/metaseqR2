@@ -1,3 +1,4 @@
+#FIXME: Finalize 3' UTR active length
 buildAnnotationDatabase <- function(organisms,sources,
     #db=file.path(path.expand("~"),".metaseqR","annotation.sqlite"),
     db=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
@@ -208,6 +209,8 @@ buildAnnotationDatabase <- function(organisms,sources,
 						" version ",v)
                     annGr <- reduceTranscripts(annGr)
                     ann <- as.data.frame(annGr)
+                    #annList <- reduceTranscripts(annGr)
+                    #ann <- as.data.frame(annList$model)
 					ann <- ann[,c(1:3,6,7,5,8,9)]
 					names(ann)[1] <- "chromosome"
 					ann$chromosome <- as.character(ann$chromosome)
@@ -223,6 +226,19 @@ buildAnnotationDatabase <- function(organisms,sources,
 						append=TRUE)
 					dbWriteTable(con,"seqinfo",sfSumUtr,row.names=FALSE,
 						append=TRUE)
+					
+					#activeLength <- annList$length
+                    #nr <- .dropAnnotation(con,o,s,v,"active_utr_length")
+                    #nr <- .insertContent(con,o,s,v,"active_utr_length")
+                    #nid <- .annotationExists(con,o,s,v,"active_utr_length",
+					#	out="id")
+					#active <- data.frame(
+					#	name=names(activeLength),
+					#	length=activeLength,
+					#	content_id=rep(nid,length(activeLength))
+					#)
+                    #dbWriteTable(con,"active_utr_length",active,row.names=FALSE,
+					#	append=TRUE)
                 }
                 
                 # Then summarize the 3'utrs per transcript and write again with 
@@ -342,6 +358,7 @@ buildAnnotationDatabase <- function(organisms,sources,
     dbDisconnect(con)
 }
 
+#FIXME: Finalize 3' UTR active length
 # GTF only!
 buildCustomAnnotation <- function(gtfFile,metadata,
 	db=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
@@ -675,7 +692,14 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 	summarized=FALSE) {
 	metaType <- .annotationTypeFromInputArgs(level,type,summarized)
 	cid <- .annotationExists(con,genome,refdb,version,metaType,out="id")
+	if (metaType == "summarized_exon")
+		tName <- "active_length"
+	else if (metaType == "summarized_3utr")
+		tName <- "active_utr_length"
+	else if (metaType == "summarized_3utr_transcript")
+		tName <- "active_trans_utr_length"
 	cida <- .annotationExists(con,genome,refdb,version,"active_length",out="id")
+		
 	querySet <- .makeAnnotationQuerySet(metaType,cid,cida)
 	
 	preAnn <- dbGetQuery(con,querySet$main)
@@ -753,7 +777,7 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 					annGr <- annList$model
 					names(annGr) <- as.character(annGr$exon_id)
 					activeLength <- annList$length
-					names(activeLength) <- unique(sexon$gene_id)
+					names(activeLength) <- unique(annGr$gene_id)
 					attr(annGr,"activeLength") <- activeLength
 				},
 				utr = {
@@ -769,6 +793,12 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 					message("Merging 3' UTRs for ",genome," from ",refdb)
 					annGr <- reduceTranscripts(tmpGr)
 					names(annGr) <- as.character(annGr$transcript_id)
+					#annList <- reduceExons(tmpGr)
+					#annGr <- annList$model
+					#names(annGr) <- as.character(annGr$transcript_id)
+					#activeLength <- annList$length
+					#names(activeLength) <- unique(annGr$gene_id)
+					#attr(annGr,"activeLength") <- activeLength
 				}
 			)
 		},
@@ -803,6 +833,12 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 					message("Merging 3' UTRs for ",genome," from ",refdb)
 					annGr <- reduceTranscriptsUtr(annGr)
 					names(annGr) <- as.character(annGr$transcript_id)
+					#annList <- reduceExons(tmpGr)
+					#annGr <- annList$model
+					#names(annGr) <- as.character(annGr$transcript_id)
+					#activeLength <- annList$length
+					#names(activeLength) <- unique(annGr$transcript_id)
+					#attr(annGr,"activeLength") <- activeLength
 				}
 			)
 		},
@@ -1125,7 +1161,14 @@ reduceTranscripts <- function(gr) {
     )
     mcols(grNew) <- newMeta
     
+    ## grNew is the GRanges to return. In order to get the activeLength, we split
+    ## again per gene_id in a temp variable
+    #tmp <- split(grNew,grNew$gene_id)
+    #tmp <- tmp[gene]
+    #len <- sapply(width(tmp),sum)
+    
     return(grNew)
+    #return(list(model=grNew,length=len))
 }
 
 reduceTranscriptsUtr <- function(gr) {
@@ -1176,7 +1219,14 @@ reduceTranscriptsUtr <- function(gr) {
     )
     mcols(grNew) <- newMeta
     
+    ## grNew is the GRanges to return. In order to get the activeLength, we split
+    ## again per gene_id in a temp variable
+    #tmp <- split(grNew,grNew$gene_id)
+    #tmp <- tmp[trans]
+    #len <- sapply(width(tmp),sum)
+    
     return(grNew)
+    #return(list(model=grNew,length=len))
 }
 
 reduceExons <- function(gr) {

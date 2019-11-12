@@ -2861,18 +2861,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
 			");"
 		),
-		active_length=paste(
-			"CREATE TABLE IF NOT EXISTS active_length (",
-			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
-			"name TEXT,",
-			"length INTEGER,",
-			#"source TEXT,",
-			#"organism TEXT,",
-			#"version INTEGER,",
-			"content_id INTEGER NOT NULL,",
-			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
-			");"
-		),
 		gene=paste(
 			"CREATE TABLE IF NOT EXISTS gene (",
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
@@ -2884,9 +2872,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"strand TEXT,",
 			"gene_name TEXT,",
 			"biotype TEXT,",
-			#"source TEXT,",
-			#"organism TEXT,",
-			#"version INTEGER,",
 			"content_id INTEGER NOT NULL,",
 			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
 			");"
@@ -2902,9 +2887,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"strand TEXT,",
 			"gene_name TEXT,",
 			"biotype TEXT,",
-			#"source TEXT,",
-			#"organism TEXT,",
-			#"version INTEGER,",
 			"content_id INTEGER NOT NULL,",
 			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
 			");"
@@ -2920,9 +2902,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"strand TEXT,",
 			"gene_name TEXT,",
 			"biotype TEXT,",
-			#"source TEXT,",
-			#"organism TEXT,",
-			#"version INTEGER,",
 			"content_id INTEGER NOT NULL,",
 			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
 			");"
@@ -2938,9 +2917,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"strand TEXT,",
 			"gene_name TEXT,",
 			"biotype TEXT,",
-			#"source TEXT,",
-			#"organism TEXT,",
-			#"version INTEGER,",
 			"content_id INTEGER NOT NULL,",
 			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
 			");"
@@ -2956,9 +2932,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"strand TEXT,",
 			"gene_name TEXT,",
 			"biotype TEXT,",
-			#"source TEXT,",
-			#"organism TEXT,",
-			#"version INTEGER,",
 			"content_id INTEGER NOT NULL,",
 			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
 			");"
@@ -2974,9 +2947,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"strand TEXT,",
 			"gene_name TEXT,",
 			"biotype TEXT,",
-			#"source TEXT,",
-			#"organism TEXT,",
-			#"version INTEGER,",
 			"content_id INTEGER NOT NULL,",
 			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
 			");"
@@ -2992,9 +2962,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"strand TEXT,",
 			"gene_name TEXT,",
 			"biotype TEXT,",
-			#"source TEXT,",
-			#"organism TEXT,",
-			#"version INTEGER,",
 			"content_id INTEGER NOT NULL,",
 			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
 			");"
@@ -3010,9 +2977,33 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 			"strand TEXT,",
 			"gene_name TEXT,",
 			"biotype TEXT,",
-			#"source TEXT,",
-			#"organism TEXT,",
-			#"version INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		active_length=paste(
+			"CREATE TABLE IF NOT EXISTS active_length (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"name TEXT,",
+			"length INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		active_utr_length=paste(
+			"CREATE TABLE IF NOT EXISTS active_utr_length (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"name TEXT,",
+			"length INTEGER,",
+			"content_id INTEGER NOT NULL,",
+			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
+			");"
+		),
+		active_trans_utr_length=paste(
+			"CREATE TABLE IF NOT EXISTS active_trans_utr_length (",
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+			"name TEXT,",
+			"length INTEGER,",
 			"content_id INTEGER NOT NULL,",
 			"FOREIGN KEY(content_id) REFERENCES content(_id) ON DELETE CASCADE",
 			");"
@@ -3027,6 +3018,12 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 	if (t == "summarized_exon" && !is.null(j))
 		activeQuery <- paste("SELECT * FROM active_length WHERE content_id=",
 			j,sep="")
+	else if (t == "summarized_3utr" && !is.null(j))
+		activeQuery <- paste("SELECT * FROM active_utr_length WHERE ",
+			"content_id=",j,sep="")
+	else if (t == "summarized_3utr_transcript" && !is.null(j))
+		activeQuery <- paste("SELECT * FROM active_trans_utr_length WHERE ",
+			"content_id=",j,sep="")
 	return(list(
 		main=mainQuery,
 		seqinfo=seqInfoQuery,

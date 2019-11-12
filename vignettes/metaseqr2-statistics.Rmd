@@ -392,11 +392,8 @@ or in a more simplified version
 
 ```{r example-5, eval=FALSE, echo=TRUE, tidy=FALSE}
 # A full example pipeline with exon counts
-data("hg19.exon.data",package="metaseqR")
-out.dir <- tempdir()
-print(out.dir)
-metaseqr(
-sampleList=targetsDf,
+metaseqr2(
+	sampleList=targetsFile,
 	contrast="DOX_vs_CON",
 	org="hg19",
 	countType="exon",
