@@ -36,16 +36,18 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
         dd <- D$simdata
         
         if (!is.null(modelOrg)) {
-            tmp <- metaseqr(
+            tmp <- metaseqr2(
                 counts=dd,
                 sampleList=list(G1=paste("G1_rep",1:samples[1],sep=""),
                     G2=paste("G2_rep",1:samples[2],sep="")),
                 contrast=c("G1_vs_G2"),
                 annotation="embedded",
-                idCol=4,
-                gcCol=5,
-                nameCol=7,
-                btCol=8,
+                embedCols=list(
+					idCol=4,
+					gcCol=5,
+					nameCol=7,
+					btCol=8
+				),
                 org=modelOrg,
                 countType="gene",
                 normalization=normalization,
@@ -61,16 +63,18 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
             )
         }
         else {
-            tmp <- metaseqr(
+            tmp <- metaseqr2(
                 counts=dd,
                 sampleList=list(G1=paste("G1_rep",1:samples[1],sep=""),
                     G2=paste("G2_rep",1:samples[2],sep="")),
                 contrast=c("G1_vs_G2"),
                 annotation="embedded",
-                idCol=4,
-                gcCol=5,
-                nameCol=7,
-                btCol=8,
+                embedCols=list(
+					idCol=4,
+					gcCol=5,
+					nameCol=7,
+					btCol=8
+				),
                 countType="gene",
                 normalization=normalization,
                 statistics=statistics,

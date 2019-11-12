@@ -416,7 +416,7 @@ of metaseqr when ```metaP``` is ```weight```, ```pandora``` or ```whitlock``
 shows how to create such weights (depending on the size of the dataset, it might 
 take some time to run):
 
-```{rexample-6, eval=TRUE, echo=TRUE, tidy=FALSE}
+```{rexample-6, eval=TRUE, echo=TRUE, tidy=FALSE, warning=FALSE}
 data("mm9GeneData",package="metaseqR2")
 weights <- estimateAufcWeights(
     counts=as.matrix(mm9GeneCounts[,9:12]),
@@ -494,7 +494,7 @@ The HTML report creation mechanism is through the packages ```rmarkdown``` and
 installed. A lot of details on this can be found in Pandoc's website as well as
 knitr and rmarkdown websites and guides. Although the generic mechanism is more
 computationally demanding than standard HTML (e.g. using ```brew``` as in the
-previous metaseqR), the results are mor standardized, cross-platform and fully
+previous metaseqR), the results are more standardized, cross-platform and fully
 reproducible.
 
 During development, we found out that ```knitr``` faces certain difficulties in

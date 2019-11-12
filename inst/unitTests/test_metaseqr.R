@@ -1,19 +1,19 @@
 test_metaseqr <- function() {
-    data("mm9.gene.data",package="metaseqR")
+    data("mm9GeneData",package="metaseqR2")
     exDir <- tempdir()
 
-    result1 <- metaseqr(
-        counts=mm9.gene.counts,
-        sampleList=sample.list.mm9,
-        contrast=c("e14.5_vs_adult_8_weeks"),
-        libsizeList=libsize.list.mm9,
-        annotation="download",
+    result1 <- metaseqr2(
+        counts=mm9GeneCounts,
+        sampleList=sampleListMm9,
+        contrast=c("adult_8_weeks_vs_e14.5"),
+        libsizeList=libsizeListMm9,
+        annotation="embedded",
         org="mm9",
         countType="gene",
         normalization="edger",
         statistics=c("edger","limma"),
         metaP="simes",
-        preset="medium.basic",
+        preset="medium_basic",
         qcPlots="mds",
         figFormat="png",
         exportWhere=exDir,

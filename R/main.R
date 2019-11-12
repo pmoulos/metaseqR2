@@ -1021,6 +1021,8 @@ metaseqr2 <- function(
         # Based on the sum of their transcript lengths
         lengthList <- attr(theCounts,"lengthList")
         geneLength <- sapply(lengthList,sum)
+        # Could also be
+        # geneLength <- attr(transcriptData,"activeLength")
         
         # In case there are small differences between annotation data and 
         # external file, due to e.g. slightly different Ensembl versions

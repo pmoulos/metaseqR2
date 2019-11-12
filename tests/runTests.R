@@ -1,1 +1,1 @@
-BiocGenerics:::testPackage("metaseqR")
+BiocGenerics:::testPackage("metaseqR2")

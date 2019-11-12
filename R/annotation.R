@@ -148,8 +148,10 @@ buildAnnotationDatabase <- function(organisms,sources,
 						"gene")
                     message("Merging transcripts for ",o," from ",s,
                         " version ",v)
-                    annGr <- reduceTranscripts(annGr)
-                    ann <- as.data.frame(annGr)
+                    #annGr <- reduceTranscripts(annGr)
+                    #ann <- as.data.frame(annGr)
+                    annList <- reduceTranscripts(annGr)
+                    ann <- as.data.frame(annList$model)
 					ann <- ann[,c(1:3,6,7,5,8,9)]
 					names(ann)[1] <- "chromosome"
 					ann$chromosome <- as.character(ann$chromosome)
@@ -207,10 +209,10 @@ buildAnnotationDatabase <- function(organisms,sources,
                     annGr <- .loadPrebuiltAnnotation(con,o,s,v,"gene","utr")
                     message("Merging gene 3' UTRs for ",o," from ",s,
 						" version ",v)
-                    annGr <- reduceTranscripts(annGr)
-                    ann <- as.data.frame(annGr)
-                    #annList <- reduceTranscripts(annGr)
-                    #ann <- as.data.frame(annList$model)
+                    #annGr <- reduceTranscripts(annGr)
+                    #ann <- as.data.frame(annGr)
+                    annList <- reduceTranscripts(annGr)
+                    ann <- as.data.frame(annList$model)
 					ann <- ann[,c(1:3,6,7,5,8,9)]
 					names(ann)[1] <- "chromosome"
 					ann$chromosome <- as.character(ann$chromosome)
@@ -227,18 +229,18 @@ buildAnnotationDatabase <- function(organisms,sources,
 					dbWriteTable(con,"seqinfo",sfSumUtr,row.names=FALSE,
 						append=TRUE)
 					
-					#activeLength <- annList$length
-                    #nr <- .dropAnnotation(con,o,s,v,"active_utr_length")
-                    #nr <- .insertContent(con,o,s,v,"active_utr_length")
-                    #nid <- .annotationExists(con,o,s,v,"active_utr_length",
-					#	out="id")
-					#active <- data.frame(
-					#	name=names(activeLength),
-					#	length=activeLength,
-					#	content_id=rep(nid,length(activeLength))
-					#)
-                    #dbWriteTable(con,"active_utr_length",active,row.names=FALSE,
-					#	append=TRUE)
+					activeLength <- annList$length
+                    nr <- .dropAnnotation(con,o,s,v,"active_utr_length")
+                    nr <- .insertContent(con,o,s,v,"active_utr_length")
+                    nid <- .annotationExists(con,o,s,v,"active_utr_length",
+						out="id")
+					active <- data.frame(
+						name=names(activeLength),
+						length=activeLength,
+						content_id=rep(nid,length(activeLength))
+					)
+                    dbWriteTable(con,"active_utr_length",active,row.names=FALSE,
+						append=TRUE)
                 }
                 
                 # Then summarize the 3'utrs per transcript and write again with 
@@ -260,8 +262,10 @@ buildAnnotationDatabase <- function(organisms,sources,
 						.loadPrebuiltAnnotation(con,o,s,v,"transcript","utr")
                     message("Merging transcript 3' UTRs for ",o," from ",s,
 						" version ",v)
-                    annGr <- reduceTranscriptsUtr(annGr)
-                    ann <- as.data.frame(annGr)
+                    #annGr <- reduceTranscriptsUtr(annGr)
+                    #ann <- as.data.frame(annGr)
+                    annList <- reduceTranscriptsUtr(annGr)
+                    ann <- as.data.frame(annList$model)
 					ann <- ann[,c(1:3,6,7,5,8,9)]
 					names(ann)[1] <- "chromosome"
 					ann$chromosome <- as.character(ann$chromosome)
@@ -278,6 +282,19 @@ buildAnnotationDatabase <- function(organisms,sources,
 					dbWriteTable(con,"summarized_3utr_transcript",ann,
 						row.names=FALSE,append=TRUE)
 					dbWriteTable(con,"seqinfo",sfSumUtrTranscript,
+						row.names=FALSE,append=TRUE)
+					
+					activeLength <- annList$length
+                    nr <- .dropAnnotation(con,o,s,v,"active_trans_utr_length")
+                    nr <- .insertContent(con,o,s,v,"active_trans_utr_length")
+                    nid <- .annotationExists(con,o,s,v,
+						"active_trans_utr_length",out="id")
+					active <- data.frame(
+						name=names(activeLength),
+						length=activeLength,
+						content_id=rep(nid,length(activeLength))
+					)
+                    dbWriteTable(con,"active_trans_utr_length",active,
 						row.names=FALSE,append=TRUE)
                 }
                 
@@ -498,6 +515,8 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 			" from ",s," version ",v)
 		ann <- annotationFromCustomGtf(parsed,level="gene",type="utr",
 			summarized=TRUE,asdf=TRUE)
+		activeLength <- attr(ann,"activeLength")
+		
 		nr <- .dropAnnotation(con,o,s,v,"summarized_3utr")
 		nr <- .insertContent(con,o,s,v,"summarized_3utr",1)
 		nid <- .annotationExists(con,o,s,v,"summarized_3utr",out="id")
@@ -506,6 +525,16 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 		sfSumUtr$content_id <- rep(nid,nrow(sfSumUtr))
 		dbWriteTable(con,"summarized_3utr",ann,row.names=FALSE,append=TRUE)
 		dbWriteTable(con,"seqinfo",sfSumUtr,row.names=FALSE,append=TRUE)
+		
+		nr <- .dropAnnotation(con,o,s,v,"active_utr_length")
+		nr <- .insertContent(con,o,s,v,"active_utr_length",1)
+		nid <- .annotationExists(con,o,s,v,"active_utr_length",out="id")
+		active <- data.frame(
+			name=names(activeLength),
+			length=activeLength,
+			content_id=rep(nid,length(activeLength))
+		)
+		dbWriteTable(con,"active_utr_length",active,row.names=FALSE,append=TRUE)
 	}
 	
 	 # Then summarize the 3'utrs per transcript and write again with 
@@ -529,6 +558,17 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 		dbWriteTable(con,"summarized_3utr_transcript",ann,row.names=FALSE,
 			append=TRUE)
 		dbWriteTable(con,"seqinfo",sfSumUtrTranscript,row.names=FALSE,
+			append=TRUE)
+		
+		nr <- .dropAnnotation(con,o,s,v,"active_trans_utr_length")
+		nr <- .insertContent(con,o,s,v,"active_trans_utr_length",1)
+		nid <- .annotationExists(con,o,s,v,"active_trans_utr_length",out="id")
+		active <- data.frame(
+			name=names(activeLength),
+			length=activeLength,
+			content_id=rep(nid,length(activeLength))
+		)
+		dbWriteTable(con,"active_trans_utr_length",active,row.names=FALSE,
 			append=TRUE)
 	}
 	
@@ -644,7 +684,7 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 				version <- vers[1]
 			}
 			ann <- .loadPrebuiltAnnotation(con,genome,refdb,version,level,type,
-				summarized,asdf)
+				summarized)
 			dbDisconnect(con)
 			
 			if (asdf) {
@@ -791,14 +831,14 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 						seqnames.field="chromosome"
 					)
 					message("Merging 3' UTRs for ",genome," from ",refdb)
-					annGr <- reduceTranscripts(tmpGr)
-					names(annGr) <- as.character(annGr$transcript_id)
-					#annList <- reduceExons(tmpGr)
-					#annGr <- annList$model
+					#annGr <- reduceTranscripts(tmpGr)
 					#names(annGr) <- as.character(annGr$transcript_id)
-					#activeLength <- annList$length
-					#names(activeLength) <- unique(annGr$gene_id)
-					#attr(annGr,"activeLength") <- activeLength
+					annList <- reduceExons(tmpGr)
+					annGr <- annList$model
+					names(annGr) <- as.character(annGr$transcript_id)
+					activeLength <- annList$length
+					names(activeLength) <- unique(annGr$gene_id)
+					attr(annGr,"activeLength") <- activeLength
 				}
 			)
 		},
@@ -831,14 +871,14 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 						seqnames.field="chromosome"
 					)
 					message("Merging 3' UTRs for ",genome," from ",refdb)
-					annGr <- reduceTranscriptsUtr(annGr)
-					names(annGr) <- as.character(annGr$transcript_id)
-					#annList <- reduceExons(tmpGr)
-					#annGr <- annList$model
+					#annGr <- reduceTranscriptsUtr(annGr)
 					#names(annGr) <- as.character(annGr$transcript_id)
-					#activeLength <- annList$length
-					#names(activeLength) <- unique(annGr$transcript_id)
-					#attr(annGr,"activeLength") <- activeLength
+					annList <- reduceTranscriptsUtr(tmpGr)
+					annGr <- annList$model
+					names(annGr) <- as.character(annGr$transcript_id)
+					activeLength <- annList$length
+					names(activeLength) <- unique(annGr$transcript_id)
+					attr(annGr,"activeLength") <- activeLength
 				}
 			)
 		},
@@ -1161,14 +1201,14 @@ reduceTranscripts <- function(gr) {
     )
     mcols(grNew) <- newMeta
     
-    ## grNew is the GRanges to return. In order to get the activeLength, we split
-    ## again per gene_id in a temp variable
-    #tmp <- split(grNew,grNew$gene_id)
-    #tmp <- tmp[gene]
-    #len <- sapply(width(tmp),sum)
+    # grNew is the GRanges to return. In order to get the activeLength, we split
+    # again per gene_id in a temp variable
+    tmp <- split(grNew,grNew$gene_id)
+    tmp <- tmp[gene]
+    len <- sapply(width(tmp),sum)
     
-    return(grNew)
-    #return(list(model=grNew,length=len))
+    #return(grNew)
+    return(list(model=grNew,length=len))
 }
 
 reduceTranscriptsUtr <- function(gr) {
@@ -1219,14 +1259,14 @@ reduceTranscriptsUtr <- function(gr) {
     )
     mcols(grNew) <- newMeta
     
-    ## grNew is the GRanges to return. In order to get the activeLength, we split
-    ## again per gene_id in a temp variable
-    #tmp <- split(grNew,grNew$gene_id)
-    #tmp <- tmp[trans]
-    #len <- sapply(width(tmp),sum)
+    # grNew is the GRanges to return. In order to get the activeLength, we split
+    # again per gene_id in a temp variable
+    tmp <- split(grNew,grNew$gene_id)
+    tmp <- tmp[trans]
+    len <- sapply(width(tmp),sum)
     
-    return(grNew)
-    #return(list(model=grNew,length=len))
+    #return(grNew)
+    return(list(model=grNew,length=len))
 }
 
 reduceExons <- function(gr) {
@@ -2821,7 +2861,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 		return(GRanges(ann))
 }
 
-.makeSumGeneUtrFromTxDb <- function(txdb,map) {
+.makeSumGeneUtrFromTxDb <- function(txdb,map,asdf) {
 	utrList <- threeUTRsByTranscript(txdb,use.names=TRUE)
 	utrGr <- unlist(utrList)
 	
@@ -2870,10 +2910,22 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 	ann <- ann[order(ann$chromosome,ann$start),]
 	
 	message("  summarizing UTRs per gene for imported GTF")
-	s3utr <- reduceTranscripts(GRanges(ann))
+	#s3utr <- reduceTranscripts(GRanges(ann))
+	annList <- reduceExons(GRanges(ann))
+	s3utr <- annList$model
 	names(s3utr) <- as.character(s3utr$gene_id)
+	activeLength <- annList$length
+	names(activeLength) <- as.character(s3utr$gene_id)
 	
-	return(s3utr)
+	if (asdf) {
+		sann <- as.data.frame(s3utr)
+		sann <- eann[,c(1:3,6,8,5,7,9)]
+		names(sann)[c(1,4)] <- c("chromosome","gene_id")
+		attr(sann,"activeLength") <- activeLength
+		return(sann)
+	}
+	else
+		return(s3utr)
 }
 
 .makeTranscriptGeneFromTxDb <- function(txdb,map,asdf) {
@@ -2934,13 +2986,18 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 	ann$chromosome <- as.character(ann$chromosome)
 	ann <- ann[order(ann$chromosome,ann$start),]
 	
-	stranscript <- reduceTranscripts(GRanges(ann))
+	#stranscript <- reduceTranscripts(GRanges(ann))
+	annList <- reduceTranscripts(GRanges(ann))
+	stranscript <- annList$model
 	names(stranscript) <- as.character(stranscript$transcript_id)
+	activeLength <- annList$length
+	names(activeLength) <- as.character(s3utr$transcript_id)
 	
 	if (asdf) {
 		sann <- as.data.frame(stranscript)
 		sann <- sann[,c(1:3,6,8,5,7,9)]
 		names(sann)[c(1,4)] <- c("chromosome","transcript_id")
+		attr(sann,"activeLength") <- activeLength
 		return(sann)
 	}
 	else
@@ -3059,14 +3116,19 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 	ann <- ann[order(ann$chromosome,ann$start),]
 	
 	message("  summarizing UTRs per gene for imported GTF")
-	s3utrTranscript <- reduceTranscriptsUtr(GRanges(ann))
+	#s3utrTranscript <- reduceTranscriptsUtr(GRanges(ann))
+	annList <- reduceTranscriptsUtr(GRanges(ann))
+	s3utrTranscript <- annList$model
 	names(s3utrTranscript) <- 
 		as.character(s3utrTranscript$transcript_id)
+	activeLength <- annList$length
+	names(activeLength) <- as.character(s3utrTranscript$transcript_id)
 	
 	if (asdf) {
 		sann <- as.data.frame(s3utrTranscript)
 		sann <- sann[,c(1:3,6,8,5,7,9)]
 		names(sann)[c(1,4)] <- c("chromosome","transcript_id")
+		attr(sann,"activeLength") <- activeLength
 		return(sann)
 	}
 	else

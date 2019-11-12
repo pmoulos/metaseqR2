@@ -106,17 +106,17 @@ a ```GRanges``` object by default.
 
 ```{r example-2, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 # Load standard annotation based on gene body coordinates
-genes <- loadAnnotation(org="mm9",refdb="ensembl",level="gene",type="gene",
+genes <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="gene",
 	db=myDb)
 genes
 
 # Load standard annotation based on 3' UTR coordinates
-utrs <- loadAnnotation(org="mm9",refdb="ensembl",level="gene",type="utr",
+utrs <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="utr",
 	db=myDb)
 utrs
 
 # Load summarized exon annotation based used with RNA-Seq analysis
-sumEx <- loadAnnotation(org="mm9",refdb="ensembl",level="gene",type="exon",
+sumEx <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="exon",
 	summarized=TRUE,db=myDb)
 sumEx
 
@@ -128,7 +128,7 @@ for any susequent validations:
 
 ```{r example-3, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 # Load standard annotation based on gene body coordinates
-genes <- loadAnnotation(org="mm9",refdb="ensembl",level="gene",type="gene",
+genes <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="gene",
 	db=myDb,asdf=TRUE)
 genes
 ```

@@ -94,7 +94,8 @@ normalizeEdaseq <- function(geneCounts,sampleList,normArgs=NULL,
                 data.frame(
                     gc=geneData$gc_content,
                     length=attr(geneData,"geneLength"),
-                    row.names=rownames(geneData)
+                    row.names=if (is.data.frame(geneData)) rownames(geneData)
+						else names(geneData)
                 )
             )
         )
@@ -315,11 +316,20 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
 		gl <- NULL
 		if (!is.null(attr(geneData,"geneLength")))
 			gl <- attr(geneData,"geneLength")
+		else
+			gl <- width(geneData)
 		geneData <- as.data.frame(geneData)
 		geneData <- geneData[,c(1:3,6,7,5,8,9)]
 		if (!is.null(gl))
 			attr(geneData,"geneLength") <- gl
 	}
+	else {
+		if (is.null(attr(geneData,"geneLength"))) {
+			gl <- geneData$end - geneData$start + 1
+			attr(geneData,"geneLength") <- gl
+		}
+	}
+
     if (is.null(geneData)) {
         nsObj <- NOISeq::readData(
             data=geneCounts,
@@ -331,7 +341,7 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
         geneLength <- attr(geneData,"geneLength")
         biotype <- as.character(geneData$biotype)
         names(gcContent) <- names(biotype) <- names(geneLength) <- 
-            rownames(geneData)
+            if (is.data.frame(geneData)) rownames(geneData) else names(geneData)
         nsObj <- NOISeq::readData(
             data=geneCounts,
             length=geneLength,
@@ -341,7 +351,7 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
             biotype=biotype
         )
     }
-    normArgs$k=logOffset # Set the zero fixing constant
+    normArgs$k <- logOffset # Set the zero fixing constant
     switch(normArgs$method,
         rpkm = {
             #M <- NOISeq::rpkm(assayData(nsObj)$exprs,long=normArgs$long,
