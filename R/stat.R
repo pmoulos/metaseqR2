@@ -1711,7 +1711,7 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
         }
         names(p[[conName]]) <- rownames(object)
         # It replaces all NA pvalues with 1
-        names(p[[con.name]]) <- rownames(res)
+        names(p[[conName]]) <- rownames(res)
         p[[conName]][which(is.na(p[[conName]]))] <- 1
     }
     return(p)

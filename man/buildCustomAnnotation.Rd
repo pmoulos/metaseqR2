@@ -76,34 +76,34 @@
     # Setup a temporary directory to download files etc.
 	customDir <- file.path(tempdir(),"test_custom")
 	dir.create(customDir)
+	
+	myDb <- file.path(customDir,"testann.sqlite")
 
-	# Download some data from UCSC - Ebola genome annotation
-	goldenPath="http://hgdownload.cse.ucsc.edu/goldenPath/"
-	# Gene annotation dump
-	download.file(paste0(goldenPath,"eboVir3/database/ncbiGene.txt.gz"),
-		file.path(customDir,"eboVir3_ncbiGene.txt.gz"))
-	# Chromosome information
-	download.file(paste0(goldenPath,"eboVir3/database/chromInfo.txt.gz"),
-		file.path(customDir,"eboVir3_chromInfo.txt.gz"))
+	# Gene annotation dump from Ensembl
+	download.file(paste0("ftp://ftp.ensembl.org/pub/release-98/gtf/",
+		"dasypus_novemcinctus/Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
+		file.path(customDir,"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"))
 
-	# Prepare the build
-	chromInfo <- read.delim(file.path(customDir,"eboVir3_chromInfo.txt.gz"),
-		header=FALSE)
-	chromInfo <- chromInfo[,1:2]
-	rownames(chromInfo) <- as.character(chromInfo[,1])
-	chromInfo <- chromInfo[,2,drop=FALSE]
+	# Chromosome information will be provided from the following BAM file
+	# available from Ensembl
+	bamForInfo <- paste0("ftp://ftp.ensembl.org/pub/release-98/bamcov/",
+		"dasypus_novemcinctus/genebuild/Dasnov3.broad.Ascending_Colon_5.1.bam")
 
 	# Build with the metadata list filled (you can also provide a version)
-	myDb <- file.path(tempdir(),"testann.sqlite")
 	buildCustomAnnotation(
-		gtfFile=file.path(customDir,"eboVir3_ncbiGene.txt.gz"),
+		gtfFile=file.path(customDir,"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
 		metadata=list(
-			organism="eboVir3_test",
-			source="ucsc_test",
-			chromInfo=chromInfo
+			organism="dasNov3_test",
+			source="ensembl_test",
+			chromInfo=bamForInfo
 		),
 		db=myDb
 	)
+
+	# Try to retrieve some data
+	dasGenes <- loadAnnotation(genome="dasNov3_test",refdb="ensembl_test",
+		level="gene",type="gene",db=myDb)
+	dasGenes
 }
 }
 \author{

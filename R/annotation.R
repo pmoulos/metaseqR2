@@ -36,7 +36,7 @@ buildAnnotationDatabase <- function(organisms,sources,
 		dir.create(dirname(db),recursive=TRUE,mode="0755")
 	
     # Initialize or open the annotation SQLite datatabase
-    message("Opening metaseqR SQLite database ",db)
+    message("Opening metaseqR2 SQLite database ",db)
     con <- initDatabase(db)
     
     for (s in sources) {
@@ -375,7 +375,6 @@ buildAnnotationDatabase <- function(organisms,sources,
     dbDisconnect(con)
 }
 
-#FIXME: Finalize 3' UTR active length
 # GTF only!
 buildCustomAnnotation <- function(gtfFile,metadata,
 	db=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
@@ -401,7 +400,7 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 	}
 	else {
 		str <- metadata$chromInfo
-		if (is.character(str) && file.exists(str)) {
+		if (is.character(str)) {
 			out <- tryCatch(open(Rsamtools::BamFile(str)),error=function(e) e)
 			if (inherits(out,"error")) # Not a BAM file, try to read.delim
 				metadata$chromInfo <- read.delim(str,row.names=1)
@@ -440,7 +439,7 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 		nr <- .insertContent(con,o,s,v,"gene",1)
 		nid <- .annotationExists(con,o,s,v,"gene",out="id")
 		ann$content_id <- rep(nid,nrow(ann))
-		sfGene <- metadata$chromInfo
+		sfGene <- .chromInfoToSeqInfoDf(metadata$chromInfo)
 		sfGene$content_id <- rep(nid,nrow(sfGene))
 		dbWriteTable(con,"gene",ann,row.names=FALSE,append=TRUE)
 		dbWriteTable(con,"seqinfo",sfGene,row.names=FALSE,append=TRUE)
@@ -460,14 +459,14 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 		nr <- .insertContent(con,o,s,v,"transcript",1)
 		nid <- .annotationExists(con,o,s,v,"transcript",out="id")
 		ann$content_id <- rep(nid,nrow(ann))
-		sfTranscript <- metadata$chromInfo
+		sfTranscript <- .chromInfoToSeqInfoDf(metadata$chromInfo)
 		sfTranscript$content_id <- rep(nid,nrow(sfTranscript))
 		dbWriteTable(con,"transcript",ann,row.names=FALSE,append=TRUE)
 		dbWriteTable(con,"seqinfo",sfTranscript,row.names=FALSE,append=TRUE)
 	}
 	
 	# Then summarize the transcripts and write again with type sum_transcript
-	if (.annotationExists(con,o,s,v,"summarized_transcript") && !forceDownload)
+	if (.annotationExists(con,o,s,v,"summarized_transcript") && !rewrite)
 		message("Summarized transcript annotation for ",o," from ",s,
 			" version ",v," has already been created and will be skipped.\nIf ",
 			"you wish to recreate it choose rewrite = TRUE.")
@@ -480,7 +479,7 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 		nr <- .insertContent(con,o,s,v,"summarized_transcript",1)
 		nid <- .annotationExists(con,o,s,v,"summarized_transcript",out="id")
 		ann$content_id <- rep(nid,nrow(ann))
-		sfSumTranscript <- metadata$chromInfo
+		sfSumTranscript <- .chromInfoToSeqInfoDf(metadata$chromInfo)
 		sfSumTranscript$content_id <- rep(nid,nrow(sfSumTranscript))
 		dbWriteTable(con,"summarized_transcript",ann,row.names=FALSE,
 			append=TRUE)
@@ -495,14 +494,19 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 	else {
 		message("Retrieving 3' UTR annotation for ",o," from ",s," version ",v)
 		ann <- annotationFromCustomGtf(parsed,level="gene",type="utr",asdf=TRUE)
-		nr <- .dropAnnotation(con,o,s,v,"utr")
-		nr <- .insertContent(con,o,s,v,"utr",1)
-		nid <- .annotationExists(con,o,s,v,"utr",out="id")
-		ann$content_id <- rep(nid,nrow(ann))
-		sfUtr <- metadata$chromInfo
-		sfUtr$content_id <- rep(nid,nrow(sfUtr))
-		dbWriteTable(con,"utr",ann,row.names=FALSE,append=TRUE)
-		dbWriteTable(con,"seqinfo",sfUtr,row.names=FALSE,append=TRUE)
+		if (nrow(ann) > 0) {
+			nr <- .dropAnnotation(con,o,s,v,"utr")
+			nr <- .insertContent(con,o,s,v,"utr",1)
+			nid <- .annotationExists(con,o,s,v,"utr",out="id")
+			ann$content_id <- rep(nid,nrow(ann))
+			sfUtr <- .chromInfoToSeqInfoDf(metadata$chromInfo)
+			sfUtr$content_id <- rep(nid,nrow(sfUtr))
+			dbWriteTable(con,"utr",ann,row.names=FALSE,append=TRUE)
+			dbWriteTable(con,"seqinfo",sfUtr,row.names=FALSE,append=TRUE)
+		}
+		else
+			message("3' UTR annotation for ",o," from ",s," version ",v," is ",
+				"not available in the provided GTF file.")
 	}
 	
 	# Then summarize the 3'UTRs and write again with type sum_transcript
@@ -515,26 +519,33 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 			" from ",s," version ",v)
 		ann <- annotationFromCustomGtf(parsed,level="gene",type="utr",
 			summarized=TRUE,asdf=TRUE)
-		activeLength <- attr(ann,"activeLength")
 		
-		nr <- .dropAnnotation(con,o,s,v,"summarized_3utr")
-		nr <- .insertContent(con,o,s,v,"summarized_3utr",1)
-		nid <- .annotationExists(con,o,s,v,"summarized_3utr",out="id")
-		ann$content_id <- rep(nid,nrow(ann))
-		sfSumUtr <- metadata$chromInfo
-		sfSumUtr$content_id <- rep(nid,nrow(sfSumUtr))
-		dbWriteTable(con,"summarized_3utr",ann,row.names=FALSE,append=TRUE)
-		dbWriteTable(con,"seqinfo",sfSumUtr,row.names=FALSE,append=TRUE)
-		
-		nr <- .dropAnnotation(con,o,s,v,"active_utr_length")
-		nr <- .insertContent(con,o,s,v,"active_utr_length",1)
-		nid <- .annotationExists(con,o,s,v,"active_utr_length",out="id")
-		active <- data.frame(
-			name=names(activeLength),
-			length=activeLength,
-			content_id=rep(nid,length(activeLength))
-		)
-		dbWriteTable(con,"active_utr_length",active,row.names=FALSE,append=TRUE)
+		if (nrow(ann) > 0) {
+			activeLength <- attr(ann,"activeLength")
+			
+			nr <- .dropAnnotation(con,o,s,v,"summarized_3utr")
+			nr <- .insertContent(con,o,s,v,"summarized_3utr",1)
+			nid <- .annotationExists(con,o,s,v,"summarized_3utr",out="id")
+			ann$content_id <- rep(nid,nrow(ann))
+			sfSumUtr <- .chromInfoToSeqInfoDf(metadata$chromInfo)
+			sfSumUtr$content_id <- rep(nid,nrow(sfSumUtr))
+			dbWriteTable(con,"summarized_3utr",ann,row.names=FALSE,append=TRUE)
+			dbWriteTable(con,"seqinfo",sfSumUtr,row.names=FALSE,append=TRUE)
+			
+			nr <- .dropAnnotation(con,o,s,v,"active_utr_length")
+			nr <- .insertContent(con,o,s,v,"active_utr_length",1)
+			nid <- .annotationExists(con,o,s,v,"active_utr_length",out="id")
+			active <- data.frame(
+				name=names(activeLength),
+				length=activeLength,
+				content_id=rep(nid,length(activeLength))
+			)
+			dbWriteTable(con,"active_utr_length",active,row.names=FALSE,
+				append=TRUE)
+		}
+		else
+			message("3' UTR annotation for ",o," from ",s," version ",v," is ",
+				"not available in the provided GTF file.")
 	}
 	
 	 # Then summarize the 3'utrs per transcript and write again with 
@@ -548,28 +559,36 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 			" from ",s," version ",v)
 		ann <- annotationFromCustomGtf(parsed,level="transcript",type="utr",
 			summarized=TRUE,asdf=TRUE)
-		nr <- .dropAnnotation(con,o,s,v,"summarized_3utr_transcript")
-		nr <- .insertContent(con,o,s,v,"summarized_3utr_transcript",1)
-		nid <- .annotationExists(con,o,s,v,"summarized_3utr_transcript",
-			out="id")
-		ann$content_id <- rep(nid,nrow(ann))
-		sfSumUtrTranscript <- metadata$chromInfo
-		sfSumUtrTranscript$content_id <- rep(nid,nrow(sfSumUtrTranscript))
-		dbWriteTable(con,"summarized_3utr_transcript",ann,row.names=FALSE,
-			append=TRUE)
-		dbWriteTable(con,"seqinfo",sfSumUtrTranscript,row.names=FALSE,
-			append=TRUE)
 		
-		nr <- .dropAnnotation(con,o,s,v,"active_trans_utr_length")
-		nr <- .insertContent(con,o,s,v,"active_trans_utr_length",1)
-		nid <- .annotationExists(con,o,s,v,"active_trans_utr_length",out="id")
-		active <- data.frame(
-			name=names(activeLength),
-			length=activeLength,
-			content_id=rep(nid,length(activeLength))
-		)
-		dbWriteTable(con,"active_trans_utr_length",active,row.names=FALSE,
-			append=TRUE)
+		if (nrow(ann) > 0) {
+			activeLength <- attr(ann,"activeLength")
+			nr <- .dropAnnotation(con,o,s,v,"summarized_3utr_transcript")
+			nr <- .insertContent(con,o,s,v,"summarized_3utr_transcript",1)
+			nid <- .annotationExists(con,o,s,v,"summarized_3utr_transcript",
+				out="id")
+			ann$content_id <- rep(nid,nrow(ann))
+			sfSumUtrTranscript <- .chromInfoToSeqInfoDf(metadata$chromInfo)
+			sfSumUtrTranscript$content_id <- rep(nid,nrow(sfSumUtrTranscript))
+			dbWriteTable(con,"summarized_3utr_transcript",ann,row.names=FALSE,
+				append=TRUE)
+			dbWriteTable(con,"seqinfo",sfSumUtrTranscript,row.names=FALSE,
+				append=TRUE)
+			
+			nr <- .dropAnnotation(con,o,s,v,"active_trans_utr_length")
+			nr <- .insertContent(con,o,s,v,"active_trans_utr_length",1)
+			nid <- .annotationExists(con,o,s,v,"active_trans_utr_length",
+				out="id")
+			active <- data.frame(
+				name=names(activeLength),
+				length=activeLength,
+				content_id=rep(nid,length(activeLength))
+			)
+			dbWriteTable(con,"active_trans_utr_length",active,row.names=FALSE,
+				append=TRUE)
+		}
+		else
+			message("3' UTR annotation for ",o," from ",s," version ",v," is ",
+				"not available in the provided GTF file.")
 	}
 	
 	# Retrieve exon annotations
@@ -585,7 +604,7 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 		nr <- .insertContent(con,o,s,v,"exon",1)
 		nid <- .annotationExists(con,o,s,v,"exon",out="id")
 		ann$content_id <- rep(nid,nrow(ann))
-		sfExon <- metadata$chromInfo
+		sfExon <- .chromInfoToSeqInfoDf(metadata$chromInfo)
 		sfExon$content_id <- rep(nid,nrow(sfExon))
 		dbWriteTable(con,"exon",ann,row.names=FALSE,append=TRUE)
 		dbWriteTable(con,"seqinfo",sfExon,row.names=FALSE,append=TRUE)
@@ -595,7 +614,7 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 	if (.annotationExists(con,o,s,v,"summarized_exon") && !rewrite)
 		message("Summarized exon annotation for ",o," from ",s," version ",v,
 			" has already been created and will be skipped.\nIf you wish to ",
-			"to recreate it choose forceDownload = TRUE.")
+			"to recreate it choose rewrite = TRUE.")
 	else {
 		message("Retrieving summarized exon annotation for ",o," from ",s,
 			" version ",v)
@@ -607,7 +626,7 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 		nr <- .insertContent(con,o,s,v,"summarized_exon",1)
 		nid <- .annotationExists(con,o,s,v,"summarized_exon",out="id")
 		ann$content_id <- rep(nid,nrow(ann))
-		sfSumExon <- metadata$chromInfo
+		sfSumExon <- .chromInfoToSeqInfoDf(metadata$chromInfo)
 		sfSumExon$content_id <- rep(nid,nrow(sfSumExon))
 		dbWriteTable(con,"summarized_exon",ann,row.names=FALSE,append=TRUE)
 		dbWriteTable(con,"seqinfo",sfSumExon,row.names=FALSE,append=TRUE)
@@ -752,8 +771,12 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 	preSf$`_id` <- NULL
 	preSf$content_id <- NULL
 	rownames(preSf) <- as.character(preSf[,1])
+	if (genome %in% getSupportedOrganisms())
+		sfg <- getUcscOrganism(genome)
+	else
+		sfg <- genome
 	sf <- Seqinfo(seqnames=preSf[,1],seqlengths=preSf[,2],
-		isCircular=rep(FALSE,nrow(preSf)),genome=getUcscOrganism(genome))
+		isCircular=rep(FALSE,nrow(preSf)),genome=sfg)
 	
 	if (length(seqlevels(ann)) != length(seqlevels(sf)))
 		# If a subset, this is enough
@@ -2819,7 +2842,10 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 			biotype=1,row.names=1)
 		# Strange but required to be compatible with GRanges
 		ann <- ann[-1,]
-		return(GRanges(ann))
+		if (asdf)
+			return(ann)
+		else
+			return(GRanges(ann))
 	}
 	
 	utrGr$transcript_id <- names(utrGr)
@@ -2873,7 +2899,10 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 			biotype=1,row.names=1)
 		# Strange but required to be compatible with GRanges
 		ann <- ann[-1,]
-		return(GRanges(ann))
+		if (asdf)
+			return(ann)
+		else
+			return(GRanges(ann))
 	}
 	
 	utrGr$transcript_id <- names(utrGr)
@@ -2911,15 +2940,15 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 	
 	message("  summarizing UTRs per gene for imported GTF")
 	#s3utr <- reduceTranscripts(GRanges(ann))
-	annList <- reduceExons(GRanges(ann))
+	annList <- reduceTranscripts(GRanges(ann))
 	s3utr <- annList$model
-	names(s3utr) <- as.character(s3utr$gene_id)
+	names(s3utr) <- as.character(s3utr$transcript_id)
 	activeLength <- annList$length
-	names(activeLength) <- as.character(s3utr$gene_id)
+	names(activeLength) <- unique(as.character(s3utr$gene_id))
 	
 	if (asdf) {
 		sann <- as.data.frame(s3utr)
-		sann <- eann[,c(1:3,6,8,5,7,9)]
+		sann <- sann[,c(1:3,6,8,5,7,9)]
 		names(sann)[c(1,4)] <- c("chromosome","gene_id")
 		attr(sann,"activeLength") <- activeLength
 		return(sann)
@@ -2991,7 +3020,8 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 	stranscript <- annList$model
 	names(stranscript) <- as.character(stranscript$transcript_id)
 	activeLength <- annList$length
-	names(activeLength) <- as.character(s3utr$transcript_id)
+	#names(activeLength) <- as.character(stranscript$transcript_id)
+	names(activeLength) <- unique(stranscript$gene_id)
 	
 	if (asdf) {
 		sann <- as.data.frame(stranscript)
@@ -3021,7 +3051,10 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 			biotype=1,row.names=1)
 		# Strange but required to be compatible with GRanges
 		ann <- ann[-1,]
-		return(GRanges(ann))
+		if (asdf)
+			return(ann)
+		else
+			return(GRanges(ann))
 	}
 	
 	utrGr$transcript_id <- names(utrGr)
@@ -3078,7 +3111,10 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 			biotype=1,row.names=1)
 		# Strange but required to be compatible with GRanges
 		ann <- ann[-1,]
-		return(GRanges(ann))
+		if (asdf)
+			return(ann)
+		else
+			return(GRanges(ann))
 	}
 	
 	utrGr$transcript_id <- names(utrGr)
@@ -3122,7 +3158,9 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 	names(s3utrTranscript) <- 
 		as.character(s3utrTranscript$transcript_id)
 	activeLength <- annList$length
-	names(activeLength) <- as.character(s3utrTranscript$transcript_id)
+	#names(activeLength) <- as.character(s3utrTranscript$transcript_id)
+	# Remember, gene_id in UTR's per transcript is the transcript
+	names(activeLength) <- unique(as.character(s3utrTranscript$gene_id))
 	
 	if (asdf) {
 		sann <- as.data.frame(s3utrTranscript)
@@ -3229,6 +3267,14 @@ initDatabase <- function(db) {
 		if (dbHasCompleted(rs))
 			dbClearResult(rs)
 	}
+}
+
+.chromInfoToSeqInfoDf <- function(ci,o="custom",circ=FALSE,asSeqinfo=FALSE) {
+	if (asSeqinfo)
+		return(Seqinfo(seqnames=rownames(ci),seqlengths=ci[,1],
+			isCircular=rep(circ,nrow(ci)),genome=o))
+	else
+		return(data.frame(chromosome=rownames(ci),length=as.integer(ci[,1])))
 }
 
 .myGetBM <- function(attributes,filters="",values="",mart,curl=NULL,

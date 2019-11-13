@@ -39,8 +39,9 @@
     column.
 }
 \examples{
-y <- getAnnotation("mm9","gene")
-x <- y[-sample(1:nrow(y),10000),]
+data("mm9GeneData",package="metaseqR2")
+y <- mm9GeneCounts[,c(1:6,8,7)]
+x <- y[-sample(1:nrow(y),1000),]
 diagplotFiltered(x,y)
 }
 \author{

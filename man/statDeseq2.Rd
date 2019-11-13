@@ -52,8 +52,8 @@ require(DESeq)
 dataMatrix <- counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
-norm.dataMatrix <- normalize.deseq(dataMatrix,sampleList)
-p <- statDeseq2(norm.dataMatrix,sampleList,contrast)
+normDataMatrix <- normalizeDeseq2(dataMatrix,sampleList)
+p <- statDeseq2(normDataMatrix,sampleList,contrast)
 }
 }
 \author{

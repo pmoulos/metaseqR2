@@ -53,8 +53,8 @@
     db <- file.path(system.file(package="metaseqR2"),
         "annotation.sqlite")
     if (file.exists(db))
-        gr <- loadAnnotation(genome="hg19", refdb="ensembl",
-            level="gene", type="gene", db=db)
+        gr <- loadAnnotation(genome="hg19",refdb="ensembl",
+            level="gene",type="gene",db=db)
 }
 \author{
     Panagiotis Moulos

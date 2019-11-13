@@ -57,9 +57,11 @@ gc=runif(nrow(dataMatrix))
 geneData <- data.frame(
     chromosome=c(rep("chr1",nrow(dataMatrix)/2),
         rep("chr2",nrow(dataMatrix)/2)),
-    start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc
+    start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc,
+    biotype=rep("protein_coding",nrow(dataMatrix)),
+    row.names=rownames(dataMatrix)
 )
-normDataMatrix <- normalizeNoiseq(dataMatrix,sampleList,geneData)
+normDataMatrix <- normalizeNoiseq(dataMatrix,sampleList,normArgs=NULL,geneData)
 diagplotBoxplot(normDataMatrix,sampleList)
 }
 \author{

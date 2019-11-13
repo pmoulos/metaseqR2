@@ -71,9 +71,9 @@
 # the ReCount database
 download.file(paste("http://bowtie-bio.sourceforge.net/",
     "recount/countTables/bottomly_count_table.txt",sep=""),
-    destfile="~/bottomly_count_table.txt")
+    destfile=file.path(tempdir(),"bottomly_count_table.txt"))
 # Estimate simulation parameters
-parList <- estimateSimParams("~/bottomly_count_table.txt")
+parList <- estimateSimParams(file.path(tempdir(),"bottomly_count_table.txt"))
 }
 }
 \author{

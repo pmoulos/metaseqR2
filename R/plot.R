@@ -563,8 +563,8 @@ diagplotPairs <- function(x,output="x11",path=NULL,altNames=NULL,...) {
 			}
 		}
 		names(jsonList$xy) <- names(jsonList$md) <- plotNames
+		return(jsonList)
 	}
-	return(jsonList)
 }
 
 diagplotCor <- function(mat,type=c("heatmap","correlogram"),output="x11",

@@ -131,16 +131,16 @@ require(DESeq)
 dataMatrix <- counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
-metaseqrPlot(dataMatrix,sampleList,diagplotType=c("mds","boxplot"))
+metaseqrPlot(dataMatrix,sampleList,plotType=c("mds","boxplot"))
 
-normArgs <- get.defaults("normalization","deseq")
+normArgs <- getDefaults("normalization","deseq")
 object <- normalizeDeseq(dataMatrix,sampleList,normArgs)
-metaseqrPlot(object,sampleList,diagplotType="boxplot")
+metaseqrPlot(object,sampleList,plotType="boxplot")
 
 ## More
 #p <- statDeseq(object,sampleList)
-#diagplotMetaseqr(object,sampleList,contrastList=contrast,pList=p,
-#        diagplotType="volcano")
+#metaseqrPlot(object,sampleList,contrastList=contrast,pList=p,
+#    plotType="volcano")
 }
 \author{
     Panagiotis Moulos

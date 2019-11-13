@@ -80,6 +80,10 @@ In this vignette, we will build a minimal database comprising only the mouse
 ```mm9``` genome version from Ensembl. The database will be build in a temporary
 directory inside session ```tempdir()```.
 
+```{r load-0, eval=TRUE, echo=FALSE, tidy=FALSE, message=TRUE, warning=FALSE}
+library(metaseqR2)
+```
+
 ```{r example-1, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 library(metaseqR2)
 
@@ -164,71 +168,149 @@ Ebola virus from UCSC:
 customDir <- file.path(tempdir(),"test_custom")
 dir.create(customDir)
 
-# Download data from UCSC
-goldenPath="http://hgdownload.cse.ucsc.edu/goldenPath/"
-# Gene annotation dump
-download.file(paste0(goldenPath,"eboVir3/database/ncbiGene.txt.gz"),
-	file.path(customDir,"eboVir3_ncbiGene.txt.gz"))
-# Chromosome information
-download.file(paste0(goldenPath,"eboVir3/database/chromInfo.txt.gz"),
-	file.path(customDir,"eboVir3_chromInfo.txt.gz"))
+# Convert from GenePred to GTF - Unix/Linux only!
+if (.Platform$OS.type == "unix") {
+	# Download data from UCSC
+	goldenPath="http://hgdownload.cse.ucsc.edu/goldenPath/"
+	# Gene annotation dump
+	download.file(paste0(goldenPath,"eboVir3/database/ncbiGene.txt.gz"),
+		file.path(customDir,"eboVir3_ncbiGene.txt.gz"))
+	# Chromosome information
+	download.file(paste0(goldenPath,"eboVir3/database/chromInfo.txt.gz"),
+		file.path(customDir,"eboVir3_chromInfo.txt.gz"))
 
-# Prepare the build
-chromInfo <- read.delim(file.path(customDir,"eboVir3_chromInfo.txt.gz"),
-	header=FALSE)
-chromInfo <- chromInfo[,1:2]
-rownames(chromInfo) <- as.character(chromInfo[,1])
-chromInfo <- chromInfo[,2,drop=FALSE]
+	# Prepare the build
+	chromInfo <- read.delim(file.path(customDir,"eboVir3_chromInfo.txt.gz"),
+		header=FALSE)
+	chromInfo <- chromInfo[,1:2]
+	rownames(chromInfo) <- as.character(chromInfo[,1])
+	chromInfo <- chromInfo[,2,drop=FALSE]
+	
+	# Coversion from genePred to GTF
+	genePredToGtf <- file.path(customDir,"genePredToGtf")
+	if (!file.exists(genePredToGtf)) {
+		download.file(
+		"http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/genePredToGtf",
+			genePredToGtf
+		)
+		system(paste("chmod 775",genePredToGtf))
+	}
+	gtfFile <- file.path(customDir,"eboVir3.gtf")
+	tmpName <- file.path(customDir,paste(format(Sys.time(),"%Y%m%d%H%M%S"),
+		"tgtf",sep="."))
+	command <- paste0(
+		"zcat ",file.path(customDir,"eboVir3_ncbiGene.txt.gz"),
+		" | ","cut -f2- | ",genePredToGtf," file stdin ",tmpName,
+		" -source=eboVir3"," -utr && grep -vP '\t\\.\t\\.\t' ",tmpName," > ",
+		gtfFile
+	)
+	system(command)
 
-# Build with the metadata list filled (you can also provide a version)
-buildCustomAnnotation(
-	gtfFile=file.path(customDir,"eboVir3_ncbiGene.txt.gz"),
-	metadata=list(
-		organism="eboVir3_test",
-		source="ucsc_test",
-		chromInfo=chromInfo
-	),
-	db=myDb
-)
+	# Build with the metadata list filled (you can also provide a version)
+	buildCustomAnnotation(
+		gtfFile=gtfFile,
+		metadata=list(
+			organism="eboVir3_test",
+			source="ucsc_test",
+			chromInfo=chromInfo
+		),
+		db=myDb
+	)
 
-# Try to retrieve some data
-eboGenes <- loadAnnotation(org="eboVir3_test",refdb="ucsc_test",level="gene",
-	type="gene",db=myDb)
-eboGenes
+	# Try to retrieve some data
+	eboGenes <- loadAnnotation(genome="eboVir3_test",refdb="ucsc_test",
+		level="gene",type="gene",db=myDb)
+	eboGenes
+}
+
 ```
 
-Another example, the Atlantic cod from UCSC:
+Another example, the Atlantic cod from UCSC. The same things apply for the
+operating system.
 
 ```{r example-5, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
-# Gene annotation dump
-download.file(paste0(goldenPath,"gadMor1/database/augustusGene.sql"),
-	file.path(customDir,"gadMori1_augustusGene.txt.gz"))
-# Chromosome information
-download.file(paste(goldenPath,"gadMor1/database/chromInfo.txt.gz",sep=""),
-	file.path(customDir,"gadMori1_chromInfo.txt.gz"))
+if (.Platform$OS.type == "unix") {
+	# Gene annotation dump
+	download.file(paste0(goldenPath,"gadMor1/database/augustusGene.txt.gz"),
+		file.path(customDir,"gadMori1_augustusGene.txt.gz"))
+	# Chromosome information
+	download.file(paste(goldenPath,"gadMor1/database/chromInfo.txt.gz",sep=""),
+		file.path(customDir,"gadMori1_chromInfo.txt.gz"))
 
-# Prepare the build
-chromInfo <- read.delim(file.path(customDir,"gadMori1_chromInfo.txt.gz"),
-	header=FALSE)
-chromInfo <- chromInfo[,1:2]
-rownames(chromInfo) <- as.character(chromInfo[,1])
-chromInfo <- chromInfo[,2,drop=FALSE]
+	# Prepare the build
+	chromInfo <- read.delim(file.path(customDir,"gadMori1_chromInfo.txt.gz"),
+		header=FALSE)
+	chromInfo <- chromInfo[,1:2]
+	rownames(chromInfo) <- as.character(chromInfo[,1])
+	chromInfo <- chromInfo[,2,drop=FALSE]
+	
+	# Coversion from genePred to GTF
+	genePredToGtf <- file.path(customDir,"genePredToGtf")
+	if (!file.exists(genePredToGtf)) {
+		download.file(
+		"http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/genePredToGtf",
+			genePredToGtf
+		)
+		system(paste("chmod 775",genePredToGtf))
+	}
+	gtfFile <- file.path(customDir,"gadMori1.gtf")
+	tmpName <- file.path(customDir,paste(format(Sys.time(),"%Y%m%d%H%M%S"),
+		"tgtf",sep="."))
+	command <- paste0(
+		"zcat ",file.path(customDir,"gadMori1_augustusGene.txt.gz"),
+		" | ","cut -f2- | ",genePredToGtf," file stdin ",tmpName,
+		" -source=gadMori1"," -utr && grep -vP '\t\\.\t\\.\t' ",tmpName," > ",
+		gtfFile
+	)
+	system(command)
+
+	# Build with the metadata list filled (you can also provide a version)
+	buildCustomAnnotation(
+		gtfFile=gtfFile,
+		metadata=list(
+			organism="gadMor1_test",
+			source="ucsc_test",
+			chromInfo=chromInfo
+		),
+		db=myDb
+	)
+
+	# Try to retrieve some data
+	gadGenes <- loadAnnotation(genome="gadMor1_test",refdb="ucsc_test",
+		level="gene",type="gene",db=myDb)
+	gadGenes
+}
+```
+
+Another example, Armadillo from Ensembl. This should work irrespectively of 
+operating system. We are downloading chromosomal information from UCSC.
+
+```{r example-6, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+# Gene annotation dump from Ensembl
+download.file(paste0("ftp://ftp.ensembl.org/pub/release-98/gtf/",
+	"dasypus_novemcinctus/Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
+	file.path(customDir,"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"))
+
+# Chromosome information will be provided from the following BAM file
+# available from Ensembl
+bamForInfo <- paste0("ftp://ftp.ensembl.org/pub/release-98/bamcov/",
+	"dasypus_novemcinctus/genebuild/Dasnov3.broad.Ascending_Colon_5.1.bam")
 
 # Build with the metadata list filled (you can also provide a version)
 buildCustomAnnotation(
-	gtfFile=file.path(customDir,"gadMori1_augustusGene.txt.gz"),
+	gtfFile=file.path(customDir,"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
 	metadata=list(
-		organism="gadMor1_test",
-		source="ucsc_test",
-		chromInfo=chromInfo
+		organism="dasNov3_test",
+		source="ensembl_test",
+		chromInfo=bamForInfo
 	),
 	db=myDb
 )
 
 # Try to retrieve some data
-gadGenes <- loadAnnotation(org="gadMor1_test",refdb="ucsc_test",level="gene",
-	type="gene",db=myDb)
-eboGenes
+dasGenes <- loadAnnotation(genome="dasNov3_test",refdb="ensembl_test",
+	level="gene",type="gene",db=myDb)
+dasGenes
 ```
 
 ## A complete build
@@ -261,6 +343,14 @@ sources <- c("ensembl","ucsc","refseq")
 
 buildAnnotationDatabase(organisms,sources,forceDownload=FALSE,rc=0.5)
 ```
+
+The aforementioned complete built can be found
+[here](https://drive.google.com/drive/folders/15lOY9PBggCcaoohO_0rQTvExXenqah55?usp=sharing)
+Complete builts will become available from time to time (e.g. with every new
+Ensembl relrase) for users who do not wish to create annotation databases on
+their own. Root access may be required (depending on the ```metaseqR2``` library
+location) to place it in the default location where it can be found 
+automatically.
 
 # Annotations on-the-fly
 

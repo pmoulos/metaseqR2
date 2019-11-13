@@ -1196,51 +1196,46 @@
 \examples{
 \donttest{
 # An example pipeline with gene counts
-data("mm9.gene.data",package="metaseqR")
+data("mm9GeneData",package="metaseqR2")
+
 result <- metaseqr2(
-  counts=mm9.gene.counts,
-  sampleList=list(
-    e14.5=c("e14.5_1","e14.5_2"),
-    adult_8_weeks=c("a8w_1","a8w_2")
-  ),
-  contrast=c("e14.5_vs_adult_8_weeks"),
-  libsizeList=libsize.list.mm9,
-  annotation="embedded",
-  org="mm9",
-  countType="gene",
-  normalization="edger",
-  statistics=c("deseq","edger","noiseq"),
-  metaP="fisher",
-  pcut=0.05,
-  figFormat=c("png","pdf"),
-  exportWhere=tempdir(),
-  exportWhat=c("annotation","p_value","meta_p_value",
-    "adj_meta_p_value","fold_change"),
-  exportScale=c("natural","log2"),
-  exportValues="normalized",
-  exportStats=c("mean","sd","cv"),
-  exportWhere=getwd(),
-  restrictCores=0.8,
-  geneFilters=list(
-    length=list(
-      length=500
-    ),
-    avgReads=list(
-      averagePerBp=100,
-      quantile=0.25
-    ),
-    expression=list(
-      median=TRUE,
-	  mean=FALSE,
-	  quantile=NA,
-	  known=NA,
-	  custom=NA
-    ),
-    biotype=getDefaults("biotypeFilter","mm9")
-  ),
-   outList=TRUE
+	counts=mm9GeneCounts,
+	sampleList=sampleListMm9,
+	contrast=c("adult_8_weeks_vs_e14.5"),
+	libsizeList=libsizeListMm9,
+	annotation="embedded",
+	org="mm9",
+	countType="gene",
+	normalization="edger",
+	statistics="edger",
+	pcut=0.05,
+	figFormat=c("png","pdf"),
+	exportWhat=c("annotation","p_value","adj_p_value","fold_change"),
+	exportScale=c("natural","log2"),
+	exportValues="normalized",
+	exportStats=c("mean","sd","cv"),
+	exportWhere=file.path(tempdir(),"test1"),
+	restrictCores=0.8,
+	geneFilters=list(
+		 length=list(
+				length=500
+		 ),
+		 avgReads=list(
+				averagePerBp=100,
+				quantile=0.25
+		 ),
+		 expression=list(
+				median=TRUE,
+				mean=FALSE,
+				quantile=NA,
+				known=NA,
+				custom=NA
+		 ),
+		 biotype=getDefaults("biotypeFilter","mm9")
+	),
+	outList=TRUE
 )
-head(result$data[["e14.5_vs_adult_8_weeks"]])
+head(result$data[["adult_8_weeks_vs_e14.5"]])
 }
 }
 \author{

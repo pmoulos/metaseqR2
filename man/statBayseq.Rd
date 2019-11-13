@@ -52,11 +52,12 @@
 }
 \examples{
 \donttest{
+# Careful on testing, baySeq is slow
 require(DESeq)
 dataMatrix <- counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
-normDataMatrix <- normalize.edaseq(dataMatrix,sampleList,geneData)
+normDataMatrix <- normalizeEdger(dataMatrix,sampleList)
 p <- statBayseq(normDataMatrix,sampleList,contrast)
 }
 }

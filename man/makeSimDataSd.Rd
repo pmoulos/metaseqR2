@@ -93,4 +93,3 @@ trueDeg <- which(sim$truedeg!=0)
 \author{
     Panagiotis Moulos
 }
-

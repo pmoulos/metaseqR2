@@ -49,11 +49,6 @@ read2count <- function(targets,annotation,fileType=targets$type,
     if (countType == "utr" && !is.null(utrOpts)) {
 		disp("Resizing transcript 3' UTRs...")
 		w <- width(annotationGr)
-		#annotationGr <- promoters(annotationGr,upstream=utrFlank,downstream=0)
-		#annotationGr <- resize(annotationGr,width=w+2*utrFlank)
-		#annotationGr <- resize(annotationGr,width=utrFlank,fix="end")
-		#annotationGr <- resize(annotationGr,width=2*utrFlank,fix="start")
-		
 		# 1. Percentage of 3' UTR only (upstream of end), ensuring min length
 		nw <- utrOpts$frac*width(annotationGr)
 		nw <- ifelse(nw < utrOpts$minLength,utrOpts$minLength,nw)

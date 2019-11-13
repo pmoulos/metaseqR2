@@ -54,7 +54,8 @@ gc=runif(nrow(dataMatrix))
 geneData <- data.frame(
     chromosome=c(rep("chr1",nrow(dataMatrix)/2),
         rep("chr2",nrow(dataMatrix)/2)),
-    start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc
+    start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc,
+    row.names=rownames(dataMatrix)
 )
 normDataMatrix <- normalizeEdaseq(dataMatrix,sampleList,
     geneData=geneData)

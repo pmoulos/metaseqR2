@@ -96,7 +96,7 @@ covars <- list(
         start=starts,
         end=ends
     ),
-    factors=data.frame(class=as.class.vector(sampleList)),
+    factors=data.frame(class=asClassVector(sampleList)),
     biotype=c(rep("protein_coding",nrow(dataMatrix)/2),rep("ncRNA",
             nrow(dataMatrix)/2))
 )

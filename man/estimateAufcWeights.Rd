@@ -82,9 +82,9 @@
 }
 \examples{
 \donttest{
-data("mm9.gene.data",package="metaseqR2")
+data("mm9GeneGata",package="metaseqR2")
 weights <- estimateAufcWeights(
-    counts=as.matrix(mm9.gene.counts[,9:12]),
+    counts=as.matrix(mm9GeneCounts[,9:12]),
     normalization="edaseq",
     statistics=c("deseq","edger"),
     nsim=3,N=100,ndeg=c(10,10),top=10,modelOrg="mm9",
