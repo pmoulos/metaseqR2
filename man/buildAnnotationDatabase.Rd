@@ -80,20 +80,32 @@
 }
 \examples{
 \donttest{
-    organisms <- list(
-        mm9=67,
-        mm10=96:97,
-        hg19=75,
-        hg38=96:97
-    )
-    sources <- c("ensembl", "refseq")
+    # Build a test database with one genome
+    myDb <- file.path(tempdir(),"testann.sqlite")
     
-    # Build on the default location
-    buildAnnotationDatabase(organisms, sources)
+    organisms <- list(mm9=67)
+	sources <- "ensembl"
+
+	# If the example is not running in a multicore system, rc is ignored
+	buildAnnotationDatabase(organisms,sources,db=myDb,rc=0.5)
+	
+    ## A more complete case, don't run as example
+    ## Since we are using Ensembl, we can also ask for a version
+    #organisms <- list(
+    #    mm9=67,
+    #    mm10=96:97,
+    #    hg19=75,
+    #    hg38=96:97
+    #)
+    #sources <- c("ensembl", "refseq")
     
-    # Build on the alternative location
-    buildAnnotationDatabase(organisms, sources,
-	    db = file.path(path.expand("~"), "my_ann.sqlite"))
+    ## Build on the default location (depending on package location, it may
+    ## require root/sudo)
+    #buildAnnotationDatabase(organisms,sources)
+    
+    ## Build on an alternative location
+    #myDb <- file.path(path.expand("~"),"my_ann.sqlite")
+	#buildAnnotationDatabase(organisms,sources,db=myDb)
 }
 }
 \author{

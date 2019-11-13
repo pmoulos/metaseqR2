@@ -73,11 +73,37 @@
 }
 \examples{
 \donttest{
-    # FIXME: Example of custom annotation
-    
-    # Build on the default location
-    buildCustomAnnotation(gtfFile, metadata,
-		db = file.path(path.expand("~"), "my_ann.sqlite"))
+    # Setup a temporary directory to download files etc.
+	customDir <- file.path(tempdir(),"test_custom")
+	dir.create(customDir)
+
+	# Download some data from UCSC - Ebola genome annotation
+	goldenPath="http://hgdownload.cse.ucsc.edu/goldenPath/"
+	# Gene annotation dump
+	download.file(paste0(goldenPath,"eboVir3/database/ncbiGene.txt.gz"),
+		file.path(customDir,"eboVir3_ncbiGene.txt.gz"))
+	# Chromosome information
+	download.file(paste0(goldenPath,"eboVir3/database/chromInfo.txt.gz"),
+		file.path(customDir,"eboVir3_chromInfo.txt.gz"))
+
+	# Prepare the build
+	chromInfo <- read.delim(file.path(customDir,"eboVir3_chromInfo.txt.gz"),
+		header=FALSE)
+	chromInfo <- chromInfo[,1:2]
+	rownames(chromInfo) <- as.character(chromInfo[,1])
+	chromInfo <- chromInfo[,2,drop=FALSE]
+
+	# Build with the metadata list filled (you can also provide a version)
+	myDb <- file.path(tempdir(),"testann.sqlite")
+	buildCustomAnnotation(
+		gtfFile=file.path(customDir,"eboVir3_ncbiGene.txt.gz"),
+		metadata=list(
+			organism="eboVir3_test",
+			source="ucsc_test",
+			chromInfo=chromInfo
+		),
+		db=myDb
+	)
 }
 }
 \author{

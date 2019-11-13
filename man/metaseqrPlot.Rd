@@ -1,8 +1,8 @@
-\name{diagplotMetaseqr}
-\alias{diagplotMetaseqr}
+\name{metaseqrPlot}
+\alias{metaseqrPlot}
 \title{Diagnostic plots for the metaseqR package}
 \usage{
-    diagplotMetaseqr(object, sampleList, annotation = NULL,
+    metaseqrPlot(object, sampleList, annotation = NULL,
         contrastList = NULL, pList = NULL,
         thresholds = list(p = 0.05, f = 1),
         diagplotType = c("mds", "biodetection", "countsbio", 
@@ -131,11 +131,11 @@ require(DESeq)
 dataMatrix <- counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
-diagplotMetaseqr(dataMatrix,sampleList,diagplotType=c("mds","boxplot"))
+metaseqrPlot(dataMatrix,sampleList,diagplotType=c("mds","boxplot"))
 
 normArgs <- get.defaults("normalization","deseq")
 object <- normalizeDeseq(dataMatrix,sampleList,normArgs)
-diagplotMetaseqr(object,sampleList,diagplotType="boxplot")
+metaseqrPlot(object,sampleList,diagplotType="boxplot")
 
 ## More
 #p <- statDeseq(object,sampleList)

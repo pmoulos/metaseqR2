@@ -418,7 +418,7 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 	
     # Initialize or open the annotation SQLite datatabase
     message("Opening metaseqR SQLite database ",db)
-    con <- initDatabase(dbname=db)
+    con <- initDatabase(db)
     
 	parsed <- parseCustomGtf(gtfFile)
 	

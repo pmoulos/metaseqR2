@@ -151,6 +151,11 @@ annotation database. This can be achieved through the usage of the
 ```buildCustomAnnotation``` function. Details on required metadata can be found
 in the function's help page.
 
+**Important note:** Please note that importing a custom genome annotation 
+directly from UCSC (UCSC SQL database dumps) is not supported in Windows as the
+process involves using the ```genePredToGtf``` which is not available for
+Windows.
+
 Let's try a couple of exammples. The first one is a custom annotation for the
 Ebola virus from UCSC:
 
