@@ -90,7 +90,7 @@
     \code{"deheatmap"}, \code{"volcano"} or \code{"biodist"}.
     It can also be a named structured list of contrasts as 
     returned by the internal function 
-    \code{metaseqR2:::makeContrastList}}.
+    \code{metaseqR2:::makeContrastList}.
     
     Regarding \code{diagplotType}, many of these plots
     require the presence of additional package, something

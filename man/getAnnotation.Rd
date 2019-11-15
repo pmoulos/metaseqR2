@@ -58,7 +58,6 @@
 \examples{
 mm9Genes <- getAnnotation("mm9","gene")
 }
-}
 \author{
     Panagiotis Moulos
 }

@@ -529,6 +529,12 @@ p {
 
 ```{r report_init}
 library(pander)
+library(magrittr)
+library(heatmaply)
+library(DT)
+library(htmltools)
+
+makeFoldChange <- metaseqR2:::makeFoldChange
 
 # Initialize some variables used throughout the report
 samples <- unlist(sampleList,use.names=FALSE)
@@ -1758,7 +1764,7 @@ if ("saturation" %in% qcPlots) {
 if ("readnoise" %in% qcPlots) {
 	pandoc.header("Reads noise",level=3)
 	
-	cat("<h4><strong>RNA_Seq reads noise</strong></h4>")
+	cat("<h4><strong>RNA-Seq reads noise</strong></h4>")
 	cat("<div class=\"figure-hint\">",reportMessages$explain$readnoise,
 	    "<br/><br/></div>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"readsnoise_container\"></div>",

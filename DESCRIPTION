@@ -32,7 +32,8 @@ Imports:
     rmarkdown,
     heatmaply,
     pander,
-    DT
+    DT,
+    magrittr
 Suggests:
     BiocGenerics,
     GenomicRanges,
@@ -77,7 +78,7 @@ Collate:
     'main.R'
     'meta.R'
     'norm.R'
-    'metaseqR-package.R'
+    'metaseqR2-package.R'
     'plot.R'
     'query.R'
     'reportdb.R'

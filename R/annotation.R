@@ -1,4 +1,3 @@
-#FIXME: Finalize 3' UTR active length
 buildAnnotationDatabase <- function(organisms,sources,
     #db=file.path(path.expand("~"),".metaseqR","annotation.sqlite"),
     db=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
@@ -1506,10 +1505,12 @@ getUcscAnnotation <- function(org,type,refdb="ucsc",chunkSize=500,rc=NULL) {
     }
     else {
         # This should return the same data frame as the db query
-        if (type == "transcript")
-            tmpSqlite <- getUcscDbl(org,"gene",refdb)
-        else if (type %in% c("gene","exon"))
-            tmpSqlite <- getUcscDbl(org,type,refdb)
+        #if (type == "transcript")
+        #    tmpSqlite <- getUcscDbl(org,"gene",refdb)
+        #else if (type %in% c("gene","exon"))
+        #    tmpSqlite <- getUcscDbl(org,type,refdb)
+        
+        tmpSqlite <- getUcscDbl(org,refdb)
         
         if (type != "utr") { # Otherwise diect download is used
 			drv <- dbDriver("SQLite")
@@ -3302,102 +3303,114 @@ initDatabase <- function(db) {
         stop("Argument 'uniqueRows' must be a logical value, so either TRUE ",
 			"or FALSE")
     
-    ## force the query to return the 'english text' header names with the result
-    ## we use these later to match and order attribute/column names    
+    # force the query to return the 'english text' header names with the result
+    # we use these later to match and order attribute/column names    
     callHeader <- TRUE
-    xmlQuery = paste0("<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE Query><Query  virtualSchemaName = '",
-                      biomaRt:::martVSchema(mart),
-                      "' uniqueRows = '",
-                      as.numeric(uniqueRows),
-                      "' count = '0' datasetConfigVersion = '0.6' header='",
-                      as.numeric(callHeader),
-                      "' requestid= 'biomaRt'> <Dataset name = '",
-                      biomaRt:::martDataset(mart),"'>")
+    xmlQuery <- paste0("<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE Query>",
+		"<Query  virtualSchemaName = '",biomaRt:::martVSchema(mart),
+		"' uniqueRows = '",as.numeric(uniqueRows),
+		"' count = '0' datasetConfigVersion = '0.6' header='",
+		as.numeric(callHeader),"' requestid= 'biomaRt'> <Dataset name = '",
+		biomaRt:::martDataset(mart),"'>")
     
-    #checking the Attributes
-    invalid = !(attributes %in% listAttributes(mart, what="name"))
+    # checking the Attributes
+    invalid <- !(attributes %in% listAttributes(mart, what="name"))
     if(any(invalid))
-        stop(paste("Invalid attribute(s):", paste(attributes[invalid], collapse=", "),
-                   "\nPlease use the function 'listAttributes' to get valid attribute names"))
+        stop(paste("Invalid attribute(s):", paste(attributes[invalid],
+			collapse=", "),"\nPlease use the function 'listAttributes' to get ",
+			"valid attribute names"))
     
-    #attribute are ok lets add them to the query
-    attributeXML = paste("<Attribute name = '", attributes, "'/>", collapse="", sep="")
+    # attribute are ok lets add them to the query
+    attributeXML = paste("<Attribute name = '",attributes, "'/>",collapse="",
+		sep="")
     
     #checking the filters
-    if(filters[1] != "" && checkFilters){
-        invalid = !(filters %in% listFilters(mart, what="name"))
+    if(filters[1] != "" && checkFilters) {
+        invalid <- !(filters %in% listFilters(mart, what="name"))
         if(any(invalid))
-            stop(paste("Invalid filters(s):", paste(filters[invalid], collapse=", "),
-                       "\nPlease use the function 'listFilters' to get valid filter names"))
+            stop(paste("Invalid filters(s):", paste(filters[invalid],
+				collapse=", "),"\nPlease use the function 'listFilters' to ",
+				"get valid filter names"))
     }
     
-    ## filterXML is a list containing filters with reduced numbers of values
-    ## to meet the 500 value limit in BioMart queries
-    filterXmlList <- biomaRt:::.generateFilterXML(filters, values, mart)
+    # filterXML is a list containing filters with reduced numbers of values
+    # to meet the 500 value limit in BioMart queries
+    filterXmlList <- biomaRt:::.generateFilterXML(filters,values,mart)
     
     resultList <- list()
     if(length(filterXmlList) > 1) {
         pb <- progress_bar$new(total = length(filterXmlList),
-                               width = options()$width - 10,
-                               format = "Batch submitting query [:bar] :percent eta: :eta")
+			width=options()$width - 10,
+			format="Batch submitting query [:bar] :percent eta: :eta")
         pb$tick(0)
     }
     
-    ## we submit a query for each chunk of the filter list
-    for(i in seq_along(filterXmlList)) {
-        
-        if(exists('pb')) {
+    # we submit a query for each chunk of the filter list
+    for (i in seq_along(filterXmlList)) {
+        if (exists('pb')) {
             pb$tick()
         }
         
-        filterXML <- filterXmlList[[ i ]]
-        fullXmlQuery = paste(xmlQuery, attributeXML, filterXML,"</Dataset></Query>",sep="")
+        filterXML <- filterXmlList[[i]]
+        fullXmlQuery <- paste(xmlQuery,attributeXML,filterXML,
+			"</Dataset></Query>",sep="")
         
-        if(verbose) {
+        if(verbose)
             message(fullXmlQuery)
-        }      
         
-        ## we choose a separator based on whether '?redirect=no' is present
-        sep <- ifelse(grepl(x = biomaRt:::martHost(mart), pattern = ".+\\?.+"), "&", "?")
+        # we choose a separator based on whether '?redirect=no' is present
+        sep <- ifelse(grepl(x=biomaRt:::martHost(mart),
+			pattern=".+\\?.+"), "&", "?")
         
-        postRes <- .mySubmitQueryXML(host = paste0(biomaRt:::martHost(mart), sep),
-                                   query = fullXmlQuery)
+        postRes <- .mySubmitQueryXML(host=paste0(biomaRt:::martHost(mart),sep),
+			query=fullXmlQuery)
         
-        if(verbose){
+        if (verbose) {
             writeLines("#################\nResults from server:")
             print(postRes)
         }
-        if(!(is.character(postRes) && (length(postRes)==1L)))
-            stop("The query to the BioMart webservice returned an invalid result: biomaRt expected a character string of length 1. \nPlease report this on the support site at http://support.bioconductor.org")
         
-        if(gsub("\n", "", postRes, fixed = TRUE, useBytes = TRUE) == "") { # meaning an empty result
-            
-            result = as.data.frame(matrix("", ncol=length(attributes), nrow=0), stringsAsFactors=FALSE)
-            
+        if (!(is.character(postRes) && (length(postRes)==1L)))
+            stop("The query to the BioMart webservice returned an invalid ",
+				"result: biomaRt expected a character string of length 1.\n",
+				"Please report this on the support site at", 
+				"http://support.bioconductor.org")
+        
+        if (gsub("\n","",postRes,fixed=TRUE,useBytes=TRUE)== "") { 
+			# meaning an empty result
+            result <- as.data.frame(matrix("",ncol=length(attributes),nrow=0),
+				stringsAsFactors=FALSE)
         } else {
-            
-            if(length(grep("^Query ERROR", postRes))>0L)
+            if (length(grep("^Query ERROR",postRes)) > 0L)
                 stop(postRes)
             
-            ## convert the serialized table into a dataframe
-            con = textConnection(postRes)
-            result = read.table(con, sep="\t", header=callHeader, quote = quote, comment.char = "", check.names = FALSE, stringsAsFactors=FALSE)
-            if(verbose){
+            # convert the serialized table into a dataframe
+            con <- textConnection(postRes)
+            result <- read.table(con,sep="\t",header=callHeader,quote=quote,
+				comment.char="",check.names=FALSE,stringsAsFactors=FALSE)
+            if(verbose) {
                 writeLines("#################\nParsed results:")
                 print(result)
             }
             close(con)
             
-            if(!(is(result, "data.frame") && (ncol(result)==length(attributes)))) {
+            if (!(is(result,"data.frame") 
+				&& (ncol(result)==length(attributes)))) {
                 print(head(result))
-                stop("The query to the BioMart webservice returned an invalid result: the number of columns in the result table does not equal the number of attributes in the query. \nPlease report this on the support site at http://support.bioconductor.org")
+                stop("The query to the BioMart webservice returned an invalid ",
+					"result: the number of columns in the result table does ",
+					"not equal the number of attributes in the query.\n",
+					"Please report this on the support site at",
+					"http://support.bioconductor.org")
             }
         }
         
-        resultList[[i]] <- biomaRt:::.setResultColNames(result, mart = mart, attributes = attributes, bmHeader = bmHeader)
+        resultList[[i]] <- biomaRt:::.setResultColNames(result,mart=mart,
+			attributes=attributes,bmHeader=bmHeader)
     }
-    ## collate results
-    result <- do.call('rbind', resultList)
+    
+    # collate results
+    result <- do.call('rbind',resultList)
     return(result)
 }
 
@@ -3406,7 +3419,7 @@ initDatabase <- function(db) {
     res <- httr::POST(url = host, body = list(query = query),
         httr::timeout(1000))
     if (httr::status_code(res) == 302) {
-        host <- stringr::str_match(string = res$all_headers[[1]]$headers$location,
+        host <- stringr::str_match(string=res$all_headers[[1]]$headers$location,
             pattern = "//([a-zA-Z./]+)\\??;?redirectsrc")[, 2]
         res <- httr::POST(url = host, body = list(query = query),
             config = list(httr::timeout(1000)))
@@ -3415,7 +3428,7 @@ initDatabase <- function(db) {
 }
 
 
-reduceExonsOld <- function(gr,rc=NULL) {
+..reduceExonsOld <- function(gr,rc=NULL) {
     gene <- unique(as.character(gr$gene_id))
     if (!is.null(gr$gene_name))
         gn <- gr$gene_name
@@ -3451,7 +3464,7 @@ reduceExonsOld <- function(gr,rc=NULL) {
     return(list(model=do.call("c",redList),length=len))
 }
 
-reduceTranscriptsOld <- function(gr,rc=NULL) {
+..reduceTranscriptsOld <- function(gr,rc=NULL) {
     gene <- unique(as.character(gr$gene_id))
     if (!is.null(gr$gene_name))
         gn <- gr$gene_name
@@ -3483,7 +3496,7 @@ reduceTranscriptsOld <- function(gr,rc=NULL) {
     return(do.call("c",redList))
 }
 
-reduceTranscriptsUtrOld <- function(gr,rc=NULL) {
+..reduceTranscriptsUtrOld <- function(gr,rc=NULL) {
     trans <- unique(as.character(gr$transcript_id))
     if (!is.null(gr$gene_name))
         gn <- gr$gene_name

@@ -18,7 +18,7 @@
 #}
 
 # The old function. It has NULLs in the new fields that are filled in getWeights2 (see furhter down).
-getWeightsOld <- function(org=c("human","chimpanzee","mouse","fruitfly",
+..getWeightsOld <- function(org=c("human","chimpanzee","mouse","fruitfly",
     "arabidopsis","rat")) {
     org <- tolower(org)
     checkTextArgs("org",org,c("human","chimpanzee","mouse","fruitfly",

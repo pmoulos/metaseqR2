@@ -76,7 +76,7 @@ analysis pipeline while *metaseqR* refers to the name of the package.
 
 ## Introduction
 
-```{r load-library echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+```{r load-library, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 library(metaseqR2)
 ```
 
@@ -330,7 +330,7 @@ metaseqR2 annotation database, please provide it with the ```localDb```
 argument, otherwise, an on-the-fly annotation will be downloaded and constructed
 for this example.
 
-```{r example-4, eval=FALSE, echo=TRUE, tidy=FALSE}
+```{r example-5, eval=FALSE, echo=TRUE, tidy=FALSE}
 # A full example pipeline with exon counts
 
 # Download sample data
@@ -390,7 +390,7 @@ metaseqr2(
 
 or in a more simplified version
 
-```{r example-5, eval=FALSE, echo=TRUE, tidy=FALSE}
+```{r example-6, eval=FALSE, echo=TRUE, tidy=FALSE}
 # A full example pipeline with exon counts
 metaseqr2(
 	sampleList=targetsFile,
@@ -416,7 +416,7 @@ of metaseqr when ```metaP``` is ```weight```, ```pandora``` or ```whitlock``
 shows how to create such weights (depending on the size of the dataset, it might 
 take some time to run):
 
-```{rexample-6, eval=TRUE, echo=TRUE, tidy=FALSE, warning=FALSE}
+```{rexample-7, eval=TRUE, echo=TRUE, tidy=FALSE, warning=FALSE}
 data("mm9GeneData",package="metaseqR2")
 weights <- estimateAufcWeights(
     counts=as.matrix(mm9GeneCounts[,9:12]),
@@ -434,6 +434,8 @@ weights
 ```
 
 # metaseqR2 components
+
+## Brief description
 
 The metaseqR2 package includes several functions which are responsible for 
 running each part of the pipeline (data reading and summarization, filtering, 
@@ -470,6 +472,15 @@ all its parameters can be obtained by
 ```{r help-3, eval=FALSE, echo=TRUE}
 help(metaseqr2)
 ```
+
+## Backwards compatibility
+
+If you have older pipelines based on metaseqR and the ```metaseqr``` function
+where the argument coding style is different (e.g. ```sample.list``` instead of
+```sampleList```) then ```metaseqr2``` will do its best to convert old arguments
+to new arguments so that old commands do not break and the only that should be
+changed is ```metaseqr``` to ```metaseqr2```. Note however that you _should not_
+mix old and new arguments. In this case, ```metaseqr2``` will fail.
 
 # The report
 

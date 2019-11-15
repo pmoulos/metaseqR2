@@ -388,7 +388,7 @@
     \item{offlineReport}{\code{TRUE} (default) to download
     and include the required JavaScript libraries to
     properly view the report offline. Ignored if
-    \code{report=FALSE}.
+    \code{report=FALSE}}.
 
     \item{...}{further arguments that may be passed to
     plotting functions, related to \code{\link{par}}.}

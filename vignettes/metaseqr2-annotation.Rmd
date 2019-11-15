@@ -318,7 +318,7 @@ dasGenes
 A quite complete build (with latest versions of Ensembl annotations) would look
 like (supposing the default annotation database location):
 
-```{r example-6, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+```{r example-7, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 organisms <- list(
 	hg18=67,
 	hg19=75,

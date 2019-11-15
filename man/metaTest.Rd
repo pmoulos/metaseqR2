@@ -1,4 +1,4 @@
-\name{meta.test}
+\name{metaTest}
 \alias{metaTest}
 \title{Meta-analysis using several RNA-Seq statistics}
 \usage{
@@ -8,7 +8,7 @@
         "minp", "maxp", "weight", "pandora", "none"), counts, 
         sampleList, statistics, statArgs, libsizeList, 
         nperm = 10000, weight = rep(1/length(statistics), 
-        length(statistics)), reprod=TRUE, rc = NULL)
+        length(statistics)), reprod = TRUE, rc = NULL)
 }
 \arguments{
     \item{cpList}{a named list whose names are the contrasts
@@ -62,10 +62,10 @@
     dataset. It is a helper and it requires very specific
     arguments so it should not be used individually
 }
-details{
+\details{
 	Regarding the \code{reprod} argument, ideally one would 
     want to create the same set of indices for a given 
-    dataset so as to create reproducible p-values. If 
+    dataset so as to create reproducible p-values. If
     \code{reprod=TRUE}, a fixed seed is used by \code{meta_perm}
     for all the datasets analyzed with \code{metaseqr2}. If 
     \code{reprod=FALSE}, then the p-values will not be 
