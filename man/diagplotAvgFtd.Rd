@@ -53,11 +53,11 @@ p1 <- rbind(p11,p21)
 p2 <- rbind(p12,p22)
 p3 <- rbind(p31,p32)
 rownames(p1) <- rownames(p2) <- rownames(p3) <-
-    paste("gene",1:200,sep="_")
+  paste("gene",1:200,sep="_")
 colnames(p1) <- colnames(p2) <- colnames(p3) <-
-    paste("method",1:3,sep="_")
+  paste("method",1:3,sep="_")
 truth <- c(rep(1,40),rep(-1,40),rep(0,20),
-    rep(1,10),rep(2,10),rep(0,80))
+  rep(1,10),rep(2,10),rep(0,80))
 names(truth) <- rownames(p1)
 ftdObj1 <- diagplotFtd(truth,p1,N=100,draw=FALSE)
 ftdObj2 <- diagplotFtd(truth,p2,N=100,draw=FALSE)

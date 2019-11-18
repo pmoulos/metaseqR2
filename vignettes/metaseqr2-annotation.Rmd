@@ -80,7 +80,7 @@ In this vignette, we will build a minimal database comprising only the mouse
 ```mm9``` genome version from Ensembl. The database will be build in a temporary
 directory inside session ```tempdir()```.
 
-```{r load-0, eval=TRUE, echo=FALSE, tidy=FALSE, message=TRUE, warning=FALSE}
+```{r load-0, eval=TRUE, echo=FALSE, tidy=FALSE, message=FALSE, warning=FALSE}
 library(metaseqR2)
 ```
 
@@ -95,7 +95,7 @@ myDb <- file.path(buildDir,"testann.sqlite")
 
 # Since we are using Ensembl, we can also ask for a version
 organisms <- list(mm9=67)
-sources <- "ensembl"
+sources <- c("ensembl","refseq")
 
 # If the example is not running in a multicore system, rc is ignored
 buildAnnotationDatabase(organisms,sources,forceDownload=FALSE,db=myDb,rc=0.5)
@@ -124,6 +124,10 @@ sumEx <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="exon",
 	summarized=TRUE,db=myDb)
 sumEx
 
+# Load standard annotation based on gene body coordinates from RefSeq
+refGenes <- loadAnnotation(genome="mm9",refdb="refseq",level="gene",type="gene",
+	db=myDb)
+refGenes
 ```
 
 Or you as a ```data.frame``` if you prefer using ```asdf=TRUE```. The 
@@ -134,7 +138,7 @@ for any susequent validations:
 # Load standard annotation based on gene body coordinates
 genes <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="gene",
 	db=myDb,asdf=TRUE)
-genes
+head(genes)
 ```
 
 ## Add a custom annotation

@@ -40,21 +40,20 @@
 }
 \examples{
 \donttest{
-    # Gene annotation dump from Ensembl
-	download.file(paste0("ftp://ftp.ensembl.org/pub/release-98/gtf/",
-		"dasypus_novemcinctus/Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
-		file.path(tempdir(),"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"))
+# Gene annotation dump from Ensembl
+download.file(paste0("ftp://ftp.ensembl.org/pub/release-98/gtf/",
+  "dasypus_novemcinctus/Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
+  file.path(tempdir(),"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"))
 
-	# Build with the metadata list filled (you can also provide a version)
-	dasGenes <- importCustomAnnotation(
-		gtfFile=file.path(tempdir(),"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
-		metadata=list(
-			organism="dasNov3_test",
-			source="ensembl_test"
-		),
-		level="gene",type="gene"
-	)
-
+# Build with the metadata list filled (you can also provide a version)
+dasGenes <- importCustomAnnotation(
+  gtfFile=file.path(tempdir(),"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
+  metadata=list(
+    organism="dasNov3_test",
+    source="ensembl_test"
+  ),
+  level="gene",type="gene"
+)
 }
 }
 \author{

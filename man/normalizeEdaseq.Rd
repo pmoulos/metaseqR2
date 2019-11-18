@@ -52,13 +52,13 @@ starts <- round(1000*runif(nrow(data.matrix)))
 ends <- starts + lengths
 gc=runif(nrow(dataMatrix))
 geneData <- data.frame(
-    chromosome=c(rep("chr1",nrow(dataMatrix)/2),
-        rep("chr2",nrow(dataMatrix)/2)),
-    start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc,
-    row.names=rownames(dataMatrix)
+  chromosome=c(rep("chr1",nrow(dataMatrix)/2),
+    rep("chr2",nrow(dataMatrix)/2)),
+  start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc,
+  row.names=rownames(dataMatrix)
 )
 normDataMatrix <- normalizeEdaseq(dataMatrix,sampleList,
-    geneData=geneData)
+  geneData=geneData)
 diagplotBoxplot(normDataMatrix,sampleList)
 }
 \author{

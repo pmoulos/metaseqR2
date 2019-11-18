@@ -50,7 +50,7 @@
 myTargets <- readTargets("my_mm9_study_bam_files.txt")
 geneData <- getAnnotation("mm9","gene")
 r2c <- read2count(targets=myTargets,
-    fileType=myTargets$type,annotation=geneData)
+  fileType=myTargets$type,annotation=geneData)
 geneCounts <- r2c$counts
 libsizeList <- r2s$libsize
 }

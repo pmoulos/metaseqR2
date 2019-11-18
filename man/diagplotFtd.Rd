@@ -64,7 +64,7 @@
     This function creates false (or true) discovery 
     curves using a matrix of p-values (such a matrix 
     can be derived for example from the result table 
-    of \code{\link{metaseqr}} by subsetting the table 
+    of \code{\link{metaseqr2}} by subsetting the table 
     to get the p-values from several algorithms) 
     given a ground truth vector for differential 
     expression.

@@ -1,35 +1,3 @@
-#' Statistical testing with DESeq
-#'
-#' This function is a wrapper over DESeq statistical testing. It accepts a matrix
-#' of normalized gene counts or an S4 object specific to each normalization
-#' algorithm supported by metaseqR.
-#'
-#' @param object a matrix or an object specific to each normalization algorithm
-#' supported by metaseqR, containing normalized counts. Apart from matrix (also
-#' for NOISeq), the object can be a SeqExpressionSet (EDASeq), CountDataSet (DESeq)
-#' or DGEList (edgeR).
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrastList a named structured list of contrasts as returned by
-#' \code{\link{makeContrastList}} or just the vector of contrasts as defined
-#' in the main help page of \code{\link{metaseqr}}.
-#' @param statArgs a list of DESeq statistical algorithm parameters. See the
-#' result of \code{getDefaults("statistics",} \code{"deseq")} for an example and
-#' how you can modify it. It is not required when the input object is already a
-#' CountDataSet from DESeq normalization
-#' as the dispersions are already estimated.
-#' @return A named list of p-values, whose names are the names of the contrasts.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' require(DESeq)
-#' dataMatrix <- counts(makeExampleCountDataSet())
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' contrast <- "A_vs_B"
-#' norm.dataMatrix <- normalizeDeseq(dataMatrix,sampleList)
-#' p <- statDeseq(norm.dataMatrix,sampleList,contrast)
-#'}
 statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     #if (is.null(normArgs) && class(object)=="DGEList")
     #    normArgs <- getDefaults("normalization","edger")
@@ -137,41 +105,6 @@ statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     }
     return(p)
 }
-
-#' Statistical testing with DESeq2
-#'
-#'
-#'This function is a wrapper over DESeq2 statistical testing. It accepts a matrix
-#' of normalized gene counts or an S4 object specific to each normalization
-#' algorithm supported by metaseqR.
-#'
-#'
-#' @param object a matrix or an object specific to each normalization algorithm
-#' supported by metaseqR, containing normalized counts. Apart from matrix (also
-#' for NOISeq), the object can be a SeqExpressionSet (EDASeq), CountDataSet (DESeq),        
-#' DESeqDataSet (DESeq2), DGEList (edgeR) or a ABSDataSet (ABSSeq).                                                                 
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrastList a named structured list of contrasts as returned by
-#' \code{\link{makeContrastList}} or just the vector of contrasts as defined
-#' in the main help page of \code{\link{metaseqr}}.
-#' @param statArgs a list of DESeq2 statistical algorithm parameters. See the
-#' result of \code{getDefaults("statistics",} \code{"deseq2")} for an example and
-#' how you can modify it. It is not required when the input object is already a
-#' DESeqDataSet from DESeq normalization
-#' as the dispersions are already estimated.
-#' @return A named list of p-values, whose names are the names of the contrasts.
-#' @author Dionysios Fanidis
-#' @export
-#' @examples
-#' \dontrun{
-#' require(DESeq2)
-#' dataMatrix <- counts(makeExampleCountDataSet())
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' contrast <- "A_vs_B"
-#' norm.dataMatrix <- normalizeDeseq2(dataMatrix,sampleList)
-#' p <- statDeseq2(norm.dataMatrix,sampleList,contrast)
-#'}
 
 statDeseq2 <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
@@ -323,37 +256,7 @@ statDeseq2 <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     
     return(p)
 }                 
-          
-#' Statistical testing with edgeR
-#'
-#' This function is a wrapper over edgeR statistical testing. It accepts a matrix
-#' of normalized gene counts or an S4 object specific to each normalization
-#' algorithm supported by metaseqR.
-#'
-#' @param object a matrix or an object specific to each normalization algorithm
-#' supported by metaseqr, containing normalized counts. Apart from matrix (also
-#' for NOISeq), the object can be a SeqExpressionSet (EDASeq), CountDataSet (DESeq)
-#' or DGEList (edgeR).
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrastList a named structured list of contrasts as returned by
-#' \code{\link{makeContrastList}} or just the vector of contrasts as defined in
-#' the main help page of \code{\link{metaseqr}}.
-#' @param statArgs a list of edgeR statistical algorithm parameters. See the
-#' result of \code{getDefaults("statistics",} \code{"edger")} for an example and
-#' how you can modify it.
-#' @return A named list of p-values, whose names are the names of the contrasts.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' require(DESeq)
-#' dataMatrix <- counts(makeExampleCountDataSet())
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' contrast <- "A_vs_B"
-#' norm.dataMatrix <- normalizeEdger(dataMatrix,sampleList)
-#' p <- statEdger(norm.dataMatrix,sampleList,contrast)
-#'}
+
 statEdger <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","edger")
@@ -526,36 +429,6 @@ statEdger <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     return(p)
 }
 
-#' Statistical testing with limma
-#'
-#' This function is a wrapper over limma statistical testing. It accepts a matrix
-#' of normalized gene counts or an S4 object specific to each normalization
-#' algorithm supported by metaseqR.
-#'
-#' @param object a matrix or an object specific to each normalization algorithm
-#' supported by metaseqr, containing normalized counts. Apart from matrix (also
-#' for NOISeq), the object can be a SeqExpressionSet (EDASeq), CountDataSet (DESeq)
-#' or DGEList (edgeR).
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrastList a named structured list of contrasts as returned by
-#' \code{\link{makeContrastList}} or just the vector of contrasts as defined in
-#' the main help page of \code{\link{metaseqr}}.
-#' @param statArgs a list of edgeR statistical algorithm parameters. See the
-#' result of \code{getDefaults("statistics",} \code{"limma")} for an example and
-#' how you can modify it.
-#' @return A named list of p-values, whose names are the names of the contrasts.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' require(DESeq)
-#' dataMatrix <- counts(makeExampleCountDataSet())
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' contrast <- "A_vs_B"
-#' norm.dataMatrix <- normalizeEdger(dataMatrix,sampleList)
-#' p <- statLimma(norm.dataMatrix,sampleList,contrast)
-#'}
 statLimma <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","limma")
@@ -633,50 +506,6 @@ statLimma <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     return(p)
 }
 
-#' Statistical testing with NOISeq
-#'
-#' This function is a wrapper over NOISeq statistical testing. It accepts a matrix
-#' of normalized gene counts or an S4 object specific to each normalization
-#' algorithm supported by metaseqR.
-#'
-#' @param object a matrix or an object specific to each normalization algorithm
-#' supported by metaseqr, containing normalized counts. Apart from matrix (also
-#' for NOISeq), the object can be a SeqExpressionSet (EDASeq), CountDataSet (DESeq)
-#' or DGEList (edgeR).
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrastList a named structured list of contrasts as returned by
-#' \code{\link{makeContrastList}} or just the vector of contrasts as defined in
-#' the main help page of \code{\link{metaseqr}}.
-#' @param statArgs a list of edgeR statistical algorithm parameters. See the
-#' result of \code{getDefaults("statistics",} \code{"noiseq")} for an example
-#' and how you can modify it.
-#' @param geneData an optional annotation data frame (such the ones produced by
-#' \code{getAnnotation} which contains the GC content for each gene and from
-#' which the gene lengths can be inferred by chromosome coordinates.
-#' @param logOffset a number to be added to each element of data matrix in order
-#' to avoid Infinity on log type data transformations.
-#' @return A named list of NOISeq q-values, whose names are the names of the
-#' contrasts.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' require(DESeq)
-#' dataMatrix <- counts(makeExampleCountDataSet())
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' contrast <- "A_vs_B"
-#' lengths <- round(1000*runif(nrow(dataMatrix)))
-#' starts <- round(1000*runif(nrow(dataMatrix)))
-#' ends <- starts + lengths
-#' gc=runif(nrow(dataMatrix)),
-#' geneData <- data.frame(
-#'   chromosome=c(rep("chr1",nrow(dataMatrix)/2),rep("chr2",nrow(dataMatrix)/2)),
-#'   start=starts,end=ends,gene_id=rownames(dataMatrix),gc_content=gc
-#' )
-#' norm.dataMatrix <- normalizeNoiseq(dataMatrix,sampleList,geneData)
-#' p <- statNoiseq(norm.dataMatrix,sampleList,contrast,geneData=geneData)
-#'}
 statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     geneData=NULL,logOffset=1) {
     #if (is.null(normArgs) && class(object)=="DGEList")
@@ -863,41 +692,6 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     return(p)
 }
 
-#' Statistical testing with baySeq
-#'
-#' This function is a wrapper over baySeq statistical testing. It accepts a matrix
-#' of normalized gene counts or an S4 object specific to each normalization
-#' algorithm supported by metaseqR.
-#'
-#' @param object a matrix or an object specific to each normalization algorithm
-#' supported by metaseqr, containing normalized counts. Apart from matrix (also
-#' for NOISeq), the object can be a SeqExpressionSet (EDASeq), CountDataSet
-#' (DESeq) or DGEList (edgeR).
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrastList a named structured list of contrasts as returned by
-#' \code{\link{makeContrastList}} or just the vector of contrasts as defined in
-#' the main help page of \code{\link{metaseqr}}.
-#' @param statArgs a list of edgeR statistical algorithm parameters. See the
-#' result of \code{getDefaults("statistics",} \code{"bayseq")} for an example
-#' and how you can modify it.
-#' @param libsizeList an optional named list where names represent samples (MUST
-#' be the same as the samples in \code{sampleList}) and members are the library
-#' sizes (the sequencing depth) for each sample. If not provided, they will be
-#' estimated from baySeq.
-#' @return A named list of the value 1-likelihood that a gene is differentially
-#' expressed, whose names are the names of the contrasts.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' require(DESeq)
-#' dataMatrix <- counts(makeExampleCountDataSet())
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' contrast <- "A_vs_B"
-#' norm.dataMatrix <- normalizeEdaseq(dataMatrix,sampleList,geneData)
-#' p <- statBayseq(norm.dataMatrix,sampleList,contrast)
-#'}
 statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     libsizeList=NULL) {
     if (is.null(statArgs))
@@ -980,47 +774,6 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     return(p)
 }
 
-#' Statistical testing with NBPSeq
-#'
-#' This function is a wrapper over NBPSeq statistical testing. It accepts a matrix
-#' of normalized gene counts or an S4 object specific to each normalization
-#' algorithm supported by metaseqR.
-#'
-#' @param object a matrix or an object specific to each normalization algorithm
-#' supported by metaseqr, containing normalized counts. Apart from matrix (also
-#' for NOISeq), the object can be a SeqExpressionSet (EDASeq), CountDataSet
-#' (DESeq), DGEList (edgeR) or list (NBPSeq).
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrastList a named structured list of contrasts as returned by
-#' \code{\link{makeContrastList}} or just the vector of contrasts as defined in
-#' the main help page of \code{\link{metaseqr}}.
-#' @param statArgs a list of NBPSeq statistical algorithm parameters. See the
-#' result of \code{getDefaults("statistics",} \code{"nbpseq")}
-#' for an example and how you can modify it. It is not required when the input
-#' object is already a list from NBPSeq normalization as the dispersions are
-#' already estimated.
-#' @param libsizeList an optional named list where names represent samples
-#' (MUST be the same as the samples \code{in sampleList}) and members are the
-#' library sizes (the sequencing depth) for each sample. If not provided, the
-#' default is the column sums of the \code{geneCounts} matrix.
-#' @return A named list of p-values, whose names are the names of the contrasts.
-#' @note There is currently a problem with the NBPSeq package and the workflow that
-#' is specific to the NBPSeq package. The problem has to do with function exporting
-#' as there are certain functions which are not recognized from the package
-#' internally. For this reason and until it is fixed, only the Smyth workflow
-#' will be available with the NBPSeq package.
-#' @author Panagiotis Moulos
-#' @export
-#' @examples
-#' \dontrun{
-#' require(DESeq)
-#' dataMatrix <- counts(makeExampleCountDataSet())
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' contrast <- "A_vs_B"
-#' norm.dataMatrix <- normalizeNbpseq(dataMatrix,sampleList)
-#' p <- statNbpseq(norm.dataMatrix,sampleList,contrast)
-#'}
 statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     libsizeList=NULL) {
     if (is.null(statArgs) && class(object)!="list")
@@ -1207,40 +960,6 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     }
     return(p)
 }
-                         
-#' Statistical testing with ABSSeq
-#'
-#' This function is a wrapper over ABSSeq statistical testing. It accepts a matrix
-#' of normalized gene counts or an S4 object specific to each normalization
-#' algorithm supported by metaseqR.
-#'
-#'
-#' @param object a matrix or an object specific to each normalization algorithm
-#' supported by metaseqR, containing normalized counts. Apart from matrix (also
-#' for NOISeq), the object can be a SeqExpressionSet (EDASeq), CountDataSet (DESeq)     
-#' or DGEList (edgeR).                                                                  
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrastList a named structured list of contrasts as returned by
-#' \code{\link{makeContrastList}} or just the vector of contrasts as defined
-#' in the main help page of \code{\link{metaseqr}}.
-#' @param statArgs a list of DESeq2 statistical algorithm parameters. See the
-#' result of \code{getDefaults("statistics",} \code{"deseq")} for an example and
-#' how you can modify it. It is not required when the input object is already a
-#' CountDataSet from DESeq normalization
-#' as the dispersions are already estimated.
-#' @return A named list of p-values, whose names are the names of the contrasts.
-#' @author Dionysios Fanidis
-#' @export
-#' @examples
-#' \dontrun{
-#' require(DESeq)
-#' dataMatrix <- counts(makeExampleCountDataSet())
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' contrast <- "A_vs_B"
-#' norm.dataMatrix <- normalizeDeseq(dataMatrix,sampleList)
-#' p <- statAbsseq(norm.dataMatrix,sampleList,contrast)
-#'}
 
 statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
@@ -1552,40 +1271,6 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     }
     return(p)       
 }
-
-#' Statistical testing with DSS
-#'
-#'This function is a wrapper over DSS statistical testing. It accepts a matrix
-#' of normalized gene counts or an S4 object specific to each normalization
-#' algorithm supported by metaseqR.
-#'
-#'
-#' @param object a matrix or an object specific to each normalization algorithm
-#' supported by metaseqR, containing normalized counts. Apart from matrix (also
-#' for NOISeq), the object can be a SeqExpressionSet (EDASeq), CountDataSet (DESeq)     
-#' or DGEList (edgeR).                                                                  
-#' @param sampleList the list containing condition names and the samples under
-#' each condition.
-#' @param contrastList a named structured list of contrasts as returned by
-#' \code{\link{makeContrastList}} or just the vector of contrasts as defined
-#' in the main help page of \code{\link{metaseqr}}.
-#' @param statArgs a list of DESeq2 statistical algorithm parameters. See the
-#' result of \code{getDefaults("statistics",} \code{"deseq")} for an example and
-#' how you can modify it. It is not required when the input object is already a
-#' CountDataSet from DESeq normalization
-#' as the dispersions are already estimated.
-#' @return A named list of p-values, whose names are the names of the contrasts.
-#' @author Dionysios Fanidis
-#' @export
-#' @examples
-#' \dontrun{
-#' require(DESeq)
-#' dataMatrix <- counts(makeExampleCountDataSet())
-#' sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
-#' contrast <- "A_vs_B"
-#' norm.dataMatrix <- normalizeDeseq(dataMatrix,sampleList)
-#' p <- statDss(norm.dataMatrix,sampleList,contrast)
-#'}
 
 statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))

@@ -1,6 +1,6 @@
 \name{statDss}
 \alias{statDss}
-\title{Statistical testing with DESeq}
+\title{Statistical testing with DSS}
 \usage{
     statDss(object, sampleList, contrastList = NULL,
         statArgs = NULL)

@@ -17,7 +17,7 @@
 
     \item{covars}{a list (whose annotation elements are
     ideally a subset of an annotation data frame produced by
-    \code{\link{get.annotation}}) with the following members:
+    \code{\link{getAnnotation}}) with the following members:
     data (the data matrix), length (gene length), gc (the
     gene gc_content), chromosome (a data frame with
     chromosome name and co-ordinates), factors (a factor with
@@ -60,7 +60,7 @@
     NOISeq Bioconductor package. For analytical explanation
     of each plot please see the vignette of the NOISeq 
     package. It is best to use this function through the 
-    main plotting function \code{\link{diagplot.metaseqr}}.
+    main plotting function \code{\link{metaseqrPlot}}.
 }
 \details{
 	Regarding \code{whichPlot}, It can be one or more of 
@@ -87,22 +87,22 @@ lengths <- round(1000*runif(nrow(dataMatrix)))
 starts <- round(1000*runif(nrow(dataMatrix)))
 ends <- starts + lengths
 covars <- list(
-    data=dataMatrix,
-    length=lengths,
-    gc=runif(nrow(dataMatrix)),
-    chromosome=data.frame(
-        chromosome=c(rep("chr1",nrow(dataMatrix)/2),
-            rep("chr2",nrow(dataMatrix)/2)),
-        start=starts,
-        end=ends
-    ),
-    factors=data.frame(class=asClassVector(sampleList)),
-    biotype=c(rep("protein_coding",nrow(dataMatrix)/2),rep("ncRNA",
-            nrow(dataMatrix)/2))
+  data=dataMatrix,
+  length=lengths,
+  gc=runif(nrow(dataMatrix)),
+  chromosome=data.frame(
+    chromosome=c(rep("chr1",nrow(dataMatrix)/2),
+      rep("chr2",nrow(dataMatrix)/2)),
+    start=starts,
+    end=ends
+  ),
+  factors=data.frame(class=asClassVector(sampleList)),
+  biotype=c(rep("protein_coding",nrow(dataMatrix)/2),rep("ncRNA",
+    nrow(dataMatrix)/2))
 )
 p <- runif(nrow(dataMatrix))
 diagplotNoiseq(dataMatrix,sampleList,covars=covars,
-        biodistOpts=list(p=p,pcut=0.1,name="A_vs_B"))
+  biodistOpts=list(p=p,pcut=0.1,name="A_vs_B"))
 }
 \author{
     Panagiotis Moulos

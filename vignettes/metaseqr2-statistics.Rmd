@@ -416,7 +416,7 @@ of metaseqr when ```metaP``` is ```weight```, ```pandora``` or ```whitlock``
 shows how to create such weights (depending on the size of the dataset, it might 
 take some time to run):
 
-```{rexample-7, eval=TRUE, echo=TRUE, tidy=FALSE, warning=FALSE}
+```{r example-7, eval=TRUE, echo=TRUE, tidy=FALSE, warning=FALSE}
 data("mm9GeneData",package="metaseqR2")
 weights <- estimateAufcWeights(
     counts=as.matrix(mm9GeneCounts[,9:12]),

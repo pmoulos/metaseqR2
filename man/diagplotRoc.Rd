@@ -13,7 +13,7 @@
     non-differentially expressed genes and non-zero, 
     differentially expressed genes. Such a vector 
     can be obtained for example by using the 
-    \code{\link{make.sim.data.sd}} function, which 
+    \code{\link{makeSimDataSd}} function, which 
     creates simulated RNA-Seq read counts based on 
     real data.}
 
@@ -68,7 +68,7 @@
     This function creates basic ROC curves using a 
     matrix of p-values (such a matrix can be 
     derived for example from the result table of 
-    \code{\link{metaseqr}} by subsetting the table 
+    \code{\link{metaseqr2}} by subsetting the table 
     to get the p-values from several algorithms) 
     given a ground truth vector for differential 
     expression and a significance level.

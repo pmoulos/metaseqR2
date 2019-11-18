@@ -214,11 +214,13 @@ metaseqr2 <- function(
         fromRaw <- TRUE
     }
     
-    ## If report requested, RSQLite must be present
-    #if (report && !requireNamespace(RSQLite))
-	#	stop("R package RSQLite is required to build metaseqR reports!")
-	if (report && !requireNamespace("pander"))
-		stop("R package pander is required to build metaseqR2 reports!")
+    # If report requested with SQLite RSQLite must be present,also pander
+	if (report) {
+		if (!requireNamespace("pander"))
+			stop("R package pander is required to build metaseqR2 reports!")
+		if (reportDb == "sqlite" && !requireNamespace("RSQLite"))
+			stop("R package RSQLite is required to build metaseqR reports!")
+	}
     
     # Initialize environmental variables
     HOME <- system.file(package="metaseqR2")

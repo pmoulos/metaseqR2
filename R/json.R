@@ -157,7 +157,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
             samplenames <- paste("Sample",1:ncol(counts),sep=" ")
         else
             samplenames <- colnames(counts)
-        samples <- list(Samples=nams)
+        samples <- list(Samples=samplenames)
     }
     else if (is.list(samples)) {
         samplenames <- unlist(samples,use.names=FALSE)
@@ -1506,7 +1506,7 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1,out=c("json","list")) {
             samplenames <- paste("Sample",1:ncol(counts),sep=" ")
         else
             samplenames <- colnames(counts)
-        samples <- list(Samples=nams)
+        samples <- list(Samples=samplenames)
         cols <- .getColorScheme(length(samples))
     }
     else if (is.list(samples)) { # Is sampleList

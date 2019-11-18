@@ -1,6 +1,6 @@
 \name{statDeseq2}
 \alias{statDeseq2}
-\title{Statistical testing with DESeq}
+\title{Statistical testing with DESeq2}
 \usage{
     statDeseq2(object, sampleList, contrastList = NULL,
         statArgs = NULL)

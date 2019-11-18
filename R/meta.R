@@ -22,7 +22,7 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
         },
         fperm = {
             sumpList <- cmclapply(cpList,function(x) {
-                if (multic)
+                if (!is.null(rc))
                     tmp <- fisherMethodPerm(x,p.corr="none",B=nperm,
                         mc.cores=getOption("cores"),zeroSub=1e-32)
                 else

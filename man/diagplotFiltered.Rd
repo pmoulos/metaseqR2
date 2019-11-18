@@ -6,11 +6,11 @@
 }
 \arguments{
     \item{x}{an annotation data frame like the ones produced
-    by \code{\link{get.annotation}}. \code{x} should be the
+    by \code{\link{getAnnotation}}. \code{x} should be the
     filtered annotation according to metaseqR's filters.}
 
     \item{y}{an annotation data frame like the ones produced
-    by \code{\link{get.annotation}}. \code{y} should contain
+    by \code{\link{getAnnotation}}. \code{y} should contain
     the total annotation without the application of any
     metaseqr filter.}
 

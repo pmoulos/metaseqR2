@@ -76,7 +76,7 @@
     normalization or statistical testing.
     
     Regarding \code{annotation}, usually, it is a subset of 
-    the annotation obtained by \code{\link{get.annotation}} or
+    the annotation obtained by \code{\link{getAnnotation}} or
     a subset of possibly embedded annotation with the input
     counts table. This parameter is optional and required
     only when diagplotType is any of \code{"biodetection"},
@@ -102,7 +102,7 @@
     \code{"volcano"}, \code{"biodist"}, \code{"filtered"}, 
     \code{"readnoise"}, \code{"venn"}, \code{"correl"},
     \code{"pairwise"}. For a brief description of these plots 
-    please see the main \code{\link{metaseqr}} help page.
+    please see the main \code{\link{metaseqr2}} help page.
     
     Regarding \code{pList}, this parameter is optional 
     and required only when \code{diagplotType} is any of

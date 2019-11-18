@@ -2,11 +2,15 @@
 \alias{diagplotDeHeatmap}
 \title{Diagnostic heatmap of differentially expressed genes}
 \usage{
-    diagplotDeHeatmap(x, con = NULL, output = "x11",
-        path = NULL, ...)
+    diagplotDeHeatmap(x, scale = c("asis", "zscore"), con = NULL, 
+        output = "x11", path = NULL, ...)
 }
 \arguments{
     \item{x}{the data matrix to create a heatmap for.}
+    
+    \item{scale}{value scale in the heatmap. As provided 
+    (\code{scale="asis"}, default) or Z-scores
+    (\code{scale="zscore"})}
 
     \item{con}{an optional string depicting a name (e.g. the
     contrast name) to appear in the title of the volcano

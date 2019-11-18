@@ -1,6 +1,6 @@
 \name{statAbsseq}
 \alias{statAbsseq}
-\title{Statistical testing with DESeq}
+\title{Statistical testing with ABSSeq}
 \usage{
     statAbsseq(object, sampleList, contrastList = NULL,
         statArgs = NULL)

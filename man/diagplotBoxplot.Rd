@@ -12,16 +12,16 @@
     \item{name}{the names of the samples plotted on the
     boxplot. See also Details.}
 
-    \item{log.it}{whether to log transform the values of mat
+    \item{logIt}{whether to log transform the values of mat
     or not. It can be \code{TRUE}, \code{FALSE} or
     \code{"auto"} for auto-detection. Auto-detection log
     transforms by default so that the boxplots are smooth and
     visible.}
 
-    \item{y.lim}{custom y-axis limits. Leave the string
+    \item{yLim}{custom y-axis limits. Leave the string
     \code{"default"} for default behavior.}
 
-    \item{is.norm}{a logical indicating whether object
+    \item{isNorm}{a logical indicating whether object
     contains raw or normalized data. It is not essential and
     it serves only plot annotation purposes.}
 
@@ -36,7 +36,7 @@
 
     \item{path}{the path to create output files.}
     
-    \item{alt.names}{an optional vector of names, e.g. HUGO
+    \item{altNames}{an optional vector of names, e.g. HUGO
     gene symbols, alternative or complementary to the unique
     rownames of \code{mat} (which must exist!). It is used only 
     in JSON output.}

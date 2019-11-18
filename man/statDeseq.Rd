@@ -1,8 +1,8 @@
-\name{stat.deseq}
-\alias{stat.deseq}
+\name{statDeseq}
+\alias{statDeseq}
 \title{Statistical testing with DESeq}
 \usage{
-    stat.deseq(object, sampleList, contrastList = NULL,
+    statDeseq(object, sampleList, contrastList = NULL,
         statArgs = NULL)
 }
 \arguments{

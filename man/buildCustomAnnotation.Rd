@@ -73,37 +73,37 @@
 }
 \examples{
 \donttest{
-    # Setup a temporary directory to download files etc.
-	customDir <- file.path(tempdir(),"test_custom")
-	dir.create(customDir)
-	
-	myDb <- file.path(customDir,"testann.sqlite")
+# Setup a temporary directory to download files etc.
+customDir <- file.path(tempdir(),"test_custom")
+dir.create(customDir)
 
-	# Gene annotation dump from Ensembl
-	download.file(paste0("ftp://ftp.ensembl.org/pub/release-98/gtf/",
-		"dasypus_novemcinctus/Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
-		file.path(customDir,"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"))
+myDb <- file.path(customDir,"testann.sqlite")
 
-	# Chromosome information will be provided from the following BAM file
-	# available from Ensembl
-	bamForInfo <- paste0("ftp://ftp.ensembl.org/pub/release-98/bamcov/",
-		"dasypus_novemcinctus/genebuild/Dasnov3.broad.Ascending_Colon_5.1.bam")
+# Gene annotation dump from Ensembl
+download.file(paste0("ftp://ftp.ensembl.org/pub/release-98/gtf/",
+  "dasypus_novemcinctus/Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
+  file.path(customDir,"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"))
 
-	# Build with the metadata list filled (you can also provide a version)
-	buildCustomAnnotation(
-		gtfFile=file.path(customDir,"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
-		metadata=list(
-			organism="dasNov3_test",
-			source="ensembl_test",
-			chromInfo=bamForInfo
-		),
-		db=myDb
-	)
+# Chromosome information will be provided from the following BAM file
+# available from Ensembl
+bamForInfo <- paste0("ftp://ftp.ensembl.org/pub/release-98/bamcov/",
+  "dasypus_novemcinctus/genebuild/Dasnov3.broad.Ascending_Colon_5.1.bam")
 
-	# Try to retrieve some data
-	dasGenes <- loadAnnotation(genome="dasNov3_test",refdb="ensembl_test",
-		level="gene",type="gene",db=myDb)
-	dasGenes
+# Build with the metadata list filled (you can also provide a version)
+buildCustomAnnotation(
+  gtfFile=file.path(customDir,"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
+  metadata=list(
+    organism="dasNov3_test",
+    source="ensembl_test",
+    chromInfo=bamForInfo
+  ),
+  db=myDb
+)
+
+# Try to retrieve some data
+dasGenes <- loadAnnotation(genome="dasNov3_test",refdb="ensembl_test",
+  level="gene",type="gene",db=myDb)
+dasGenes
 }
 }
 \author{

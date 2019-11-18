@@ -18,16 +18,16 @@
     as the rownames attribute.}
 
     \item{normalization}{same as \code{normalization} 
-    in \code{\link{metaseqr}}.}
+    in \code{\link{metaseqr2}}.}
 
     \item{statistics}{same as \code{statistics} in 
-    \code{\link{metaseqr}}.}
+    \code{\link{metaseqr2}}.}
 
     \item{nsim}{the number of simulations to perform
     to estimate the weights. It default to 10.}
 
     \item{N}{the number of genes to produce. 
-    See \code{\link{make.sim.data.sd}}.}
+    See \code{\link{makeSimDataSd}}.}
 
     \item{samples}{a vector with 2 integers, which
     are the number of samples for each condition 
@@ -48,7 +48,7 @@
 
     \item{modelOrg}{the organism from which the 
     data are derived. It must be one of 
-    \code{\link{metaseqr}} supported organisms.}
+    \code{\link{metaseqr2}} supported organisms.}
 
     \item{seed}{a list of seed for reproducible 
     simulations. Defaults to \code{NULL}.}
@@ -84,11 +84,11 @@
 \donttest{
 data("mm9GeneGata",package="metaseqR2")
 weights <- estimateAufcWeights(
-    counts=as.matrix(mm9GeneCounts[,9:12]),
-    normalization="edaseq",
-    statistics=c("deseq","edger"),
-    nsim=3,N=100,ndeg=c(10,10),top=10,modelOrg="mm9",
-    seed=10,rc=0.25,libsizeGt=1e+5
+  counts=as.matrix(mm9GeneCounts[,9:12]),
+  normalization="edaseq",
+  statistics=c("deseq","edger"),
+  nsim=3,N=100,ndeg=c(10,10),top=10,modelOrg="mm9",
+  seed=10,rc=0.25,libsizeGt=1e+5
 )
 }
 }

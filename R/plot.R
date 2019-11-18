@@ -399,57 +399,57 @@ diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
     }
 }
 
-.diagplotMdsGg <- function(x,sampleList,method="spearman",logIt=TRUE,...) {
-    classes <- as.factor(asClassVector(sampleList))
-    design <- as.numeric(classes)
-    if (ncol(x)<3) {
-        warnwrap("MDS plot cannot be created with less than 3 samples! ",
-            "Skipping...")
-        return("MDS plot cannot be created with less than 3 samples!")
-    }
-    if (logIt)
-        y <- nat2log(x,base=2)
-    else
-        y <- x
-    d <- as.dist(0.5*(1-cor(y,method=method)))
-    mdsObj <- cmdscale(d,eig=TRUE,k=2)
-    
-    xr <- diff(range(min(mdsObj$points[,1]),max(mdsObj$points[,1])))
-    yr <- diff(range(min(mdsObj$points[,2]),max(mdsObj$points[,2])))
-    xlims <- c(min(mdsObj$points[,1])-xr/10,max(mdsObj$points[,1])+xr/10)
-    ylims <- c(min(mdsObj$points[,2])-yr/10,max(mdsObj$points[,2])+yr/10)
-	
-	plotData <- data.frame(
-		x=mdsObj$points[,1],
-		y=mdsObj$points[,2],
-		Condition=classes
-	)
-	rownames(plotData) <- colnames(x)
-	
-	mds <- ggplot() +
-		geom_point(data=plotData,mapping=aes(x=x,y=y,colour=Condition,
-			shape=Condition),size=4) +
-		xlim(xlims[1],xlims[2]) + 
-		ylim(ylims[1],ylims[2]) +
-		ggtitle("MDS plot") +
-		xlab("\nPrincipal coordinate 1") +
-		ylab("Principal coordinate 2\n") +
-		theme_bw() +
-		theme(axis.title.x=element_text(size=12,face="bold"),
-			axis.title.y=element_text(size=12,face="bold"),
-			axis.text.x=element_text(size=11,face="bold"),
-			axis.text.y=element_text(size=11,face="bold"),
-			strip.text.x=element_text(size=11,face="bold"),
-			strip.text.y=element_text(size=11,face="bold"),
-			legend.position="bottom",
-			legend.title=element_text(size=10,face="bold"),
-			legend.text=element_text(size=9),
-			legend.key=element_blank()) +
-		geom_text(data=plotData,mapping=aes(x=x,y=y,
-			label=rownames(plotData)),size=4,hjust=-0.15,vjust=0)
-	return(mds)
-    #return(fil)
-}
+#.diagplotMdsGg <- function(x,sampleList,method="spearman",logIt=TRUE,...) {
+#    classes <- as.factor(asClassVector(sampleList))
+#    design <- as.numeric(classes)
+#    if (ncol(x)<3) {
+#        warnwrap("MDS plot cannot be created with less than 3 samples! ",
+#            "Skipping...")
+#        return("MDS plot cannot be created with less than 3 samples!")
+#    }
+#    if (logIt)
+#        y <- nat2log(x,base=2)
+#    else
+#        y <- x
+#    d <- as.dist(0.5*(1-cor(y,method=method)))
+#    mdsObj <- cmdscale(d,eig=TRUE,k=2)
+#    
+#    xr <- diff(range(min(mdsObj$points[,1]),max(mdsObj$points[,1])))
+#    yr <- diff(range(min(mdsObj$points[,2]),max(mdsObj$points[,2])))
+#    xlims <- c(min(mdsObj$points[,1])-xr/10,max(mdsObj$points[,1])+xr/10)
+#    ylims <- c(min(mdsObj$points[,2])-yr/10,max(mdsObj$points[,2])+yr/10)
+#	
+#	plotData <- data.frame(
+#		x=mdsObj$points[,1],
+#		y=mdsObj$points[,2],
+#		Condition=classes
+#	)
+#	rownames(plotData) <- colnames(x)
+#	
+#	mds <- ggplot() +
+#		geom_point(data=plotData,mapping=aes(x=x,y=y,colour=Condition,
+#			shape=Condition),size=4) +
+#		xlim(xlims[1],xlims[2]) + 
+#		ylim(ylims[1],ylims[2]) +
+#		ggtitle("MDS plot") +
+#		xlab("\nPrincipal coordinate 1") +
+#		ylab("Principal coordinate 2\n") +
+#		theme_bw() +
+#		theme(axis.title.x=element_text(size=12,face="bold"),
+#			axis.title.y=element_text(size=12,face="bold"),
+#			axis.text.x=element_text(size=11,face="bold"),
+#			axis.text.y=element_text(size=11,face="bold"),
+#			strip.text.x=element_text(size=11,face="bold"),
+#			strip.text.y=element_text(size=11,face="bold"),
+#			legend.position="bottom",
+#			legend.title=element_text(size=10,face="bold"),
+#			legend.text=element_text(size=9),
+#			legend.key=element_blank()) +
+#		geom_text(data=plotData,mapping=aes(x=x,y=y,
+#			label=rownames(plotData)),size=4,hjust=-0.15,vjust=0)
+#	return(mds)
+#    #return(fil)
+#}
 
 diagplotPairs <- function(x,output="x11",path=NULL,altNames=NULL,...) {    
     x <- as.matrix(x)
@@ -572,11 +572,11 @@ diagplotCor <- function(mat,type=c("heatmap","correlogram"),output="x11",
     x <- as.matrix(mat)
     type <- tolower(type[1])
     checkTextArgs("type",type,c("heatmap","correlogram"))
-    #if (!require(corrplot) && type=="correlogram")
-    #    stop("R package corrplot is required!")
-    cor.mat <- cor(mat)
+    if (!requireNamespace(corrplot) && type=="correlogram")
+        stop("R package corrplot is required!")
+    corMat <- cor(mat)
     if (!is.null(colnames(mat)))
-        colnames(cor.mat) <- colnames(mat)
+        colnames(corMat) <- colnames(mat)
     if (!is.null(path))
         fil <- file.path(path,paste("correlation_",type,".",output,sep=""))
     else
@@ -586,20 +586,20 @@ diagplotCor <- function(mat,type=c("heatmap","correlogram"),output="x11",
     else
         graphicsOpen(output,fil,width=640,height=640,res=100)
     if (type=="correlogram")
-        corrplot(cor.mat,method="ellipse",order="hclust",...)
+        corrplot(corMat,method="ellipse",order="hclust",...)
     else if (type=="heatmap") {
-        n <- dim(cor.mat)[1]
+        n <- dim(corMat)[1]
         labs <- matrix(NA,n,n)
         for (i in 1:n)
             for (j in 1:n)
-                labs[i,j] <- sprintf("%.2f",cor.mat[i,j])
+                labs[i,j] <- sprintf("%.2f",corMat[i,j])
         if (n <= 5)
             notecex <- 1.2
         else if (n > 5 & n < 10)
             notecex <- 0.9
         else
             notecex <- 0.7
-        heatmap.2(cor.mat,col=colorRampPalette(c("yellow","grey","blue")),
+        heatmap.2(corMat,col=colorRampPalette(c("yellow","grey","blue")),
             revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,cellnote=labs,
             keysize=1,density.info="density",notecex=notecex,cexCol=0.9,
             cexRow=0.9,font.lab=2)

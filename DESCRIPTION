@@ -2,11 +2,11 @@ Package: metaseqR2
 Type: Package
 Title: An R package for the analysis and result reporting
     of RNA-Seq data by combining multiple statistical
-    algorithms.
+    algorithms
 Author: Panagiotis Moulos <moulos@fleming.gr>
 Maintainer: Panagiotis Moulos <moulos@fleming.gr>
 Depends:
-    R (>= 3.0.0),
+    R (>= 3.5.0),
     EDASeq,
     DESeq,
     limma,
@@ -33,18 +33,26 @@ Imports:
     heatmaply,
     pander,
     DT,
-    magrittr
+    magrittr,
+    GenomicRanges,
+    GenomicFeatures,
+    GenomeInfoDb,
+    rtracklayer,
+    VennDiagram,
+    httr,
+    stringr,
+    graphics,
+    stats,
+    grDevices,
+    methods
 Suggests:
     BiocGenerics,
-    GenomicRanges,
-    rtracklayer,
     Rsamtools,
     survcomp,
-    VennDiagram,
     knitr,
     zoo,
     RUnit,
-    BiocInstaller,
+    BiocManager,
     BSgenome
 Enhances:
     parallel,
@@ -66,7 +74,7 @@ VignetteBuilder: knitr
 Authors@R: c(person(given="Panagiotis", family="Moulos",
     email="moulos@fleming.gr", role=c("aut", "cre")))
 Version: 0.0.1
-Date: 2019-09-12
+Date: 2019-11-18
 Collate:
     'annotation.R'
     'argcheck.R'

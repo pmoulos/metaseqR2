@@ -1,22 +1,3 @@
-#' Get precalculated statistical test weights
-#'
-#' This function returns pre-calculated weights for human, chimpanzee, mouse,
-#' fruitfly, arabidopsis and rat based on the performance of simulated datasets estimated
-#' from real data from the ReCount database (\url{http://bowtie-bio.sourceforge.net/recount/}).
-#' Currently pre-calculated weights are available only when all six statistical
-#' tests are used and for normalization with EDASeq. For other combinations, use
-#' the \code{\link{estimateAufcWeights}} function.
-#'
-#' @param org \code{"human"}, \code{"mouse"}, \code{"chimpanzee"}, \code{"fruitfly"},
-#' \code{"arabidopsis"} or \code{"rat"}.
-#' @return A named vector of convex weights.
-#' @export
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' wh <- getWeights("human",c("deseq","edger","noiseq"))
-#}
-
 # The old function. It has NULLs in the new fields that are filled in getWeights2 (see furhter down).
 ..getWeightsOld <- function(org=c("human","chimpanzee","mouse","fruitfly",
     "arabidopsis","rat")) {

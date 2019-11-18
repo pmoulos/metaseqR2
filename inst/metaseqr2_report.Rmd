@@ -533,12 +533,18 @@ library(magrittr)
 library(heatmaply)
 library(DT)
 library(htmltools)
+library(gplots)
 
 makeFoldChange <- metaseqR2:::makeFoldChange
+nat2log <- metaseqR2:::nat2log
+asClassVector <- metaseqR2:::asClassVector
+makeReportMessages <- metaseqR2:::makeReportMessages
+.formatForReport <- metaseqR2:::.formatForReport
 
 # Initialize some variables used throughout the report
 samples <- unlist(sampleList,use.names=FALSE)
 biotypes <- unique(as.character(geneData$biotype))
+reportMessages <- makeReportMessages("en")
 
 qualPlots <- c("mds","biodetection","countsbio","saturation","readnoise",
 	"correl","pairwise","filtered")
@@ -1930,7 +1936,8 @@ if ("boxplot" %in% qcPlots) {
 	pandoc.header("Boxplots",level=3)
 	
 	cat("<h4><strong>Boxplots</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$boxplot,"<br/><br/></div>",sep="")
+	cat("<div class=\"figure-hint\">",reportMessages$explain$boxplot,
+		"<br/><br/></div>",sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"boxplot_unorm_container\"></div>",
 		sep="")
 	cat("<div class=\"hc-rect-sm\" id=\"boxplot_norm_container\"></div>",
@@ -2175,14 +2182,16 @@ if ("deheatmap" %in% qcPlots) {
 		hInd <- hInd + 1
 		hNames[hInd] <- paste0("deheatmap_",gsub("\\.","__",cnt),"_asis")
 		hList[[hInd]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
-			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt,"log2 reads")) %>%
+			labRow=rep(NA,nrow(mat)),
+			main=paste("DEG heatmap",cnt,"log2 reads")) %>% 
 			layout(width=720,height=840)
 		# z-scores
 		M <- t(scale(t(nat2log(mat))))
 		hInd <- hInd + 1
 		hNames[hInd] <- paste0("deheatmap_",gsub("\\.","__",cnt),"_zscore")
 		hList[[hInd]] <- heatmaply(M,trace="none",colors=bluered(64),
-			labRow=rep(NA,nrow(mat)),main=paste("DEG heatmap",cnt,"z-scores")) %>%
+			labRow=rep(NA,nrow(mat)),
+			main=paste("DEG heatmap",cnt,"z-scores")) %>% 
 			layout(width=720,height=840)
 	}
 	setNames(hList,NULL)
@@ -2355,7 +2364,7 @@ if ("foldvenn" %in% qcPlots) {
 
 # Results
 
-## Tables of differentially expressed genes {.tabset .tabset-pills}
+## Tables of differentially expressed genes
 
 The following tables allow for a quick exploration of the results of the
 statistical analysis performed by the ```metaseqr2``` pipeline.

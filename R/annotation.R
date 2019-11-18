@@ -1,6 +1,6 @@
 buildAnnotationDatabase <- function(organisms,sources,
     #db=file.path(path.expand("~"),".metaseqR","annotation.sqlite"),
-    db=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
+    db=file.path(system.file(package="metaseqR2"),"annotation.sqlite"),
     forceDownload=TRUE,rc=NULL) {
     if (missing(organisms))
         organisms <- getSupportedOrganisms()
@@ -376,7 +376,7 @@ buildAnnotationDatabase <- function(organisms,sources,
 
 # GTF only!
 buildCustomAnnotation <- function(gtfFile,metadata,
-	db=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
+	db=file.path(system.file(package="metaseqR2"),"annotation.sqlite"),
 	#db=file.path(path.expand("~"),".metaseqR","annotation.sqlite"),
 	rewrite=TRUE) {
 	# Check metadata
@@ -654,12 +654,8 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
 	type=c("gene","exon","utr"),version="auto",
 	db=file.path(system.file(package="metaseqR"),"annotation.sqlite"),
 	summarized=FALSE,asdf=FALSE,rc=NULL) {
-	if (!require(RSQLite))
+	if (!requireNamespace("RSQLite"))
 		stop("R package RSQLite is required to load annotation from database!")
-	
-	############################################################################
-	#db <- "/media/raid/tmp/metaseqR2/test_ann/annotation.sqlite"
-	############################################################################
 	
 	level <- level[1]
     checkTextArgs("level",level,c("gene","transcript","exon"),multiarg=FALSE)
@@ -1884,10 +1880,10 @@ loadBsGenome <- function(org) {
     bsOrg <- getBsOrganism(org)
     if (!is.na(bsOrg)) {
         if (bsOrg %in% BSgenome::installed.genomes())
-            bsObj <- getBSgenome(getUcscOrganism(org))
+            bsObj <- BSgenome::getBSgenome(getUcscOrganism(org))
         else {
             BiocManager::install(bsOrg,update=FALSE,ask=FALSE)
-            bsObj <- getBSgenome(getUcscOrganism(org))
+            bsObj <- BSgenome::getBSgenome(getUcscOrganism(org))
         }
         return(bsObj)
     }
@@ -2578,6 +2574,10 @@ getSupportedUcscDbs <- function() {
 
 importCustomGtf <- function(gtfFile,level=c("gene","transcript","exon"),
 	type=c("gene","exon","utr")) {
+	if (!requireNamespace("GenomicFeatures"))
+		stop("Bioconductor package GenomicFeatures is required to build ",
+			"custom annotation!")
+		
 	# Some argument checking
 	level <- level[1]
 	type <- type[1]
@@ -2639,6 +2639,10 @@ importCustomGtf <- function(gtfFile,level=c("gene","transcript","exon"),
 }
 
 parseCustomGtf <- function(gtfFile) {
+	if (!requireNamespace("GenomicFeatures"))
+		stop("Bioconductor package GenomicFeatures is required to parse ",
+			"custom GTF file!")
+	
 	# Import the GTF with rtracklayer to create a map of available metadata
     message("  Importing GTF ",gtfFile," as GTF to make id map")
     desiredColumns <- c("type","gene_id","transcript_id","exon_id",
@@ -3242,7 +3246,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
 }
 
 initDatabase <- function(db) {
-	if (!require(RSQLite))
+	if (!requireNamespace("RSQLite"))
 		stop("R package RSQLite is required to build the annotation database!")
 	if (missing(db))
 		stop("A database file must be provided!")
@@ -3428,102 +3432,102 @@ initDatabase <- function(db) {
 }
 
 
-..reduceExonsOld <- function(gr,rc=NULL) {
-    gene <- unique(as.character(gr$gene_id))
-    if (!is.null(gr$gene_name))
-        gn <- gr$gene_name
-    else
-        gn <- NULL
-    if (!is.null(gr$biotype))
-        bt <- gr$biotype   
-    else
-        bt <- NULL
-    redList <- cmclapply(gene,function(x,a,g,b) {
-        tmp <- a[a$gene_id==x]
-        if (!is.null(g))
-            gena <- as.character(tmp$gene_name[1])
-        if (!is.null(b))
-            btty <- as.character(tmp$biotype[1])
-        merged <- reduce(tmp)
-        n <- length(merged)
-        meta <- DataFrame(
-            exon_id=paste(x,"MEX",1:n,sep="_"),
-            gene_id=rep(x,n)
-        )
-        if (!is.null(g))
-            meta$gene_name <- rep(gena,n)
-        if (!is.null(b))
-            meta$biotype <- rep(btty,n)
-        mcols(merged) <- meta
-        return(merged)
-    },gr,gn,bt,rc=rc)
-    len <- unlist(cmclapply(redList,function(x) {
-        return(sum(width(x)))
-    },rc=rc))
-    names(len) <- names(redList)
-    return(list(model=do.call("c",redList),length=len))
-}
+#..reduceExonsOld <- function(gr,rc=NULL) {
+#    gene <- unique(as.character(gr$gene_id))
+#    if (!is.null(gr$gene_name))
+#        gn <- gr$gene_name
+#    else
+#        gn <- NULL
+#    if (!is.null(gr$biotype))
+#        bt <- gr$biotype   
+#    else
+#        bt <- NULL
+#    redList <- cmclapply(gene,function(x,a,g,b) {
+#        tmp <- a[a$gene_id==x]
+#        if (!is.null(g))
+#            gena <- as.character(tmp$gene_name[1])
+#        if (!is.null(b))
+#            btty <- as.character(tmp$biotype[1])
+#        merged <- reduce(tmp)
+#        n <- length(merged)
+#        meta <- DataFrame(
+#            exon_id=paste(x,"MEX",1:n,sep="_"),
+#            gene_id=rep(x,n)
+#        )
+#        if (!is.null(g))
+#            meta$gene_name <- rep(gena,n)
+#        if (!is.null(b))
+#            meta$biotype <- rep(btty,n)
+#        mcols(merged) <- meta
+#        return(merged)
+#    },gr,gn,bt,rc=rc)
+#    len <- unlist(cmclapply(redList,function(x) {
+#        return(sum(width(x)))
+#    },rc=rc))
+#    names(len) <- names(redList)
+#    return(list(model=do.call("c",redList),length=len))
+#}
 
-..reduceTranscriptsOld <- function(gr,rc=NULL) {
-    gene <- unique(as.character(gr$gene_id))
-    if (!is.null(gr$gene_name))
-        gn <- gr$gene_name
-    else
-        gn <- NULL
-    if (!is.null(gr$biotype))
-        bt <- gr$biotype   
-    else
-        bt <- NULL
-    redList <- cmclapply(gene,function(x,a,g,b) {
-        tmp <- a[a$gene_id==x]
-        if (!is.null(g))
-            gena <- as.character(tmp$gene_name[1])
-        if (!is.null(b))
-            btty <- as.character(tmp$biotype[1])
-        merged <- reduce(tmp)
-        n <- length(merged)
-        meta <- DataFrame(
-            transcript_id=paste(x,"MET",1:n,sep="_"),
-            gene_id=rep(x,n)
-        )
-        if (!is.null(g))
-            meta$gene_name <- rep(gena,n)
-        if (!is.null(b))
-            meta$biotype <- rep(btty,n)
-        mcols(merged) <- meta
-        return(merged)
-    },gr,gn,bt,rc=rc)
-    return(do.call("c",redList))
-}
+#..reduceTranscriptsOld <- function(gr,rc=NULL) {
+#    gene <- unique(as.character(gr$gene_id))
+#    if (!is.null(gr$gene_name))
+#        gn <- gr$gene_name
+#    else
+#        gn <- NULL
+#     if (!is.null(gr$biotype))
+#         bt <- gr$biotype   
+#     else
+#         bt <- NULL
+#     redList <- cmclapply(gene,function(x,a,g,b) {
+#         tmp <- a[a$gene_id==x]
+#         if (!is.null(g))
+#             gena <- as.character(tmp$gene_name[1])
+#         if (!is.null(b))
+#             btty <- as.character(tmp$biotype[1])
+#         merged <- reduce(tmp)
+#         n <- length(merged)
+#         meta <- DataFrame(
+#             transcript_id=paste(x,"MET",1:n,sep="_"),
+#             gene_id=rep(x,n)
+#         )
+#         if (!is.null(g))
+#             meta$gene_name <- rep(gena,n)
+#         if (!is.null(b))
+#             meta$biotype <- rep(btty,n)
+#         mcols(merged) <- meta
+#         return(merged)
+#     },gr,gn,bt,rc=rc)
+#     return(do.call("c",redList))
+# }
 
-..reduceTranscriptsUtrOld <- function(gr,rc=NULL) {
-    trans <- unique(as.character(gr$transcript_id))
-    if (!is.null(gr$gene_name))
-        gn <- gr$gene_name
-    else
-        gn <- NULL
-    if (!is.null(gr$biotype))
-        bt <- gr$biotype   
-    else
-        bt <- NULL
-    redList <- cmclapply(trans,function(x,a,g,b) {
-        tmp <- a[a$transcript_id==x]
-        if (!is.null(g))
-            gena <- as.character(tmp$gene_name[1])
-        if (!is.null(b))
-            btty <- as.character(tmp$biotype[1])
-        merged <- reduce(tmp)
-        n <- length(merged)
-        meta <- DataFrame(
-            transcript_id=paste(x,"MEU",1:n,sep="_"),
-            gene_id=rep(x,n)
-        )
-        if (!is.null(g))
-            meta$gene_name <- rep(gena,n)
-        if (!is.null(b))
-            meta$biotype <- rep(btty,n)
-        mcols(merged) <- meta
-        return(merged)
-    },gr,gn,bt,rc=rc)
-    return(do.call("c",redList))
-}
+# ..reduceTranscriptsUtrOld <- function(gr,rc=NULL) {
+#     trans <- unique(as.character(gr$transcript_id))
+#     if (!is.null(gr$gene_name))
+#         gn <- gr$gene_name
+#     else
+#         gn <- NULL
+#     if (!is.null(gr$biotype))
+#         bt <- gr$biotype   
+#     else
+#         bt <- NULL
+#     redList <- cmclapply(trans,function(x,a,g,b) {
+#         tmp <- a[a$transcript_id==x]
+#         if (!is.null(g))
+#             gena <- as.character(tmp$gene_name[1])
+#         if (!is.null(b))
+#             btty <- as.character(tmp$biotype[1])
+#         merged <- reduce(tmp)
+#         n <- length(merged)
+#         meta <- DataFrame(
+#             transcript_id=paste(x,"MEU",1:n,sep="_"),
+#             gene_id=rep(x,n)
+#         )
+#         if (!is.null(g))
+#             meta$gene_name <- rep(gena,n)
+#         if (!is.null(b))
+#             meta$biotype <- rep(btty,n)
+#         mcols(merged) <- meta
+#         return(merged)
+#     },gr,gn,bt,rc=rc)
+#     return(do.call("c",redList))
+# }
