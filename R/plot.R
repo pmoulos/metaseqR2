@@ -451,7 +451,7 @@ diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
 #    #return(fil)
 #}
 
-diagplotPairs <- function(x,output="x11",path=NULL,altNames=NULL,...) {    
+diagplotPairs <- function(x,output="x11",altNames=NULL,path=NULL,...) {    
     x <- as.matrix(x)
     x <- nat2log(x)
     n <- ncol(x)
@@ -572,7 +572,7 @@ diagplotCor <- function(mat,type=c("heatmap","correlogram"),output="x11",
     x <- as.matrix(mat)
     type <- tolower(type[1])
     checkTextArgs("type",type,c("heatmap","correlogram"))
-    if (!requireNamespace(corrplot) && type=="correlogram")
+    if (!requireNamespace("corrplot") && type=="correlogram")
         stop("R package corrplot is required!")
     corMat <- cor(mat)
     if (!is.null(colnames(mat)))
@@ -2196,7 +2196,7 @@ makeJVennFoldData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
 
 makeHighchartsVennSets <- function(algs,results) {
 	lenalias <- c("two","three","four","five")
-	aliases <- toupper(letters[1:nalg])
+	aliases <- toupper(letters[1:length(algs)])
     names(algs) <- aliases
     switch(lenalias[length(algs)-1],
 		two = {
@@ -3210,48 +3210,4 @@ deplot <- function (output,q=NULL,logScale=TRUE,join=FALSE,...) {
 	}
     
     return(list(chromosome=biotable1,biotype=biotable2))
-	
-    # Plot
-	par(mar = c(10, 4, 2, 2), mfrow = c(1,2))
-  
-  # Chromosomes
-  barplot(biotable1[c(1,3),], main = "DEG distribution across chromosomes",
-		  xlab = NULL, ylab = "%features", axis.lty = 1, legend = FALSE,
-		  beside = TRUE, col = c("grey", 2), las = 2,
-		  ylim = c(0, ymaxL1), border = c("grey", 2))
-  
-  barplot(biotable1[c(2,4),], main = "DEG distribution across chromosomes",
-		  xlab = NULL, ylab = "%features", axis.lty = 1, legend = FALSE,
-		  beside = TRUE, col = c(2, 1), las = 2, density = 30,
-		  ylim = c(0, ymaxL1), border = 2, add = TRUE)
-  
-  legend(x = "topright", bty = "n", horiz = FALSE,
-		 fill = c("grey", 2, 2), density = c(NA,30,NA), border = c("grey", 2, 2),
-		 legend = c("%Chrom in genome", "%DEG in Chrom", "%Chrom in DEG"))
-  
-  
-  # Biotypes
-  barplot(biotable2[c(1,3),], main = "DEG distribution across biotypes",
-		  xlab = NULL, ylab = "%features", axis.lty = 1, legend = FALSE,
-		  beside = TRUE, col = c("grey", 4), las = 2,
-		  ylim = c(0, ymaxL2), border = c("grey", 4))
-  
-  barplot(biotable2[c(2,4),], main = "DEG distribution across biotypes",
-		  xlab = NULL, ylab = "%features", axis.lty = 1, legend = FALSE,
-		  beside = TRUE, col = c(4, 1), las = 2, density = 30,
-		  ylim = c(0, ymaxL2), border = 4, add = TRUE)
-  
-  axis(side=4, at = pretty(c(0,ymaxL2), n = 5), 
-	   labels = round(pretty(c(0,ymaxL2), n = 5)*ymaxR2/ymaxL2, 1))
-  
-  if (ymaxR2 != ymaxL2) {
-	abline(v = 3*length(higher2) + 0.5, col = 3, lwd = 2, lty = 2)
-  }    
-  
-  legend(x = "topright", bty = "n", horiz = FALSE, 
-		 fill = c("grey", 4, 4), density = c(NA,30,NA),
-		 border = c("grey", 4, 4),
-		 legend = c("%Biotype in genome", "%DEG in Biotype", "%Biotype in DEG"))        
-
-
 }

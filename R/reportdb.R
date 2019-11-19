@@ -312,7 +312,7 @@
 			cap <- capture.output({
 				json <- diagplotNoiseq(normGenesExpr,sampleList,
 					covars=covarsStat,whichPlot="biodist",
-					biodistOpts=list(p=cpList[[cnt]],pcut=pcut,name=cnt),
+					biodistOpts=list(p=cpList[[n]],pcut=pcut,name=n),
 					output="json")
 			})
 			.dbImportPlot(con,paste("biodist",n,sep="_"),"biodist",

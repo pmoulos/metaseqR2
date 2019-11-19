@@ -1,104 +1,3 @@
-# The old function. It has NULLs in the new fields that are filled in getWeights2 (see furhter down).
-..getWeightsOld <- function(org=c("human","chimpanzee","mouse","fruitfly",
-    "arabidopsis","rat")) {
-    org <- tolower(org)
-    checkTextArgs("org",org,c("human","chimpanzee","mouse","fruitfly",
-        "arabidopsis","rat"))
-    switch(org,
-        human = {
-            return(c(
-                deseq=0.05772458,
-                deseq2=NULL,
-                edger=0.14321672,
-                limma=0.34516089,
-                nbpseq=0.06108182,
-                noiseq=0.11595169,
-                bayseq=0.27686431,
-                absseq=NULL,
-                dss=NULL
-            ))
-        },
-        chimpanzee = {
-            return(c(
-                deseq=0.06026782,
-                deseq2=NULL,
-                edger=0.14964358,
-                limma=0.33500306,
-                nbpseq=0.05814585,
-                noiseq=0.11337043,
-                bayseq=0.28356925,
-                absseq=NULL,
-                dss=NULL
-            ))
-        },
-        mouse = {
-            return(c(
-                deseq=0.05257695,
-                deseq2=NULL,
-                edger=0.24161354,
-                limma=0.29957277,
-                nbpseq=0.04914485,
-                noiseq=0.06847809,
-                bayseq=0.28861381,
-                absseq=NULL,
-                dss=NULL
-            ))
-        },
-        fruitfly = {
-            return(c(
-                deseq=0.01430269,
-                deseq2=NULL,
-                edger=0.12923339,
-                limma=0.38315685,
-                nbpseq=0.01265952,
-                noiseq=0.06778537,
-                bayseq=0.39286218,
-                absseq=NULL,
-                dss=NULL
-            ))
-        },
-        arabidopsis = {
-            return(c(
-                deseq=0.04926122,
-                deseq2=NULL,
-                edger=0.10130858,
-                limma=0.40842011,
-                nbpseq=0.04596652,
-                noiseq=0.09336509,
-                bayseq=0.30167848,
-                absseq=NULL,
-                dss=NULL
-            ))
-        },
-        chimp = {
-            return(c(
-                deseq=NULL,
-                deseq2=NULL,
-                edger=NULL,
-                limma=NULL,
-                nbpseq=NULL,
-                noiseq=NULL,
-                bayseq=NULL,
-                absseq=NULL,
-                dss=NULL
-            ))
-        },
-        rat = {
-            return(c(
-                deseq=NULL,
-                deseq2=NULL,
-                edger=NULL,
-                limma=NULL,
-                nbpseq=NULL,
-                noiseq=NULL,
-                bayseq=NULL,
-                absseq=NULL,
-                dss=NULL
-            ))
-        }
-    )
-}
-
 # The new function with the new weights.
 getWeights <- function(org=c("human","chimpanzee","mouse","fruitfly",
     "arabidopsis","rat")) {
@@ -797,7 +696,7 @@ validateAlgArgs <- function(normalization,statistics,normArgs,statArgs) {
                         normArgs[[s]] <- getDefaults(normalization,"absseq")
                     },   
                     dss = {
-                        norm.args[[s]] <- get.defaults(normalization,"dss")
+                        norm.args[[s]] <- getDefaults(normalization,"dss")
                     }
                 )
             }
@@ -3060,10 +2959,104 @@ elap2human <- function(start.time) {
     )
 }
 
-.metaseqRVersion <- function() {
-    anchorVersion <- "1.5-2"
-    currentVersion <- as.character(numeric_version(packageVersion("metaseqR")))
-    currentVersion <- gsub("(.*)\\.", "\\1-", currentVersion)
-    cmp <- compareVersion(currentVersion,anchorVersion)
-    return(list(current=currentVersion,compare=cmp))
-}
+## The old function. It has NULLs in the new fields that are filled in 
+## getWeights2 (see furhter down).
+#..getWeightsOld <- function(org=c("human","chimpanzee","mouse","fruitfly",
+#    "arabidopsis","rat")) {
+#    org <- tolower(org)
+#    checkTextArgs("org",org,c("human","chimpanzee","mouse","fruitfly",
+#        "arabidopsis","rat"))
+#    switch(org,
+#        human = {
+#            return(c(
+#                deseq=0.05772458,
+#                deseq2=NULL,
+#                edger=0.14321672,
+#                limma=0.34516089,
+#                nbpseq=0.06108182,
+#                noiseq=0.11595169,
+#                bayseq=0.27686431,
+#                absseq=NULL,
+#                dss=NULL
+#            ))
+#        },
+#        chimpanzee = {
+#            return(c(
+#                deseq=0.06026782,
+#                deseq2=NULL,
+#                edger=0.14964358,
+#                limma=0.33500306,
+#                nbpseq=0.05814585,
+#                noiseq=0.11337043,
+#                bayseq=0.28356925,
+#                absseq=NULL,
+#                dss=NULL
+#            ))
+#        },
+#        mouse = {
+#            return(c(
+#                deseq=0.05257695,
+#                deseq2=NULL,
+#                edger=0.24161354,
+#                limma=0.29957277,
+#                nbpseq=0.04914485,
+#                noiseq=0.06847809,
+#                bayseq=0.28861381,
+#                absseq=NULL,
+#                dss=NULL
+#            ))
+#        },
+#        fruitfly = {
+#            return(c(
+#                deseq=0.01430269,
+#                deseq2=NULL,
+#                edger=0.12923339,
+#                limma=0.38315685,
+#                nbpseq=0.01265952,
+#                noiseq=0.06778537,
+#                bayseq=0.39286218,
+#                absseq=NULL,
+#                dss=NULL
+#            ))
+#        },
+#        arabidopsis = {
+#            return(c(
+#                deseq=0.04926122,
+#                deseq2=NULL,
+#                edger=0.10130858,
+#                limma=0.40842011,
+#                nbpseq=0.04596652,
+#                noiseq=0.09336509,
+#                bayseq=0.30167848,
+#                absseq=NULL,
+#                dss=NULL
+#            ))
+#        },
+#        chimp = {
+#            return(c(
+#                deseq=NULL,
+#                deseq2=NULL,
+#                edger=NULL,
+#                limma=NULL,
+#                nbpseq=NULL,
+#                noiseq=NULL,
+#                bayseq=NULL,
+#                absseq=NULL,
+#                dss=NULL
+#            ))
+#        },
+#        rat = {
+#            return(c(
+#                deseq=NULL,
+#                deseq2=NULL,
+#                edger=NULL,
+#                limma=NULL,
+#                nbpseq=NULL,
+#                noiseq=NULL,
+#                bayseq=NULL,
+#                absseq=NULL,
+#                dss=NULL
+#            ))
+#        }
+#    )
+#}

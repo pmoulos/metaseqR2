@@ -7,57 +7,58 @@ Author: Panagiotis Moulos <moulos@fleming.gr>
 Maintainer: Panagiotis Moulos <moulos@fleming.gr>
 Depends:
     R (>= 3.5.0),
-    EDASeq,
     DESeq,
     limma,
     qvalue
 Imports:
-    DESeq2,
-    ABSSeq,
+	ABSSeq,
+	baySeq,
+	biomaRt,
+	corrplot,
+	DESeq2,
+	DSS,
+	DT,
+	EDASeq,
     edgeR,
-    NOISeq,
-    baySeq,
-    NBPSeq,
-    DSS,
-    biomaRt,
-    utils,
+    GenomeInfoDb,
+    GenomicFeatures,
+    GenomicRanges,
     gplots,
-    corrplot,
-    vsn,
+    graphics,
+    grDevices,
+    heatmaply,
+    htmltools,
+    httr,
     jsonlite,
     log4r,
-    rmdformats,
-    RSQLite,
-    htmltools,
-    rmarkdown,
-    heatmaply,
-    pander,
-    DT,
+    NOISeq,
     magrittr,
-    GenomicRanges,
-    GenomicFeatures,
-    GenomeInfoDb,
+    methods,
+    NBPSeq,
+    pander,
+    rmarkdown,
+    rmdformats,
+    Rsamtools,
+    RSQLite,
     rtracklayer,
-    VennDiagram,
-    httr,
-    stringr,
-    graphics,
+    S4Vectors,
     stats,
-    grDevices,
-    methods
+    stringr,
+    utils,
+    VennDiagram,
+    vsn,
+    zoo
 Suggests:
     BiocGenerics,
-    Rsamtools,
-    survcomp,
-    knitr,
-    zoo,
-    RUnit,
     BiocManager,
-    BSgenome
+    BSgenome,
+    knitr,
+    RMySQL,
+    RUnit,
+    survcomp
 Enhances:
     parallel,
-    TCC,
-    RMySQL
+    TCC
 Description: Provides an interface to several normalization and
     statistical testing packages for RNA-Seq gene expression data.
     Additionally, it creates several diagnostic plots, performs
@@ -74,7 +75,7 @@ VignetteBuilder: knitr
 Authors@R: c(person(given="Panagiotis", family="Moulos",
     email="moulos@fleming.gr", role=c("aut", "cre")))
 Version: 0.0.1
-Date: 2019-11-18
+Date: 2019-11-19
 Collate:
     'annotation.R'
     'argcheck.R'

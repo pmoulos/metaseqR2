@@ -3,7 +3,7 @@
 \title{Annotation downloader}
 \usage{
     getAnnotation(org, type, refdb = "ensembl", ver = NULL,
-        rc = FALSE)
+        rc = NULL)
 }
 \arguments{
     \item{org}{the organism for which to download
@@ -18,6 +18,8 @@
     \code{"ucsc"} or \code{"refseq"}. In the later two
     cases, an SQL connection is opened with the UCSC 
     public databases.}
+    
+    \item{ver}{the version of the annotation to use.}
 
     \item{rc}{Fraction of cores to use. Same as the 
     \code{rc} in \code{\link{buildAnnotationDatabase}}.}

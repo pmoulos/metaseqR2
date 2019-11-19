@@ -7,10 +7,9 @@
         path = NULL, contrast = NULL, libsizeList = NULL,
         embedCols = list(idCol = 4, gcCol = NA, nameCol = NA, 
             btCol = NA),
-        annotation = NULL, geneFile = NULL,
-        org = c("hg18", "hg19", "hg38", "mm9", "mm10", "rn5", 
-            "rn6", "dm3", "dm6", "danrer7", "pantro4", "susscr3",
-            "tair10", "equcab2"),
+        annotation = NULL, org = c("hg18", "hg19", "hg38", "mm9", 
+            "mm10", "rn5", "rn6", "dm3", "dm6", "danrer7", 
+            "pantro4", "susscr3", "tair10", "equcab2"),
         refdb = c("ensembl", "ucsc", "refseq"), version = "auto",
         transLevel = c("gene", "transcript", "exon"),
         countType = c("gene", "exon","utr"),
@@ -25,11 +24,11 @@
 			presence = list(frac = 0.25, minCount = 10,
 				perCondition = FALSE)),
         whenApplyFilter = c("postnorm", "prenorm"),
-        normalization = c("deseq", "edaseq", "edger", "noiseq", 
-            "nbpseq", "each", "none"),
+        normalization = c("deseq", "deseq2", "edaseq", "edger",
+            "noiseq", "nbpseq", "absseq", "dss", "each", "none"),
         normArgs = NULL,
-        statistics = c("deseq", "edger", "noiseq", "bayseq", 
-            "limma", "nbpseq"),
+        statistics = c("deseq", "deseq2", "edger", "noiseq", 
+            "bayseq", "limma", "nbpseq", "absseq", "dss"),
         statArgs = NULL,
         adjustMethod = sort(c(p.adjust.methods, "qvalue")),
         metaP = if (length(statistics) > 1) c("simes", 
@@ -40,10 +39,10 @@
         nperm = 10000, reprod=TRUE, pcut = NA, logOffset = 1,
         preset = NULL,
         qcPlots = c("mds", "biodetection", "countsbio", 
-            "saturation", "readnoise", "filtered", "correl", 
+            "saturation", "readnoise","filtered", "correl", 
             "pairwise", "boxplot", "gcbias", "lengthbias", 
-            "meandiff", "meanvar", "rnacomp", "deheatmap", 
-            "volcano", "mastat", "biodist", "statvenn", 
+            "meandiff", "meanvar", "rnacomp", "deheatmap",
+            "volcano", "biodist", "mastat", "statvenn",
             "foldvenn", "deregulogram"),
         figFormat = c("png", "jpg", "tiff", "bmp", "pdf", "ps"),
         outList = FALSE, exportWhere = NA,
@@ -59,7 +58,7 @@
         restrictCores = 0.6, report = TRUE, reportTop = 0.1,
         reportTemplate = "default", saveGeneModel = TRUE,
         verbose = TRUE, runLog = TRUE, 
-        reportDb = c("sqlite", "dexie"), 
+        reportDb = c("dexie", "sqlite"), 
         localDb = file.path(system.file(package = "metaseqR2"),
             "annotation.sqlite"),
         progressFun = NULL, offlineReport = TRUE, ...)
@@ -148,7 +147,7 @@
     a very important and mandatory parameter as it defines
     the course of the workflow.}
     
-    \item{utrFlank}{a named list with members \code{frac} 
+    \item{utrOpts}{a named list with members \code{frac} 
     which is the fraction (0-1) of the 3' UTR region to count 
     reads in, \code{minLength} the minimum acceptable 3'UTR
     length irrespective of \code{frac} and \code{downstream} 

@@ -1111,7 +1111,7 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
 					names(nF) <- names(unlist(sampleList))
 					abs <- ABSDataSet(round(
 						assayData(object)$exprs[,names(unlist(con))]),
-						groups.tmp,normMethod= "user", 
+						groupsTmp,normMethod= "user", 
 						sizeFactor=nF[names(unlist(con))],
 						paired=statArgs$paired,
 						minDispersion=statArgs$minDispersion, 
@@ -1244,7 +1244,7 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
 					# isolate normalization factors so as to give them names and 
 					# be able to subset them at will
 					nF <- normalizationFactor(object) 
-					names(nF) <- names(unlist(sample.list))
+					names(nF) <- names(unlist(sampleList))
 					abs <- ABSDataSet(round(assayData(
 						object)$exprs[,names(unlist(con))]),
 						normMethod="user", 
@@ -1373,11 +1373,12 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             # and in the next line we give 
             # sizeFactors=(normalizationFactor(seqData)=(sizeFactors or 1) 
             # respectively -> all ok 
-            dds <- DESeqDataSetFromMatrix(exprs(seqData),colData,
+            dds <- DESeqDataSetFromMatrix(counts(seqData),colData,
                 design=designTmp,tidy=statArgs$tidy) 
             # exprs accessor is used both from EDAseq and DSS. I cannot specify 
             # DSS::exprs(), but exprs() functions OK for seqDataSet of DSS
-            DESeq2::sizeFactors(dds) <- normalizationFactor(seqData)                                                   # without DSS::
+            DESeq2::sizeFactors(dds) <- normalizationFactor(seqData)
+            # without DSS::
             dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
                 maxit=statArgs$maxit,quiet=statArgs$quiet, 
                 modelMatrix=statArgs$modelMatrix)

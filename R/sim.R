@@ -1,7 +1,7 @@
 estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
     N=10000,samples=c(3,3),ndeg=c(500,500),top=500,modelOrg="mm9",fcBasis=1.5,
     seed=NULL,drawFpc=FALSE,rc=NULL,...) {
-    if (!requireNamespace(zoo))
+    if (!requireNamespace("zoo"))
         stopwrap("R pacakage zoo is required in order to estimate AUFC ",
             "weights!")
 
@@ -119,7 +119,7 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
 }
 
 makeSimDataTcc <- function(...) {
-    if (suppressWarnings(!requireNamespace(TCC)))
+    if (suppressWarnings(!requireNamespace("TCC")))
         stopwrap("Bioconductor package TCC is required to create ",
 			"simulated data!")
     #tcc <- simulateReadCounts(Ngene=Ngene,PDEG=PDEG,DEG.assign=DEG.assign,

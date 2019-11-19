@@ -2198,42 +2198,42 @@ metaseqr2 <- function(
             figRaw <- figUnorm <- figNorm <- figStat <- figOther <-
                 figVenn <- NULL
 		
-		## Then see what is going of if default report changed
-        #if (tolower(reportTemplate)=="default") {
-        #    if (exists("TEMPLATE")) {
-        #        reportTemplate=list(
-        #            rmd=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-        #            loader=file.path(TEMPLATE,"dna_loader.gif")
-        #        )
-        #    }
-        #    else
-        #        reportTemplate=list(rmd=NULL,loader=NULL)
-        #}
-        #if (!is.null(reportTemplate$rmd)) {
-        #    if (file.exists(reportTemplate$rmd)) {
-        #        template <- reportTemplate$rmd
-        #        hasTemplate <- TRUE
-        #    }
-        #    else {
-        #        warnwrap(paste("The template file",reportTemplate$rmd,
-        #            "was not ","found! The HTML report will NOT be generated."))
-        #        hasTemplate <- FALSE
-        #    }
-        #}
-        #else {
-        #    warnwrap(paste("The report option was enabled but no template ",
-        #        "file is provided! The HTML report will NOT be generated."))
-        #    hasTemplate <- FALSE
-        #}
-        #if (!is.null(reportTemplate$loader)) {
-        #    if (file.exists(reportTemplate$loader))
-        #        file.copy(from=reportTemplate$loader,to=PROJECT_PATH$media)
-        #    else
-        #        warnwrap(paste("The report logo image",reportTemplate$loader,
-        #            "was not found!"))
-        #}
-        #else
-        #    warnwrap(paste("The report loader image was not provided!"))
+		# Then see what is going of if default report changed
+        if (tolower(reportTemplate)=="default") {
+            if (exists("TEMPLATE")) {
+                reportTemplate=list(
+                    rmd=file.path(TEMPLATE,"metaseqr2_report.Rmd"),
+                    loader=file.path(TEMPLATE,"dna_loader.gif")
+                )
+            }
+            else
+                reportTemplate=list(rmd=NULL,loader=NULL)
+        }
+        if (!is.null(reportTemplate$rmd)) {
+            if (file.exists(reportTemplate$rmd)) {
+                template <- reportTemplate$rmd
+                hasTemplate <- TRUE
+            }
+            else {
+                warnwrap(paste("The template file",reportTemplate$rmd,
+                    "was not ","found! The HTML report will NOT be generated."))
+                hasTemplate <- FALSE
+            }
+        }
+        else {
+            warnwrap(paste("The report option was enabled but no template ",
+                "file is provided! The HTML report will NOT be generated."))
+            hasTemplate <- FALSE
+        }
+        if (!is.null(reportTemplate$loader)) {
+            if (file.exists(reportTemplate$loader))
+                file.copy(from=reportTemplate$loader,to=PROJECT_PATH$media)
+            else
+                warnwrap(paste("The report loader image",reportTemplate$loader,
+                    "was not found!"))
+        }
+        else
+            warnwrap(paste("The report loader image was not provided!"))
 		
 		# Here we must download all required libraries and put them in the js
 		# folder of the report to make it available offline
@@ -2247,13 +2247,13 @@ metaseqr2 <- function(
 				"src=\"https://raw.github.com/HubSpot/pace/v1.0.0/",
 				"pace.min.js\"></script>")
 		
-		#if (hasTemplate) {
+		if (hasTemplate) {
 			execTime <- elap2human(TB)
             REPORT_ENV <- .makeReportEnv(environment())
             assign("REPORT_ENV",REPORT_ENV,envir=.GlobalEnv)
             
-            #file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
+            file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
+            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
 				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
 				overwrite=TRUE)
@@ -2289,7 +2289,7 @@ metaseqr2 <- function(
 				"window.page + \"']\").trigger(\"click\");")
 			cat(L,file=file.path(PROJECT_PATH$main,"index.html"),sep="\n")
 			####################################################################
-        #}
+        }
     }
 
     ############################################################################

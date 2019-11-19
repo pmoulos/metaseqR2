@@ -47,8 +47,8 @@ dataMatrix <- counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 diagplotBoxplot(dataMatrix,sampleList)
 
-lengths <- round(1000*runif(nrow(data.matrix)))
-starts <- round(1000*runif(nrow(data.matrix)))
+lengths <- round(1000*runif(nrow(dataMatrix)))
+starts <- round(1000*runif(nrow(dataMatrix)))
 ends <- starts + lengths
 gc=runif(nrow(dataMatrix))
 geneData <- data.frame(

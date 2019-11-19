@@ -3099,10 +3099,3 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
 	else
 		return(NA)
 }
-
-.existingOrganisms <- function(con) {
-	query <- paste(
-		"SELECT version FROM content WHERE source='",s,"' AND organism='",o,"'",
-		sep=""
-	)
-}

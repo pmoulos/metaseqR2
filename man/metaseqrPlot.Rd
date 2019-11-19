@@ -1,15 +1,16 @@
 \name{metaseqrPlot}
 \alias{metaseqrPlot}
-\title{Diagnostic plots for the metaseqR package}
+\title{Diagnostic plots for the metaseqR2 package}
 \usage{
     metaseqrPlot(object, sampleList, annotation = NULL,
         contrastList = NULL, pList = NULL,
         thresholds = list(p = 0.05, f = 1),
-        diagplotType = c("mds", "biodetection", "countsbio", 
-        "saturation", "readnoise", "rnacomp", "correl", 
-        "pairs", "boxplot", "gcbias", "lengthbias", "meandiff", 
-        "meanvar", "deheatmap", "volcano", "biodist", 
-        "filtered", "venn"),
+        plotType = c("mds", "biodetection", "countsbio",
+            "saturation", "readnoise", "rnacomp", "correl",
+            "pairs", "boxplot", "gcbias", "lengthbias",
+            "meandiff", "meanvar", "deheatmap", "volcano",
+            "biodist", "filtered", "mastat", "deregulogram",
+            "statvenn", "foldvenn"),
         isNorm = FALSE, output = "x11", path = NULL, ...)
 }
 \arguments{
@@ -34,7 +35,7 @@
     \code{"f"} which are the p-value and the fold change
     cutoff when \code{diagplotType="volcano"}.}
 
-    \item{diagplotType}{one or more of the diagnostic plots
+    \item{plotType}{one or more of the diagnostic plots
     supported in metaseqR2 package. See also Details.}
 
     \item{isNorm}{a logical indicating whether object

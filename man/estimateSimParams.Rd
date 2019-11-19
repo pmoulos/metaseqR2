@@ -4,7 +4,7 @@
     real data}
 \usage{
     estimateSimParams(realCounts, libsizeGt = 3e+6,
-        rowmeansGt = 5,eps = 1e-11, rc = 0.8, seed = 42, 
+        rowmeansGt = 5,eps = 1e-11, rc = NULL, seed = 42, 
         draw = FALSE)
 }
 \arguments{

@@ -19,15 +19,6 @@
     
     \item{type}{same as the \code{countType} in 
     \code{\link{metaseqr2}}.}
-    
-    \item{version}{same as the \code{version} in 
-    \code{\link{metaseqr2}}.}
-    
-    \item{db}{same as the \code{db} in 
-    \code{\link{buildAnnotationDatabase}}.}
-    
-    \item{rc}{same as the \code{rc} in 
-    \code{\link{buildAnnotationDatabase}}.}
 }
 \value{
     The function returns a \code{GenomicRanges} object with

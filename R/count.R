@@ -8,7 +8,7 @@ read2count <- function(targets,annotation,fileType=targets$type,
     if (!requireNamespace("GenomicRanges"))
         stopwrap("The Bioconductor package GenomicRanges is required to ",
             "proceed!")
-    if (fileType=="bed" && !require(rtracklayer))
+    if (fileType=="bed" && !requireNamespace("rtracklayer"))
         stopwrap("The Bioconductor package rtracklayer is required to process ",
             "BED files!")
     if (fileType %in% c("sam","bam")) {
@@ -355,7 +355,8 @@ readTargets <- function(input,path=NULL) {
 	return(sampleFiles)
 }
 
-.backPreprocessAnnotation <- function(annotation,annotationGr,transLevel) {
+.backPreprocessAnnotation <- function(annotation,annotationGr,transLevel,
+	rc=NULL) {
 	if (length(grep("exon",names(mcols(annotationGr)))) > 0) {
 		# countType is exon
         if (length(grep("MEX",annotation$exon_id[1]))) # Retrieved from previous
@@ -363,7 +364,7 @@ readTargets <- function(input,path=NULL) {
         else {
             if (transLevel=="gene") {
                 disp("Merging exons to create unique gene models...")
-                annotationGr <- reduceExons(annotationGr)
+                annotationGr <- .reduceExonsOld(annotationGr)
             }
             #else if (transLevel=="transcript") {
             #   disp("Merging exons to create unique gene models...")
@@ -403,13 +404,13 @@ readTargets <- function(input,path=NULL) {
             if (transLevel=="gene") {
                 disp("Merging transcript 3' UTRs to create unique ",
                     "gene models...")
-                annotationGr <- reduceTranscriptsUtrOld(annotationGr,rc=rc)
+                annotationGr <- .reduceTranscriptsOld(annotationGr,rc=rc)
             }
             if (transLevel=="transcript") {
                 disp("Merging transcript 3' UTRs to create unique ",
                     "transcript models...")
                 annotationGr <- 
-                    reduceTranscriptsUtrTranscriptOld(annotationGr,rc=rc)
+                    .reduceTranscriptsUtrOld(annotationGr,rc=rc)
             }
             
             #mergedAnnotation <- as.data.frame(annotationGr) # Bug?
@@ -440,6 +441,106 @@ readTargets <- function(input,path=NULL) {
     else
         mergedAnnotation <- NULL
     return(list(annotationGr=annotationGr,mergedAnnotation=mergedAnnotation))
+}
+
+.reduceExonsOld <- function(gr,rc=NULL) {
+    gene <- unique(as.character(gr$gene_id))
+    if (!is.null(gr$gene_name))
+        gn <- gr$gene_name
+    else
+        gn <- NULL
+    if (!is.null(gr$biotype))
+        bt <- gr$biotype   
+    else
+        bt <- NULL
+    redList <- cmclapply(gene,function(x,a,g,b) {
+        tmp <- a[a$gene_id==x]
+        if (!is.null(g))
+            gena <- as.character(tmp$gene_name[1])
+        if (!is.null(b))
+            btty <- as.character(tmp$biotype[1])
+        merged <- reduce(tmp)
+        n <- length(merged)
+        meta <- DataFrame(
+            exon_id=paste(x,"MEX",1:n,sep="_"),
+            gene_id=rep(x,n)
+        )
+        if (!is.null(g))
+            meta$gene_name <- rep(gena,n)
+        if (!is.null(b))
+            meta$biotype <- rep(btty,n)
+        mcols(merged) <- meta
+        return(merged)
+    },gr,gn,bt,rc=rc)
+    len <- unlist(cmclapply(redList,function(x) {
+        return(sum(width(x)))
+    },rc=rc))
+    names(len) <- names(redList)
+    return(list(model=do.call("c",redList),length=len))
+}
+
+.reduceTranscriptsOld <- function(gr,rc=NULL) {
+    gene <- unique(as.character(gr$gene_id))
+    if (!is.null(gr$gene_name))
+        gn <- gr$gene_name
+    else
+        gn <- NULL
+    if (!is.null(gr$biotype))
+        bt <- gr$biotype   
+    else
+        bt <- NULL
+    redList <- cmclapply(gene,function(x,a,g,b) {
+        tmp <- a[a$gene_id==x]
+        if (!is.null(g))
+            gena <- as.character(tmp$gene_name[1])
+        if (!is.null(b))
+            btty <- as.character(tmp$biotype[1])
+        merged <- reduce(tmp)
+        n <- length(merged)
+        meta <- DataFrame(
+            transcript_id=paste(x,"MET",1:n,sep="_"),
+            gene_id=rep(x,n)
+        )
+        if (!is.null(g))
+            meta$gene_name <- rep(gena,n)
+        if (!is.null(b))
+            meta$biotype <- rep(btty,n)
+        mcols(merged) <- meta
+        return(merged)
+    },gr,gn,bt,rc=rc)
+    return(do.call("c",redList))
+}
+
+.reduceTranscriptsUtrOld <- function(gr,rc=NULL) {
+    trans <- unique(as.character(gr$transcript_id))
+    if (!is.null(gr$gene_name))
+        gn <- gr$gene_name
+    else
+        gn <- NULL
+    if (!is.null(gr$biotype))
+        bt <- gr$biotype   
+    else
+        bt <- NULL
+    redList <- cmclapply(trans,function(x,a,g,b) {
+        tmp <- a[a$transcript_id==x]
+        if (!is.null(g))
+            gena <- as.character(tmp$gene_name[1])
+        if (!is.null(b))
+            btty <- as.character(tmp$biotype[1])
+        merged <- reduce(tmp)
+        n <- length(merged)
+        meta <- DataFrame(
+            transcript_id=paste(x,"MEU",1:n,sep="_"),
+            gene_id=rep(x,n)
+        )
+        if (!is.null(g))
+            meta$gene_name <- rep(gena,n)
+        if (!is.null(b))
+            meta$biotype <- rep(btty,n)
+        mcols(merged) <- meta
+        return(merged)
+    },gr,gn,bt,rc=rc)
+    return(do.call("c",redList))
 }
 
 ################################################################################

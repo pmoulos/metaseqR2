@@ -28,10 +28,8 @@
     (default), \code{"png"}, \code{"jpg"}, \code{"bmp"},
     \code{"pdf"} or \code{"ps"}.}
     
-    \item{altNames}{an optional vector of names, e.g. HUGO
-    gene symbols, alternative or complementary to the unique
-    names of \code{f} or \code{p} (one of them must be
-    named!). It is used only in JSON output.}
+    \item{altNames}{optional names, alternative or complementary 
+    to the rownames of \code{x}. It is used only in JSON output.}
 
     \item{path}{the path to create output files.}
 

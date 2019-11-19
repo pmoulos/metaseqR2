@@ -6,7 +6,7 @@
         level = c("gene", "transcript", "exon"),
 	    type = c("gene", "exon", "utr"), version="auto",
 	    db = file.path(system.file(package = "metaseqR2"),
-	        "annotation.sqlite"),summarized = FALSE, 
+	        "annotation.sqlite"), summarized = FALSE, 
 	        asdf = FALSE, rc = NULL)
 }
 \arguments{
@@ -29,6 +29,9 @@
     
     \item{db}{same as the \code{db} in 
     \code{\link{buildAnnotationDatabase}}.}
+    
+    \item{summarized}{if \code{TRUE}, retrieve summarized,
+    non-overlaping elements where appropriate (e.g. exons).}
     
     \item{asdf}{return the result as a \code{\link{data.frame}}
     (default \code{FALSE}).}

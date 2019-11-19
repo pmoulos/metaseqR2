@@ -22,6 +22,9 @@
     \code{\link{metaseqr2}} function for the case of
     auto-guessing.}
     
+    \item{transLevel}{see the \code{transLevel} argument
+    in the main \code{\link{metaseqr2}} function.}
+    
     \item{utrOpts}{a named list with members \code{frac} 
     which is the fraction (0-1) of the 3' UTR region to count 
     reads in, \code{minLength} the minimum acceptable 3'UTR
@@ -29,8 +32,8 @@
     the number of base pairs to flank the end of the 3' UTR of 
     transcripts when analyzing Quant-Seq data.}
     
-    \item{transLevel}{see the \code{transLevel} argument
-    in the main \code{\link{metaseqr2}} function.}
+    \item{interFeature}{see the \code{inter.feature} argument
+    in \code{summarizeOverlaps}.}
 
     \item{rc}{the fraction of the available cores to use
     in a multicore system.}

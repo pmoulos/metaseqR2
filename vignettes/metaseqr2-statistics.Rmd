@@ -6,7 +6,7 @@ output:
   BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{RNA-Seq data analysis using mulitple statistical algorithms with metaseqR2}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
 

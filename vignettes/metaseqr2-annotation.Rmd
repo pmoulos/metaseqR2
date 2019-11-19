@@ -6,7 +6,7 @@ output:
   BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Building an annotation database for metaseqR2}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
 

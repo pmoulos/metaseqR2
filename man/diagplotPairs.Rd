@@ -2,7 +2,8 @@
 \alias{diagplotPairs}
 \title{Massive X-Y, M-D correlation plots}
 \usage{
-    diagplotPairs(x, output = "x11", path = NULL, ...)
+    diagplotPairs(x, output = "x11", altNames = NULL, 
+        path = NULL, ...)
 }
 \arguments{
     \item{x}{the read counts matrix or data frame.}
@@ -11,6 +12,9 @@
     plot result to. Supported mechanisms: \code{"x11"}
     (default), \code{"png"}, \code{"jpg"}, \code{"bmp"},
     \code{"pdf"} or \code{"ps"}.}
+    
+    \item{altNames}{optional names, alternative or complementary 
+    to the rownames of \code{x}. It is used only in JSON output.}
 
     \item{path}{the path to create output files.}
 
