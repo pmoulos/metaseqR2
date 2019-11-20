@@ -17,12 +17,12 @@
         exonFilters = list(minActiveExons = list(exonsPerGene = 5, 
             minExons = 2, frac = 1/5)),
         geneFilters = list(length = list(length = 500), 
-			avgReads = list(averagePerBp = 100, quantile = 0.25), 
-			expression = list(median = TRUE, mean = FALSE,  
-				quantile = NA, known = NA, custom = NA), 
-			biotype = getDefaults("biotypeFilter", org[1]),
-			presence = list(frac = 0.25, minCount = 10,
-				perCondition = FALSE)),
+            avgReads = list(averagePerBp = 100, quantile = 0.25), 
+            expression = list(median = TRUE, mean = FALSE,  
+                quantile = NA, known = NA, custom = NA), 
+            biotype = getDefaults("biotypeFilter", org[1]),
+            presence = list(frac = 0.25, minCount = 10,
+                perCondition = FALSE)),
         whenApplyFilter = c("postnorm", "prenorm"),
         normalization = c("deseq", "deseq2", "edaseq", "edger",
             "noiseq", "nbpseq", "absseq", "dss", "each", "none"),
@@ -134,13 +134,13 @@
     
     \item{version}{the version of the annotation to use. See
     Details.}
-	
-	\item{transLevel}{perform differential expression 
-	analysis at which transcriptional unit, can be one of
-	\code{"gene"} (default), \code{"transcript"} for 
-	reporting differential expression at the transcript
-	level or \code{"exon"} for exon level.}
-	
+    
+    \item{transLevel}{perform differential expression 
+    analysis at which transcriptional unit, can be one of
+    \code{"gene"} (default), \code{"transcript"} for 
+    reporting differential expression at the transcript
+    level or \code{"exon"} for exon level.}
+    
     \item{countType}{the type of reads inside the counts
     file. It can be one of \code{"gene"}, \code{"exon"} or
     \code{"utr"} for Quant-Seq (Lexogen) protocol. This is
@@ -544,9 +544,9 @@
     content, gene names and gene biotypes respectively are
     located. More specifically:
     \itemize{
-		\item \code{idCol} is an integer denoting the column 
-		number in the file (or data frame) provided with the 
-		counts argument, where the unique gene accessions are.
+        \item \code{idCol} is an integer denoting the column 
+        number in the file (or data frame) provided with the 
+        counts argument, where the unique gene accessions are.
         Default to \code{4} which is the standard feature name
         column in a BED file.
         \item \code{gcCol} is an integer denoting the column 
@@ -567,9 +567,9 @@
         \code{"countsbio"}, \code{"saturation"}, 
         \code{"filtered"} and \code{"biodist"} plots will not 
         be available.
-	}
-	
-	Regarding annotation instructs metaseqr2 where to find the
+    }
+    
+    Regarding annotation instructs metaseqr2 where to find the
     annotation for the given counts file. It can be one of i)
     \code{"download"} (default) for automatic downloading of
     the annotation for the organism specified by the org
@@ -1032,7 +1032,7 @@
             \item \code{geneFilters=NULL} 
             \item \code{pcut=1} 
             \item \code{exportWhat=c("annotation","p_value",}
-		    \code{"adj_p_value","meta_p_value",} 
+            \code{"adj_p_value","meta_p_value",} 
             \code{"adj_meta_p_value","fold_change","stats",}
             \code{"counts")}
             \item \code{exportScale=c("natural","log2")} 
@@ -1185,7 +1185,6 @@
     } }
 }
 \examples{
-\donttest{
 # An example pipeline with gene counts
 data("mm9GeneData",package="metaseqR2")
 
@@ -1200,7 +1199,8 @@ result <- metaseqr2(
   normalization="edger",
   statistics="edger",
   pcut=0.05,
-  figFormat=c("png","pdf"),
+  figFormat="png",
+  qcPlots="mds",
   exportWhat=c("annotation","p_value","adj_p_value","fold_change"),
   exportScale=c("natural","log2"),
   exportValues="normalized",
@@ -1224,10 +1224,10 @@ result <- metaseqr2(
     ),
     biotype=getDefaults("biotypeFilter","mm9")
   ),
+  preset="medium_basic",
   outList=TRUE
 )
 head(result$data[["adult_8_weeks_vs_e14.5"]])
-}
 }
 \author{
   Panagiotis Moulos

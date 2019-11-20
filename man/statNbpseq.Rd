@@ -62,14 +62,13 @@
     NBPSeq package.
 }
 \examples{
-\donttest{
 require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+require(NBPSeq)
+dataMatrix <- DESeq::counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
 normDataMatrix <- normalizeNbpseq(dataMatrix,sampleList)
 p <- statNbpseq(normDataMatrix,sampleList,contrast)
-}
 }
 \author{
     Panagiotis Moulos

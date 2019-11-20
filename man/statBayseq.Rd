@@ -54,7 +54,8 @@
 \donttest{
 # Careful on testing, baySeq is slow
 require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+require(baySeq)
+dataMatrix <- DESeq::counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
 normDataMatrix <- normalizeEdger(dataMatrix,sampleList)

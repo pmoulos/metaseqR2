@@ -70,7 +70,7 @@
     analysis packages such as EDASeq and NOISeq.
 }
 \details{
-	Regarding \code{object}, the object can be fed to any of 
+    Regarding \code{object}, the object can be fed to any of 
     the \code{diagplotMetaseqr} plotting systems but not every
     plot is meaningful. For example, it's meaningless to
     create a \code{"biodist"} plot for a count matrix before

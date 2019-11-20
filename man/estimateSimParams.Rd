@@ -57,7 +57,7 @@
     (Robles et al., BMC Genomics, 2012).
 }
 \details{
-	Regarding \code{realCounts}, the file should strictly
+    Regarding \code{realCounts}, the file should strictly
     contain a unique gene name (e.g. Ensembl accession) in 
     the first column and all other columns should contain 
     read counts for each gene. Each column must be named
@@ -66,7 +66,6 @@
     \url{http://bowtie-bio.sourceforge.net/recount/}.
 }
 \examples{
-\donttest{
 # Dowload locally the file "bottomly_read_counts.txt" from
 # the ReCount database
 download.file(paste("http://bowtie-bio.sourceforge.net/",
@@ -74,7 +73,6 @@ download.file(paste("http://bowtie-bio.sourceforge.net/",
     destfile=file.path(tempdir(),"bottomly_count_table.txt"))
 # Estimate simulation parameters
 parList <- estimateSimParams(file.path(tempdir(),"bottomly_count_table.txt"))
-}
 }
 \author{
     Panagiotis Moulos

@@ -1,7 +1,5 @@
 statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
-    #if (is.null(normArgs) && class(object)=="DGEList")
-    #    normArgs <- getDefaults("normalization","edger")
-    if (is.null(statArgs) && class(object)!="CountDataSet")
+    if (is.null(statArgs) && !is(object,"CountDataSet"))
         statArgs <- getDefaults("statistics","deseq")
     if (is.null(contrastList))
         contrastList <- makeContrastList(paste(names(sampleList)[1:2],
@@ -53,14 +51,16 @@ statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             cds <- DESeq::estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp)
         },
-        nbData = { # Has been normalized with NBPSeq and main method was "nbpseq"
+        nbData = { # Has been normalized with NBPSeq and main method was 
+            # "nbpseq"
             cds <- newCountDataSet(as.matrix(round(sweep(object$counts,2,
                 object$norm.factors,"*"))),theDesign$condition)
             DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
             cds <- DESeq::estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp)
         },
-        nbp = { # Has been normalized with NBPSeq and main method was "nbsmyth"...
+        nbp = { # Has been normalized with NBPSeq and main method was 
+            # "nbsmyth"...
             cds <- newCountDataSet(as.matrix(round(object$pseudo.counts)),
                 theDesign$condition)
             DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
@@ -127,94 +127,94 @@ statDeseq2 <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     names(p) <- names(contrastList)
 
     switch(class(object),
-		DESeqDataSet = { # Has been normalized with DESeq2
-			dds <- object
-			dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType, 
-				maxit=statArgs$maxit,quiet=statArgs$quiet,
-				modelMatrix=statArgs$modelMatrix)                   
-		},
-		CountDataSet = { # Has been normalized with DESeq
-			countData <- round(DESeq::counts(object, normalized=TRUE)) 
-			dds <- DESeqDataSetFromMatrix(countData,colData,design=design,
-				tidy=statArgs$tidy) 
-			DESeq2::sizeFactors(dds) <- rep(1,ncol(countData))
-			dds= DESeq2::estimateDispersions(dds,fitType=statArgs$fitType, 
-					maxit=statArgs$maxit,quiet=statArgs$quiet, 
-					modelMatrix=statArgs$modelMatrix)
-		},
-		DGEList = { # Has been normalized with edgeR              
-			dds <- DESeqDataSetFromMatrix(object$counts,colData,
-				design=design,tidy=statArgs$tidy)
-			# edgeR has already normalized for library size. So what is done
-			# is to pass size factors from edgeR to sizeFactors of DESeq2
-			DESeq2::sizeFactors(dds) <- object$samples$norm.factors 
-			dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType, 
-				maxit=statArgs$maxit,quiet=statArgs$quiet, 
-				modelMatrix=statArgs$modelMatrix)
-		},
-		SeqExpressionSet = { # Has been normalized with EDASeq
-			# A matrix with the normalized counts (both within- and 
-			# between-lane)
-			countData <- normCounts(object) 
-			dds <- DESeqDataSetFromMatrix(countData,colData,design=design,
-				tidy=statArgs$tidy)
-			# Because EDAseq has done library size norm, we set all 
-			# sizeFactors equal to 1
-			DESeq2::sizeFactors(dds) <- rep(1,ncol(dds)) 
-			dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
-				maxit=statArgs$maxit,quiet=statArgs$quiet,
-				modelMatrix=statArgs$modelMatrix)
-		},
-		matrix = { # Has been normalized with EDASeq or NOISeq or ABSSeq
-			# I take the matrix ouput of these tools that contains 
-			# normalized counts
-			dds <- DESeqDataSetFromMatrix(object,colData,design=design,
-				tidy=statArgs$tidy)
-			# Because EDAseq has done library size norm (and NOISeq too, 
-			# and EdgeR too), we set all sizeFactors equal 1
-			DESeq2::sizeFactors(dds) <- rep(1,ncol(dds))
-			dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
-				maxit=statArgs$maxit,quiet=statArgs$quiet,
-				modelMatrix=statArgs$modelMatrix)
-		},
-		nbData = { # Normalized with NBPSeq and main method was "nbpseq".
-			# Using sweep to multiply raw counts with the respective 
-			# norm.factors -> normCounts generated
-			dds <- DESeqDataSetFromMatrix(
-				round(sweep(object$counts,2,object$norm.factors,"*")),
-				colData,design=design,tidy=statArgs$tidy) 
-			DESeq2::sizeFactors(dds)= rep(1,ncol(dds))
-			dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
-				maxit=statArgs$maxit,quiet=statArgs$quiet,
-				modelMatrix=statArgs$modelMatrix)
-		},
-		nbp = { # Normalized with NBPSeq and main method was "nbsmyth"; 
-			#"nbsmyth" refers to prepare.nbp. 
-			# We take the pseudocounts of the nbp object because they are the 
-			# normalized ones for the lib.size
-			dds <- DESeqDataSetFromMatrix(round(object$pseudo.counts),
-				colData,design=design,tidy=statArgs$tidy) 
-			DESeq2::sizeFactors(dds)= rep(1,ncol(dds))
-			dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
-				maxit=statArgs$maxit,quiet=statArgs$quiet,
-				modelMatrix=statArgs$modelMatrix)
-		},
-		ABSDataSet = { # Has been normalized with ABSSeq
-			dds <- DESeqDataSetFromMatrix(round(excounts(object)),colData,
-				design=design,tidy=statArgs$tidy)
-			DESeq2::sizeFactors(dds) <- rep(1,ncol(dds))
-			dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
-				maxit=statArgs$maxit,quiet=statArgs$quiet,
-			modelMatrix=statArgs$modelMatrix)
-		},
-		SeqCountSet = { # Has been normalized with DSS
-			dds <- DESeqDataSetFromMatrix(round(assayData(object)$exprs),
-				colData,design=design,tidy=statArgs$tidy)
-			DESeq2::sizeFactors(dds)=normalizationFactor(object)
-			dds <-  DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
-				maxit=statArgs$maxit,quiet=statArgs$quiet,
-				modelMatrix=statArgs$modelMatrix)
-		}
+        DESeqDataSet = { # Has been normalized with DESeq2
+            dds <- object
+            dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType, 
+                maxit=statArgs$maxit,quiet=statArgs$quiet,
+                modelMatrix=statArgs$modelMatrix)                   
+        },
+        CountDataSet = { # Has been normalized with DESeq
+            countData <- round(DESeq::counts(object, normalized=TRUE)) 
+            dds <- DESeqDataSetFromMatrix(countData,colData,design=design,
+                tidy=statArgs$tidy) 
+            DESeq2::sizeFactors(dds) <- rep(1,ncol(countData))
+            dds= DESeq2::estimateDispersions(dds,fitType=statArgs$fitType, 
+                    maxit=statArgs$maxit,quiet=statArgs$quiet, 
+                    modelMatrix=statArgs$modelMatrix)
+        },
+        DGEList = { # Has been normalized with edgeR              
+            dds <- DESeqDataSetFromMatrix(object$counts,colData,
+                design=design,tidy=statArgs$tidy)
+            # edgeR has already normalized for library size. So what is done
+            # is to pass size factors from edgeR to sizeFactors of DESeq2
+            DESeq2::sizeFactors(dds) <- object$samples$norm.factors 
+            dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType, 
+                maxit=statArgs$maxit,quiet=statArgs$quiet, 
+                modelMatrix=statArgs$modelMatrix)
+        },
+        SeqExpressionSet = { # Has been normalized with EDASeq
+            # A matrix with the normalized counts (both within- and 
+            # between-lane)
+            countData <- normCounts(object) 
+            dds <- DESeqDataSetFromMatrix(countData,colData,design=design,
+                tidy=statArgs$tidy)
+            # Because EDAseq has done library size norm, we set all 
+            # sizeFactors equal to 1
+            DESeq2::sizeFactors(dds) <- rep(1,ncol(dds)) 
+            dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
+                maxit=statArgs$maxit,quiet=statArgs$quiet,
+                modelMatrix=statArgs$modelMatrix)
+        },
+        matrix = { # Has been normalized with EDASeq or NOISeq or ABSSeq
+            # I take the matrix ouput of these tools that contains 
+            # normalized counts
+            dds <- DESeqDataSetFromMatrix(object,colData,design=design,
+                tidy=statArgs$tidy)
+            # Because EDAseq has done library size norm (and NOISeq too, 
+            # and EdgeR too), we set all sizeFactors equal 1
+            DESeq2::sizeFactors(dds) <- rep(1,ncol(dds))
+            dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
+                maxit=statArgs$maxit,quiet=statArgs$quiet,
+                modelMatrix=statArgs$modelMatrix)
+        },
+        nbData = { # Normalized with NBPSeq and main method was "nbpseq".
+            # Using sweep to multiply raw counts with the respective 
+            # norm.factors -> normCounts generated
+            dds <- DESeqDataSetFromMatrix(
+                round(sweep(object$counts,2,object$norm.factors,"*")),
+                colData,design=design,tidy=statArgs$tidy) 
+            DESeq2::sizeFactors(dds)= rep(1,ncol(dds))
+            dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
+                maxit=statArgs$maxit,quiet=statArgs$quiet,
+                modelMatrix=statArgs$modelMatrix)
+        },
+        nbp = { # Normalized with NBPSeq and main method was "nbsmyth"; 
+            #"nbsmyth" refers to prepare.nbp. 
+            # We take the pseudocounts of the nbp object because they are the 
+            # normalized ones for the lib.size
+            dds <- DESeqDataSetFromMatrix(round(object$pseudo.counts),
+                colData,design=design,tidy=statArgs$tidy) 
+            DESeq2::sizeFactors(dds)= rep(1,ncol(dds))
+            dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
+                maxit=statArgs$maxit,quiet=statArgs$quiet,
+                modelMatrix=statArgs$modelMatrix)
+        },
+        ABSDataSet = { # Has been normalized with ABSSeq
+            dds <- DESeqDataSetFromMatrix(round(excounts(object)),colData,
+                design=design,tidy=statArgs$tidy)
+            DESeq2::sizeFactors(dds) <- rep(1,ncol(dds))
+            dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
+                maxit=statArgs$maxit,quiet=statArgs$quiet,
+            modelMatrix=statArgs$modelMatrix)
+        },
+        SeqCountSet = { # Has been normalized with DSS
+            dds <- DESeqDataSetFromMatrix(round(assayData(object)$exprs),
+                colData,design=design,tidy=statArgs$tidy)
+            DESeq2::sizeFactors(dds)=normalizationFactor(object)
+            dds <-  DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
+                maxit=statArgs$maxit,quiet=statArgs$quiet,
+                modelMatrix=statArgs$modelMatrix)
+        }
     )
     
     for (conName in names(contrastList)) {
@@ -239,7 +239,8 @@ statDeseq2 <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
         else { # DE analysis of >2 levels in conditions factor
             cc <- names(unlist(con))
             # This assignment, except from keeping only the samples we want to 
-            # compare, it also keeps only the respective levels under conditions!
+            # compare, it also keeps only the respective levels under 
+            # conditions!
             ddsTmp <- dds[,cc] 
             ddsTmp <- nbinomLRT(ddsTmp,full=design,reduced=~1,
                 betaTol=statArgs$betaTol,maxit=statArgs$maxit,
@@ -508,8 +509,6 @@ statLimma <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
 
 statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     geneData=NULL,logOffset=1) {
-    #if (is.null(normArgs) && class(object)=="DGEList")
-    #    normArgs <- getDefaults("normalization","edger")
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","noiseq")
     if (is.null(contrastList))
@@ -518,14 +517,14 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
     if (!is.null(geneData) && is(geneData,"GenomicRanges")) {
-		gl <- NULL
-		if (!is.null(attr(geneData,"geneLength")))
-			gl <- attr(geneData,"geneLength")
-		geneData <- as.data.frame(geneData)
-		geneData <- geneData[,c(1:3,6,7,5,8,9)]
-		if (!is.null(gl))
-			attr(geneData,"geneLength") <- gl
-	}
+        gl <- NULL
+        if (!is.null(attr(geneData,"geneLength")))
+            gl <- attr(geneData,"geneLength")
+        geneData <- as.data.frame(geneData)
+        geneData <- geneData[,c(1:3,6,7,5,8,9)]
+        if (!is.null(gl))
+            attr(geneData,"geneLength") <- gl
+    }
     if (is.null(geneData)) {
         gcContent <- NULL
         chromosome <- NULL
@@ -535,7 +534,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     else {
         gcContent <- geneData$gc_content
         if (is.null(geneData$gc_content))
-			gcContent <- rep(0.5,nrow(geneData))
+            gcContent <- rep(0.5,nrow(geneData))
         biotype <- as.character(geneData$biotype)
         names(gcContent) <- names(biotype) <- rownames(geneData)
         if (is.null(attr(geneData,"geneLength")))
@@ -595,7 +594,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 biotype=biotype
             )
         },
-        nbData = { # Has been normalized with NBPSeq and main method was "nbpseq"
+        nbData = { # Has been normalized with NBPSeq and main method "nbpseq"
             nsObj <- NOISeq::readData(
                 data=as.matrix(round(sweep(object$counts,2,
                     object$norm.factors,"*"))),
@@ -627,23 +626,23 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             )
         },
         SeqCountSet = { # Has been normalized with DSS; 
-			# Because NOISeq class does not have any slot for norm.factors and 
-			# because DSS doesn't have any function to return the normalized 
-			# counts on their own, I will transform the SeqCountSet into a cds 
-			# object and then I will get the normalized counts
+            # Because NOISeq class does not have any slot for norm.factors and 
+            # because DSS doesn't have any function to return the normalized 
+            # counts on their own, I will transform the SeqCountSet into a cds 
+            # object and then I will get the normalized counts
             theDesign <- data.frame(condition=classes,
-				row.names=colnames(object))
+                row.names=colnames(object))
             cds <- newCountDataSet(as.matrix(round(assayData(object)$exprs)),
                 theDesign$condition)
             DESeq::sizeFactors(cds) <- normalizationFactor(object)
             nsObj <- NOISeq::readData(
-				data=DESeq::counts(cds,normalized=TRUE),
-				length=geneLength,
-				gc=gcContent,
-				chromosome=geneData[,1:3],
-				factors=data.frame(class=classes),
-				biotype=biotype
-			)
+                data=DESeq::counts(cds,normalized=TRUE),
+                length=geneLength,
+                gc=gcContent,
+                chromosome=geneData[,1:3],
+                factors=data.frame(class=classes),
+                biotype=biotype
+            )
         }
     )
     for (conName in names(contrastList)) {
@@ -730,7 +729,7 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
         },
         SeqCountSet = { # Again the same trick I did back in NOISeq
             theDesign <- data.frame(condition=classes,
-				row.names=colnames(object))
+                row.names=colnames(object))
             cds <- newCountDataSet(as.matrix(round(assayData(object)$exprs)),
                 theDesign$condition)
             DESeq::sizeFactors(cds) <- normalizationFactor(object)
@@ -776,7 +775,7 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
 
 statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     libsizeList=NULL) {
-    if (is.null(statArgs) && class(object)!="list")
+    if (is.null(statArgs) && !is(object,"list"))
         statArgs <- getDefaults("statistics","nbpseq")
     if (is.null(contrastList))
         contrastList <- makeContrastList(paste(names(sampleList)[1:2],
@@ -864,7 +863,7 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
         },
         SeqCountSet = { # Again the trick of NOISeq
             theDesign <- data.frame(condition=classes,
-				row.names=colnames(object)) 
+                row.names=colnames(object)) 
             cds <- newCountDataSet(as.matrix(round(assayData(object)$exprs)),
                 theDesign$condition)
             DESeq::sizeFactors(cds) <- normalizationFactor(object)
@@ -879,7 +878,7 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
         }
     )
     # To avoid repeating the following chunk in the above
-    if (class(object)!="list" && class(object)!="nbp") {
+    if (!is(object,"list") && !is(object,"nbp")) {
         #if (statArgs$main.method=="nbpseq") {
         #    nbData <- list(
         #        counts=as.matrix(counts),
@@ -898,7 +897,8 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
         #        grp.ids=classes,
         #        eff.lib.sizes=libSizes*rep(1,dim(counts)[2]),
         #        pseudo.counts=as.matrix(counts),
-        #        pseudo.lib.sizes=colSums(as.matrix(counts))*rep(1,dim(counts)[2])
+        #        pseudo.lib.sizes=colSums(as.matrix(counts))*rep(1,
+        #            dim(counts)[2])
         #    ))
             nbData <- list(
                 counts=as.matrix(counts),
@@ -1019,105 +1019,108 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
                         LevelstoNormFC=statArgs$LevelstoNormFC)
                 },
                 CountDataSet = { # Has been normalized with DESeq
-					countsTmp <- DESeq::counts(object)
-					abs <- ABSDataSet(countsTmp[,names(unlist(con))],
-						# "user" so as to pass my own sizeFactors
-						groupsTmp,normMethod="user",
-						sizeFactor=sizeFactors(object)[names(unlist(con))], 
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
-						# Here I used the DESeq's raw counts and size factors
-						# because that way I got a little better p-values
+                    countsTmp <- DESeq::counts(object)
+                    abs <- ABSDataSet(countsTmp[,names(unlist(con))],
+                        # "user" so as to pass my own sizeFactors
+                        groupsTmp,normMethod="user",
+                        sizeFactor=sizeFactors(object)[names(unlist(con))], 
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
+                        # Here I used the DESeq's raw counts and size factors
+                        # because that way I got a little better p-values
                 },
                 DESeqDataSet = { # Has been normalized with DESeq2
-					countsTmp <- DESeq2::counts(object)
-					abs <- ABSDataSet(countsTmp[,names(unlist(con))],
-						# "user" so as to pass my own sizeFactors
-						groupsTmp,normMethod= "user",
-						sizeFactor=sizeFactors(object)[names(unlist(con))], 
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC) 
-						# Here I used the DESeq's raw counts and size factors
-						#  because that way I got a little better p-values 
+                    countsTmp <- DESeq2::counts(object)
+                    abs <- ABSDataSet(countsTmp[,names(unlist(con))],
+                        # "user" so as to pass my own sizeFactors
+                        groupsTmp,normMethod= "user",
+                        sizeFactor=sizeFactors(object)[names(unlist(con))], 
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC) 
+                        # Here I used the DESeq's raw counts and size factors
+                        #  because that way I got a little better p-values 
                 },
                 DGEList = { # Has been normalized with edgeR                
-					abs <- ABSDataSet(object$counts[,names(unlist(con))],
-						groupsTmp,normMethod="user", 
-						sizeFactor=object$samples[names(unlist(con)),3],
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
+                    abs <- ABSDataSet(object$counts[,names(unlist(con))],
+                        groupsTmp,normMethod="user", 
+                        sizeFactor=object$samples[names(unlist(con)),3],
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
                 },
                 SeqExpressionSet = { # Has been normalized with EDASeq
-					abs <- ABSDataSet(normCounts(object)[,
-						names(unlist(con))],groupsTmp,normMethod= "user", 
-						sizeFactor=rep(1,length(unlist(con))),
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
+                    abs <- ABSDataSet(normCounts(object)[,
+                        names(unlist(con))],groupsTmp,normMethod= "user", 
+                        sizeFactor=rep(1,length(unlist(con))),
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
                 },  
                 matrix = { # Has been normalized with EDASeq or NOISeq or Edger
-					abs <- ABSDataSet(object[,names(unlist(con))],groupsTmp,
-						normMethod= "user",
-						sizeFactor=rep(1,length(unlist(con))),
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC) 
-						# Because EDAseq has done library size norm (and 
-						# NOISeq too), we set all sizeFactors equal to 1
+                    abs <- ABSDataSet(object[,names(unlist(con))],groupsTmp,
+                        normMethod= "user",
+                        sizeFactor=rep(1,length(unlist(con))),
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC) 
+                        # Because EDAseq has done library size norm (and 
+                        # NOISeq too), we set all sizeFactors equal to 1
                 },              
-                nbData = { # Has been normalized with NBPSeq and main method was "nbpseq"; 
+                nbData = { # Has been normalized with NBPSeq and main method was
+                    # "nbpseq"; 
                     # "nbpseq" refers to prepare.nbData that seems to have 
                     # stopped running in metaseqR (see norm.R lines 366-368)
-					normCounts=round(sweep(object$counts,2,
-						object$norm.factors,"*"))
-					abs <- ABSDataSet(object[,names(unlist(con))],groupsTmp,
-						normMethod="user", 
-						sizeFactor= rep(1,length(unlist(con))),
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
+                    normCounts=round(sweep(object$counts,2,
+                        object$norm.factors,"*"))
+                    abs <- ABSDataSet(object[,names(unlist(con))],groupsTmp,
+                        normMethod="user", 
+                        sizeFactor= rep(1,length(unlist(con))),
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
                 },
-                nbp = { # Has been normalized with NBPSeq and main method was "nbsmyth"; 
+                nbp = { # Has been normalized with NBPSeq and main method was 
+                    #"nbsmyth"; 
                     #"nbsmyth" refers to prepare.nbp (see norm.R lines 370-371) 
-					abs <- ABSDataSet(round(object$pseudo.counts[,
-						names(unlist(con))]),groupsTmp,normMethod= "user", 
-						sizeFactor=rep(1,length(unlist(con))),
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC) 
-						# I take the pseudocounts of the nbp object because 
-						# they are the normalized ones for the lib.size
+                    abs <- ABSDataSet(round(object$pseudo.counts[,
+                        names(unlist(con))]),groupsTmp,normMethod= "user", 
+                        sizeFactor=rep(1,length(unlist(con))),
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC) 
+                        # I take the pseudocounts of the nbp object because 
+                        # they are the normalized ones for the lib.size
                 },
                 SeqCountSet = {
-					# isolate normalization factors so as to give them names and be able to subset them at will
-					nF <- normalizationFactor(object) 
-					names(nF) <- names(unlist(sampleList))
-					abs <- ABSDataSet(round(
-						assayData(object)$exprs[,names(unlist(con))]),
-						groupsTmp,normMethod= "user", 
-						sizeFactor=nF[names(unlist(con))],
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
+                    # isolate normalization factors so as to give them names and 
+                    # be able to subset them at will
+                    nF <- normalizationFactor(object) 
+                    names(nF) <- names(unlist(sampleList))
+                    abs <- ABSDataSet(round(
+                        assayData(object)$exprs[,names(unlist(con))]),
+                        groupsTmp,normMethod= "user", 
+                        sizeFactor=nF[names(unlist(con))],
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
                 }
             )
         
@@ -1154,106 +1157,108 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
                         LevelstoNormFC=statArgs$LevelstoNormFC)
                 },
                 CountDataSet = { # Has been normalized with DESeq
-					countsTmp <- DESeq::counts(object)
-					abs <- ABSDataSet(countsTmp[,names(unlist(con))],
-						normMethod="user", 
-						sizeFactor=sizeFactors(object)[names(unlist(con))],
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
+                    countsTmp <- DESeq::counts(object)
+                    abs <- ABSDataSet(countsTmp[,names(unlist(con))],
+                        normMethod="user", 
+                        sizeFactor=sizeFactors(object)[names(unlist(con))],
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
                 },
                 DESeqDataSet = { # Has been normalized with DESeq2
                         countsTmp= DESeq2::counts(object)
-					abs <- ABSDataSet(countsTmp[,names(unlist(con))],
-						normMethod="user", 
-						sizeFactor=sizeFactors(object)[names(unlist(con))],
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
-						# Here we use the DESeq's raw counts and size factors
-						# because that way I got a little better p-values 
+                    abs <- ABSDataSet(countsTmp[,names(unlist(con))],
+                        normMethod="user", 
+                        sizeFactor=sizeFactors(object)[names(unlist(con))],
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
+                        # Here we use the DESeq's raw counts and size factors
+                        # because that way I got a little better p-values 
                 },
                 DGEList = { # Has been normalized with edgeR                
-					abs <- ABSDataSet(object$counts[,names(unlist(con))],
-						normMethod="user",
-						sizeFactor=object$samples[names(unlist(con)),3],
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
+                    abs <- ABSDataSet(object$counts[,names(unlist(con))],
+                        normMethod="user",
+                        sizeFactor=object$samples[names(unlist(con)),3],
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
                 },
                 SeqExpressionSet = { # Has been normalized with EDASeq
-					abs <- ABSDataSet(
-						EDASeq::normCounts(object)[,names(unlist(con))],
-						normMethod="user",
-						sizeFactor=rep(1,length(unlist(con))),
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)              
+                    abs <- ABSDataSet(
+                        EDASeq::normCounts(object)[,names(unlist(con))],
+                        normMethod="user",
+                        sizeFactor=rep(1,length(unlist(con))),
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)              
                 },  
                 matrix = { # Has been normalized with EDASeq or NOISeq
-					abs <- ABSDataSet(object[,names(unlist(con))],
-						normMethod="user", 
-						sizeFactor=rep(1,length(unlist(con))),
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC) 
-						# Because EDAseq has done library size norm (and 
-						# NOISeq too), we set all sizeFactors equal to 1
+                    abs <- ABSDataSet(object[,names(unlist(con))],
+                        normMethod="user", 
+                        sizeFactor=rep(1,length(unlist(con))),
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC) 
+                        # Because EDAseq has done library size norm (and 
+                        # NOISeq too), we set all sizeFactors equal to 1
                 },
                 nbData = { 
-					# Has been normalized with NBPSeq and main method was "nbpseq"; 
-					# "nbpseq" refers to prepare.nbData that seems to have 
-					# stopped running in metaseqR (see norm.R lines 366-368)
-					normCounts <- round(sweep(object$counts,2,
-						object$norm.factors,"*"))
-					abs <- ABSDataSet(object[,names(unlist(con))],
-						normMethod="user",
-						sizeFactor=rep(1,length(unlist(con))),
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
+                    # Has been normalized with NBPSeq and main method was 
+                    # "nbpseq"; 
+                    # "nbpseq" refers to prepare.nbData that seems to have 
+                    # stopped running in metaseqR (see norm.R lines 366-368)
+                    normCounts <- round(sweep(object$counts,2,
+                        object$norm.factors,"*"))
+                    abs <- ABSDataSet(object[,names(unlist(con))],
+                        normMethod="user",
+                        sizeFactor=rep(1,length(unlist(con))),
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
                 },
-                nbp = { # Has been normalized with NBPSeq and main method was "nbsmyth"; 
-					# "nbsmyth" refers to prepare.nbp 
-					# (see norm.R lines 370-371) 
-					abs <- ABSDataSet(round(
-						object$pseudo.counts[,names(unlist(con))]),
-							normMethod="user", 
-							sizeFactor=rep(1,length(unlist(con))),
-						    paired=statArgs$paired,
-						    minDispersion=statArgs$minDispersion, 
-						    minRates=statArgs$minRates,
-						    maxRates=statArgs$maxRates, 
-						    LevelstoNormFC=statArgs$LevelstoNormFC) 
-						    # I take the pseudocounts of the nbp object because
-						    # they are the normalized ones for the lib.size
+                nbp = { # Has been normalized with NBPSeq and main method was
+                    # "nbsmyth"; 
+                    # "nbsmyth" refers to prepare.nbp 
+                    # (see norm.R lines 370-371) 
+                    abs <- ABSDataSet(round(
+                        object$pseudo.counts[,names(unlist(con))]),
+                            normMethod="user", 
+                            sizeFactor=rep(1,length(unlist(con))),
+                            paired=statArgs$paired,
+                            minDispersion=statArgs$minDispersion, 
+                            minRates=statArgs$minRates,
+                            maxRates=statArgs$maxRates, 
+                            LevelstoNormFC=statArgs$LevelstoNormFC) 
+                            # I take the pseudocounts of the nbp object because
+                            # they are the normalized ones for the lib.size
                 },
                 SeqCountSet = {
-					# isolate normalization factors so as to give them names and 
-					# be able to subset them at will
-					nF <- normalizationFactor(object) 
-					names(nF) <- names(unlist(sampleList))
-					abs <- ABSDataSet(round(assayData(
-						object)$exprs[,names(unlist(con))]),
-						normMethod="user", 
-						sizeFactor=nF[names(unlist(con))],
-						paired=statArgs$paired,
-						minDispersion=statArgs$minDispersion, 
-						minRates=statArgs$minRates,
-						maxRates=statArgs$maxRates, 
-						LevelstoNormFC=statArgs$LevelstoNormFC)
+                    # isolate normalization factors so as to give them names and 
+                    # be able to subset them at will
+                    nF <- normalizationFactor(object) 
+                    names(nF) <- names(unlist(sampleList))
+                    abs <- ABSDataSet(round(assayData(
+                        object)$exprs[,names(unlist(con))]),
+                        normMethod="user", 
+                        sizeFactor=nF[names(unlist(con))],
+                        paired=statArgs$paired,
+                        minDispersion=statArgs$minDispersion, 
+                        minRates=statArgs$minRates,
+                        maxRates=statArgs$maxRates, 
+                        LevelstoNormFC=statArgs$LevelstoNormFC)
                 }
             )   
             abs <- ABSSeqlm(abs,design=design,condA=colnames(design),
@@ -1289,61 +1294,61 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     names(p) <- names(contrastList)
     
     switch(class(object),
-		CountDataSet = { # Has been normalized with DESeq
-			countData <- round(DESeq::counts(object, normalized=TRUE))
-			seqData <- newSeqCountSet(countData,design,
-			normalizationFactor=rep(1,ncol(countData)))
-			# estimating dispersions
-			seqData <- estDispersion(seqData,trend=statArgs$trend)
-		},
-		DESeqDataSet = { # Has been normalized with DESeq2
-			countData <- round(DESeq2::counts(object,normalized=TRUE))
-			seqData <- newSeqCountSet(countData,design,
-			normalizationFactor=rep(1,ncol(countData)))
-			# estimating dispersions
-			seqData <- estDispersion(seqData,trend=statArgs$trend)
-		},
-		DGEList = { # Has been normalized with edgeR              
-			seqData <- newSeqCountSet(object$counts,design,
-				normalizationFactor=object$samples$norm.factors)
-			seqData <- estDispersion(seqData,trend=statArgs$trend)
-		},
-		SeqExpressionSet = { # Has been normalized with EDASeq
-			seqData <- newSeqCountSet(normCounts(object),design,
-				normalizationFactor=rep(1,ncol(normCounts))) 
-			# Getting the normalized counts and passing in normFactors the 
-			# value 1
-			seqData <- estDispersion(seqData,trend=statArgs$trend)
-		},
-		matrix = { # Has been normalized with EDASeq or NOISeq
-			seqData <- newSeqCountSet(object,design,
-			normalizationFactor=rep(1,ncol(object)))
-			seqData <- estDispersion(seqData,trend=statArgs$trend)
-		},
-		nbData ={ # Has been normalized with NBPSeq and method was "nbpseq".
-			#seqData <- newSeqCountSet(round(sweep(object$counts,2,
-			#	object$norm.factors,"*")),design,
-			#	normalizationFactor=rep(1,ncol(object$counts)))
-			seqData <- newSeqCountSet(normCounts(object),design,
-				normalizationFactor=rep(1,ncol(object)))
-			# Getting the normalized counts and passing in normFactors 
-			# the value 1
-			seqData <- estDispersion(seqData,trend=statArgs$trend)
-		}, 
-		nbp = { # Has been normalized with NBPSeq and method was "nbsmyth".
-			seqData <- newSeqCountSet(round(object$pseudo.counts),design,
-				normalizationFactor=rep(1,ncol(object$pseudo.counts)))
-			seqData <- estDispersion(seqData,trend=statArgs$trend)
-		},
-		ABSDataSet = { # Has been normalized with ABSSeq
-			seqData <- newSeqCountSet(round(excounts(object)),design,
-				normalizationFactor=rep(1,ncol(object$pseudo.counts)))
-			seqData <- estDispersion(seqData,trend=statArgs$trend)
-		},
-		SeqCountSet = {
-			seqData <- object
-			seqData <- estDispersion(seqData,trend=statArgs$trend)       
-		}
+        CountDataSet = { # Has been normalized with DESeq
+            countData <- round(DESeq::counts(object, normalized=TRUE))
+            seqData <- newSeqCountSet(countData,design,
+            normalizationFactor=rep(1,ncol(countData)))
+            # estimating dispersions
+            seqData <- estDispersion(seqData,trend=statArgs$trend)
+        },
+        DESeqDataSet = { # Has been normalized with DESeq2
+            countData <- round(DESeq2::counts(object,normalized=TRUE))
+            seqData <- newSeqCountSet(countData,design,
+            normalizationFactor=rep(1,ncol(countData)))
+            # estimating dispersions
+            seqData <- estDispersion(seqData,trend=statArgs$trend)
+        },
+        DGEList = { # Has been normalized with edgeR              
+            seqData <- newSeqCountSet(object$counts,design,
+                normalizationFactor=object$samples$norm.factors)
+            seqData <- estDispersion(seqData,trend=statArgs$trend)
+        },
+        SeqExpressionSet = { # Has been normalized with EDASeq
+            seqData <- newSeqCountSet(normCounts(object),design,
+                normalizationFactor=rep(1,ncol(normCounts))) 
+            # Getting the normalized counts and passing in normFactors the 
+            # value 1
+            seqData <- estDispersion(seqData,trend=statArgs$trend)
+        },
+        matrix = { # Has been normalized with EDASeq or NOISeq
+            seqData <- newSeqCountSet(object,design,
+            normalizationFactor=rep(1,ncol(object)))
+            seqData <- estDispersion(seqData,trend=statArgs$trend)
+        },
+        nbData ={ # Has been normalized with NBPSeq and method was "nbpseq".
+            #seqData <- newSeqCountSet(round(sweep(object$counts,2,
+            #   object$norm.factors,"*")),design,
+            #   normalizationFactor=rep(1,ncol(object$counts)))
+            seqData <- newSeqCountSet(normCounts(object),design,
+                normalizationFactor=rep(1,ncol(object)))
+            # Getting the normalized counts and passing in normFactors 
+            # the value 1
+            seqData <- estDispersion(seqData,trend=statArgs$trend)
+        }, 
+        nbp = { # Has been normalized with NBPSeq and method was "nbsmyth".
+            seqData <- newSeqCountSet(round(object$pseudo.counts),design,
+                normalizationFactor=rep(1,ncol(object$pseudo.counts)))
+            seqData <- estDispersion(seqData,trend=statArgs$trend)
+        },
+        ABSDataSet = { # Has been normalized with ABSSeq
+            seqData <- newSeqCountSet(round(excounts(object)),design,
+                normalizationFactor=rep(1,ncol(object$pseudo.counts)))
+            seqData <- estDispersion(seqData,trend=statArgs$trend)
+        },
+        SeqCountSet = {
+            seqData <- object
+            seqData <- estDispersion(seqData,trend=statArgs$trend)       
+        }
     )
                                
     for (conName in names(contrastList)) {
@@ -1384,7 +1389,8 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
                 modelMatrix=statArgs$modelMatrix)
             cc <- names(unlist(con))
             # This assignment, except from keeping only the samples we want to 
-            # compare, it also keeps only the respective levels under conditions!
+            # compare, it also keeps only the respective levels under 
+            # conditions!
             ddsTmp <- dds[,cc]
             ddsTmp <- nbinomLRT(ddsTmp,full=designTmp,reduced=~1,
                 betaTol=statArgs$betaTol,maxit=statArgs$maxit,

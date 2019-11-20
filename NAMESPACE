@@ -8,6 +8,7 @@ import(limma)
 import(methods)
 import(magrittr)
 import(NBPSeq)
+import(parallel)
 import(qvalue)
 import(Rsamtools)
 import(RSQLite)
@@ -36,6 +37,13 @@ importFrom("baySeq",groups)
 importFrom("baySeq",libsizes)
 importFrom("baySeq",replicates)
 importFrom("baySeq",topCounts)
+
+importFrom("Biobase",assayData)
+importFrom("Biobase",AnnotatedDataFrame)
+
+importFrom("BiocParallel",bpparam)
+
+importFrom("Biostrings",alphabetFrequency)
 
 importFrom("corrplot",corrplot)
 
@@ -89,12 +97,18 @@ importFrom("EDASeq",newSeqExpressionSet)
 importFrom("EDASeq",normCounts)
 importFrom("EDASeq",withinLaneNormalization)
 
-importFrom("GenomeInfoDb",seqinfo)
 importFrom("GenomeInfoDb",fetchExtendedChromInfoFromUCSC)
+importFrom("GenomeInfoDb",seqinfo)
+importFrom("GenomeInfoDb",Seqinfo)
+importFrom("GenomeInfoDb",seqlevels)
+
+importFrom("GenomicAlignments",readGAlignments)
+importFrom("GenomicAlignments",summarizeOverlaps)
 
 importFrom("GenomicFeatures",makeTxDbFromGFF)
 importFrom("GenomicFeatures",exons)
 importFrom("GenomicFeatures",genes)
+importFrom("GenomicFeatures","seqlevels<-")
 importFrom("GenomicFeatures",transcripts)
 importFrom("GenomicFeatures",threeUTRsByTranscript)
 
@@ -109,6 +123,8 @@ importFrom("htmltools",tags)
 
 importFrom("httr",config)
 importFrom("httr",set_config)
+
+importFrom("IRanges",IRanges)
 
 importFrom("jsonlite",fromJSON)
 importFrom("jsonlite",toJSON)
@@ -144,6 +160,9 @@ importFrom("rmdformats",material)
 importFrom("rtracklayer",import)
 importFrom("rtracklayer",import.bed)
 
+importFrom(S4Vectors,"DataFrame")
+importFrom(S4Vectors,"Rle")
+
 importFrom("stats",as.dist)
 importFrom("stats",as.formula)
 importFrom("stats",cmdscale)
@@ -167,10 +186,11 @@ importFrom("stats",runif)
 importFrom("stats",sd)
 importFrom("stats",var)
 
-importFrom(S4Vectors,"DataFrame")
-importFrom(S4Vectors,"Rle")
-
 importFrom("stringr",str_match)
+
+importFrom("SummarizedExperiment",assays)
+
+importFrom("survcomp",combine.test)
 
 importFrom("utils",capture.output)
 importFrom("utils",combn)

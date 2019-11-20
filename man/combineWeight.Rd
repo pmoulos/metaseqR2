@@ -25,4 +25,3 @@ pc <- combineWeight(p,w=c(0.2,0.5,0.3))
 \author{
     Panagiotis Moulos
 }
-

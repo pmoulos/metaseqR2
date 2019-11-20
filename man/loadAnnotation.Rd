@@ -4,10 +4,10 @@
 \usage{
     loadAnnotation(genome, refdb, 
         level = c("gene", "transcript", "exon"),
-	    type = c("gene", "exon", "utr"), version="auto",
-	    db = file.path(system.file(package = "metaseqR2"),
-	        "annotation.sqlite"), summarized = FALSE, 
-	        asdf = FALSE, rc = NULL)
+        type = c("gene", "exon", "utr"), version="auto",
+        db = file.path(system.file(package = "metaseqR2"),
+            "annotation.sqlite"), summarized = FALSE, 
+            asdf = FALSE, rc = NULL)
 }
 \arguments{
     \item{genome}{a \code{\link{metaseqr2}} supported

@@ -188,13 +188,13 @@ metaPerm <- function(contrast,counts,sampleList,statistics,statArgs,
         relist <- vector("list",nperm)
         if (reprod) {
             relist <- cmclapply(seq_along(relist),function(i) {
-				return(list(seed=i,prog=i))
-			},rc=rc)
+                return(list(seed=i,prog=i))
+            },rc=rc)
         }
         else
             relist <- cmclapply(seq_along(relist),function(i) {
-				return(list(seed=round(1e+6*runif(1)),prog=i))
-			},rc=rc)
+                return(list(seed=round(1e+6*runif(1)),prog=i))
+            },rc=rc)
     }
     else if (is.numeric(reprod)) {
         if (length(reprod) != nperm)

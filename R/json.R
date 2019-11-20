@@ -1,12 +1,3 @@
-#' MDS plot JSON exporter for the metaseqR package
-#'
-#' Non-exportable JSON exporter for \code{\link{diagplotMds}}.
-#'
-#' @param obj A list holding MDS plot data. See \code{\link{diaplot.mds}}.
-#' @param jl JavaScript charting library to export. Currently only \code{"highcharts"}
-#' supported.
-#' @return A JSON string.
-#' @author Panagiotis Moulos
 mdsToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     jl <- tolower(jl[1])
     out <- out[1]
@@ -128,13 +119,13 @@ mdsToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     )
     
     if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
-	else
-		return(json)
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else
+        return(json)
 }
 
 countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
-	out=c("json","list")) {
+    out=c("json","list")) {
     by <- tolower(by[1])
     jl <- tolower(jl[1])
     out <- tolower(out[1])
@@ -298,128 +289,128 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
             
             json[[n]] <- switch(jl,
                 highcharts = {
-					list(
-						chart=list(
-							type="boxplot"
-						),
-						title=list(
-							text=paste("Biotype detection for sample ",n,
-								sep="")
-						),
-						legend=list(
-							enabled=TRUE,
-							itemHoverStyle=list(
-								color="#B40000"
-							)
-						),
-						xAxis=list(
-							categories=biotypes,
-							title=list(
-								text="Biotype",
-								margin=25,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),
-							labels=list(
-								style=list(
-									color="#000000",
-									fontWeight="bold"
-								)
-							)
-						),
-						yAxis=list(
-							type="logarithmic",
-							showFirstLabel=FALSE,
-							min=1e-4,
-							tickInterval=1,
-							title=list(
-								useHTML=TRUE,
-								#text="Read count (log<sub>2</sub>)",
-								text="Expression (read count)",
-								margin=25,
-								style=list(
-									color="#000000",
-									fontSize="1.1em"
-								)
-							),
-							labels=list(
-								style=list(
-									color="#000000",
-									fontSize="1.1em",
-									fontWeight="bold"
-								),
-								formatter=y.label.formatter
-							)
-						),
-						plotOptions=list(
-							boxplot=list(
-								fillColor="#F0F0E0",
-								lineWidth=2,
-								medianColor="#000000",
-								medianWidth=3,
-								stemColor="#000000",
-								stemDashStyle="dash",
-								stemWidth=1,
-								whiskerColor="#000000",
-								whiskerLength="75%",
-								whiskerWidth=1,
-								grouping=FALSE,
-								turboThreshold=10000,
-								tooltip=list(
-									headerFormat=paste(
-										'<span style="font-size:1.1em;',
-										'color:{series.color};',
-										'font-weight:bold">',
-										'\u25CF </span>',
-										'<span style="font-size:1.1em;',
-										'font-weight:bold">',
-										'Biotype {series.name}</span><br/>',
-										sep=""
-									)
-								),
-								events=list(
-									legendItemClick=boxplot.onclick
-								)
-							),
-							scatter=list(
-								allowPointSelect=TRUE,
-								turboThreshold=10000,
-								tooltip=list(
-									headerFormat=paste(
-										'<span style="font-weight:bold;',
-										'color:{series.color};">',
-										'\u25CF </span>',
-										'<span style="font-weight:bold">',
-										'Biotype {series.name}</span><br/>',
-										sep=""
-									),
-									pointFormat=outlier.pointformat
-								),
-								states=list(
-									hover=list(
-										marker=list(
-											enabled=FALSE
-										)
-									)
-								)
-							)
-						),
-						series=c(unname(series),unname(outliers))
-					)
+                    list(
+                        chart=list(
+                            type="boxplot"
+                        ),
+                        title=list(
+                            text=paste("Biotype detection for sample ",n,
+                                sep="")
+                        ),
+                        legend=list(
+                            enabled=TRUE,
+                            itemHoverStyle=list(
+                                color="#B40000"
+                            )
+                        ),
+                        xAxis=list(
+                            categories=biotypes,
+                            title=list(
+                                text="Biotype",
+                                margin=25,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontWeight="bold"
+                                )
+                            )
+                        ),
+                        yAxis=list(
+                            type="logarithmic",
+                            showFirstLabel=FALSE,
+                            min=1e-4,
+                            tickInterval=1,
+                            title=list(
+                                useHTML=TRUE,
+                                #text="Read count (log<sub>2</sub>)",
+                                text="Expression (read count)",
+                                margin=25,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em"
+                                )
+                            ),
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em",
+                                    fontWeight="bold"
+                                ),
+                                formatter=y.label.formatter
+                            )
+                        ),
+                        plotOptions=list(
+                            boxplot=list(
+                                fillColor="#F0F0E0",
+                                lineWidth=2,
+                                medianColor="#000000",
+                                medianWidth=3,
+                                stemColor="#000000",
+                                stemDashStyle="dash",
+                                stemWidth=1,
+                                whiskerColor="#000000",
+                                whiskerLength="75%",
+                                whiskerWidth=1,
+                                grouping=FALSE,
+                                turboThreshold=10000,
+                                tooltip=list(
+                                    headerFormat=paste(
+                                        '<span style="font-size:1.1em;',
+                                        'color:{series.color};',
+                                        'font-weight:bold">',
+                                        '\u25CF </span>',
+                                        '<span style="font-size:1.1em;',
+                                        'font-weight:bold">',
+                                        'Biotype {series.name}</span><br/>',
+                                        sep=""
+                                    )
+                                ),
+                                events=list(
+                                    legendItemClick=boxplot.onclick
+                                )
+                            ),
+                            scatter=list(
+                                allowPointSelect=TRUE,
+                                turboThreshold=10000,
+                                tooltip=list(
+                                    headerFormat=paste(
+                                        '<span style="font-weight:bold;',
+                                        'color:{series.color};">',
+                                        '\u25CF </span>',
+                                        '<span style="font-weight:bold">',
+                                        'Biotype {series.name}</span><br/>',
+                                        sep=""
+                                    ),
+                                    pointFormat=outlier.pointformat
+                                ),
+                                states=list(
+                                    hover=list(
+                                        marker=list(
+                                            enabled=FALSE
+                                        )
+                                    )
+                                )
+                            )
+                        ),
+                        series=c(unname(series),unname(outliers))
+                    )
                 }
             )
         }
         if (out=="json") {
-			for (i in 1:length(json))
-				#json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
-				#	auto_unbox=TRUE,null="null"))
-				json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
-			return(json)
-		}
-		else
-			return(json)
+            for (i in 1:length(json))
+                #json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
+                #   auto_unbox=TRUE,null="null"))
+                json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
+            return(json)
+        }
+        else
+            return(json)
     }
     else if (by=="biotype") {
         cols <- .getColorScheme(length(samples))
@@ -517,128 +508,128 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
             
             json[[b]] <- switch(jl,
                 highcharts = {
-					list(
-						chart=list(
-							type="boxplot"
-						),
-						title=list(
-							text=paste("Detection for biotype ",b,
-								" (population: ",lengths(boxList[[b]])[1],
-								")",sep="")
-						),
-						legend=list(
-							enabled=TRUE
-						),
-						xAxis=list(
-							categories=samplenames,
-							title=list(
-								text="Sample name",
-								margin=25,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),
-							labels=list(
-								style=list(
-									color="#000000",
-									fontWeight="bold"
-								)
-							)
-						),
-						yAxis=list(
-							type="logarithmic",
-							showFirstLabel=FALSE,
-							min=1e-4,
-							tickInterval=1,
-							title=list(
-								text="Expression (read count)",
-								margin=25,
-								style=list(
-									color="#000000",
-									fontSize="1.1em"
-								)
-							),
-							labels=list(
-								style=list(
-									color="#000000",
-									fontSize="1.1em",
-									fontWeight="bold"
-								),
-								formatter=y.label.formatter
-							)
-						),
-						plotOptions=list(
-							boxplot=list(
-								fillColor="#F0F0E0",
-								lineWidth=2,
-								medianColor="#000000",
-								medianWidth=3,
-								stemColor="#000000",
-								stemDashStyle="dash",
-								stemWidth=1,
-								whiskerColor="#000000",
-								whiskerLength="75%",
-								whiskerWidth=1,
-								grouping=FALSE,
-								turboThreshold=10000,
-								tooltip=list(
-									headerFormat=paste(
-										'<span style="font-size:1.1em;',
-										'color:{series.color};',
-										'font-weight:bold">',
-										'\u25CF </span>',
-										'<span style="font-size:1.1em;',
-										'font-weight:bold">',
-										'Condition {series.name}</span>',
-										'<br/>',
-										'<span style="font-weight:bold;">',
-										'Sample {point.key}',
-										'</span><br/>',sep=""
-									),
-									pointFormatter=tooltip.point.formatter
-								),
-								events=list(
-									legendItemClick=boxplot.onclick
-								)
-							),
-							scatter=list(
-								allowPointSelect=TRUE,
-								turboThreshold=10000,
-								tooltip=list(
-									headerFormat=paste(
-										'<span style="font-weight:bold;',
-										'color:{series.color};">',
-										'\u25CF </span>',
-										'<span style="font-weight:bold">',
-										'Condition {series.name}</span>',
-										'<br/>',sep=""
-									),
-									pointFormat=outlier.pointformat
-								),
-								states=list(
-									hover=list(
-										marker=list(
-											enabled=FALSE
-										)
-									)
-								)
-							)
-						),
-						series=c(unname(series),unname(outliers))
+                    list(
+                        chart=list(
+                            type="boxplot"
+                        ),
+                        title=list(
+                            text=paste("Detection for biotype ",b,
+                                " (population: ",lengths(boxList[[b]])[1],
+                                ")",sep="")
+                        ),
+                        legend=list(
+                            enabled=TRUE
+                        ),
+                        xAxis=list(
+                            categories=samplenames,
+                            title=list(
+                                text="Sample name",
+                                margin=25,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontWeight="bold"
+                                )
+                            )
+                        ),
+                        yAxis=list(
+                            type="logarithmic",
+                            showFirstLabel=FALSE,
+                            min=1e-4,
+                            tickInterval=1,
+                            title=list(
+                                text="Expression (read count)",
+                                margin=25,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em"
+                                )
+                            ),
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em",
+                                    fontWeight="bold"
+                                ),
+                                formatter=y.label.formatter
+                            )
+                        ),
+                        plotOptions=list(
+                            boxplot=list(
+                                fillColor="#F0F0E0",
+                                lineWidth=2,
+                                medianColor="#000000",
+                                medianWidth=3,
+                                stemColor="#000000",
+                                stemDashStyle="dash",
+                                stemWidth=1,
+                                whiskerColor="#000000",
+                                whiskerLength="75%",
+                                whiskerWidth=1,
+                                grouping=FALSE,
+                                turboThreshold=10000,
+                                tooltip=list(
+                                    headerFormat=paste(
+                                        '<span style="font-size:1.1em;',
+                                        'color:{series.color};',
+                                        'font-weight:bold">',
+                                        '\u25CF </span>',
+                                        '<span style="font-size:1.1em;',
+                                        'font-weight:bold">',
+                                        'Condition {series.name}</span>',
+                                        '<br/>',
+                                        '<span style="font-weight:bold;">',
+                                        'Sample {point.key}',
+                                        '</span><br/>',sep=""
+                                    ),
+                                    pointFormatter=tooltip.point.formatter
+                                ),
+                                events=list(
+                                    legendItemClick=boxplot.onclick
+                                )
+                            ),
+                            scatter=list(
+                                allowPointSelect=TRUE,
+                                turboThreshold=10000,
+                                tooltip=list(
+                                    headerFormat=paste(
+                                        '<span style="font-weight:bold;',
+                                        'color:{series.color};">',
+                                        '\u25CF </span>',
+                                        '<span style="font-weight:bold">',
+                                        'Condition {series.name}</span>',
+                                        '<br/>',sep=""
+                                    ),
+                                    pointFormat=outlier.pointformat
+                                ),
+                                states=list(
+                                    hover=list(
+                                        marker=list(
+                                            enabled=FALSE
+                                        )
+                                    )
+                                )
+                            )
+                        ),
+                        series=c(unname(series),unname(outliers))
                     )
                 }
             )
         }
         if (out=="json") {
-			for (i in 1:length(json))
-				#json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
-				#	auto_unbox=TRUE,null="null"))
-				json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
-			return(json)
-		}
-		else
-			return(json)
+            for (i in 1:length(json))
+                #json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
+                #   auto_unbox=TRUE,null="null"))
+                json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
+            return(json)
+        }
+        else
+            return(json)
     }
 }
 
@@ -720,129 +711,129 @@ bioDetectionToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         json[[n]] <- switch(jl,
             highcharts = {
                 list(
-					chart=list(
-						type="column",
-						alignTicks=FALSE
-					),
-					title=list(
-						text=paste("Comparative biotype detection for ",
-							"sample ",n,sep="")
-					),
-					legend=list(
-						enabled=TRUE,
-						itemHoverStyle=list(
-							color="#B40000"
-						)
-					),
-					tooltip=list(
-						shared=TRUE
-					),  
-					xAxis=list(
-						categories=names(plotdata$genome)[c(abu,nabu)],
-						title=list(
-							text="Biotype",
-							margin=25,
-							style=list(
-								color="#000000",
-								fontSize="1.2em"
-							)
-						),
-						labels=list(
-							style=list(
-								color="#000000",
-								fontWeight="bold"
-							)
-						),
-						plotLines=list(
-							list(
-								color="#8A8A8A",
-								width=1.5,
-								dashStyle="Dash",
-								value=length(abu)-0.5
-							)
-						),
-						plotBands=list(
-							list(
-								color="#FFFFE0",
-								from=-0.5,
-								to=length(abu)-0.5
-							),
-							list(
-								color="#FFECEB",
-								from=length(abu)-0.5,
-								to=length(plotdata$genome)
-							)
-						)
-					),
-					yAxis=list(
-						list(
-							min=0,
-							max=70,
-							title=list(
-								text="% of abundant features",
-								margin=20,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),                          
-							labels=list(
-								style=list(
-									color="#000000",
-									fontSize="1.1em",
-									fontWeight="bold"
-								)
-							)
-						),
-						list(
-							min=0,
-							max=7,
-							title=list(
-								text="% of non-abundant features",
-								margin=20,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),                          
-							labels=list(
-								style=list(
-									color="#000000",
-									fontSize="1.1em",
-									fontWeight="bold"
-								)
-							),
-							opposite=TRUE
-						)
-					),
-					plotOptions=list(
-						column=list(
-							grouping=FALSE,
-							shadow=FALSE,
-							groupPadding=0.3,
-							pointPadding=0.25,
-							tooltip=list(
-								headerFormat=paste(
-									'<span style="font-size:1.1em;',
-									'font-weight:bold">',
-									'{point.key}</span><br/>',sep=""
-								)
-							)
-						)
-					),
-					series=c(unname(seriesAbu),unname(seriesNabu))
-				)
+                    chart=list(
+                        type="column",
+                        alignTicks=FALSE
+                    ),
+                    title=list(
+                        text=paste("Comparative biotype detection for ",
+                            "sample ",n,sep="")
+                    ),
+                    legend=list(
+                        enabled=TRUE,
+                        itemHoverStyle=list(
+                            color="#B40000"
+                        )
+                    ),
+                    tooltip=list(
+                        shared=TRUE
+                    ),  
+                    xAxis=list(
+                        categories=names(plotdata$genome)[c(abu,nabu)],
+                        title=list(
+                            text="Biotype",
+                            margin=25,
+                            style=list(
+                                color="#000000",
+                                fontSize="1.2em"
+                            )
+                        ),
+                        labels=list(
+                            style=list(
+                                color="#000000",
+                                fontWeight="bold"
+                            )
+                        ),
+                        plotLines=list(
+                            list(
+                                color="#8A8A8A",
+                                width=1.5,
+                                dashStyle="Dash",
+                                value=length(abu)-0.5
+                            )
+                        ),
+                        plotBands=list(
+                            list(
+                                color="#FFFFE0",
+                                from=-0.5,
+                                to=length(abu)-0.5
+                            ),
+                            list(
+                                color="#FFECEB",
+                                from=length(abu)-0.5,
+                                to=length(plotdata$genome)
+                            )
+                        )
+                    ),
+                    yAxis=list(
+                        list(
+                            min=0,
+                            max=70,
+                            title=list(
+                                text="% of abundant features",
+                                margin=20,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),                          
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em",
+                                    fontWeight="bold"
+                                )
+                            )
+                        ),
+                        list(
+                            min=0,
+                            max=7,
+                            title=list(
+                                text="% of non-abundant features",
+                                margin=20,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),                          
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em",
+                                    fontWeight="bold"
+                                )
+                            ),
+                            opposite=TRUE
+                        )
+                    ),
+                    plotOptions=list(
+                        column=list(
+                            grouping=FALSE,
+                            shadow=FALSE,
+                            groupPadding=0.3,
+                            pointPadding=0.25,
+                            tooltip=list(
+                                headerFormat=paste(
+                                    '<span style="font-size:1.1em;',
+                                    'font-weight:bold">',
+                                    '{point.key}</span><br/>',sep=""
+                                )
+                            )
+                        )
+                    ),
+                    series=c(unname(seriesAbu),unname(seriesNabu))
+                )
             }
         )
     }
     
     if (out=="json") {
-		for (i in 1:length(json))
-			json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
-		return(json)
-	}
-	else if (out=="list")
-		return(json)
+        for (i in 1:length(json))
+            json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
+        return(json)
+    }
+    else if (out=="list")
+        return(json)
 }
 
 bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
@@ -912,91 +903,91 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
             
             json[[n]] <- switch(jl,
                 highcharts = {
-					list(
-						chart=list(
-							type="scatter",
-							zoomType="xy"
-						),
-						title=list(
-							text=paste("Biotype saturations for sample ",n,
-								sep="")
-						),
-						legend=list(
-							enabled=TRUE,
-							itemHoverStyle=list(
-								color="#B40000"
-							)
-						),
-						xAxis=list(
-							title=list(
-								text="Read depth (millions of reads)",
-								margin=25,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),
-							labels=list(
-								style=list(
-									color="#000000",
-									fontWeight="bold"
-								)
-							)
-						),
-						yAxis=list(
-							min=0,
-							max=max(global),
-							title=list(
-								text="Detected features",
-								margin=25,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),
-							labels=list(
-								style=list(
-									color="#000000",
-									fontSize="1.1em",
-									fontWeight="bold"
-								)
-							)
-						),
-						plotOptions=list(
-							series=list(
-								lineWidth=2
-							),
-							scatter=list(
-								tooltip=list(
-									headerFormat=paste(
-										'<span style="font-weight:bold;',
-										'color:{series.color};">',
-										'\u25CF </span>',
-										'<span style="font-weight:bold">',
-										'Biotype {series.name}</span><br/>',
-										sep=""
-									),
-									pointFormat=paste(
-										"Depth: {point.x}M<br/>",
-										"Detected features: {point.y}",
-										sep="")
-								)
-							)
-						),
-						series=c(unname(global.series),
-							unname(abuSeries),unname(nabuSeries))
-					)
+                    list(
+                        chart=list(
+                            type="scatter",
+                            zoomType="xy"
+                        ),
+                        title=list(
+                            text=paste("Biotype saturations for sample ",n,
+                                sep="")
+                        ),
+                        legend=list(
+                            enabled=TRUE,
+                            itemHoverStyle=list(
+                                color="#B40000"
+                            )
+                        ),
+                        xAxis=list(
+                            title=list(
+                                text="Read depth (millions of reads)",
+                                margin=25,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontWeight="bold"
+                                )
+                            )
+                        ),
+                        yAxis=list(
+                            min=0,
+                            max=max(global),
+                            title=list(
+                                text="Detected features",
+                                margin=25,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em",
+                                    fontWeight="bold"
+                                )
+                            )
+                        ),
+                        plotOptions=list(
+                            series=list(
+                                lineWidth=2
+                            ),
+                            scatter=list(
+                                tooltip=list(
+                                    headerFormat=paste(
+                                        '<span style="font-weight:bold;',
+                                        'color:{series.color};">',
+                                        '\u25CF </span>',
+                                        '<span style="font-weight:bold">',
+                                        'Biotype {series.name}</span><br/>',
+                                        sep=""
+                                    ),
+                                    pointFormat=paste(
+                                        "Depth: {point.x}M<br/>",
+                                        "Detected features: {point.y}",
+                                        sep="")
+                                )
+                            )
+                        ),
+                        series=c(unname(global.series),
+                            unname(abuSeries),unname(nabuSeries))
+                    )
                 }
             )
         }
         
         if (out=="json") {
-			for (i in 1:length(json))
-				json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
-			return(json)
-		}
-		else if (out=="list")
-			return(json)
+            for (i in 1:length(json))
+                json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
+            return(json)
+        }
+        else if (out=="list")
+            return(json)
     }
     else if (by=="biotype") {
         biotypes <- colnames(plotdata[[1]])[2:ncol(plotdata[[1]])]
@@ -1024,94 +1015,94 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
             
             json[[b]] <- switch(jl,
                 highcharts = {
-					list(
-						chart=list(
-							type="scatter",
-							zoomType="xy"
-						),
-						title=list(
-							text=paste("Sample saturations for biotype ",b,
-								sep="")
-						),
-						legend=list(
-							enabled=TRUE,
-							itemHoverStyle=list(
-								color="#B40000"
-							)
-						),
-						xAxis=list(
-							title=list(
-								text="Read depth (millions of reads)",
-								margin=25,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),
-							labels=list(
-								style=list(
-									color="#000000",
-									fontWeight="bold"
-								)
-							)
-						),
-						yAxis=list(
-							title=list(
-								text="Detected features",
-								margin=25,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),
-							labels=list(
-								style=list(
-									color="#000000",
-									fontSize="1.1em",
-									fontWeight="bold"
-								)
-							)
-						),
-						plotOptions=list(
-							series=list(
-								lineWidth=2
-							),
-							scatter=list(
-								tooltip=list(
-									headerFormat=paste(
-										'<span style="font-weight:bold;',
-										'color:{series.color};">',
-										'\u25CF </span>',
-										'<span style="font-weight:bold">',
-										'Sample {series.name}</span><br/>',
-										sep=""
-									),
-									pointFormat=paste(
-										"Depth: {point.x}M<br/>",
-										"Detected features: {point.y}",
-										sep="")
-								)
-							)
-						),
-						series=c(unname(series))
-					)
+                    list(
+                        chart=list(
+                            type="scatter",
+                            zoomType="xy"
+                        ),
+                        title=list(
+                            text=paste("Sample saturations for biotype ",b,
+                                sep="")
+                        ),
+                        legend=list(
+                            enabled=TRUE,
+                            itemHoverStyle=list(
+                                color="#B40000"
+                            )
+                        ),
+                        xAxis=list(
+                            title=list(
+                                text="Read depth (millions of reads)",
+                                margin=25,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontWeight="bold"
+                                )
+                            )
+                        ),
+                        yAxis=list(
+                            title=list(
+                                text="Detected features",
+                                margin=25,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em",
+                                    fontWeight="bold"
+                                )
+                            )
+                        ),
+                        plotOptions=list(
+                            series=list(
+                                lineWidth=2
+                            ),
+                            scatter=list(
+                                tooltip=list(
+                                    headerFormat=paste(
+                                        '<span style="font-weight:bold;',
+                                        'color:{series.color};">',
+                                        '\u25CF </span>',
+                                        '<span style="font-weight:bold">',
+                                        'Sample {series.name}</span><br/>',
+                                        sep=""
+                                    ),
+                                    pointFormat=paste(
+                                        "Depth: {point.x}M<br/>",
+                                        "Detected features: {point.y}",
+                                        sep="")
+                                )
+                            )
+                        ),
+                        series=c(unname(series))
+                    )
                 }
             )
         }
         if (out=="json") {
-			for (i in 1:length(json))
-				json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
-			return(json)
-		}
-		else if (out=="list") {
-			names(json) <- biotypes
-			return(json)
-		}
+            for (i in 1:length(json))
+                json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
+            return(json)
+        }
+        else if (out=="list") {
+            names(json) <- biotypes
+            return(json)
+        }
     }
 }
 
-readNoiseToJSON <- function(obj,jl=c("highcharts"),seed=42,
-	out=c("json","list")) {
+readNoiseToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),
+    seed=42) {
     jl <- tolower(jl[1])
     out <- tolower(out[1])
     
@@ -1156,84 +1147,84 @@ readNoiseToJSON <- function(obj,jl=c("highcharts"),seed=42,
     
     switch(jl,
         highcharts = {
-			json <- list(
-				chart=list(
-					type="line",
-					zoomType="xy"
-				),
-				title=list(
-					text=paste("RNA-Seq mapped reads noise")
-				),
-				xAxis=list(
-					title=list(
-						text="% detected features",
-						margin=20,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=0,
-					max=100
-				),
-				yAxis=list(
-					title=list(
-						text="% of total reads",
-						margin=25,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					tickPositions=seq(0,110,10)
-				),
-				plotOptions=list(
-					line=list(
-						allowPointSelect=TRUE,
-						lineWidth=1,
-						marker=list(
-							enabled=FALSE
-						),
-						tooltip=list(
-							headerFormat=paste("<span style=",
-								"\"font-size:1.1em;color:{series.color};",
-								"font-weight:bold\">{series.name}<br>",
-								sep=""),
-							pointFormat=NULL
-						),
-						turboThreshold=50000
-					)
-				),
-				series=unname(series)
-			)
+            json <- list(
+                chart=list(
+                    type="line",
+                    zoomType="xy"
+                ),
+                title=list(
+                    text=paste("RNA-Seq mapped reads noise")
+                ),
+                xAxis=list(
+                    title=list(
+                        text="% detected features",
+                        margin=20,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=0,
+                    max=100
+                ),
+                yAxis=list(
+                    title=list(
+                        text="% of total reads",
+                        margin=25,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    tickPositions=seq(0,110,10)
+                ),
+                plotOptions=list(
+                    line=list(
+                        allowPointSelect=TRUE,
+                        lineWidth=1,
+                        marker=list(
+                            enabled=FALSE
+                        ),
+                        tooltip=list(
+                            headerFormat=paste("<span style=",
+                                "\"font-size:1.1em;color:{series.color};",
+                                "font-weight:bold\">{series.name}<br>",
+                                sep=""),
+                            pointFormat=NULL
+                        ),
+                        turboThreshold=50000
+                    )
+                ),
+                series=unname(series)
+            )
         }
     )
     if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
-	else if (out=="list")
-		return(json)
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else if (out=="list")
+        return(json)
 }
 
 boxplotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
@@ -1368,116 +1359,117 @@ boxplotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     
     json <- switch(jl,
         highcharts = {
-			list(
-				chart=list(
-					type="boxplot"
-				),
-				title=list(
-					text=paste("Boxplot ",status,sep="")
-				),
-				legend=list(
-					enabled=TRUE
-				),
-				xAxis=list(
-					categories=nams,
-					title=list(
-						text="Sample name",
-						margin=25,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontWeight="bold"
-						)
-					)
-				),
-				yAxis=list(
-					title=list(
-						useHTML=TRUE,
-						text="Read count (log<sub>2</sub>)",
-						margin=30,
-						style=list(
-							color="#000000",
-							fontSize="1.1em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					)
-				),
-				plotOptions=list(
-					boxplot=list(
-						fillColor="#F0F0E0",
-						lineWidth=2,
-						medianColor="#000000",
-						medianWidth=3,
-						stemColor="#000000",
-						stemDashStyle="dash",
-						stemWidth=1,
-						whiskerColor="#000000",
-						whiskerLength="75%",
-						whiskerWidth=1,
-						grouping=FALSE,
-						tooltip=list(
-							headerFormat=paste(
-								'<span style="font-size:1.1em;',
-								'color:{series.color};',
-								'font-weight:bold">',
-								'\u25CF </span>',
-								'<span style="font-size:1.1em;',
-								'font-weight:bold">',
-								'Condition {series.name}</span><br/>',
-								'<span style="font-weight:bold">',
-								'Sample {point.key}</span><br/>',sep=""
-							),
-							pointFormatter=tooltip.point.formatter
-						),
-						events=list(
-							legendItemClick=boxplot.onclick
-						)
-					),
-					scatter=list(
-						allowPointSelect=TRUE,
-						tooltip=list(
-							headerFormat=paste(
-								'<span style="font-weight:bold;',
-								'color:{series.color};">',
-								'\u25CF </span>',
-								'<span style="font-weight:bold">',
-								'Condition {series.name}</span><br/>',
-								sep=""
-							),
-							pointFormat=outlier.pointformat
-						),
-						states=list(
-							hover=list(
-								marker=list(
-									enabled=FALSE
-								)
-							)
-						)
-						
-					)
-				),
-				series=c(unname(series),unname(outliers))
-			)
+            list(
+                chart=list(
+                    type="boxplot"
+                ),
+                title=list(
+                    text=paste("Boxplot ",status,sep="")
+                ),
+                legend=list(
+                    enabled=TRUE
+                ),
+                xAxis=list(
+                    categories=nams,
+                    title=list(
+                        text="Sample name",
+                        margin=25,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontWeight="bold"
+                        )
+                    )
+                ),
+                yAxis=list(
+                    title=list(
+                        useHTML=TRUE,
+                        text="Read count (log<sub>2</sub>)",
+                        margin=30,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    )
+                ),
+                plotOptions=list(
+                    boxplot=list(
+                        fillColor="#F0F0E0",
+                        lineWidth=2,
+                        medianColor="#000000",
+                        medianWidth=3,
+                        stemColor="#000000",
+                        stemDashStyle="dash",
+                        stemWidth=1,
+                        whiskerColor="#000000",
+                        whiskerLength="75%",
+                        whiskerWidth=1,
+                        grouping=FALSE,
+                        tooltip=list(
+                            headerFormat=paste(
+                                '<span style="font-size:1.1em;',
+                                'color:{series.color};',
+                                'font-weight:bold">',
+                                '\u25CF </span>',
+                                '<span style="font-size:1.1em;',
+                                'font-weight:bold">',
+                                'Condition {series.name}</span><br/>',
+                                '<span style="font-weight:bold">',
+                                'Sample {point.key}</span><br/>',sep=""
+                            ),
+                            pointFormatter=tooltip.point.formatter
+                        ),
+                        events=list(
+                            legendItemClick=boxplot.onclick
+                        )
+                    ),
+                    scatter=list(
+                        allowPointSelect=TRUE,
+                        tooltip=list(
+                            headerFormat=paste(
+                                '<span style="font-weight:bold;',
+                                'color:{series.color};">',
+                                '\u25CF </span>',
+                                '<span style="font-weight:bold">',
+                                'Condition {series.name}</span><br/>',
+                                sep=""
+                            ),
+                            pointFormat=outlier.pointformat
+                        ),
+                        states=list(
+                            hover=list(
+                                marker=list(
+                                    enabled=FALSE
+                                )
+                            )
+                        )
+                        
+                    )
+                ),
+                series=c(unname(series),unname(outliers))
+            )
         }
     )
     if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
-	else
-		return(json)
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else
+        return(json)
 }
 
-biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1,out=c("json","list")) {
+biasPlotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),
+    seed=42) {
     jl <- tolower(jl[1])
     out <- tolower(out[1])
     
@@ -1497,9 +1489,9 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1,out=c("json","list")) {
     
     # If length bias, not nice to have x-axis at -200k
     if (covarname == "lengthbias")
-		minX <- ifelse(max(covar>100),0,"undefined")
-	else
-		minX <- 0.1
+        minX <- ifelse(max(covar>100),0,"undefined")
+    else
+        minX <- 0.1
 
     if (is.null(samples)) {
         if (is.null(colnames(x)))
@@ -1533,85 +1525,85 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),seed=1,out=c("json","list")) {
     
     switch(jl,
         highcharts = {
-			json <- list(
-				chart=list(
-					type="line",
-					zoomType="xy"
-				),
-				title=list(
-					text=paste(covarname," bias detection - ",status)
-				),
-				xAxis=list(
-					min=minX,
-					title=list(
-						text=covarname,
-						margin=20,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE
-				),
-				yAxis=list(
-					title=list(
-						useHTML=TRUE,
-						text="Read count (log<sub>2</sub>)",
-						margin=25,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE
-				),
-				plotOptions=list(
-					line=list(
-						marker=list(
-							enabled=FALSE,
-							states=list(
-								hover=list(
-									enabled=FALSE
-								)
-							)
-						),
-						tooltip=list(
-							headerFormat=paste("<span style=",
-								"\"font-size:1.1em;color:{series.color};",
-								"font-weight:bold\">{series.name}<br>",
-								sep=""),
-							pointFormat=NULL
-						),
-						turboThreshold=50000
-					)
-				),
-				series=unname(series)
-			)
+            json <- list(
+                chart=list(
+                    type="line",
+                    zoomType="xy"
+                ),
+                title=list(
+                    text=paste(covarname," bias detection - ",status)
+                ),
+                xAxis=list(
+                    min=minX,
+                    title=list(
+                        text=covarname,
+                        margin=20,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE
+                ),
+                yAxis=list(
+                    title=list(
+                        useHTML=TRUE,
+                        text="Read count (log<sub>2</sub>)",
+                        margin=25,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE
+                ),
+                plotOptions=list(
+                    line=list(
+                        marker=list(
+                            enabled=FALSE,
+                            states=list(
+                                hover=list(
+                                    enabled=FALSE
+                                )
+                            )
+                        ),
+                        tooltip=list(
+                            headerFormat=paste("<span style=",
+                                "\"font-size:1.1em;color:{series.color};",
+                                "font-weight:bold\">{series.name}<br>",
+                                sep=""),
+                            pointFormat=NULL
+                        ),
+                        turboThreshold=50000
+                    )
+                ),
+                series=unname(series)
+            )
         }
     )
     
     if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
-	else if (out=="list")
-		return(json)
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else if (out=="list")
+        return(json)
 }
 
 filteredToJSON <- function(obj,by=c("chromosome","biotype"),
@@ -1656,7 +1648,7 @@ filteredToJSON <- function(obj,by=c("chromosome","biotype"),
         what <- chr
     }
     else if (by=="biotype") {
-		btTab <- table(as.character(filtered$biotype))
+        btTab <- table(as.character(filtered$biotype))
         bt <- as.numeric(btTab)
         names(bt) <- names(btTab)
         btAllTab <- table(as.character(total$biotype))
@@ -1689,114 +1681,114 @@ filteredToJSON <- function(obj,by=c("chromosome","biotype"),
     
     json <- switch(jl,
         highcharts = {
-			list(
-				chart=list(
-					type="column",
-					alignTicks=FALSE
-				),
-				title=list(
-					text=paste("Filtered genes per ",by,sep="")
-				),
-				legend=list(
-					enabled=TRUE,
-					itemHoverStyle=list(
-						color="#B40000"
-					)
-				),
-				tooltip=list(
-					shared=TRUE
-				),
-				xAxis=list(
-					categories=names(what),
-					title=list(
-						text=paste(toupper(substr(by,1,1)),substr(by,2,
-							nchar(by)),sep=""),
-						margin=25,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontWeight="bold"
-						)
-					)
-				),
-				yAxis=list(
-					list(
-						lineColor=cols$fill[1],
-						lineWidth=2,
-						min=0,
-						tickAmount=11,
-						title=list(
-							text="Number of genes",
-							margin=20,
-							style=list(
-								color="#000000",
-								fontSize="1.2em"
-							)
-						),                 
-						labels=list(
-							style=list(
-								color="#000000",
-								fontSize="1.1em",
-								fontWeight="bold"
-							)
-						),
-						offset=10
-					),
-					list(
-						lineColor=cols$fill[2],
-						lineWidth=2,
-						min=0,
-						max=1,
-						tickAmount=11,
-						#tickInterval=0.1,
-						title=list(
-							text="Fraction of total genes",
-							margin=20,
-							style=list(
-								color="#000000",
-								fontSize="1.2em"
-							)
-						),                          
-						labels=list(
-							style=list(
-								color="#000000",
-								fontSize="1.1em",
-								fontWeight="bold"
-							)
-						),
-						opposite=TRUE,
-						offset=10
-					)
-				),
-				plotOptions=list(
-					column=list(
-						grouping=FALSE,
-						shadow=FALSE,
-						groupPadding=0.2,
-						pointPadding=0.2,
-						tooltip=list(
-							headerFormat=paste(
-								'<span style="font-size:1.1em;',
-								'font-weight:bold">',
-								'{point.key}</span><br/>',sep=""
-							)
-						)
-					)
-				),
-				series=c(unname(series))
-			)
+            list(
+                chart=list(
+                    type="column",
+                    alignTicks=FALSE
+                ),
+                title=list(
+                    text=paste("Filtered genes per ",by,sep="")
+                ),
+                legend=list(
+                    enabled=TRUE,
+                    itemHoverStyle=list(
+                        color="#B40000"
+                    )
+                ),
+                tooltip=list(
+                    shared=TRUE
+                ),
+                xAxis=list(
+                    categories=names(what),
+                    title=list(
+                        text=paste(toupper(substr(by,1,1)),substr(by,2,
+                            nchar(by)),sep=""),
+                        margin=25,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontWeight="bold"
+                        )
+                    )
+                ),
+                yAxis=list(
+                    list(
+                        lineColor=cols$fill[1],
+                        lineWidth=2,
+                        min=0,
+                        tickAmount=11,
+                        title=list(
+                            text="Number of genes",
+                            margin=20,
+                            style=list(
+                                color="#000000",
+                                fontSize="1.2em"
+                            )
+                        ),                 
+                        labels=list(
+                            style=list(
+                                color="#000000",
+                                fontSize="1.1em",
+                                fontWeight="bold"
+                            )
+                        ),
+                        offset=10
+                    ),
+                    list(
+                        lineColor=cols$fill[2],
+                        lineWidth=2,
+                        min=0,
+                        max=1,
+                        tickAmount=11,
+                        #tickInterval=0.1,
+                        title=list(
+                            text="Fraction of total genes",
+                            margin=20,
+                            style=list(
+                                color="#000000",
+                                fontSize="1.2em"
+                            )
+                        ),                          
+                        labels=list(
+                            style=list(
+                                color="#000000",
+                                fontSize="1.1em",
+                                fontWeight="bold"
+                            )
+                        ),
+                        opposite=TRUE,
+                        offset=10
+                    )
+                ),
+                plotOptions=list(
+                    column=list(
+                        grouping=FALSE,
+                        shadow=FALSE,
+                        groupPadding=0.2,
+                        pointPadding=0.2,
+                        tooltip=list(
+                            headerFormat=paste(
+                                '<span style="font-size:1.1em;',
+                                'font-weight:bold">',
+                                '{point.key}</span><br/>',sep=""
+                            )
+                        )
+                    )
+                ),
+                series=c(unname(series))
+            )
         }
     )
     
     if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
-	else if (out=="list")
-		return(json)
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else if (out=="list")
+        return(json)
 }
 
 volcanoToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
@@ -1830,185 +1822,185 @@ volcanoToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                     "<strong>Fold change: </strong>{point.x}<br>",
                     "<strong>Significance: </strong>{point.y}",sep="")
                 json <- list(
-					chart=list(
-					type="scatter",
-					zoomType="xy"
-				),
-				title=list(
-					text=paste("Volcano plot for",con)
-				),
-				xAxis=list(
-					title=list(
-						text="Fold change",
-						margin=20,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=round(xlim[1],3),
-					max=round(xlim[2],3)
-				),
-				yAxis=list(
-					title=list(
-						useHTML=TRUE,
-						text="Significance (-log<sub>10</sub>(p-value))",
-						margin=25,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=round(ylim[1]-2,3),
-					max=round(ylim[2],3)
-				),
-				#legend=list(
-				#    layout="vertical",
-				#    align="left",
-				#    verticalAlign="top",
-				#    floating=TRUE,
-				#    backgroundColor="#FFFFFF",
-				#    borderWidth=1
-				#),
-				plotOptions=list(
-					scatter=list(
-						allowPointSelect=TRUE,
-						marker=list(
-							radius=2,
-							states=list(
-								hover=list(
-									enabled=TRUE,
-									lineColor="#333333"
-								)
-							)
-						),
-						states=list(
-							hover=list(
-								marker=list(
-									enabled=FALSE
-								)
-							)
-						),
-						tooltip=list(
-							headerFormat=paste("<span style=",
-								"\"font-size:1.1em;color:{series.color};",
-								"font-weight:bold\">{series.name}<br>",
-								sep=""),
-							pointFormat=point.format
-						),
-						turboThreshold=50000
-					)
-				),
-				series=list(
-					list(
-						name="Up-regulated",
-						color="#EE0000",
-						marker=list(
-							symbol="circle"
-						),
-						data=makeHighchartsPoints(f[up],-log10(p[up]),
-							unname(altNames[up]))
-					),
-					list(
-						name="Down-regulated",
-						marker=list(
-							symbol="circle"
-						),
-						color="#00CD00",
-						data=makeHighchartsPoints(f[down],-log10(p[down]),
-							unname(altNames[down]))
-					),
-					list(
-						name="Unregulated",
-						marker=list(
-							symbol="circle"
-						),
-						color="#0000EE",
-						data=makeHighchartsPoints(ff,-log10(pp),
-							unname(altNamesNeutrall))
-					),
-					list(
-						name="Downfold threshold",
-						color="#000000",
-						type="line",
-						dashStyle="dash",
-						marker=list(
-							enabled=FALSE
-						),
-						tooltip=list(
-							headerFormat=paste('<strong>{series.name}',
-								'</strong><br/>',sep=""),
-							pointFormat=paste('<strong>Threshold: ',
-								'</strong>{point.x}<br/>',sep="")
-						),
-						data=list(round(c(-fcut,ylim[1]-5),3),
-							round(c(-fcut,ylim[2]),3))
-					),
-					list(
-						name="Upfold threshold",
-						color="#000000",
-						type="line",
-						dashStyle="Dash",
-						marker=list(
-							enabled=FALSE
-						),
-						tooltip=list(
-							headerFormat=paste('<strong>{series.name}',
-								'</strong><br/>',sep=""),
-							pointFormat=paste('<strong>Threshold: ',
-								'</strong>{point.x}<br/>',sep="")
-						),
-						data=list(round(c(fcut,ylim[1]-5),3),
-							round(c(fcut,ylim[2]),3))
-					),
-					list(
-						name="Significance threshold",
-						color="#000000",
-						type="line",
-						dashStyle="DashDot",
-						marker=list(
-							enabled=FALSE
-						),
-						tooltip=list(
-							headerFormat=paste('<strong>{series.name}',
-								'</strong><br/>',sep=""),
-							pointFormat=paste('<strong>Threshold: ',
-								'</strong>{point.y}<br/>',sep="")
-						),
-						data=list(round(c(xlim[1],-log10(pcut)),3),
-							round(c(xlim[2],-log10(pcut)),3))
-					)
-				)
-			)
+                    chart=list(
+                    type="scatter",
+                    zoomType="xy"
+                ),
+                title=list(
+                    text=paste("Volcano plot for",con)
+                ),
+                xAxis=list(
+                    title=list(
+                        text="Fold change",
+                        margin=20,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=round(xlim[1],3),
+                    max=round(xlim[2],3)
+                ),
+                yAxis=list(
+                    title=list(
+                        useHTML=TRUE,
+                        text="Significance (-log<sub>10</sub>(p-value))",
+                        margin=25,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=round(ylim[1]-2,3),
+                    max=round(ylim[2],3)
+                ),
+                #legend=list(
+                #    layout="vertical",
+                #    align="left",
+                #    verticalAlign="top",
+                #    floating=TRUE,
+                #    backgroundColor="#FFFFFF",
+                #    borderWidth=1
+                #),
+                plotOptions=list(
+                    scatter=list(
+                        allowPointSelect=TRUE,
+                        marker=list(
+                            radius=2,
+                            states=list(
+                                hover=list(
+                                    enabled=TRUE,
+                                    lineColor="#333333"
+                                )
+                            )
+                        ),
+                        states=list(
+                            hover=list(
+                                marker=list(
+                                    enabled=FALSE
+                                )
+                            )
+                        ),
+                        tooltip=list(
+                            headerFormat=paste("<span style=",
+                                "\"font-size:1.1em;color:{series.color};",
+                                "font-weight:bold\">{series.name}<br>",
+                                sep=""),
+                            pointFormat=point.format
+                        ),
+                        turboThreshold=50000
+                    )
+                ),
+                series=list(
+                    list(
+                        name="Up-regulated",
+                        color="#EE0000",
+                        marker=list(
+                            symbol="circle"
+                        ),
+                        data=makeHighchartsPoints(f[up],-log10(p[up]),
+                            unname(altNames[up]))
+                    ),
+                    list(
+                        name="Down-regulated",
+                        marker=list(
+                            symbol="circle"
+                        ),
+                        color="#00CD00",
+                        data=makeHighchartsPoints(f[down],-log10(p[down]),
+                            unname(altNames[down]))
+                    ),
+                    list(
+                        name="Unregulated",
+                        marker=list(
+                            symbol="circle"
+                        ),
+                        color="#0000EE",
+                        data=makeHighchartsPoints(ff,-log10(pp),
+                            unname(altNamesNeutrall))
+                    ),
+                    list(
+                        name="Downfold threshold",
+                        color="#000000",
+                        type="line",
+                        dashStyle="dash",
+                        marker=list(
+                            enabled=FALSE
+                        ),
+                        tooltip=list(
+                            headerFormat=paste('<strong>{series.name}',
+                                '</strong><br/>',sep=""),
+                            pointFormat=paste('<strong>Threshold: ',
+                                '</strong>{point.x}<br/>',sep="")
+                        ),
+                        data=list(round(c(-fcut,ylim[1]-5),3),
+                            round(c(-fcut,ylim[2]),3))
+                    ),
+                    list(
+                        name="Upfold threshold",
+                        color="#000000",
+                        type="line",
+                        dashStyle="Dash",
+                        marker=list(
+                            enabled=FALSE
+                        ),
+                        tooltip=list(
+                            headerFormat=paste('<strong>{series.name}',
+                                '</strong><br/>',sep=""),
+                            pointFormat=paste('<strong>Threshold: ',
+                                '</strong>{point.x}<br/>',sep="")
+                        ),
+                        data=list(round(c(fcut,ylim[1]-5),3),
+                            round(c(fcut,ylim[2]),3))
+                    ),
+                    list(
+                        name="Significance threshold",
+                        color="#000000",
+                        type="line",
+                        dashStyle="DashDot",
+                        marker=list(
+                            enabled=FALSE
+                        ),
+                        tooltip=list(
+                            headerFormat=paste('<strong>{series.name}',
+                                '</strong><br/>',sep=""),
+                            pointFormat=paste('<strong>Threshold: ',
+                                '</strong>{point.y}<br/>',sep="")
+                        ),
+                        data=list(round(c(xlim[1],-log10(pcut)),3),
+                            round(c(xlim[2],-log10(pcut)),3))
+                    )
+                )
+            )
         }
     )
     
     if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
-	else if (out=="list")
-		return(json)
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else if (out=="list")
+        return(json)
 }
 
 scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
@@ -2023,19 +2015,19 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
     samples <- obj$samples
     
     if (type=="Mean-Difference") {
-		xLab <- "Mean"
-		yLab <- "Difference"
-	}
-	else if (type=="Mean-Variance") {
-		xLab <- "Mean"
-		yLab <- "Variance"
-	}
-	else if (type=="X-Y") {
-		xLab <- paste("Expression for",samples[1])
-		yLab <- paste("Expression for",samples[2])
-	}
-	
-	# Too many points for mostly static, QC plots
+        xLab <- "Mean"
+        yLab <- "Difference"
+    }
+    else if (type=="Mean-Variance") {
+        xLab <- "Mean"
+        yLab <- "Variance"
+    }
+    else if (type=="X-Y") {
+        xLab <- paste("Expression for",samples[1])
+        yLab <- paste("Expression for",samples[2])
+    }
+    
+    # Too many points for mostly static, QC plots
     if (length(x)>10000) {
         set.seed(seed)
         ii <- sample(1:length(x),10000)
@@ -2047,12 +2039,12 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
     
     stMsg <- ""
     if (!is.null(status))
-		stMsg <- status
+        stMsg <- status
     
     switch(jl,
         highcharts = {
             #if (is.null(altNames))
-            #    point.format=paste("<strong>Gene ID: </strong>{point.name}<br>",
+            #   point.format=paste("<strong>Gene ID: </strong>{point.name}<br>",
             #        "<strong>",xLab,": </strong>{point.x}<br>",
             #        "<strong>",yLab,": </strong>{point.y}",sep="")
             #else
@@ -2062,114 +2054,114 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
             #        "<strong>",xLab,": </strong>{point.x}<br>",
             #        "<strong>",yLab,": </strong>{point.y}",sep="")
             point.format=paste("<strong>",xLab,": </strong>{point.x}<br>",
-				"<strong>",yLab,": </strong>{point.y}",sep="")
+                "<strong>",yLab,": </strong>{point.y}",sep="")
                 json <- list(
-					chart=list(
-					type="scatter",
-					zoomType="xy"
-				),
-				title=list(
-					text=paste(type,"plot for",stMsg,"samples",samples[1],
-						"and",samples[2])
-				),
-				xAxis=list(
-					title=list(
-						text=xLab,
-						margin=20,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=round(min(x),3),
-					max=round(max(x),3)
-				),
-				yAxis=list(
-					title=list(
-						useHTML=TRUE,
-						text=yLab,
-						margin=25,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=round(min(y),3),
-					max=round(max(y),3)
-				),
-				plotOptions=list(
-					scatter=list(
-						turboThreshold=25000
-					),
-					line=list(
-						turboThreshold=25000
-					)
-				),
-				series=list(
-					list(
-						type="scatter",
-						name="Genes/Transcripts",
-						#color="#00ABEE",
-						color="rgba(0,171,238,0.5)",
-						marker=list(
-							radius=0.5
-						),
-						#data=makeHighchartsPoints(x,y,unname(altNames)),
-						data=makeHighchartsPoints(x,y,simple=TRUE),
-						tooltip=list(
-							followPointer=FALSE,
-							headerFormat=paste("<span style=",
-								"\"font-size:1.1em;color:{series.color};",
-								"font-weight:bold\">{series.name}<br>",
-								sep=""),
-							pointFormat=point.format
-						)
-					),
-					list(
-						type="line",
-						name="Trend",
-						marker=list(
-							enabled=FALSE
-						),
-						color="#E40000",
-						data=lapply(1:length(x),function(i,x,y) {
-							return(c(x[i],y[i])) 
-						},round(fit$x,3),round(fit$y,3))
-					)
-				)
-			)
+                    chart=list(
+                    type="scatter",
+                    zoomType="xy"
+                ),
+                title=list(
+                    text=paste(type,"plot for",stMsg,"samples",samples[1],
+                        "and",samples[2])
+                ),
+                xAxis=list(
+                    title=list(
+                        text=xLab,
+                        margin=20,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=round(min(x),3),
+                    max=round(max(x),3)
+                ),
+                yAxis=list(
+                    title=list(
+                        useHTML=TRUE,
+                        text=yLab,
+                        margin=25,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=round(min(y),3),
+                    max=round(max(y),3)
+                ),
+                plotOptions=list(
+                    scatter=list(
+                        turboThreshold=25000
+                    ),
+                    line=list(
+                        turboThreshold=25000
+                    )
+                ),
+                series=list(
+                    list(
+                        type="scatter",
+                        name="Genes/Transcripts",
+                        #color="#00ABEE",
+                        color="rgba(0,171,238,0.5)",
+                        marker=list(
+                            radius=0.5
+                        ),
+                        #data=makeHighchartsPoints(x,y,unname(altNames)),
+                        data=makeHighchartsPoints(x,y,simple=TRUE),
+                        tooltip=list(
+                            followPointer=FALSE,
+                            headerFormat=paste("<span style=",
+                                "\"font-size:1.1em;color:{series.color};",
+                                "font-weight:bold\">{series.name}<br>",
+                                sep=""),
+                            pointFormat=point.format
+                        )
+                    ),
+                    list(
+                        type="line",
+                        name="Trend",
+                        marker=list(
+                            enabled=FALSE
+                        ),
+                        color="#E40000",
+                        data=lapply(1:length(x),function(i,x,y) {
+                            return(c(x[i],y[i])) 
+                        },round(fit$x,3),round(fit$y,3))
+                    )
+                )
+            )
         }
     )
     
     if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
-	else if (out=="list")
-		return(json)
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else if (out=="list")
+        return(json)
 }
 
-rnacompToJSON <- function(obj,jl=c("highcharts"),seed=42,out=c("json","list")) {
+rnacompToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
     jl <- tolower(jl[1])
     out <- tolower(out[1])
     
@@ -2192,7 +2184,7 @@ rnacompToJSON <- function(obj,jl=c("highcharts"),seed=42,out=c("json","list")) {
     samplenames <- setdiff(samplenames,refColumn)
     dat <- as.matrix(dat[,samplenames])
     datDens <- apply(dat,2,density,adjust=1.5)
-	limY <- c(0,max(sapply(datDens,function (x) max(x$y,na.rm=TRUE))))
+    limY <- c(0,max(sapply(datDens,function (x) max(x$y,na.rm=TRUE))))
   
     cols <- .getColorScheme(length(samplenames))
     
@@ -2206,7 +2198,7 @@ rnacompToJSON <- function(obj,jl=c("highcharts"),seed=42,out=c("json","list")) {
         densSeries[[n]]$name=n
         densSeries[[n]]$color=cols$fill[counter]
         densSeries[[n]]$data <- 
-			makeHighchartsPoints(datDens[[n]]$x,datDens[[n]]$y)
+            makeHighchartsPoints(datDens[[n]]$x,datDens[[n]]$y)
         densSeries[[n]]$tooltip=list(
             headerFormat=paste("<span style=",
                 "\"font-size:1.1em;color:{series.color};",
@@ -2224,96 +2216,96 @@ rnacompToJSON <- function(obj,jl=c("highcharts"),seed=42,out=c("json","list")) {
         abSeries[[n]]$name=paste(n,"median")
         abSeries[[n]]$color=cols$fill[counter]
         abSeries[[n]]$data <- 
-			makeHighchartsPoints(rep(median(dat[,n],na.rm=TRUE),nrow(dat)),
-				seq(limY[1],limY[2],length.out=nrow(dat)))
+            makeHighchartsPoints(rep(median(dat[,n],na.rm=TRUE),nrow(dat)),
+                seq(limY[1],limY[2],length.out=nrow(dat)))
         abSeries[[n]]$enableMouseTracking=FALSE
         abSeries[[n]]$dashStyle="Dash"
     }
     
     switch(jl,
         highcharts = {
-			json <- list(
-				chart=list(
-					type="line",
-					zoomType="xy"
-				),
-				title=list(
-					text=paste("RNA-composition for",status,"mapped reads")
-				),
-				xAxis=list(
-					title=list(
-						text="log<sub>2</sub>(sample/reference sample)",
-						margin=20,
-						useHTML=TRUE,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1
-				),
-				yAxis=list(
-					title=list(
-						text="Density",
-						margin=25,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=limY[1],
-					max=limY[2]
-				),
-				plotOptions=list(
-					line=list(
-						allowPointSelect=TRUE,
-						lineWidth=1,
-						marker=list(
-							enabled=FALSE
-						),
-						tooltip=list(
-							headerFormat=paste("<span style=",
-								"\"font-size:1.1em;color:{series.color};",
-								"font-weight:bold\">{series.name}<br>",
-								sep=""),
-							pointFormat=NULL
-						),
-						turboThreshold=50000
-					)
-				),
-				series=c(unname(densSeries),unname(abSeries))
-			)
+            json <- list(
+                chart=list(
+                    type="line",
+                    zoomType="xy"
+                ),
+                title=list(
+                    text=paste("RNA-composition for",status,"mapped reads")
+                ),
+                xAxis=list(
+                    title=list(
+                        text="log<sub>2</sub>(sample/reference sample)",
+                        margin=20,
+                        useHTML=TRUE,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1
+                ),
+                yAxis=list(
+                    title=list(
+                        text="Density",
+                        margin=25,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=limY[1],
+                    max=limY[2]
+                ),
+                plotOptions=list(
+                    line=list(
+                        allowPointSelect=TRUE,
+                        lineWidth=1,
+                        marker=list(
+                            enabled=FALSE
+                        ),
+                        tooltip=list(
+                            headerFormat=paste("<span style=",
+                                "\"font-size:1.1em;color:{series.color};",
+                                "font-weight:bold\">{series.name}<br>",
+                                sep=""),
+                            pointFormat=NULL
+                        ),
+                        turboThreshold=50000
+                    )
+                ),
+                series=c(unname(densSeries),unname(abSeries))
+            )
         }
     )
     if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
-	else if (out=="list")
-		return(json)
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else if (out=="list")
+        return(json)
 }
 
 biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
-	out=c("json","list")) {
+    out=c("json","list")) {
     jl <- tolower(jl[1])
     by <- by[1]
     out <- tolower(out[1])
@@ -2324,7 +2316,7 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
     cols <- .getColorScheme()
     
     if (by == "chromosome") {
-		# Data series
+        # Data series
         series <- vector("list",3)
         names(series) <- c("genome","chromosome_deg","deg_chromosome")
         series$genome <- list()
@@ -2339,7 +2331,7 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
         series$chromosome_deg$color <- cols$trans[2]
         series$chromosome_deg$pointPlacement <- 0
         series$chromosome_deg$data <- 
-			round(as.numeric(plotdataChromosome[2,]),3)
+            round(as.numeric(plotdataChromosome[2,]),3)
         series$deg_chromosome <- list()
         series$deg_chromosome$id <- "deg_chromosome"
         series$deg_chromosome$name <- "% DEG in chromosome"
@@ -2351,84 +2343,84 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
         json <- switch(jl,
             highcharts = {
                 list(
-					chart=list(
-						type="column",
-						alignTicks=FALSE
-					),
-					title=list(
-						text="DEG distribution across chromosomes"
-					),
-					legend=list(
-						enabled=TRUE,
-						itemHoverStyle=list(
-							color="#B40000"
-						)
-					),
-					tooltip=list(
-						shared=TRUE
-					),  
-					xAxis=list(
-						categories=names(plotdataChromosome),
-						title=list(
-							text="Chromosome",
-							margin=25,
-							style=list(
-								color="#000000",
-								fontSize="1.2em"
-							)
-						),
-						labels=list(
-							style=list(
-								color="#000000",
-								fontWeight="bold"
-							)
-						)
-					),
-					yAxis=list(
-						list(
-							min=0,
-							max=ceiling(max(plotdataChromosome[1,])),
-							title=list(
-								text="% of features",
-								margin=20,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),                          
-							labels=list(
-								style=list(
-									color="#000000",
-									fontSize="1.1em",
-									fontWeight="bold"
-								)
-							)
-						)
-					),
-					plotOptions=list(
-						column=list(
-							grouping=FALSE,
-							shadow=FALSE,
-							groupPadding=0.3,
-							pointPadding=0.25,
-							tooltip=list(
-								headerFormat=paste(
-									'<span style="font-size:1.1em;',
-									'font-weight:bold">',
-									'{point.key}</span><br/>',sep=""
-								)
-							)
-						)
-					),
-					series=unname(series)
-				)
+                    chart=list(
+                        type="column",
+                        alignTicks=FALSE
+                    ),
+                    title=list(
+                        text="DEG distribution across chromosomes"
+                    ),
+                    legend=list(
+                        enabled=TRUE,
+                        itemHoverStyle=list(
+                            color="#B40000"
+                        )
+                    ),
+                    tooltip=list(
+                        shared=TRUE
+                    ),  
+                    xAxis=list(
+                        categories=names(plotdataChromosome),
+                        title=list(
+                            text="Chromosome",
+                            margin=25,
+                            style=list(
+                                color="#000000",
+                                fontSize="1.2em"
+                            )
+                        ),
+                        labels=list(
+                            style=list(
+                                color="#000000",
+                                fontWeight="bold"
+                            )
+                        )
+                    ),
+                    yAxis=list(
+                        list(
+                            min=0,
+                            max=ceiling(max(plotdataChromosome[1,])),
+                            title=list(
+                                text="% of features",
+                                margin=20,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),                          
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em",
+                                    fontWeight="bold"
+                                )
+                            )
+                        )
+                    ),
+                    plotOptions=list(
+                        column=list(
+                            grouping=FALSE,
+                            shadow=FALSE,
+                            groupPadding=0.3,
+                            pointPadding=0.25,
+                            tooltip=list(
+                                headerFormat=paste(
+                                    '<span style="font-size:1.1em;',
+                                    'font-weight:bold">',
+                                    '{point.key}</span><br/>',sep=""
+                                )
+                            )
+                        )
+                    ),
+                    series=unname(series)
+                )
             }
         )
-	}
+    }
     if (by == "biotype") {
-		# For biotype
-		abu <- which(plotdataBiotype[1,]>7)
-		nabu <- which(plotdataBiotype[1,]<=7)
+        # For biotype
+        abu <- which(plotdataBiotype[1,]>7)
+        nabu <- which(plotdataBiotype[1,]<=7)
         
         # Data series
         seriesAbu <- vector("list",3)
@@ -2445,7 +2437,7 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
         seriesAbu$biotype_deg$color <- cols$trans[2]
         seriesAbu$biotype_deg$pointPlacement <- 0
         seriesAbu$biotype_deg$data <- 
-			round(as.numeric(plotdataBiotype[2,abu]),3)
+            round(as.numeric(plotdataBiotype[2,abu]),3)
         seriesAbu$deg_biotype <- list()
         seriesAbu$deg_biotype$id <- "abu_deg_biotype"
         seriesAbu$deg_biotype$name <- "% DEG in biotype"
@@ -2471,7 +2463,7 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
         seriesNabu$biotype_deg$color <- cols$trans[2]
         seriesNabu$biotype_deg$pointPlacement <- 0
         seriesNabu$biotype_deg$data <- 
-			round(as.numeric(plotdataBiotype[2,nabu]),3)
+            round(as.numeric(plotdataBiotype[2,nabu]),3)
         seriesNabu$deg_biotype <- list()
         seriesNabu$deg_biotype$name <- "% DEG in biotype"
         seriesNabu$deg_biotype$yAxis <- 1
@@ -2480,130 +2472,130 @@ biodistToJSON <- function(obj,jl=c("highcharts"),by=c("chromosome","biotype"),
         seriesNabu$deg_biotype$color <- cols$trans[3]
         seriesNabu$deg_biotype$pointPlacement <- 0.2
         seriesNabu$deg_biotype$data <- 
-			round(as.numeric(plotdataBiotype[3,nabu]),3)
+            round(as.numeric(plotdataBiotype[3,nabu]),3)
         
         json <- switch(jl,
             highcharts = {
                 list(
-					chart=list(
-						type="column",
-						alignTicks=FALSE
-					),
-					title=list(
-						text="DEG distribution across biotypes"
-					),
-					legend=list(
-						enabled=TRUE,
-						itemHoverStyle=list(
-							color="#B40000"
-						)
-					),
-					tooltip=list(
-						shared=TRUE
-					),  
-					xAxis=list(
-						categories=colnames(plotdataBiotype)[c(abu,nabu)],
-						title=list(
-							text="Biotype",
-							margin=25,
-							style=list(
-								color="#000000",
-								fontSize="1.2em"
-							)
-						),
-						labels=list(
-							style=list(
-								color="#000000",
-								fontWeight="bold"
-							)
-						),
-						plotLines=list(
-							list(
-								color="#8A8A8A",
-								width=1.5,
-								dashStyle="Dash",
-								value=length(abu)-0.5
-							)
-						),
-						plotBands=list(
-							list(
-								color="#FFFFE0",
-								from=-0.5,
-								to=length(abu)-0.5
-							),
-							list(
-								color="#FFECEB",
-								from=length(abu)-0.5,
-								to=ncol(plotdataBiotype)
-							)
-						)
-					),
-					yAxis=list(
-						list(
-							min=0,
-							max=70,
-							title=list(
-								text="% of abundant features",
-								margin=20,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),                          
-							labels=list(
-								style=list(
-									color="#000000",
-									fontSize="1.1em",
-									fontWeight="bold"
-								)
-							)
-						),
-						list(
-							min=0,
-							max=7,
-							title=list(
-								text="% of non-abundant features",
-								margin=20,
-								style=list(
-									color="#000000",
-									fontSize="1.2em"
-								)
-							),                          
-							labels=list(
-								style=list(
-									color="#000000",
-									fontSize="1.1em",
-									fontWeight="bold"
-								)
-							),
-							opposite=TRUE
-						)
-					),
-					plotOptions=list(
-						column=list(
-							grouping=FALSE,
-							shadow=FALSE,
-							groupPadding=0.3,
-							pointPadding=0.25,
-							tooltip=list(
-								headerFormat=paste(
-									'<span style="font-size:1.1em;',
-									'font-weight:bold">',
-									'{point.key}</span><br/>',sep=""
-								)
-							)
-						)
-					),
-					series=c(unname(seriesAbu),unname(seriesNabu))
-				)
+                    chart=list(
+                        type="column",
+                        alignTicks=FALSE
+                    ),
+                    title=list(
+                        text="DEG distribution across biotypes"
+                    ),
+                    legend=list(
+                        enabled=TRUE,
+                        itemHoverStyle=list(
+                            color="#B40000"
+                        )
+                    ),
+                    tooltip=list(
+                        shared=TRUE
+                    ),  
+                    xAxis=list(
+                        categories=colnames(plotdataBiotype)[c(abu,nabu)],
+                        title=list(
+                            text="Biotype",
+                            margin=25,
+                            style=list(
+                                color="#000000",
+                                fontSize="1.2em"
+                            )
+                        ),
+                        labels=list(
+                            style=list(
+                                color="#000000",
+                                fontWeight="bold"
+                            )
+                        ),
+                        plotLines=list(
+                            list(
+                                color="#8A8A8A",
+                                width=1.5,
+                                dashStyle="Dash",
+                                value=length(abu)-0.5
+                            )
+                        ),
+                        plotBands=list(
+                            list(
+                                color="#FFFFE0",
+                                from=-0.5,
+                                to=length(abu)-0.5
+                            ),
+                            list(
+                                color="#FFECEB",
+                                from=length(abu)-0.5,
+                                to=ncol(plotdataBiotype)
+                            )
+                        )
+                    ),
+                    yAxis=list(
+                        list(
+                            min=0,
+                            max=70,
+                            title=list(
+                                text="% of abundant features",
+                                margin=20,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),                          
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em",
+                                    fontWeight="bold"
+                                )
+                            )
+                        ),
+                        list(
+                            min=0,
+                            max=7,
+                            title=list(
+                                text="% of non-abundant features",
+                                margin=20,
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.2em"
+                                )
+                            ),                          
+                            labels=list(
+                                style=list(
+                                    color="#000000",
+                                    fontSize="1.1em",
+                                    fontWeight="bold"
+                                )
+                            ),
+                            opposite=TRUE
+                        )
+                    ),
+                    plotOptions=list(
+                        column=list(
+                            grouping=FALSE,
+                            shadow=FALSE,
+                            groupPadding=0.3,
+                            pointPadding=0.25,
+                            tooltip=list(
+                                headerFormat=paste(
+                                    '<span style="font-size:1.1em;',
+                                    'font-weight:bold">',
+                                    '{point.key}</span><br/>',sep=""
+                                )
+                            )
+                        )
+                    ),
+                    series=c(unname(seriesAbu),unname(seriesNabu))
+                )
             }
         )
     }
     
     if (out=="json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
-	else if (out=="list")
-		return(json)
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
+    else if (out=="list")
+        return(json)
 }
 
 maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
@@ -2743,102 +2735,102 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                     "<strong>Fold change: </strong>{point.y}<br>",
                     "<strong>Significance: </strong>{point.sig}",sep="")
                 json <- list(
-					chart=list(
-					type="scatter",
-					zoomType="xy"
-				),
-				title=list(
-					text=paste("Mean-Difference (MA) plot for",conlab)
-				),
-				xAxis=list(
-					title=list(
-						text="Average expression",
-						margin=20,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=round(xlim[1],3),
-					max=round(xlim[2],3)
-				),
-				yAxis=list(
-					title=list(
-						useHTML=TRUE,
-						text="Fold change (log<sub>2</sub>)",
-						margin=25,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=round(ylim[1],3),
-					max=round(ylim[2],3)
-				),
-				plotOptions=list(
-					scatter=list(
-						allowPointSelect=TRUE,
-						marker=list(
-							radius=2,
-							symbol="circle",
-							states=list(
-								hover=list(
-									enabled=TRUE,
-									lineColor="#333333"
-								)
-							)
-						),
-						states=list(
-							hover=list(
-								marker=list(
-									enabled=FALSE
-								)
-							)
-						),
-						#events=list(
-						#	legendItemClick=paste("function() {",
-						#		"return false; }")
-						#),
-						tooltip=list(
-							headerFormat=paste("<span style=",
-								"\"font-size:1.1em;color:{series.color};",
-								"font-weight:bold\">{series.name}<br>",
-								sep=""),
-							pointFormat=point.format
-						),
-						turboThreshold=50000
-					)
-				),
-				series=series
-			)
+                    chart=list(
+                    type="scatter",
+                    zoomType="xy"
+                ),
+                title=list(
+                    text=paste("Mean-Difference (MA) plot for",conlab)
+                ),
+                xAxis=list(
+                    title=list(
+                        text="Average expression",
+                        margin=20,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=round(xlim[1],3),
+                    max=round(xlim[2],3)
+                ),
+                yAxis=list(
+                    title=list(
+                        useHTML=TRUE,
+                        text="Fold change (log<sub>2</sub>)",
+                        margin=25,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=round(ylim[1],3),
+                    max=round(ylim[2],3)
+                ),
+                plotOptions=list(
+                    scatter=list(
+                        allowPointSelect=TRUE,
+                        marker=list(
+                            radius=2,
+                            symbol="circle",
+                            states=list(
+                                hover=list(
+                                    enabled=TRUE,
+                                    lineColor="#333333"
+                                )
+                            )
+                        ),
+                        states=list(
+                            hover=list(
+                                marker=list(
+                                    enabled=FALSE
+                                )
+                            )
+                        ),
+                        #events=list(
+                        #   legendItemClick=paste("function() {",
+                        #       "return false; }")
+                        #),
+                        tooltip=list(
+                            headerFormat=paste("<span style=",
+                                "\"font-size:1.1em;color:{series.color};",
+                                "font-weight:bold\">{series.name}<br>",
+                                sep=""),
+                            pointFormat=point.format
+                        ),
+                        turboThreshold=50000
+                    )
+                ),
+                series=series
+            )
         }
     )
     if (out == "json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
     else if (out == "list")
-		return(json)
+        return(json)
 }
 
 dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
@@ -2859,41 +2851,41 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     conlabY <- paste(conlabY[[1]][1],"against",conlabY[[1]][2])
     
     # red
-	upupstat <- which(apply(fmat,1,function(x) all(x >= fcut)) &
-		apply(pmat,1,function(x) all(x < pcut)))
-	# green
-	downdownstat <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
-		apply(pmat,1,function(x) all(x < pcut)))
-	# red3
-	upup <- which(apply(fmat,1,function(x) all(x >= fcut)) &
-		apply(pmat,1,function(x) any(x >= pcut)))
-	# green3
-	downdown <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
-		apply(pmat,1,function(x) any(x >= pcut)))
-	# orange
-	updownstat <- which(apply(fmat,1,
-		function(x) x[1] >= fcut & x[2] <= -fcut) &
-			apply(pmat,1,function(x) all(x < pcut)))
-	# blue
-	downupstat <- which(apply(fmat,1,
-		function(x) x[1] <= -fcut & x[2] >= fcut) &
-			apply(pmat,1,function(x) all(x < pcut)))
-	# orange3
-	updown <- which(apply(fmat,1,function(x) x[1] >= fcut & x[2] <= -fcut) &
-		apply(pmat,1,function(x) any(x >= pcut)))
-	# blue3
-	downup <- which(apply(fmat,1,function(x) x[1] <= -fcut & x[2] >= fcut) &
-		apply(pmat,1,function(x) any(x >= pcut)))
-	# black
-	poor <- which(apply(pmat,1,function(x) all(x < pcut)) &
-		apply(fmat,1,function(x) any(abs(x) < fcut)))
-	# gray70
-	nones <- which(apply(pmat,1,function(x) any(x >= pcut)) &
-		apply(fmat,1,function(x) all(abs(x) < fcut)))
-	# gray40
-	neutral <- setdiff(1:nrow(fmat),
-		Reduce("union",list(upupstat,downdownstat,upup,downdown,updownstat,
-			downupstat,updown,downup,poor,nones)))
+    upupstat <- which(apply(fmat,1,function(x) all(x >= fcut)) &
+        apply(pmat,1,function(x) all(x < pcut)))
+    # green
+    downdownstat <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
+        apply(pmat,1,function(x) all(x < pcut)))
+    # red3
+    upup <- which(apply(fmat,1,function(x) all(x >= fcut)) &
+        apply(pmat,1,function(x) any(x >= pcut)))
+    # green3
+    downdown <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
+        apply(pmat,1,function(x) any(x >= pcut)))
+    # orange
+    updownstat <- which(apply(fmat,1,
+        function(x) x[1] >= fcut & x[2] <= -fcut) &
+            apply(pmat,1,function(x) all(x < pcut)))
+    # blue
+    downupstat <- which(apply(fmat,1,
+        function(x) x[1] <= -fcut & x[2] >= fcut) &
+            apply(pmat,1,function(x) all(x < pcut)))
+    # orange3
+    updown <- which(apply(fmat,1,function(x) x[1] >= fcut & x[2] <= -fcut) &
+        apply(pmat,1,function(x) any(x >= pcut)))
+    # blue3
+    downup <- which(apply(fmat,1,function(x) x[1] <= -fcut & x[2] >= fcut) &
+        apply(pmat,1,function(x) any(x >= pcut)))
+    # black
+    poor <- which(apply(pmat,1,function(x) all(x < pcut)) &
+        apply(fmat,1,function(x) any(abs(x) < fcut)))
+    # gray70
+    nones <- which(apply(pmat,1,function(x) any(x >= pcut)) &
+        apply(fmat,1,function(x) all(abs(x) < fcut)))
+    # gray40
+    neutral <- setdiff(1:nrow(fmat),
+        Reduce("union",list(upupstat,downdownstat,upup,downdown,updownstat,
+            downupstat,updown,downup,poor,nones)))
     
     switch(jl,
         highcharts = {
@@ -3059,78 +3051,78 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
             # Add fold lines
             counter <- counter + 1
             series[[counter]] <- list(
-				name="X up fold threshold",
-				color="#000000",
-				type="line",
-				dashStyle="Dash",
-				lineWidth=1,
-				marker=list(
-					enabled=FALSE
-				),
-				tooltip=list(
-					headerFormat=paste('<strong>{series.name}',
-						'</strong><br/>',sep=""),
-					pointFormat=paste('<strong>Threshold: ',
-						'</strong>{point.x}<br/>',sep="")
-				),
-				data=list(round(c(fcut,floor(ylim[1])),3),
-					round(c(fcut,ceiling(ylim[2])),3))
-			)
-			counter <- counter + 1
-			series[[counter]] <- list(
-				name="X down fold threshold",
-				color="#000000",
-				type="line",
-				dashStyle="Dash",
-				lineWidth=1,
-				marker=list(
-					enabled=FALSE
-				),
-				tooltip=list(
-					headerFormat=paste('<strong>{series.name}',
-						'</strong><br/>',sep=""),
-					pointFormat=paste('<strong>Threshold: ',
-						'</strong>{point.x}<br/>',sep="")
-				),
-				data=list(round(c(-fcut,floor(ylim[1])),3),
-					round(c(-fcut,ceiling(ylim[2])),3))
-			)
-			counter <- counter + 1
-			series[[counter]] <- list(
-				name="Y up fold threshold",
-				color="#000000",
-				type="line",
-				dashStyle="Dash",
-				marker=list(
-					enabled=FALSE
-				),
-				tooltip=list(
-					headerFormat=paste('<strong>{series.name}',
-						'</strong><br/>',sep=""),
-					pointFormat=paste('<strong>Threshold: ',
-						'</strong>{point.y}<br/>',sep="")
-				),
-				data=list(round(c(floor(xlim[1]),fcut),3),
-					round(c(ceiling(xlim[2]),fcut),3))
-			)
-			counter <- counter + 1
-			series[[counter]] <- list(
-				name="Y down fold threshold",
-				color="#000000",
-				type="line",
-				dashStyle="Dash",
-				marker=list(
-					enabled=FALSE
-				),
-				tooltip=list(
-					headerFormat=paste('<strong>{series.name}',
-						'</strong><br/>',sep=""),
-					pointFormat=paste('<strong>Threshold: ',
-						'</strong>{point.y}<br/>',sep="")
-				),
-				data=list(round(c(floor(xlim[1]),-fcut),3),
-					round(c(ceiling(xlim[2]),-fcut),3))
-			)
+                name="X up fold threshold",
+                color="#000000",
+                type="line",
+                dashStyle="Dash",
+                lineWidth=1,
+                marker=list(
+                    enabled=FALSE
+                ),
+                tooltip=list(
+                    headerFormat=paste('<strong>{series.name}',
+                        '</strong><br/>',sep=""),
+                    pointFormat=paste('<strong>Threshold: ',
+                        '</strong>{point.x}<br/>',sep="")
+                ),
+                data=list(round(c(fcut,floor(ylim[1])),3),
+                    round(c(fcut,ceiling(ylim[2])),3))
+            )
+            counter <- counter + 1
+            series[[counter]] <- list(
+                name="X down fold threshold",
+                color="#000000",
+                type="line",
+                dashStyle="Dash",
+                lineWidth=1,
+                marker=list(
+                    enabled=FALSE
+                ),
+                tooltip=list(
+                    headerFormat=paste('<strong>{series.name}',
+                        '</strong><br/>',sep=""),
+                    pointFormat=paste('<strong>Threshold: ',
+                        '</strong>{point.x}<br/>',sep="")
+                ),
+                data=list(round(c(-fcut,floor(ylim[1])),3),
+                    round(c(-fcut,ceiling(ylim[2])),3))
+            )
+            counter <- counter + 1
+            series[[counter]] <- list(
+                name="Y up fold threshold",
+                color="#000000",
+                type="line",
+                dashStyle="Dash",
+                marker=list(
+                    enabled=FALSE
+                ),
+                tooltip=list(
+                    headerFormat=paste('<strong>{series.name}',
+                        '</strong><br/>',sep=""),
+                    pointFormat=paste('<strong>Threshold: ',
+                        '</strong>{point.y}<br/>',sep="")
+                ),
+                data=list(round(c(floor(xlim[1]),fcut),3),
+                    round(c(ceiling(xlim[2]),fcut),3))
+            )
+            counter <- counter + 1
+            series[[counter]] <- list(
+                name="Y down fold threshold",
+                color="#000000",
+                type="line",
+                dashStyle="Dash",
+                marker=list(
+                    enabled=FALSE
+                ),
+                tooltip=list(
+                    headerFormat=paste('<strong>{series.name}',
+                        '</strong><br/>',sep=""),
+                    pointFormat=paste('<strong>Threshold: ',
+                        '</strong>{point.y}<br/>',sep="")
+                ),
+                data=list(round(c(floor(xlim[1]),-fcut),3),
+                    round(c(ceiling(xlim[2]),-fcut),3))
+            )
         
             if (is.null(altNames))
                 point.format=paste("<strong>Gene ID: </strong>{point.name}<br>",
@@ -3143,98 +3135,98 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                     "<strong>Fold change X: </strong>{point.x}<br>",
                     "<strong>Fold change Y: </strong>{point.y}<br>",sep="")
                 json <- list(
-					chart=list(
-					type="scatter",
-					zoomType="xy"
-				),
-				title=list(
-					text=paste("Deregulogram")
-				),
-				xAxis=list(
-					title=list(
-						text=paste0("Fold change (log<sub>2</sub>)",conlabX),
-						margin=20,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=round(xlim[1],3),
-					max=round(xlim[2],3)
-				),
-				yAxis=list(
-					title=list(
-						useHTML=TRUE,
-						text=paste0("Fold change (log<sub>2</sub>)",conlabY),
-						margin=25,
-						style=list(
-							color="#000000",
-							fontSize="1.2em"
-						)
-					),
-					labels=list(
-						style=list(
-							color="#000000",
-							fontSize="1.1em",
-							fontWeight="bold"
-						)
-					),
-					startOnTick=TRUE,
-					endOnTick=TRUE,
-					showLastLabel=TRUE,
-					gridLineWidth=1,
-					min=round(ylim[1],3),
-					max=round(ylim[2],3)
-				),
-				plotOptions=list(
-					scatter=list(
-						allowPointSelect=TRUE,
-						marker=list(
-							radius=2,
-							symbol="circle",
-							states=list(
-								hover=list(
-									enabled=TRUE,
-									lineColor="#333333"
-								)
-							)
-						),
-						states=list(
-							hover=list(
-								marker=list(
-									enabled=FALSE
-								)
-							)
-						),
-						tooltip=list(
-							headerFormat=paste("<span style=",
-								"\"font-size:1.1em;color:{series.color};",
-								"font-weight:bold\">{series.name}<br>",
-								sep=""),
-							pointFormat=point.format
-						),
-						turboThreshold=50000
-					)
-				),
-				series=series
-			)
+                    chart=list(
+                    type="scatter",
+                    zoomType="xy"
+                ),
+                title=list(
+                    text=paste("Deregulogram")
+                ),
+                xAxis=list(
+                    title=list(
+                        text=paste0("Fold change (log<sub>2</sub>)",conlabX),
+                        margin=20,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=round(xlim[1],3),
+                    max=round(xlim[2],3)
+                ),
+                yAxis=list(
+                    title=list(
+                        useHTML=TRUE,
+                        text=paste0("Fold change (log<sub>2</sub>)",conlabY),
+                        margin=25,
+                        style=list(
+                            color="#000000",
+                            fontSize="1.2em"
+                        )
+                    ),
+                    labels=list(
+                        style=list(
+                            color="#000000",
+                            fontSize="1.1em",
+                            fontWeight="bold"
+                        )
+                    ),
+                    startOnTick=TRUE,
+                    endOnTick=TRUE,
+                    showLastLabel=TRUE,
+                    gridLineWidth=1,
+                    min=round(ylim[1],3),
+                    max=round(ylim[2],3)
+                ),
+                plotOptions=list(
+                    scatter=list(
+                        allowPointSelect=TRUE,
+                        marker=list(
+                            radius=2,
+                            symbol="circle",
+                            states=list(
+                                hover=list(
+                                    enabled=TRUE,
+                                    lineColor="#333333"
+                                )
+                            )
+                        ),
+                        states=list(
+                            hover=list(
+                                marker=list(
+                                    enabled=FALSE
+                                )
+                            )
+                        ),
+                        tooltip=list(
+                            headerFormat=paste("<span style=",
+                                "\"font-size:1.1em;color:{series.color};",
+                                "font-weight:bold\">{series.name}<br>",
+                                sep=""),
+                            pointFormat=point.format
+                        ),
+                        turboThreshold=50000
+                    )
+                ),
+                series=series
+            )
         }
     )
     if (out == "json")
-		return(toJSON(json,auto_unbox=TRUE,null="null"))
+        return(toJSON(json,auto_unbox=TRUE,null="null"))
     else if (out == "list")
-		return(json)
+        return(json)
 }
 
 .unquote_js_fun <- function(js) {

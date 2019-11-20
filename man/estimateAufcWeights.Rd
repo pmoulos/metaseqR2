@@ -81,16 +81,15 @@
     data.
 }
 \examples{
-\donttest{
-data("mm9GeneGata",package="metaseqR2")
+require(zoo)
+data("mm9GeneData",package="metaseqR2")
 weights <- estimateAufcWeights(
   counts=as.matrix(mm9GeneCounts[,9:12]),
   normalization="edaseq",
-  statistics=c("deseq","edger"),
+  statistics=c("edger","limma"),
   nsim=3,N=100,ndeg=c(10,10),top=10,modelOrg="mm9",
   seed=10,rc=0.25,libsizeGt=1e+5
 )
-}
 }
 \author{
     Panagiotis Moulos

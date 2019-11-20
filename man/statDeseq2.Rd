@@ -47,14 +47,13 @@
     function \code{metaseqR2:::makeContrastList}.
 }
 \examples{
-\donttest{
 require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+require(DESeq2)
+dataMatrix <- DESeq::counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
 normDataMatrix <- normalizeDeseq2(dataMatrix,sampleList)
 p <- statDeseq2(normDataMatrix,sampleList,contrast)
-}
 }
 \author{
     Dionysios Fanidis

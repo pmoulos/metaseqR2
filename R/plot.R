@@ -5,10 +5,10 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     "filtered","mastat","deregulogram","statvenn","foldvenn"),isNorm=FALSE,
     output="x11",path=NULL,...) {
     if (is(object,"GenomicRanges")) {
-		object <- as.data.frame(object)
-		object <- object[,c(1:3,6,7,5,8,9)]
-		colnames(object)[1] <- "chromosome"
-	}
+        object <- as.data.frame(object)
+        object <- object[,c(1:3,6,7,5,8,9)]
+        colnames(object)[1] <- "chromosome"
+    }
     if (!is.matrix(object) && !is.data.frame(object))
         stopwrap("object argument must be a matrix or data frame!")
     if (is.null(annotation) && any(plotType %in% c("biodetection",
@@ -19,7 +19,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
             "\"readnoise\", \"biodist\", \"gcbias\", \"lengthbias\", ",
             "\"filtered\", \"statvenn\" or \"foldvenn\"!")
     if (any(plotType %in% c("deheatmap","volcano","biodist","mastat",
-		"deregulogram","statvenn","foldvenn"))) {
+        "deregulogram","statvenn","foldvenn"))) {
         if (is.null(contrastList))
             stopwrap("contrastList argument is needed when plotType is ",
                 "\"deheatmap\",\"volcano\", \"biodist\", \"deregulogram\", ",
@@ -43,10 +43,10 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
         object <- as.matrix(object)
     
     if (is(annotation,"GenomicRanges")) {
-		annotation <- as.data.frame(annotation)
-		annotation <- annotation[,c(1:3,6,7,5,8,9)]
-		colnames(annotation)[1] <- "chromosome"
-	}
+        annotation <- as.data.frame(annotation)
+        annotation <- annotation[,c(1:3,6,7,5,8,9)]
+        colnames(annotation)[1] <- "chromosome"
+    }
     
     if (any(plotType %in% c("biodetection","countsbio","saturation",
         "rnacomp","biodist","readnoise")))
@@ -147,17 +147,17 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
         }
         if (p %in% statPlots && isNorm) {
             for (cnt in names(contrastList)) {
-				disp("  Contrast: ",cnt)                
+                disp("  Contrast: ",cnt)                
                 samples <- names(unlist(contrastList[[cnt]]))
                 mat <- as.matrix(object[,match(samples,colnames(object))])
                 switch(p,
                     deheatmap = {
                         files$deheatmap[[cnt]] <- c(
-							diagplotDeHeatmap(mat,scale="asis",cnt,
-								output=output,path=path),
-							diagplotDeHeatmap(mat,scale="zscore",cnt,
-								output=output,path=path)
-						)
+                            diagplotDeHeatmap(mat,scale="asis",cnt,
+                                output=output,path=path),
+                            diagplotDeHeatmap(mat,scale="zscore",cnt,
+                                output=output,path=path)
+                        )
                     },
                     volcano = {
                         fc <- log2(makeFoldChange(cnt,sampleList,object,1))
@@ -187,23 +187,23 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
                 )
             }
             if ("deregulogram" %in% plotType) {
-				cntPairs <- combn(names(contrastList),2)
-				files$deregulogram <- character(ncol(cntPairs))
-				for (i in 1:ncol(cntPairs)) {
-					fmat <- cbind(
-						log2(makeFoldChange(cntPairs[1,i],sampleList,
-							object,1))[,1,drop=FALSE],
-						log2(makeFoldChange(cntPairs[2,i],sampleList,
-							object,1))[,1,drop=FALSE]
-					)
-					pmat <- do.call("cbind",pList[c(cntPairs[1,i],
-						cntPairs[2,i])])
-					colnames(pmat) <- colnames(fmat)
-					files$deregulogram[i] <- diagplotDeregulogram(fmat,pmat,
-						fcut=thresholds$f,pcut=thresholds$p,output=output,
-						path=path) 
-				}
-			}
+                cntPairs <- combn(names(contrastList),2)
+                files$deregulogram <- character(ncol(cntPairs))
+                for (i in 1:ncol(cntPairs)) {
+                    fmat <- cbind(
+                        log2(makeFoldChange(cntPairs[1,i],sampleList,
+                            object,1))[,1,drop=FALSE],
+                        log2(makeFoldChange(cntPairs[2,i],sampleList,
+                            object,1))[,1,drop=FALSE]
+                    )
+                    pmat <- do.call("cbind",pList[c(cntPairs[1,i],
+                        cntPairs[2,i])])
+                    colnames(pmat) <- colnames(fmat)
+                    files$deregulogram[i] <- diagplotDeregulogram(fmat,pmat,
+                        fcut=thresholds$f,pcut=thresholds$p,output=output,
+                        path=path) 
+                }
+            }
         }
         if (p %in% otherPlots) {
             switch(p,
@@ -418,36 +418,36 @@ diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
 #    yr <- diff(range(min(mdsObj$points[,2]),max(mdsObj$points[,2])))
 #    xlims <- c(min(mdsObj$points[,1])-xr/10,max(mdsObj$points[,1])+xr/10)
 #    ylims <- c(min(mdsObj$points[,2])-yr/10,max(mdsObj$points[,2])+yr/10)
-#	
-#	plotData <- data.frame(
-#		x=mdsObj$points[,1],
-#		y=mdsObj$points[,2],
-#		Condition=classes
-#	)
-#	rownames(plotData) <- colnames(x)
-#	
-#	mds <- ggplot() +
-#		geom_point(data=plotData,mapping=aes(x=x,y=y,colour=Condition,
-#			shape=Condition),size=4) +
-#		xlim(xlims[1],xlims[2]) + 
-#		ylim(ylims[1],ylims[2]) +
-#		ggtitle("MDS plot") +
-#		xlab("\nPrincipal coordinate 1") +
-#		ylab("Principal coordinate 2\n") +
-#		theme_bw() +
-#		theme(axis.title.x=element_text(size=12,face="bold"),
-#			axis.title.y=element_text(size=12,face="bold"),
-#			axis.text.x=element_text(size=11,face="bold"),
-#			axis.text.y=element_text(size=11,face="bold"),
-#			strip.text.x=element_text(size=11,face="bold"),
-#			strip.text.y=element_text(size=11,face="bold"),
-#			legend.position="bottom",
-#			legend.title=element_text(size=10,face="bold"),
-#			legend.text=element_text(size=9),
-#			legend.key=element_blank()) +
-#		geom_text(data=plotData,mapping=aes(x=x,y=y,
-#			label=rownames(plotData)),size=4,hjust=-0.15,vjust=0)
-#	return(mds)
+#   
+#   plotData <- data.frame(
+#       x=mdsObj$points[,1],
+#       y=mdsObj$points[,2],
+#       Condition=classes
+#   )
+#   rownames(plotData) <- colnames(x)
+#   
+#   mds <- ggplot() +
+#       geom_point(data=plotData,mapping=aes(x=x,y=y,colour=Condition,
+#           shape=Condition),size=4) +
+#       xlim(xlims[1],xlims[2]) + 
+#       ylim(ylims[1],ylims[2]) +
+#       ggtitle("MDS plot") +
+#       xlab("\nPrincipal coordinate 1") +
+#       ylab("Principal coordinate 2\n") +
+#       theme_bw() +
+#       theme(axis.title.x=element_text(size=12,face="bold"),
+#           axis.title.y=element_text(size=12,face="bold"),
+#           axis.text.x=element_text(size=11,face="bold"),
+#           axis.text.y=element_text(size=11,face="bold"),
+#           strip.text.x=element_text(size=11,face="bold"),
+#           strip.text.y=element_text(size=11,face="bold"),
+#           legend.position="bottom",
+#           legend.title=element_text(size=10,face="bold"),
+#           legend.text=element_text(size=9),
+#           legend.key=element_blank()) +
+#       geom_text(data=plotData,mapping=aes(x=x,y=y,
+#           label=rownames(plotData)),size=4,hjust=-0.15,vjust=0)
+#   return(mds)
 #    #return(fil)
 #}
 
@@ -466,105 +466,105 @@ diagplotPairs <- function(x,output="x11",altNames=NULL,path=NULL,...) {
         fil <- paste("correlation_pairs",output,sep=".")
     
     if (output != "json") {
-		if (output %in% c("pdf","ps","x11"))
-			graphicsOpen(output,fil,width=12,height=12)
-		else {
-			if (ncol(x)<=5)
-				graphicsOpen(output,fil,width=800,height=800,res=100)
-			else
-				graphicsOpen(output,fil,width=1024,height=1024,res=150)
-		}
-		
-		# Setup the grid
-		par(mfrow=c(n,n),mar=c(1,1,1,1),oma=c(1,1,0,0),mgp=c(2,0.5,0),
-			cex.axis=0.6,cex.lab=0.6)
+        if (output %in% c("pdf","ps","x11"))
+            graphicsOpen(output,fil,width=12,height=12)
+        else {
+            if (ncol(x)<=5)
+                graphicsOpen(output,fil,width=800,height=800,res=100)
+            else
+                graphicsOpen(output,fil,width=1024,height=1024,res=150)
+        }
+        
+        # Setup the grid
+        par(mfrow=c(n,n),mar=c(1,1,1,1),oma=c(1,1,0,0),mgp=c(2,0.5,0),
+            cex.axis=0.6,cex.lab=0.6)
 
-		# Plot
-		for (i in 1:n) {
-			for (j in 1:n) {
-				if (i==j) { # Diagonal
-					plot(0:10,0:10,type="n",xaxt="n",yaxt="n",xlab="",ylab="")
-					text(c(3,5,3),c(9.5,5,1),c("X-Y plots",nams[i],"M-D plots"),
-						cex=c(0.8,1,0.8))
-					arrows(6,9.5,9.5,9.5,angle=20,length=0.1,lwd=0.8,cex=0.8)
-					arrows(0.2,3.2,0.2,0.2,angle=20,length=0.1,lwd=0.8,cex=0.8)
-				}
-				else if (i<j) { # XY plot
-					plot(x[,i],x[,j],pch=20,col="blue",cex=0.4,xlab=nams[i],
-						ylab=nams[j],...)
-					lines(lowess(x[,i],x[,j]),col="red")
-					cc <- paste("cor:",formatC(cor(x[,i],x[,j]),digits=3))
-					text(3,max(x[,j]-1),labels=cc,cex=0.7,)
-					#grid()
-				}
-				else if (i>j) { # MD plot
-					plot((x[,i]+x[,j])/2,x[,j]-x[,i],pch=20,col="blue",
-						cex=0.4,...)
-					lines(lowess((x[,i]+x[,j])/2,x[,j]-x[,i]),col="red")
-					#grid()
-				}
-			}
-		}
-		
-		if (output != "x11") {
-			graphicsClose(output)
-			return(fil)
-		}
-	}
-	else {
-		jsonList <- vector("list",2)
-		names(jsonList) <- c("xy","md")
-		jsonList$xy <- jsonList$md <- vector("list",n*(n-1)/2)
-		
-		nams <- colnames(x)
-		plotNames <- character(n*(n-1)/2)
-		counter <- 0
-		for (i in 1:(ncol(x)-1)) {
-			for (j in (i+1):ncol(x)) {
-				counter <- counter + 1
-				plotNames[counter] <- paste(nams[i],nams[j],sep="_vs_")
-				
-				#disp("  creating ",plotNames[counter])
-				
-				# XY
-				obj <- list(
-					x=x[,i],
-					y=x[,j],
-					plot=NULL,
-					samples=c(nams[i],nams[j]),
-					ylim=NULL,
-					xlim=NULL,
-					status=NULL,
-					pcut=NULL,
-					fcut=NULL,
-					altnames=altNames,
-					user=list(counts=NULL,covar=NULL,covarname="X-Y")
-				)
-				#jsonList$xy[[counter]] <- scatterToJSON(obj,out="list")
-				jsonList$xy[[counter]] <- scatterToJSON(obj)
-				
-				# MD
-				obj <- list(
-					x=(x[,i]+x[,j])/2,
-					y=x[,j]-x[,i],
-					plot=NULL,
-					samples=c(nams[i],nams[j]),
-					ylim=NULL,
-					xlim=NULL,
-					status=NULL,
-					pcut=NULL,
-					fcut=NULL,
-					altnames=altNames,
-					user=list(counts=NULL,covar=NULL,
-						covarname="Mean-Difference")
-				)
-				#jsonList$md[[counter]] <- scatterToJSON(obj,out="list")
-				jsonList$md[[counter]] <- scatterToJSON(obj)
-			}
-		}
-		names(jsonList$xy) <- names(jsonList$md) <- plotNames
-		return(jsonList)
-	}
+        # Plot
+        for (i in 1:n) {
+            for (j in 1:n) {
+                if (i==j) { # Diagonal
+                    plot(0:10,0:10,type="n",xaxt="n",yaxt="n",xlab="",ylab="")
+                    text(c(3,5,3),c(9.5,5,1),c("X-Y plots",nams[i],"M-D plots"),
+                        cex=c(0.8,1,0.8))
+                    arrows(6,9.5,9.5,9.5,angle=20,length=0.1,lwd=0.8,cex=0.8)
+                    arrows(0.2,3.2,0.2,0.2,angle=20,length=0.1,lwd=0.8,cex=0.8)
+                }
+                else if (i<j) { # XY plot
+                    plot(x[,i],x[,j],pch=20,col="blue",cex=0.4,xlab=nams[i],
+                        ylab=nams[j],...)
+                    lines(lowess(x[,i],x[,j]),col="red")
+                    cc <- paste("cor:",formatC(cor(x[,i],x[,j]),digits=3))
+                    text(3,max(x[,j]-1),labels=cc,cex=0.7,)
+                    #grid()
+                }
+                else if (i>j) { # MD plot
+                    plot((x[,i]+x[,j])/2,x[,j]-x[,i],pch=20,col="blue",
+                        cex=0.4,...)
+                    lines(lowess((x[,i]+x[,j])/2,x[,j]-x[,i]),col="red")
+                    #grid()
+                }
+            }
+        }
+        
+        if (output != "x11") {
+            graphicsClose(output)
+            return(fil)
+        }
+    }
+    else {
+        jsonList <- vector("list",2)
+        names(jsonList) <- c("xy","md")
+        jsonList$xy <- jsonList$md <- vector("list",n*(n-1)/2)
+        
+        nams <- colnames(x)
+        plotNames <- character(n*(n-1)/2)
+        counter <- 0
+        for (i in 1:(ncol(x)-1)) {
+            for (j in (i+1):ncol(x)) {
+                counter <- counter + 1
+                plotNames[counter] <- paste(nams[i],nams[j],sep="_vs_")
+                
+                #disp("  creating ",plotNames[counter])
+                
+                # XY
+                obj <- list(
+                    x=x[,i],
+                    y=x[,j],
+                    plot=NULL,
+                    samples=c(nams[i],nams[j]),
+                    ylim=NULL,
+                    xlim=NULL,
+                    status=NULL,
+                    pcut=NULL,
+                    fcut=NULL,
+                    altnames=altNames,
+                    user=list(counts=NULL,covar=NULL,covarname="X-Y")
+                )
+                #jsonList$xy[[counter]] <- scatterToJSON(obj,out="list")
+                jsonList$xy[[counter]] <- scatterToJSON(obj)
+                
+                # MD
+                obj <- list(
+                    x=(x[,i]+x[,j])/2,
+                    y=x[,j]-x[,i],
+                    plot=NULL,
+                    samples=c(nams[i],nams[j]),
+                    ylim=NULL,
+                    xlim=NULL,
+                    status=NULL,
+                    pcut=NULL,
+                    fcut=NULL,
+                    altnames=altNames,
+                    user=list(counts=NULL,covar=NULL,
+                        covarname="Mean-Difference")
+                )
+                #jsonList$md[[counter]] <- scatterToJSON(obj,out="list")
+                jsonList$md[[counter]] <- scatterToJSON(obj)
+            }
+        }
+        names(jsonList$xy) <- names(jsonList$md) <- plotNames
+        return(jsonList)
+    }
 }
 
 diagplotCor <- function(mat,type=c("heatmap","correlogram"),output="x11",
@@ -622,115 +622,115 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
     else
         status <- "raw"
     if (whichPlot=="gcbias" && !is.null(covar)) {
-		if (max(covar) > 1) # 0-100 scale
-			covar <- covar/100
-	}
+        if (max(covar) > 1) # 0-100 scale
+            covar <- covar/100
+    }
     if (is.null(covar)) 
-		covar <- rep(NA,nrow(x))
-	#if (!is.null(names(covar)))
-	#	x <- x[names(covar),,drop=FALSE]
+        covar <- rep(NA,nrow(x))
+    #if (!is.null(names(covar)))
+    #   x <- x[names(covar),,drop=FALSE]
     s <- newSeqExpressionSet(as.matrix(x),phenoData=AnnotatedDataFrame(
         data.frame(conditions=asClassVector(sampleList),
         row.names=colnames(x))),featureData=AnnotatedDataFrame(data.frame(
         gc=covar,length=covar,row.names=rownames(x))))
     switch(whichPlot,
         meandiff = {
-			if (output!="json") {
-				fil <- vector("list",length(sampleList))
-				names(fil) <- names(sampleList)
-				for (n in names(sampleList)) {
-					if (length(sampleList[[n]])==1) {
-						warnwrap("Cannot create a mean-difference plot with ",
-							"one sample per condition! Skipping...")
-						next
-					}
-					pairMatrix <- combn(1:length(sampleList[[n]]),2)
-					fil[[n]] <- vector("list",ncol(pairMatrix))
-					for (i in 1:ncol(pairMatrix)) {
-						s1 <- sampleList[[n]][pairMatrix[1,i]]
-						s2 <- sampleList[[n]][pairMatrix[2,i]]
-						fil[[n]][[i]] <- file.path(path,paste(whichPlot,"_",
-							status,"_",n,"_",s1,"_",s2,".",output,sep=""))
-						names(fil[[n]][i]) <- paste(s1,"vs",s2,sep="_")
-						graphicsOpen(output,fil[[n]][[i]])
-						MDPlot(s,y=pairMatrix[,i],main=paste("MD plot for ",n,
-							" ",status," samples ",s1," and ",s2,sep=""),
-							cex.main=0.9)
-						graphicsClose(output)
-					}
-				}
-				return(fil)
-			}
-			else {
-				json <- vector("list",length(sampleList))
-				names(json) <- names(sampleList)
-				for (n in names(sampleList)) {
-					if (length(sampleList[[n]])==1) {
-						warnwrap("Cannot create a mean-difference plot with ",
-							"one sample per condition! Skipping...")
-						next
-					}
-					pairMatrix <- combn(1:length(sampleList[[n]]),2)
-					json[[n]] <- vector("list",ncol(pairMatrix))
-					for (i in 1:ncol(pairMatrix)) {
-						s1 <- sampleList[[n]][pairMatrix[1,i]]
-						s2 <- sampleList[[n]][pairMatrix[2,i]]
-						xx <- rowMeans(log(x[,pairMatrix[,i]] + 0.1))
-						yy <- log(x[,pairMatrix[2,i]] + 0.1) - 
-							log(x[,pairMatrix[1,i]] + 0.1)
-						obj <- list(
-							x=xx,
-							y=yy,
-							plot=NULL,
-							samples=c(s1,s2),
-							ylim=NULL,
-							xlim=NULL,
-							status=status,
-							pcut=NULL,
-							fcut=NULL,
-							altnames=altNames,
-							user=list(counts=NULL,covar=NULL,
-								covarname="Mean-Difference")
-						)
-						#json[[n]][[i]] <- scatterToJSON(obj,out="list")
-						json[[n]][[i]] <- scatterToJSON(obj)
-						names(json[[n]])[i] <- paste(s1,"_vs_",s2,sep="")
-					}
-				}
-				return(json)
-			}
+            if (output!="json") {
+                fil <- vector("list",length(sampleList))
+                names(fil) <- names(sampleList)
+                for (n in names(sampleList)) {
+                    if (length(sampleList[[n]])==1) {
+                        warnwrap("Cannot create a mean-difference plot with ",
+                            "one sample per condition! Skipping...")
+                        next
+                    }
+                    pairMatrix <- combn(1:length(sampleList[[n]]),2)
+                    fil[[n]] <- vector("list",ncol(pairMatrix))
+                    for (i in 1:ncol(pairMatrix)) {
+                        s1 <- sampleList[[n]][pairMatrix[1,i]]
+                        s2 <- sampleList[[n]][pairMatrix[2,i]]
+                        fil[[n]][[i]] <- file.path(path,paste(whichPlot,"_",
+                            status,"_",n,"_",s1,"_",s2,".",output,sep=""))
+                        names(fil[[n]][i]) <- paste(s1,"vs",s2,sep="_")
+                        graphicsOpen(output,fil[[n]][[i]])
+                        MDPlot(s,y=pairMatrix[,i],main=paste("MD plot for ",n,
+                            " ",status," samples ",s1," and ",s2,sep=""),
+                            cex.main=0.9)
+                        graphicsClose(output)
+                    }
+                }
+                return(fil)
+            }
+            else {
+                json <- vector("list",length(sampleList))
+                names(json) <- names(sampleList)
+                for (n in names(sampleList)) {
+                    if (length(sampleList[[n]])==1) {
+                        warnwrap("Cannot create a mean-difference plot with ",
+                            "one sample per condition! Skipping...")
+                        next
+                    }
+                    pairMatrix <- combn(1:length(sampleList[[n]]),2)
+                    json[[n]] <- vector("list",ncol(pairMatrix))
+                    for (i in 1:ncol(pairMatrix)) {
+                        s1 <- sampleList[[n]][pairMatrix[1,i]]
+                        s2 <- sampleList[[n]][pairMatrix[2,i]]
+                        xx <- rowMeans(log(x[,pairMatrix[,i]] + 0.1))
+                        yy <- log(x[,pairMatrix[2,i]] + 0.1) - 
+                            log(x[,pairMatrix[1,i]] + 0.1)
+                        obj <- list(
+                            x=xx,
+                            y=yy,
+                            plot=NULL,
+                            samples=c(s1,s2),
+                            ylim=NULL,
+                            xlim=NULL,
+                            status=status,
+                            pcut=NULL,
+                            fcut=NULL,
+                            altnames=altNames,
+                            user=list(counts=NULL,covar=NULL,
+                                covarname="Mean-Difference")
+                        )
+                        #json[[n]][[i]] <- scatterToJSON(obj,out="list")
+                        json[[n]][[i]] <- scatterToJSON(obj)
+                        names(json[[n]])[i] <- paste(s1,"_vs_",s2,sep="")
+                    }
+                }
+                return(json)
+            }
         },
         meanvar = {
-			if (output!="json") {
-				fil <- file.path(path,paste(whichPlot,"_",status,".",output,
-					sep=""))
-				graphicsOpen(output,fil)
-				suppressWarnings(meanVarPlot(s,main=paste("MV plot for",status,
-					"samples"),cex.main=0.9))
-				graphicsClose(output)
-				return(fil)
-			}
-			else {
-				m <- apply(x,1,mean)
-				v <- apply(x,1,var)
-				mm <- m[m<=quantile(m,probs=0.9)]
-				vv <- v[m<=quantile(m,probs=0.9)]
-				obj <- list(
-					x=mm,
-					y=vv,
-					plot=NULL,
-					samples=NULL,
-					ylim=NULL,
-					xlim=NULL,
-					status=status,
-					pcut=NULL,
-					fcut=NULL,
-					altnames=altNames,
-					user=list(counts=NULL,covar=NULL,covarname="Mean-Variance")
-				)
-				json <- scatterToJSON(obj)
-				return(json)
-			}
+            if (output!="json") {
+                fil <- file.path(path,paste(whichPlot,"_",status,".",output,
+                    sep=""))
+                graphicsOpen(output,fil)
+                suppressWarnings(meanVarPlot(s,main=paste("MV plot for",status,
+                    "samples"),cex.main=0.9))
+                graphicsClose(output)
+                return(fil)
+            }
+            else {
+                m <- apply(x,1,mean)
+                v <- apply(x,1,var)
+                mm <- m[m<=quantile(m,probs=0.9)]
+                vv <- v[m<=quantile(m,probs=0.9)]
+                obj <- list(
+                    x=mm,
+                    y=vv,
+                    plot=NULL,
+                    samples=NULL,
+                    ylim=NULL,
+                    xlim=NULL,
+                    status=status,
+                    pcut=NULL,
+                    fcut=NULL,
+                    altnames=altNames,
+                    user=list(counts=NULL,covar=NULL,covarname="Mean-Variance")
+                )
+                json <- scatterToJSON(obj)
+                return(json)
+            }
         },
         gcbias = {
             if (!output=="json") {
@@ -815,8 +815,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
     if (missing(covars))
         stopwrap("\"covars\" argument is required with NOISeq specific plots!")
     else {
-		if (is.null(covars$gc))
-			covars$gc <- rep(0.5,nrow(x))
+        if (is.null(covars$gc))
+            covars$gc <- rep(0.5,nrow(x))
         covars$biotype <- as.character(covars$biotype)
         names(covars$length) <- names(covars$gc) <-
             rownames(covars$chromosome) <- names(covars$biotype) <-
@@ -859,7 +859,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                         graphicsOpen(output,fil[samples[i]],width=9,height=7)
                     else
                         graphicsOpen(output,fil[samples[i]],width=1024,
-							height=768)
+                            height=768)
                     explo.plot(diagplotData,samples=i)
                     graphicsClose(output)
                 }
@@ -944,8 +944,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 jsonList[["biotype"]] <- vector("list",length(bts))
                 #json <- countsBioToJSON(obj,by="sample")
                 jsonList[["sample"]] <- 
-					#countsBioToJSON(obj,by="sample",out="list")
-					countsBioToJSON(obj,by="sample")
+                    #countsBioToJSON(obj,by="sample",out="list")
+                    countsBioToJSON(obj,by="sample")
                 #for (i in 1:length(samples)) {
                 #    fil[["sample"]][samples[i]] <- file.path(path,
                 #        paste(whichPlot,"_",samples[i],".json",sep=""))
@@ -954,8 +954,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 #}
                 #json <- countsBioToJSON(obj,by="biotype")
                 jsonList[["biotype"]] <- 
-					#countsBioToJSON(obj,by="biotype",out="list")
-					countsBioToJSON(obj,by="biotype")
+                    #countsBioToJSON(obj,by="biotype",out="list")
+                    countsBioToJSON(obj,by="biotype")
                 names(jsonList[["biotype"]]) <- bts
                 #names(json) <- samples
                 #for (i in 1:length(bts)) {
@@ -975,7 +975,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 fil <- diagplotNoiseqSaturation(d2s,output,covars$biotype,
                     path=path)
                 return(fil)
-			}
+            }
             else {
                 samples <- unlist(sampleList)
                 obj <- list(
@@ -1000,8 +1000,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 names(jsonList) <- c("sample","biotype")
                 #json <- bioSaturationToJSON(obj,by="sample")
                 jsonList[["sample"]] <- 
-					#bioSaturationToJSON(obj,by="sample",out="list")
-					bioSaturationToJSON(obj,by="sample")
+                    #bioSaturationToJSON(obj,by="sample",out="list")
+                    bioSaturationToJSON(obj,by="sample")
                 names(jsonList[["sample"]]) <- samples
                 #for (i in 1:length(samples)) {
                 #    fil[["sample"]][samples[i]] <- file.path(path,
@@ -1011,9 +1011,9 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 #}
                 #json <- bioSaturationToJSON(obj,by="biotype")
                 jsonList[["biotype"]] <- 
-					#bioSaturationToJSON(obj,by="biotype",out="list")
-					bioSaturationToJSON(obj,by="biotype")
-				#names(jsonList[["sample"]]) <- samples
+                    #bioSaturationToJSON(obj,by="biotype",out="list")
+                    bioSaturationToJSON(obj,by="biotype")
+                #names(jsonList[["sample"]]) <- samples
                 #fil[["biotype"]] <- character(length(json))
                 #names(fil[["biotype"]]) <- names(json)
                 #for (n in names(json)) {
@@ -1038,15 +1038,15 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
             }
             diagplotData <- NOISeq::dat(localObj,type="cd")
             if (output!="json") {
-				fil <- file.path(path,paste(whichPlot,"_",status,".",output,
-					sep=""))
-				graphicsOpen(output,fil)
-				explo.plot(diagplotData)
-				grid()
-				graphicsClose(output)
-			}
-			else {
-				obj <- list(
+                fil <- file.path(path,paste(whichPlot,"_",status,".",output,
+                    sep=""))
+                graphicsOpen(output,fil)
+                explo.plot(diagplotData)
+                grid()
+                graphicsClose(output)
+            }
+            else {
+                obj <- list(
                    x=NULL,
                    y=NULL,
                    plot=NULL,
@@ -1060,8 +1060,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                    user=list(plotdata=diagplotData@dat)
                 )
                 json <- rnacompToJSON(obj)
-				return(json)
-			}
+                return(json)
+            }
         },
         readnoise = {
             D <- cddat(localObj)
@@ -1127,46 +1127,46 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 v=0.02
             )
             if (output!="json") {
-				if (!is.null(biodistOpts$name))
-					fil <- file.path(path,paste(whichPlot,"_",biodistOpts$name,
-						".",output,sep=""))
-				else
-					fil <- file.path(path,paste(whichPlot,".",output,sep=""))
-				if (output %in% c("pdf","ps","x11"))
-					graphicsOpen(output,fil,width=10,height=6)
-				else
-					graphicsOpen(output,fil,width=1024,height=640)
-				tryCatch( # A lot of times, there is a problem with this function
-					DE.plot(dummy,chromosomes=NULL,q=biodistOpts$pcut,
-						graphic="distr"),
-					error=function(e) {
-						disp("      Known problem with NOISeq and external ",
-							"p-values  detected! Trying to make a plot with ",
-							"alternative p-values  (median of p-value ",
-							"distribution)...")
-						fil="error"
-						tryCatch(
-							DE.plot(dummy,chromosomes=NULL,
-								q=quantile(biodistOpts$p,0.5),
-								graphic="distr"),
-							error=function(e) {
-								disp("      Cannot create DEG biotype plot! ",
-									"This is not related to any problem with ",
-									"the results. Excluding...")
-								fil="error"
-							},
-							finally=""
-						)
-					},
-					finally=""
-				)
-				graphicsClose(output)
-				return(fil)
-			}
-			else {
-				dataList <- deplot(dummy,chromosomes=NULL,q=biodistOpts$pcut)
-				
-				colnames(x) <- unlist(sampleList)
+                if (!is.null(biodistOpts$name))
+                    fil <- file.path(path,paste(whichPlot,"_",biodistOpts$name,
+                        ".",output,sep=""))
+                else
+                    fil <- file.path(path,paste(whichPlot,".",output,sep=""))
+                if (output %in% c("pdf","ps","x11"))
+                    graphicsOpen(output,fil,width=10,height=6)
+                else
+                    graphicsOpen(output,fil,width=1024,height=640)
+                tryCatch( # A lot of times, there is a problem with this function
+                    DE.plot(dummy,chromosomes=NULL,q=biodistOpts$pcut,
+                        graphic="distr"),
+                    error=function(e) {
+                        disp("      Known problem with NOISeq and external ",
+                            "p-values  detected! Trying to make a plot with ",
+                            "alternative p-values  (median of p-value ",
+                            "distribution)...")
+                        fil="error"
+                        tryCatch(
+                            DE.plot(dummy,chromosomes=NULL,
+                                q=quantile(biodistOpts$p,0.5),
+                                graphic="distr"),
+                            error=function(e) {
+                                disp("      Cannot create DEG biotype plot! ",
+                                    "This is not related to any problem with ",
+                                    "the results. Excluding...")
+                                fil="error"
+                            },
+                            finally=""
+                        )
+                    },
+                    finally=""
+                )
+                graphicsClose(output)
+                return(fil)
+            }
+            else {
+                dataList <- deplot(dummy,chromosomes=NULL,q=biodistOpts$pcut)
+                
+                colnames(x) <- unlist(sampleList)
                 obj <- list(
                    x=NULL,
                    y=NULL,
@@ -1184,13 +1184,13 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 jsonList <- vector("list",2)
                 names(jsonList) <- c("chromosome","biotype")
                 jsonList[["chromosome"]] <- 
-					#biodistToJSON(obj,by="chromosome",out="list")
-					biodistToJSON(obj,by="chromosome")
+                    #biodistToJSON(obj,by="chromosome",out="list")
+                    biodistToJSON(obj,by="chromosome")
                 jsonList[["biotype"]] <- 
-					#biodistToJSON(obj,by="biotype",out="list")
-					biodistToJSON(obj,by="biotype")
+                    #biodistToJSON(obj,by="biotype",out="list")
+                    biodistToJSON(obj,by="biotype")
                 return(jsonList)
-			}
+            }
         }
     )
     
@@ -1465,26 +1465,26 @@ diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
         axis(1,at=pretty(xlim,10),labels=as.character(pretty(xlim,10)))
         axis(2,at=pretty(ylim,10))
         title(paste(main="MA plot",con),xlab="Average expression",
-			ylab="Fold change")
-			
-		points(a[neutral],m[neutral],pch=20,col="gray50",cex=0.5)
-		points(a[poor],m[poor],pch=20,col="orange",cex=0.5)
-		points(a[up],m[up],pch=20,col="red3",cex=0.5)
-		points(a[down],m[down],pch=20,col="green3",cex=0.5)
-		points(a[upstat],m[upstat],pch=20,col="red",cex=0.5)
-		points(a[downstat],m[downstat],pch=20,col="green",cex=0.5)
-		abline(h=-fcut,lty=2)
-		abline(h=fcut,lty=2)
-		grid()
-		graphics::legend(
-			x="topright",
-			legend=c("significantly up-regulated",
-				"significantly down-regulated","up-regulated","down-regulated",
-				"poorly regulated","neutral","fold change threshold"),
-			col=c("red","green","red3","green3","orange","gray50","black"),
-			pch=c(20,20,20,20,20,20,NA),lty=c(NA,NA,NA,NA,NA,NA,2),
-			xjust=1,yjust=0,box.lty=0,x.intersp=0.5,cex=0.7,text.font=2
-		)
+            ylab="Fold change")
+            
+        points(a[neutral],m[neutral],pch=20,col="gray50",cex=0.5)
+        points(a[poor],m[poor],pch=20,col="orange",cex=0.5)
+        points(a[up],m[up],pch=20,col="red3",cex=0.5)
+        points(a[down],m[down],pch=20,col="green3",cex=0.5)
+        points(a[upstat],m[upstat],pch=20,col="red",cex=0.5)
+        points(a[downstat],m[downstat],pch=20,col="green",cex=0.5)
+        abline(h=-fcut,lty=2)
+        abline(h=fcut,lty=2)
+        grid()
+        graphics::legend(
+            x="topright",
+            legend=c("significantly up-regulated",
+                "significantly down-regulated","up-regulated","down-regulated",
+                "poorly regulated","neutral","fold change threshold"),
+            col=c("red","green","red3","green3","orange","gray50","black"),
+            pch=c(20,20,20,20,20,20,NA),lty=c(NA,NA,NA,NA,NA,NA,2),
+            xjust=1,yjust=0,box.lty=0,x.intersp=0.5,cex=0.7,text.font=2
+        )
         graphicsClose(output)
         return(fil)
     }
@@ -1513,14 +1513,14 @@ diagplotDeregulogram <- function(fmat,pmat,fcut=0.5,pcut=0.05,altNames=NULL,
     if (is.null(path)) path <- getwd()
     # colnames of at least one of fmat, pmat must be given
     if (is.null(colnames(fmat)) && is.null(colnames(pmat)))
-		stopwrap("At least fmat or pmat must have column names!")
-	if (is.null(colnames(fmat)) && !is.null(colnames(pmat)))
-		colnames(fmat) <- colnames(pmat)
+        stopwrap("At least fmat or pmat must have column names!")
+    if (is.null(colnames(fmat)) && !is.null(colnames(pmat)))
+        colnames(fmat) <- colnames(pmat)
     if (!is.null(colnames(fmat)) && is.null(colnames(pmat)))
-		colnames(pmat) <- colnames(fmat)
+        colnames(pmat) <- colnames(fmat)
     
     fil <- file.path(path,paste("deregulogram_",
-		paste(colnames(fmat),collapse="__"),".",output,sep=""))
+        paste(colnames(fmat),collapse="__"),".",output,sep=""))
     if (output!="json") {
         if (output %in% c("pdf","ps","x11"))
             graphicsOpen(output,fil,width=10,height=8)
@@ -1538,51 +1538,51 @@ diagplotDeregulogram <- function(fmat,pmat,fcut=0.5,pcut=0.05,altNames=NULL,
     # Remove non-signicant always
     allbad <- which(apply(pmat,1,function(x) all(x>=pcut)))
     if (length(allbad) > 0) {
-		pmat <- pmat[-allbad,]
-		fmat <- fmat[-allbad,]
-	}
+        pmat <- pmat[-allbad,]
+        fmat <- fmat[-allbad,]
+    }
         
     ylim <- c(-max(abs(fmat[,2])),max(abs(fmat[,2])))
     xlim <- c(-max(abs(fmat[,1])),max(abs(fmat[,1])))
     
     if (output!="json") {
-		# red
-		upupstat <- which(apply(fmat,1,function(x) all(x >= fcut)) &
-			apply(pmat,1,function(x) all(x < pcut)))
-		# green
-		downdownstat <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
-			apply(pmat,1,function(x) all(x < pcut)))
-		# red3
-		upup <- which(apply(fmat,1,function(x) all(x >= fcut)) &
-			apply(pmat,1,function(x) any(x >= pcut)))
-		# green3
-		downdown <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
-			apply(pmat,1,function(x) any(x >= pcut)))
-		# orange
-		updownstat <- which(apply(fmat,1,
-			function(x) x[1] >= fcut & x[2] <= -fcut) &
-				apply(pmat,1,function(x) all(x < pcut)))
-		# blue
-		downupstat <- which(apply(fmat,1,
-			function(x) x[1] <= -fcut & x[2] >= fcut) &
-				apply(pmat,1,function(x) all(x < pcut)))
-		# orange3
-		updown <- which(apply(fmat,1,function(x) x[1] >= fcut & x[2] <= -fcut) &
-			apply(pmat,1,function(x) any(x >= pcut)))
-		# blue3
-		downup <- which(apply(fmat,1,function(x) x[1] <= -fcut & x[2] >= fcut) &
-			apply(pmat,1,function(x) any(x >= pcut)))
-		# black
-		poor <- which(apply(pmat,1,function(x) all(x < pcut)) &
-			apply(fmat,1,function(x) any(abs(x) < fcut)))
-		# gray70
-		nones <- which(apply(pmat,1,function(x) any(x >= pcut)) &
-			apply(fmat,1,function(x) all(abs(x) < fcut)))
-		# gray40
-		neutral <- setdiff(1:nrow(fmat),
-			Reduce("union",list(upupstat,downdownstat,upup,downdown,updownstat,
-				downupstat,updown,downup,poor,nones)))
-		
+        # red
+        upupstat <- which(apply(fmat,1,function(x) all(x >= fcut)) &
+            apply(pmat,1,function(x) all(x < pcut)))
+        # green
+        downdownstat <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
+            apply(pmat,1,function(x) all(x < pcut)))
+        # red3
+        upup <- which(apply(fmat,1,function(x) all(x >= fcut)) &
+            apply(pmat,1,function(x) any(x >= pcut)))
+        # green3
+        downdown <- which(apply(fmat,1,function(x) all(x <= -fcut)) &
+            apply(pmat,1,function(x) any(x >= pcut)))
+        # orange
+        updownstat <- which(apply(fmat,1,
+            function(x) x[1] >= fcut & x[2] <= -fcut) &
+                apply(pmat,1,function(x) all(x < pcut)))
+        # blue
+        downupstat <- which(apply(fmat,1,
+            function(x) x[1] <= -fcut & x[2] >= fcut) &
+                apply(pmat,1,function(x) all(x < pcut)))
+        # orange3
+        updown <- which(apply(fmat,1,function(x) x[1] >= fcut & x[2] <= -fcut) &
+            apply(pmat,1,function(x) any(x >= pcut)))
+        # blue3
+        downup <- which(apply(fmat,1,function(x) x[1] <= -fcut & x[2] >= fcut) &
+            apply(pmat,1,function(x) any(x >= pcut)))
+        # black
+        poor <- which(apply(pmat,1,function(x) all(x < pcut)) &
+            apply(fmat,1,function(x) any(abs(x) < fcut)))
+        # gray70
+        nones <- which(apply(pmat,1,function(x) any(x >= pcut)) &
+            apply(fmat,1,function(x) all(abs(x) < fcut)))
+        # gray40
+        neutral <- setdiff(1:nrow(fmat),
+            Reduce("union",list(upupstat,downdownstat,upup,downdown,updownstat,
+                downupstat,updown,downup,poor,nones)))
+        
         par(cex.main=1.1,cex.lab=1.1,cex.axis=1.1,font.lab=2,font.axis=2,
             pty="m",lwd=1.5)
         plot.new()
@@ -1590,55 +1590,55 @@ diagplotDeregulogram <- function(fmat,pmat,fcut=0.5,pcut=0.05,altNames=NULL,
         axis(1,at=pretty(xlim,10),labels=as.character(pretty(xlim,10)))
         axis(2,at=pretty(ylim,10))
         title(paste(main="Deregulogram",colnames(fmat)[1],"and",
-			colnames(fmat)[2]),xlab=paste("Fold change",colnames(fmat)[1]),
-			ylab=paste("Fold change",colnames(fmat)[2]))
-		
-		if (length(neutral) > 0)
-			points(fmat[neutral,1],fmat[neutral,2],pch=20,col="gray40",cex=0.5)
-		if (length(nones) > 0)
-			points(fmat[nones,1],fmat[nones,2],pch=20,col="gray70",cex=0.5)
-		if (length(poor) > 0)
-			points(fmat[poor,1],fmat[poor,2],pch=20,col="black",cex=0.5)
-		if (length(downup) > 0)
-			points(fmat[downup,1],fmat[downup,2],pch=20,col="blue3",cex=0.5)
-		if (length(updown) > 0)
-			points(fmat[updown,1],fmat[updown,2],pch=20,col="orange3",cex=0.5)
-		if (length(downupstat) > 0)
-			points(fmat[downupstat,1],fmat[downupstat,2],pch=20,col="blue",
-				cex=0.5)
-		if (length(updownstat) > 0)
-			points(fmat[updownstat,1],fmat[updownstat,2],pch=20,col="orange",
-				cex=0.5)
-		if (length(downdown) > 0)
-			points(fmat[downdown,1],fmat[downdown,2],pch=20,col="green3",
-				cex=0.5)
-		if (length(upup) > 0)
-			points(fmat[upup,1],fmat[upup,2],pch=20,col="red3",cex=0.5)
-		if (length(downdownstat) > 0)
-			points(fmat[downdownstat,1],fmat[downdownstat,2],pch=20,col="green",
-				cex=0.5)
-		if (length(upupstat) > 0)
-			points(fmat[upupstat,1],fmat[upupstat,2],pch=20,col="red",cex=0.5)
-		
-		abline(h=-fcut,lty=2)
-		abline(h=fcut,lty=2)
-		abline(v=-fcut,lty=2)
-		abline(v=fcut,lty=2)
-		
-		grid()
-		graphics::legend(
-			x="topleft",
-			legend=c("significantly both up-regulated",
-				"significantly both down-regulated","both up-regulated",
-				"both down-regulated","significantly up-down-regulated",
-				"significantly down-up-regulated","up-down-regulated",
-				"down-up-regulated","poorly regulated","no regulated","neutral",
-				"fold change threshold"),
-			col=c("red","green","red3","green3","orange","blue","orange3",
-				"blue3","black","gray70","gray40","black"),
-			pch=c(rep(20,11),NA),lty=c(rep(NA,11),2),xjust=1,yjust=0,
-			box.lty=0,x.intersp=0.5,cex=0.7,text.font=2
-		)
+            colnames(fmat)[2]),xlab=paste("Fold change",colnames(fmat)[1]),
+            ylab=paste("Fold change",colnames(fmat)[2]))
+        
+        if (length(neutral) > 0)
+            points(fmat[neutral,1],fmat[neutral,2],pch=20,col="gray40",cex=0.5)
+        if (length(nones) > 0)
+            points(fmat[nones,1],fmat[nones,2],pch=20,col="gray70",cex=0.5)
+        if (length(poor) > 0)
+            points(fmat[poor,1],fmat[poor,2],pch=20,col="black",cex=0.5)
+        if (length(downup) > 0)
+            points(fmat[downup,1],fmat[downup,2],pch=20,col="blue3",cex=0.5)
+        if (length(updown) > 0)
+            points(fmat[updown,1],fmat[updown,2],pch=20,col="orange3",cex=0.5)
+        if (length(downupstat) > 0)
+            points(fmat[downupstat,1],fmat[downupstat,2],pch=20,col="blue",
+                cex=0.5)
+        if (length(updownstat) > 0)
+            points(fmat[updownstat,1],fmat[updownstat,2],pch=20,col="orange",
+                cex=0.5)
+        if (length(downdown) > 0)
+            points(fmat[downdown,1],fmat[downdown,2],pch=20,col="green3",
+                cex=0.5)
+        if (length(upup) > 0)
+            points(fmat[upup,1],fmat[upup,2],pch=20,col="red3",cex=0.5)
+        if (length(downdownstat) > 0)
+            points(fmat[downdownstat,1],fmat[downdownstat,2],pch=20,col="green",
+                cex=0.5)
+        if (length(upupstat) > 0)
+            points(fmat[upupstat,1],fmat[upupstat,2],pch=20,col="red",cex=0.5)
+        
+        abline(h=-fcut,lty=2)
+        abline(h=fcut,lty=2)
+        abline(v=-fcut,lty=2)
+        abline(v=fcut,lty=2)
+        
+        grid()
+        graphics::legend(
+            x="topleft",
+            legend=c("significantly both up-regulated",
+                "significantly both down-regulated","both up-regulated",
+                "both down-regulated","significantly up-down-regulated",
+                "significantly down-up-regulated","up-down-regulated",
+                "down-up-regulated","poorly regulated","no regulated","neutral",
+                "fold change threshold"),
+            col=c("red","green","red3","green3","orange","blue","orange3",
+                "blue3","black","gray70","gray40","black"),
+            pch=c(rep(20,11),NA),lty=c(rep(NA,11),2),xjust=1,yjust=0,
+            box.lty=0,x.intersp=0.5,cex=0.7,text.font=2
+        )
         graphicsClose(output)
         return(fil)
     }
@@ -1662,7 +1662,7 @@ diagplotDeregulogram <- function(fmat,pmat,fcut=0.5,pcut=0.05,altNames=NULL,
 }
 
 diagplotDeHeatmap <- function(x,scale=c("asis","zscore"),con=NULL,output="x11",
-	path=NULL,...) {
+    path=NULL,...) {
     if (is.null(path)) path <- getwd()
     if (is.null(con))
         con <- conn <- ""
@@ -1672,7 +1672,7 @@ diagplotDeHeatmap <- function(x,scale=c("asis","zscore"),con=NULL,output="x11",
     }
     y <- nat2log(x,2,1)
     if (scale == "zscore")
-		y <- t(scale(t(y)))
+        y <- t(scale(t(y)))
     # First plot the normal image
     fil <- file.path(path,paste("de_heatmap_",conn,"_",scale,".",output,sep=""))
     if (output %in% c("pdf","ps","x11"))
@@ -1793,16 +1793,16 @@ diagplotFiltered <- function(x,y,output="x11",path=NULL,...) {
         return(fil)
     }
     else {
-		if (is(x,"GenomicRanges")) {
-			x <- as.data.frame(x)
-			x <- x[,c(1:3,6,7,5,8,9)]
-			colnames(x)[1] <- "chromosome"
-		}
-		if (is(y,"GenomicRanges")) {
-			y <- as.data.frame(y)
-			y <- y[,c(1:3,6,7,5,8,9)]
-			colnames(y)[1] <- "chromosome"
-		}
+        if (is(x,"GenomicRanges")) {
+            x <- as.data.frame(x)
+            x <- x[,c(1:3,6,7,5,8,9)]
+            colnames(x)[1] <- "chromosome"
+        }
+        if (is(y,"GenomicRanges")) {
+            y <- as.data.frame(y)
+            y <- y[,c(1:3,6,7,5,8,9)]
+            colnames(y)[1] <- "chromosome"
+        }
         obj <- list(
             x=NULL,
             y=NULL,
@@ -2065,7 +2065,7 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
 
 makeJVennStatData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     direction=c("dereg","up","down"),altNames=NULL,...) {
-	direction <- direction[1]
+    direction <- direction[1]
     checkTextArgs("direction",direction,c("dereg","up","down"))
     if (is.na(pcut) || is.null(pcut) || pcut==1)
         warnwrap("Invalid pcut argument! Using the default (0.05)")
@@ -2102,31 +2102,31 @@ makeJVennStatData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
                 for (a in algs)
                     results[[a]] <-
                         genes[which(pmat[,algs[a]]<pcut & abs(
-							fcmat[,algs[a]])>=fcut)]
+                            fcmat[,algs[a]])>=fcut)]
             },
             up = {
                 for (a in algs)
                     results[[a]] <-
                         genes[which(pmat[,algs[a]]<pcut &
-							fcmat[,algs[a]]>=fcut)]
+                            fcmat[,algs[a]]>=fcut)]
             },
             down = {
                 for (a in algs)
                     results[[a]] <-
                         genes[which(pmat[,algs[a]]<pcut &
-							fcmat[,algs[a]]<=-fcut)]
+                            fcmat[,algs[a]]<=-fcut)]
             }
         )
     }
     
     series <- lapply(names(results),function(n,r) {
-		return(list(
-			name=n,
-			data=if (is.null(altNames)) r[[n]] else altNames[r[[n]]]
-		))
-	},results)
-	
-	return(list(series=series))
+        return(list(
+            name=n,
+            data=if (is.null(altNames)) r[[n]] else altNames[r[[n]]]
+        ))
+    },results)
+    
+    return(list(series=series))
 }
 
 makeJVennFoldData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
@@ -2167,66 +2167,66 @@ makeJVennFoldData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
                 for (a in conts)
                     results[[a]] <-
                         genes[which(pmat[,conts[a]]<pcut & abs(
-							fcmat[,conts[a]])>=fcut)]
+                            fcmat[,conts[a]])>=fcut)]
             },
             up = {
                 for (a in conts)
                     results[[a]] <-
                         genes[which(pmat[,conts[a]]<pcut &
-							fcmat[,conts[a]]>=fcut)]
+                            fcmat[,conts[a]]>=fcut)]
             },
             down = {
                 for (a in conts)
                     results[[a]] <-
                         genes[which(pmat[,conts[a]]<pcut &
-							fcmat[,conts[a]]<=-fcut)]
+                            fcmat[,conts[a]]<=-fcut)]
             }
         )
     }
     
     series <- lapply(names(results),function(n,r) {
-		return(list(
-			name=n,
-			data=if (is.null(altNames)) r[[n]] else altNames[r[[n]]]
-		))
-	},results)
-	
-	return(list(series=series))
+        return(list(
+            name=n,
+            data=if (is.null(altNames)) r[[n]] else altNames[r[[n]]]
+        ))
+    },results)
+    
+    return(list(series=series))
 }
 
 makeHighchartsVennSets <- function(algs,results) {
-	lenalias <- c("two","three","four","five")
-	aliases <- toupper(letters[1:length(algs)])
+    lenalias <- c("two","three","four","five")
+    aliases <- toupper(letters[1:length(algs)])
     names(algs) <- aliases
     switch(lenalias[length(algs)-1],
-		two = {
-			ofInterest <- c("Ao","Bo","AB")
-		},
-		three = {
-			ofInterest <- c("Ao","Bo","Co","ABo","ACo","BCo","ABC")
-		},
-		four = {
-			ofInterest <- c("Ao","Bo","Co","Do","ABo","ACo","ADo","BCo","BDo",
-				"CDo","ABCo","ABDo","BCDo","ABC")
-		},
-		five = {
-			ofInterest <- c("Ao","Bo","Co","Do","Eo","ABo","ACo","ADo","AEo",
-				"BCo","BDo","BEo","CDo","CEo","DEo","ABCo","ABDo","ABEo","ACDo",
-				"ACEo","ADEo","BCDo","BCEo","BDEo","CDEo","ABCDo","ABCEo",
-				"ABDEo","ACDEo","BCDEo","ABCDE")
-		}
-	)
-	values <- lengths(results[ofInterest])
-	preSets <- strsplit(gsub("o","",ofInterest),"")
-	sets <- lapply(preSets,function(x,a) {
-		return(a[x])
-	},algs)
-	return(lapply(1:length(sets),function(i,s,v) {
-		return(list(
-			sets=unname(s[[i]]),
-			value=unbox(unname(values[i]))
-		))
-	},sets,values))
+        two = {
+            ofInterest <- c("Ao","Bo","AB")
+        },
+        three = {
+            ofInterest <- c("Ao","Bo","Co","ABo","ACo","BCo","ABC")
+        },
+        four = {
+            ofInterest <- c("Ao","Bo","Co","Do","ABo","ACo","ADo","BCo","BDo",
+                "CDo","ABCo","ABDo","BCDo","ABC")
+        },
+        five = {
+            ofInterest <- c("Ao","Bo","Co","Do","Eo","ABo","ACo","ADo","AEo",
+                "BCo","BDo","BEo","CDo","CEo","DEo","ABCo","ABDo","ABEo","ACDo",
+                "ACEo","ADEo","BCDo","BCEo","BDEo","CDEo","ABCDo","ABCEo",
+                "ABDEo","ACDEo","BCDEo","ABCDE")
+        }
+    )
+    values <- lengths(results[ofInterest])
+    preSets <- strsplit(gsub("o","",ofInterest),"")
+    sets <- lapply(preSets,function(x,a) {
+        return(a[x])
+    },algs)
+    return(lapply(1:length(sets),function(i,s,v) {
+        return(list(
+            sets=unname(s[[i]]),
+            value=unbox(unname(values[i]))
+        ))
+    },sets,values))
 }
 
 makeVennPairs <- function(algs) {
@@ -2319,111 +2319,111 @@ makeMoreVennPairs <- function(algs) {
         four = {
             return(list(
                 ABCo=c("ABC","D"),
-				ABDo=c("ABD","C"),
-				BCDo=c("BCD","A"),
-				ABoI=c("AB","C"),
-				ABo=c("ABoI","D"),
-				ACoI=c("AC","B"),
-				ACo=c("ACoI","D"),
-				ADoI=c("AD","B"),
-				ADo=c("ADoI","C"),
-				BCoI=c("BC","A"),
-				BCo=c("BCoI","D"),
-				BDoI=c("BD","A"),
-				BDo=c("BDoI","C"),
-				CDoI=c("CD","A"),
-				CDo=c("CDoI","B"),
-				AoI1=c("A","B"),
-				AoI2=c("AoI1","C"),
-				Ao=c("AoI2","D"),
-				BoI1=c("B","A"),
-				BoI2=c("BoI1","C"),
-				Bo=c("BoI2","D"),
-				CoI1=c("C","A"),
-				CoI2=c("CoI1","B"),
-				Co=c("CoI2","D"),
-				DoI1=c("D","A"),
-				DoI2=c("DoI1","B"),
-				Do=c("DoI2","C")
+                ABDo=c("ABD","C"),
+                BCDo=c("BCD","A"),
+                ABoI=c("AB","C"),
+                ABo=c("ABoI","D"),
+                ACoI=c("AC","B"),
+                ACo=c("ACoI","D"),
+                ADoI=c("AD","B"),
+                ADo=c("ADoI","C"),
+                BCoI=c("BC","A"),
+                BCo=c("BCoI","D"),
+                BDoI=c("BD","A"),
+                BDo=c("BDoI","C"),
+                CDoI=c("CD","A"),
+                CDo=c("CDoI","B"),
+                AoI1=c("A","B"),
+                AoI2=c("AoI1","C"),
+                Ao=c("AoI2","D"),
+                BoI1=c("B","A"),
+                BoI2=c("BoI1","C"),
+                Bo=c("BoI2","D"),
+                CoI1=c("C","A"),
+                CoI2=c("CoI1","B"),
+                Co=c("CoI2","D"),
+                DoI1=c("D","A"),
+                DoI2=c("DoI1","B"),
+                Do=c("DoI2","C")
             ))
         },
         five = {
             return(list(
                 ABCDo=c("ABCD","ABCDE"),
-				ABCEo=c("ABCE","ABCDE"),
-				ABDEo=c("ABDE","ABCDE"),
-				ACDEo=c("ACDE","ABCDE"),
-				BCDEo=c("BCDE","ABCDE"),
-				ABCoI=c("ABC","D"),
-				ABCo=c("ABCoI","E"),
-				ABDoI=c("ABD","C"),
-				ABDo=c("ABDoI","E"),
-				ABEoI=c("ABE","C"),
-				ABEo=c("ABEoI","D"),
-				ACDoI=c("ACD","B"),
-				ACDo=c("ACDoI","E"),
-				ACEoI=c("ACE","B"),
-				ACEo=c("ACEoI","D"),
-				ADEoI=c("ADE","B"),
-				ADEo=c("ADEoI","C"),
-				BCDoI=c("BCD","A"),
-				BCDo=c("BCDoI","E"),
-				BCEoI=c("BCE","A"),
-				BCEo=c("BCEoI","D"),
-				BDEoI=c("BDE","A"),
-				BDEo=c("BDEoI","C"),
-				CDEoI=c("CDE","A"),
-				CDEo=c("CDEoI","B"),
-				ABoI1=c("AB","C"),
-				ABoI2=c("ABoI1","D"),
-				ABo=c("ABoI2","E"),
-				ACoI1=c("AC","B"),
-				ACoI2=c("ACoI1","D"),
-				ACo=c("ACoI2","E"),
-				ADoI1=c("AD","B"),
-				ADoI2=c("ADoI1","C"),
-				ADo=c("ADoI2","E"),
-				AEoI1=c("AE","B"),
-				AEoI2=c("AEoI1","C"),
-				AEo=c("AEoI2","D"),
-				BCoI1=c("BC","A"),
-				BCoI2=c("BCoI1","D"),
-				BCo=c("BCoI2","E"),
-				BDoI1=c("BD","A"),
-				BDoI2=c("BDoI1","C"),
-				BDo=c("BDoI2","E"),
-				BEoI1=c("BE","A"),
-				BEoI2=c("BEoI1","C"),
-				BEo=c("BEoI2","D"),
-				CDoI1=c("CD","A"),
-				CDoI2=c("CDoI1","B"),
-				CDo=c("CDoI2","E"),
-				CEoI1=c("CE","A"),
-				CEoI2=c("CEoI1","B"),
-				CEo=c("CEoI2","D"),
-				DEoI1=c("DE","A"),
-				DEoI2=c("DEoI1","B"),
-				DEo=c("DEoI2","C"),
-				AoI1=c("A","B"),
-				AoI2=c("AoI1","C"),
-				AoI3=c("AoI2","D"),
-				Ao=c("AoI3","E"),
-				BoI1=c("B","A"),
-				BoI2=c("BoI1","C"),
-				BoI3=c("BoI2","D"),
-				Bo=c("BoI3","E"),
-				CoI1=c("C","A"),
-				CoI2=c("CoI1","B"),
-				CoI3=c("CoI2","D"),
-				Co=c("CoI3","E"),
-				DoI1=c("D","A"),
-				DoI2=c("DoI1","B"),
-				DoI3=c("DoI2","C"),
-				Do=c("DoI3","E"),
-				EoI1=c("E","A"),
-				EoI2=c("EoI1","B"),
-				EoI3=c("EoI2","C"),
-				Eo=c("EoI3","D")
+                ABCEo=c("ABCE","ABCDE"),
+                ABDEo=c("ABDE","ABCDE"),
+                ACDEo=c("ACDE","ABCDE"),
+                BCDEo=c("BCDE","ABCDE"),
+                ABCoI=c("ABC","D"),
+                ABCo=c("ABCoI","E"),
+                ABDoI=c("ABD","C"),
+                ABDo=c("ABDoI","E"),
+                ABEoI=c("ABE","C"),
+                ABEo=c("ABEoI","D"),
+                ACDoI=c("ACD","B"),
+                ACDo=c("ACDoI","E"),
+                ACEoI=c("ACE","B"),
+                ACEo=c("ACEoI","D"),
+                ADEoI=c("ADE","B"),
+                ADEo=c("ADEoI","C"),
+                BCDoI=c("BCD","A"),
+                BCDo=c("BCDoI","E"),
+                BCEoI=c("BCE","A"),
+                BCEo=c("BCEoI","D"),
+                BDEoI=c("BDE","A"),
+                BDEo=c("BDEoI","C"),
+                CDEoI=c("CDE","A"),
+                CDEo=c("CDEoI","B"),
+                ABoI1=c("AB","C"),
+                ABoI2=c("ABoI1","D"),
+                ABo=c("ABoI2","E"),
+                ACoI1=c("AC","B"),
+                ACoI2=c("ACoI1","D"),
+                ACo=c("ACoI2","E"),
+                ADoI1=c("AD","B"),
+                ADoI2=c("ADoI1","C"),
+                ADo=c("ADoI2","E"),
+                AEoI1=c("AE","B"),
+                AEoI2=c("AEoI1","C"),
+                AEo=c("AEoI2","D"),
+                BCoI1=c("BC","A"),
+                BCoI2=c("BCoI1","D"),
+                BCo=c("BCoI2","E"),
+                BDoI1=c("BD","A"),
+                BDoI2=c("BDoI1","C"),
+                BDo=c("BDoI2","E"),
+                BEoI1=c("BE","A"),
+                BEoI2=c("BEoI1","C"),
+                BEo=c("BEoI2","D"),
+                CDoI1=c("CD","A"),
+                CDoI2=c("CDoI1","B"),
+                CDo=c("CDoI2","E"),
+                CEoI1=c("CE","A"),
+                CEoI2=c("CEoI1","B"),
+                CEo=c("CEoI2","D"),
+                DEoI1=c("DE","A"),
+                DEoI2=c("DEoI1","B"),
+                DEo=c("DEoI2","C"),
+                AoI1=c("A","B"),
+                AoI2=c("AoI1","C"),
+                AoI3=c("AoI2","D"),
+                Ao=c("AoI3","E"),
+                BoI1=c("B","A"),
+                BoI2=c("BoI1","C"),
+                BoI3=c("BoI2","D"),
+                Bo=c("BoI3","E"),
+                CoI1=c("C","A"),
+                CoI2=c("CoI1","B"),
+                CoI3=c("CoI2","D"),
+                Co=c("CoI3","E"),
+                DoI1=c("D","A"),
+                DoI2=c("DoI1","B"),
+                DoI3=c("DoI2","C"),
+                Do=c("DoI3","E"),
+                EoI1=c("E","A"),
+                EoI2=c("EoI1","B"),
+                EoI3=c("EoI2","C"),
+                Eo=c("EoI3","D")
             ))
         }
     )
@@ -3153,61 +3153,61 @@ cdplot <- function (dat,samples=NULL,...) {
 }
 
 deplot <- function (output,q=NULL,logScale=TRUE,join=FALSE,...) { 
-  if (class(output) != "Output") 
+  if (!is(output,"Output"))
     stop("Error. Output argument must contain an object generated by ",
-		"noiseq or noiseqbio functions.\n")
+        "noiseq or noiseqbio functions.\n")
     
-	if(!is.null(q)) { # Computing DEG
-		mySelection <- rownames(degenes(output,q))
-		detect = rownames(output@results[[1]]) %in% mySelection
-	} 
-	else
-		stop("You must specify a valid value for q\n")
-	
-	infobio = output@results[[1]][,"Chrom"]
-	genome <- 100*table(infobio)/sum(table(infobio))
-	ordre <- order(genome,decreasing=TRUE)      
-	perdet1 <- genome*table(infobio,detect)[names(genome),2] / 
-		table(infobio)[names(genome)]
-	perdet2 <- 100*table(infobio,detect)[names(genome),2] / 
-		sum(table(infobio,detect)[,2])
-	ceros <- rep(0,length(genome))
-	biotable1 <- as.matrix(rbind(genome[ordre],perdet1[ordre],perdet2[ordre],
-		ceros))
-	rownames(biotable1) <- c("genome","degVSgenome","deg","ceros")
-
-	ymaxL1 <- ceiling(max(biotable1,na.rm=TRUE))      
+    if(!is.null(q)) { # Computing DEG
+        mySelection <- rownames(degenes(output,q))
+        detect = rownames(output@results[[1]]) %in% mySelection
+    } 
+    else
+        stop("You must specify a valid value for q\n")
     
-	infobio <- output@results[[1]][,"Biotype"]
-	genome <- 100*table(infobio)/sum(table(infobio))
-	ordre <- order(genome,decreasing=TRUE)      
-	perdet1 <- genome*table(infobio,detect)[names(genome),2] / 
-		table(infobio)[names(genome)]
-	perdet2 <- 100*table(infobio,detect)[names(genome),2] / 
-		sum(table(infobio,detect)[,2])
-	ceros <- rep(0,length(genome))
+    infobio = output@results[[1]][,"Chrom"]
+    genome <- 100*table(infobio)/sum(table(infobio))
+    ordre <- order(genome,decreasing=TRUE)      
+    perdet1 <- genome*table(infobio,detect)[names(genome),2] / 
+        table(infobio)[names(genome)]
+    perdet2 <- 100*table(infobio,detect)[names(genome),2] / 
+        sum(table(infobio,detect)[,2])
+    ceros <- rep(0,length(genome))
+    biotable1 <- as.matrix(rbind(genome[ordre],perdet1[ordre],perdet2[ordre],
+        ceros))
+    rownames(biotable1) <- c("genome","degVSgenome","deg","ceros")
 
-	biotable2 <- as.matrix(rbind(genome[ordre],perdet1[ordre],perdet2[ordre],
-		ceros))
-	rownames(biotable2) <- c("genome","degVSgenome","deg","ceros")
+    ymaxL1 <- ceiling(max(biotable1,na.rm=TRUE))      
+    
+    infobio <- output@results[[1]][,"Biotype"]
+    genome <- 100*table(infobio)/sum(table(infobio))
+    ordre <- order(genome,decreasing=TRUE)      
+    perdet1 <- genome*table(infobio,detect)[names(genome),2] / 
+        table(infobio)[names(genome)]
+    perdet2 <- 100*table(infobio,detect)[names(genome),2] / 
+        sum(table(infobio,detect)[,2])
+    ceros <- rep(0,length(genome))
 
-	higher2 <- which(biotable2[1,] > 2)
-	lower2 <- which(biotable2[1,] <= 2)
+    biotable2 <- as.matrix(rbind(genome[ordre],perdet1[ordre],perdet2[ordre],
+        ceros))
+    rownames(biotable2) <- c("genome","degVSgenome","deg","ceros")
 
-	if (length(higher2) > 0) {        
-		ymaxL2 <- ceiling(max(biotable2[,higher2],na.rm=TRUE)) 
-		if (length(lower2) > 0) {
-			ymaxR2 <- ceiling(max(biotable2[,lower2],na.rm=TRUE))
-			biotable2[,lower2] <- biotable2[,lower2]*ymaxL2/ymaxR2
-		} 
-		else 
-			ymaxR2 <- ymaxL2
+    higher2 <- which(biotable2[1,] > 2)
+    lower2 <- which(biotable2[1,] <= 2)
 
-	} 
-	else { 
-		ymaxR2 <- ceiling(max(biotable2[,lower2],na.rm=TRUE))
-		ymaxL2 <- ymaxR2               
-	}
+    if (length(higher2) > 0) {        
+        ymaxL2 <- ceiling(max(biotable2[,higher2],na.rm=TRUE)) 
+        if (length(lower2) > 0) {
+            ymaxR2 <- ceiling(max(biotable2[,lower2],na.rm=TRUE))
+            biotable2[,lower2] <- biotable2[,lower2]*ymaxL2/ymaxR2
+        } 
+        else 
+            ymaxR2 <- ymaxL2
+
+    } 
+    else { 
+        ymaxR2 <- ceiling(max(biotable2[,lower2],na.rm=TRUE))
+        ymaxL2 <- ymaxR2               
+    }
     
     return(list(chromosome=biotable1,biotype=biotable2))
 }

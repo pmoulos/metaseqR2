@@ -4,7 +4,7 @@
 \usage{
     importCustomAnnotation(gtfFile, metadata,
         level = c("gene", "transcript", "exon"),
-	    type = c("gene", "exon", "utr"))
+        type = c("gene", "exon", "utr"))
 }
 \arguments{
     \item{gtfFile}{a GTF file containing the gene structure
@@ -30,22 +30,37 @@
     annotation downloads and formatting.
 }
 \examples{
-\donttest{
-# Gene annotation dump from Ensembl
-download.file(paste0("ftp://ftp.ensembl.org/pub/release-98/gtf/",
-  "dasypus_novemcinctus/Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
-  file.path(tempdir(),"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"))
+# Dummy GTF as example
+chromInfo <- data.frame(length=c(1000L,2000L,1500L),
+    row.names=c("A","B","C"))
 
 # Build with the metadata list filled (you can also provide a version)
-dasGenes <- importCustomAnnotation(
-  gtfFile=file.path(tempdir(),"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
+myGenes <- importCustomAnnotation(
+  gtfFile=file.path(system.file(package="metaseqR2"),"dummy.gtf"),
   metadata=list(
-    organism="dasNov3_test",
-    source="ensembl_test"
+    organism="dummy",
+    source="dummy_db",
+    version=1,
+    chromInfo=chromInfo
   ),
   level="gene",type="gene"
 )
-}
+
+## Real data!
+## Gene annotation dump from Ensembl
+#download.file(paste0("ftp://ftp.ensembl.org/pub/release-98/gtf/",
+#  "dasypus_novemcinctus/Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
+#  file.path(tempdir(),"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"))
+
+## Build with the metadata list filled (you can also provide a version)
+#dasGenes <- importCustomAnnotation(
+#  gtfFile=file.path(tempdir(),"Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
+#  metadata=list(
+#    organism="dasNov3_test",
+#    source="ensembl_test"
+#  ),
+#  level="gene",type="gene"
+#)
 }
 \author{
     Panagiotis Moulos

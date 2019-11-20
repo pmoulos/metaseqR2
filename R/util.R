@@ -108,7 +108,7 @@ getDefaults <- function(what,method=NULL) {
                 edger = {
                     return(list(
                         method="TMM",refColumn=NULL,logratioTrim=0.3,
-                        sumTrim=0.05,doWeighting=TRUE,Acutoff=-1e10,p=0.75                                
+                        sumTrim=0.05,doWeighting=TRUE,Acutoff=-1e10,p=0.75
                     ))
                 },
                 noiseq = {
@@ -116,7 +116,8 @@ getDefaults <- function(what,method=NULL) {
                         method="tmm", # which normalization
                         long=1000,lc=1,k=1, # common arguments
                         refColumn=1,logratioTrim=0.3,sumTrim=0.05,
-                        doWeighting=TRUE,Acutoff=-1e+10 # TMM normalization arguments
+                        # TMM normalization arguments
+                        doWeighting=TRUE,Acutoff=-1e+10 
                     ))
                 },
                 nbpseq = {
@@ -124,8 +125,8 @@ getDefaults <- function(what,method=NULL) {
                         thinning=TRUE))
                 },
                 absseq = {
-                    return(list(normMethod="qtotal" # method for estimating sizeFactors
-                          ))
+                    # method for estimating sizeFactors
+                    return(list(normMethod="qtotal"))
                 },
                 dss = {
                     return(list(method="lr"))                        
@@ -149,7 +150,8 @@ getDefaults <- function(what,method=NULL) {
                         # estimateDispersions default args
                         fitType= "parametric", maxit= 100, quiet= FALSE, 
                         modelMatrix= NULL, 
-                        #minmu= 0.5, #removed because it caused "Error ...bla-bla... unused argument minmu= 0.5"
+                        #minmu= 0.5, #removed because it caused 
+                        # "Error ...bla-bla... unused argument minmu= 0.5"
                         #nbinomWaldTest default args
                         betaPrior= FALSE,
                         #betaPriorVar, modelMatrixType, 
@@ -167,13 +169,20 @@ getDefaults <- function(what,method=NULL) {
                     return(list(
                         main.method="classic", # classic or glm fit
                         rowsum.filter=5,prior.df=10,
-                        trend="movingave",span=NULL, # classic estimateCommonDisp arguments
-                        tag.method="grid",grid.length=11,grid.range=c(-6,6), # classic estimateTagwiseDisp arguments
-                        offset=NULL,glm.method="CoxReid",subset=10000, # glm estimateGLMCommonDisp and estimateGLMTrendedDisp arguments
-                        AveLogCPM=NULL,trend.method="auto",    # glm estimateGLMTagwiseDisp arguments
-                        dispersion=NULL,offset=NULL,weights=NULL, # glmFit arguments
+                        trend="movingave",span=NULL,
+                        # classic estimateCommonDisp arguments
+                        tag.method="grid",grid.length=11,grid.range=c(-6,6),
+                        # classic estimateTagwiseDisp arguments
+                        offset=NULL,glm.method="CoxReid",subset=10000,
+                        # glm estimateGLMCommonDisp and estimateGLMTrendedDisp 
+                        # arguments
+                        AveLogCPM=NULL,trend.method="auto",
+                        # glm estimateGLMTagwiseDisp arguments
+                        dispersion=NULL,offset=NULL,weights=NULL, 
+                        # glmFit arguments
                         lib.size=NULL,prior.count=0.125,start=NULL,
-                        method="auto",test="chisq",    # glmLRT arguments
+                        method="auto",test="chisq",
+                        # glmLRT arguments
                         abundance.trend=TRUE,robust=FALSE,
                         winsor.tail.p=c(0.05,0.1) # glmLFTest arguments
                     ))
@@ -182,7 +191,8 @@ getDefaults <- function(what,method=NULL) {
                     return(list(
                         k=0.5,norm="n",replicates="biological",
                         factor="class",conditions=NULL,pnr=0.2,
-                        nss=5,v=0.02,lc=1, # noiseq general and specific arguments
+                        nss=5,v=0.02,lc=1, 
+                        # noiseq general and specific arguments
                         nclust=15,r=100,adj=1.5,
                         a0per=0.9,filter=0,depth=NULL,        
                         cv.cutoff=500,cpm=1 # noiseqbio specific arguments
@@ -208,7 +218,9 @@ getDefaults <- function(what,method=NULL) {
                         alternative="two.sided"
                     ))
                 },
-                absseq = {     ####if sth is changed from here, change it also from the switch beggining at line 802
+                absseq = {
+                    # if sth is changed from here, change it also from the
+                    # switch beggining at line 802
                    return(list(
                         #ABSDataSet default args
                         paired = FALSE, minDispersion = NULL, minRates = 0.1,
@@ -221,7 +233,9 @@ getDefaults <- function(what,method=NULL) {
                         qforkappa = 0, scale = FALSE
                     ))
                 },
-                dss = {         ####if sth is changed from here, change it also from the switch beggining at line 802
+                dss = {
+                    # if sth is changed from here, change it also from the 
+                    # switch beggining at line 802
                     return(list(
                         #estDispersion default args
                         trend=FALSE,
@@ -232,12 +246,12 @@ getDefaults <- function(what,method=NULL) {
             )
         },
         utrOpts = {
-			return(list(
-				frac=1,
-				minLength=300,
-				downstram=50
-			))
-		},
+            return(list(
+                frac=1,
+                minLength=300,
+                downstram=50
+            ))
+        },
         geneFilter = {
             return(list(
                 length=list(
@@ -1574,17 +1588,17 @@ makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
         denom <- dataMatrix[,match(samplesDenom,colnames(dataMatrix)),
             drop=FALSE]
         if (!is.matrix(nom)) 
-			nom <- as.matrix(nom) # Cover the case with no replicates...
+            nom <- as.matrix(nom) # Cover the case with no replicates...
         if (!is.matrix(denom)) 
-			denom <- as.matrix(denom)
+            denom <- as.matrix(denom)
         meanNom <- apply(nom,1,mean)
         meanDenom <- apply(denom,1,mean)
         #meanNom <- ifelse(meanNom==0,logOffset,meanNom)
         if (any(meanNom==0)) 
-			meanNom <- meanNom + logOffset
+            meanNom <- meanNom + logOffset
         #meanDenom <- ifelse(meanDenom==0,logOffset,meanDenom)
         if (any(meanDenom==0)) 
-			meanDenom <- meanDenom + logOffset
+            meanDenom <- meanDenom + logOffset
         #foldMat[,i-1] <- meanNom/meanDenom
         foldMat[,i] <- meanNom/meanDenom
     }
@@ -1631,24 +1645,24 @@ makeAvgExpression <- function(contrast,sampleList,dataMatrix,logOffset=1) {
         samplesDenom <- sampleList[[conds[length(conds)]]]
         nom <- dataMatrix[,match(samplesNom,colnames(dataMatrix)),drop=FALSE]
         denom <- dataMatrix[,match(samplesDenom,colnames(dataMatrix)),
-			drop=FALSE]
+            drop=FALSE]
         if (!is.matrix(nom)) # Cover the case with no replicates...
-			nom <- as.matrix(nom) 
+            nom <- as.matrix(nom) 
         if (!is.matrix(denom)) 
-			denom <- as.matrix(denom)
+            denom <- as.matrix(denom)
         meanNom <- apply(nom,1,mean)
         meanDenom <- apply(denom,1,mean)
         if (any(meanNom==0)) 
-			meanNom <- meanNom + logOffset
+            meanNom <- meanNom + logOffset
         if (any(meanDenom==0)) 
-			meanDenom <- meanDenom + logOffset
+            meanDenom <- meanDenom + logOffset
         aMat[,i] <- 0.5*(log2(meanNom)+log2(meanDenom))
         #aMat[,i-1] <- 0.5*(log2(meanNom)+log2(meanDenom))
     }
     rownames(aMat) <- rownames(dataMatrix)
     #colnames(aMat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
     colnames(aMat) <- paste(conds[1:(length(conds)-1)],"_vs_",
-		conds[length(conds)],sep="")
+        conds[length(conds)],sep="")
     return(aMat)
 }
 
@@ -1729,7 +1743,7 @@ makeStat <- function(samples,dataList,stat,exportScale) {
     for (scl in exportScale) {
         statData <- dataList[[scl]][,match(samples,colnames(dataList[[scl]]))]
         if (!is.matrix(statData))
-			statData <- as.matrix(statData)
+            statData <- as.matrix(statData)
         switch(stat,
             mean = {
                 statResult[[scl]] <- apply(statData,1,function(x,s) {
@@ -2270,29 +2284,29 @@ makeReportMessages <- function(lang) {
                 "Therefore, a normalization procedure is required.'</em>",
                 collapse=" "
                     ),
-                    boxplot=paste(
-                    "The boxplot comprises a means of summarizing the read",
-                    "counts distribution of a sample in the form of a bar",
-                    "with extending lines, as a commonly used way of",
-                    "graphically presenting groups of numerical data. A",
-                    "boxplot also indicates which observations, if any, might",
-                    "be considered outliers and is able to visually show",
-                    "different types of populations, without making any",
-                    "assumptions about the underlying statistical distribution.",
-                    "The spacings between the different parts of the box help",
-                    "indicate variance, skewness and identify outliers. The",
-                    "thick bar inside the colored box is the median of the",
-                    "observations while the box extends over the Interquartile",
-                    "Range of the observations. The whiskers extend up (down)",
-                    "to +/-1.5xIQR. Boxplots at similar levels indicate good",
-                    "quality of the normalization. If boxplots remain at",
-                    "different levels after normalization, maybe another",
-                    "normalization algorithm may have to be examined.",
-                    "The un-normalized boxplots show the need for data",
-                    "normalization in order for the data from different",
-                    "samples to follow the same underlying distribution and",
-                    "statistical testing becoming possible.",collapse=" "
-                    ),
+                boxplot=paste(
+                "The boxplot comprises a means of summarizing the read",
+                "counts distribution of a sample in the form of a bar",
+                "with extending lines, as a commonly used way of",
+                "graphically presenting groups of numerical data. A",
+                "boxplot also indicates which observations, if any, might",
+                "be considered outliers and is able to visually show",
+                "different types of populations, without making any",
+                "assumptions about the underlying statistical distribution.",
+                "The spacings between the different parts of the box help",
+                "indicate variance, skewness and identify outliers. The",
+                "thick bar inside the colored box is the median of the",
+                "observations while the box extends over the Interquartile",
+                "Range of the observations. The whiskers extend up (down)",
+                "to +/-1.5xIQR. Boxplots at similar levels indicate good",
+                "quality of the normalization. If boxplots remain at",
+                "different levels after normalization, maybe another",
+                "normalization algorithm may have to be examined.",
+                "The un-normalized boxplots show the need for data",
+                "normalization in order for the data from different",
+                "samples to follow the same underlying distribution and",
+                "statistical testing becoming possible.",collapse=" "
+                ),
                     gcbias=paste(
                 "The GC-content bias plot is a quality control chart that",
                 "shows the possible dependence of the read counts (in log2",
@@ -2440,17 +2454,17 @@ makeReportMessages <- function(lang) {
                  "fold change values instead.",collapse=" "
                  ),
                 deregulogram=paste(
-				"The de-regulogram is a scatterplot of fold changes between ",
-				"two different contrasts. It depicts whether the DEGs between",
-				"the two selected contrasts follow a concordant or discordant",
-				"regulatory pattern. For each (common) DEG, the x-axis and",
-				"y-axis represent the log<sub>2</sub> fold change of the two",
-				"contrasts. The location of each point along the four",
-				"quartiles can directly show its regulatory pattern in the two",
-				"comparisons. Therefore, the dots localized in the second or",
-				"the fourth quartile, illustrate DEGs with a common regulatory",
-				"pattern, while those localized in the first or third quartile",
-				"represent DEGs with opposite patterns of regulation."
+                "The de-regulogram is a scatterplot of fold changes between ",
+                "two different contrasts. It depicts whether the DEGs between",
+                "the two selected contrasts follow a concordant or discordant",
+                "regulatory pattern. For each (common) DEG, the x-axis and",
+                "y-axis represent the log<sub>2</sub> fold change of the two",
+                "contrasts. The location of each point along the four",
+                "quartiles can directly show its regulatory pattern in the two",
+                "comparisons. Therefore, the dots localized in the second or",
+                "the fourth quartile, illustrate DEGs with a common regulatory",
+                "pattern, while those localized in the first or third quartile",
+                "represent DEGs with opposite patterns of regulation."
                  ),
                     biodist=paste(
                 "The chromosome and biotype distributions bar diagram for",
@@ -2521,9 +2535,9 @@ makeReportMessages <- function(lang) {
                 ),
                 references=list(
                     main=paste("Moulos, P., Hatzis, P. (2015). Systematic",
-						"integration of RNA-Seq statistical algorithms for",
-						"accurate detection of differential gene expression",
-						"patterns. Nucleic Acids Research 43(4), e25."),
+                        "integration of RNA-Seq statistical algorithms for",
+                        "accurate detection of differential gene expression",
+                        "patterns. Nucleic Acids Research 43(4), e25."),
                     filein=list(
                         sam=paste("Statham, A.L., Strbenac, D., Coolen, M.W.,",
                             "Stirzaker, C., Clark, S.J., Robinson, M.D.",
@@ -2531,7 +2545,7 @@ makeReportMessages <- function(lang) {
                             "of enrichment-based epigenomic data.",
                             "Bioinformatics 26(13), 1662-1663."),
                         bam=paste("Statham, A.L., Strbenac, D., Coolen, M.W.,",
-                            "Stirzaker, C., Clark, S.J., Robinson, M.D. (2010).",
+                            "Stirzaker, C., Clark, S.J., Robinson, M.D. (2010)",
                             "Repitools: an R package for the analysis of",
                             "enrichment-based epigenomic data. Bioinformatics",
                             "26(13), 1662-1663."),
@@ -2959,7 +2973,7 @@ elap2human <- function(start.time) {
     )
 }
 
-## The old function. It has NULLs in the new fields that are filled in 
+## The old function. It has NULLs in the new fields that are filled in
 ## getWeights2 (see furhter down).
 #..getWeightsOld <- function(org=c("human","chimpanzee","mouse","fruitfly",
 #    "arabidopsis","rat")) {

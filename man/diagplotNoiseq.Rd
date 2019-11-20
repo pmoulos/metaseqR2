@@ -63,12 +63,12 @@
     main plotting function \code{\link{metaseqrPlot}}.
 }
 \details{
-	Regarding \code{whichPlot}, It can be one or more of 
-	\code{"biodetection"}, \code{"countsbio"}, 
-	\code{"saturation"}, \code{"rnacomp"}, \code{"readnoise"} 
-	or \code{"biodist"}. Please refer to the documentation of 
-	the NOISeq package for details on the use of these plots. 
-	The \code{whichPlot="saturation"} case is modified to be
+    Regarding \code{whichPlot}, It can be one or more of 
+    \code{"biodetection"}, \code{"countsbio"}, 
+    \code{"saturation"}, \code{"rnacomp"}, \code{"readnoise"} 
+    or \code{"biodist"}. Please refer to the documentation of 
+    the NOISeq package for details on the use of these plots. 
+    The \code{whichPlot="saturation"} case is modified to be
     more informative by producing two kinds of plots.
 }
 \note{

@@ -50,8 +50,8 @@
     \code{\link{metaseqrPlot}}.
 }
 \details{
-	Regarding \code{whichPlot}, it can be one or more of 
-	\code{"meanvar"}, \code{"meandiff"}, \code{"gcbias"} or
+    Regarding \code{whichPlot}, it can be one or more of 
+    \code{"meanvar"}, \code{"meandiff"}, \code{"gcbias"} or
     \code{"lengthbias"}. Please refer to the documentation of
     the EDASeq package for details on the use of these 
     plots. The \code{whichPlot="lengthbias"} case is 

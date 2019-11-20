@@ -75,7 +75,6 @@
     simulated datasets with two conditions.
 }
 \examples{
-\donttest{
 require(DESeq)
 dataMatrix <- counts(makeExampleCountDataSet())
 ## File "bottomly_read_counts.txt" from the ReCount database
@@ -88,7 +87,6 @@ parList <- estimateSimParams(dataMatrix)
 sim <- makeSimDataSd(N,parList)
 synthData <- sim$simdata
 trueDeg <- which(sim$truedeg!=0)
-}
 }
 \author{
     Panagiotis Moulos

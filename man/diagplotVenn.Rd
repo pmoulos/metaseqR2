@@ -64,11 +64,11 @@
     independently if the user grasps the logic.
 }
 \details{
-	Regarding \code{pmat}, the p-value matrix must have the 
-	colnames attribute and the colnames should correspond to 
-	the name of the algorithm used to fill the specific 
-	column (e.g. if \code{"statistics"=c("deseq","edger",}
-	\code{"nbpseq")} then \code{colnames(pmat) <-}
+    Regarding \code{pmat}, the p-value matrix must have the 
+    colnames attribute and the colnames should correspond to 
+    the name of the algorithm used to fill the specific 
+    column (e.g. if \code{"statistics"=c("deseq","edger",}
+    \code{"nbpseq")} then \code{colnames(pmat) <-}
     \code{c("deseq","edger","nbpseq")}.
     
     Regarding \code{fcmat}, the fold change matrix must have 

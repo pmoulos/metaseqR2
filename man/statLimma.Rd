@@ -44,14 +44,13 @@
     function \code{metaseqR2:::makeContrastList}.
 }
 \examples{
-\donttest{
 require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+require(limma)
+dataMatrix <- DESeq::counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
 normDataMatrix <- normalizeEdger(dataMatrix,sampleList)
 p <- statLimma(normDataMatrix,sampleList,contrast)
-}
 }
 \author{
     Panagiotis Moulos

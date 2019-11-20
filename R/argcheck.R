@@ -135,7 +135,7 @@ checkFileArgs <- function(argName,argValue) {
 }
 
 checkContrastFormat <- function(cnt,sampleList) {
-    # This function will break cnt and check that all contrast counter parts are 
+    # This function will break cnt and check that all contrast counter parts are
     # members of the names of the sampleList and contain the string "_vs_" as 
     # many times as the names of the sampleList minus 1. If satisfied return 
     # TRUE else error.
@@ -203,27 +203,27 @@ checkPackages <- function(m,p) {
         # If old call contains id.col, gc.col, name.col or bt.col, these must be
         # grouped. We define anyway and fill them as needed.
         backArgs$args$embedCols <- list(
-			idCol=NA,
-			gcCol=NA,
-			nameCol=NA,
-			btCol=NA
+            idCol=NA,
+            gcCol=NA,
+            nameCol=NA,
+            btCol=NA
         )
         if ("id.col" %in% oldInCall) {
-			backArgs$args$embedCols$idCol <- args$id.col
-			backArgs$args$id.col <- NULL
-		}
-		if ("gc.col" %in% oldInCall) {
-			backArgs$args$embedCols$gcCol <- args$gc.col
-			backArgs$args$gc.col <- NULL
-		}
-		if ("name.col" %in% oldInCall) {
-			backArgs$args$embedCols$nameCol <- args$name.col
-			backArgs$args$name.col <- NULL
-		}
-		if ("bt.col" %in% oldInCall) {
-			backArgs$args$embedCols$btCol <- args$bt.col
-			backArgs$args$bt.col <- NULL
-		}
+            backArgs$args$embedCols$idCol <- args$id.col
+            backArgs$args$id.col <- NULL
+        }
+        if ("gc.col" %in% oldInCall) {
+            backArgs$args$embedCols$gcCol <- args$gc.col
+            backArgs$args$gc.col <- NULL
+        }
+        if ("name.col" %in% oldInCall) {
+            backArgs$args$embedCols$nameCol <- args$name.col
+            backArgs$args$name.col <- NULL
+        }
+        if ("bt.col" %in% oldInCall) {
+            backArgs$args$embedCols$btCol <- args$bt.col
+            backArgs$args$bt.col <- NULL
+        }
         
         return(backArgs)
     }
@@ -242,7 +242,7 @@ checkPackages <- function(m,p) {
     # 1. Remove "id.col","gc.col","name.col","bt.col" from old arguments so as
     # to group them. Remove also gene.file.
     r1 <- match(c("id.col","gc.col","name.col","bt.col","gene.file"),
-		oldArgNames)
+        oldArgNames)
     oldArgNames <- oldArgNames[-r1]
     # 2. Remove embedCols from new arguments as they can't be mapped directly
     r2 <- match("embedCols",newArgNames)

@@ -43,11 +43,11 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
                 contrast=c("G1_vs_G2"),
                 annotation="embedded",
                 embedCols=list(
-					idCol=4,
-					gcCol=5,
-					nameCol=7,
-					btCol=8
-				),
+                    idCol=4,
+                    gcCol=5,
+                    nameCol=7,
+                    btCol=8
+                ),
                 org=modelOrg,
                 countType="gene",
                 normalization=normalization,
@@ -70,11 +70,11 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
                 contrast=c("G1_vs_G2"),
                 annotation="embedded",
                 embedCols=list(
-					idCol=4,
-					gcCol=5,
-					nameCol=7,
-					btCol=8
-				),
+                    idCol=4,
+                    gcCol=5,
+                    nameCol=7,
+                    btCol=8
+                ),
                 countType="gene",
                 normalization=normalization,
                 statistics=statistics,
@@ -121,7 +121,7 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
 makeSimDataTcc <- function(...) {
     if (suppressWarnings(!requireNamespace("TCC")))
         stopwrap("Bioconductor package TCC is required to create ",
-			"simulated data!")
+            "simulated data!")
     #tcc <- simulateReadCounts(Ngene=Ngene,PDEG=PDEG,DEG.assign=DEG.assign,
     #    DEG.foldchange=DEG.foldchange,replicates=replicates)
     tcc <- TCC::simulateReadCounts(...)
@@ -166,7 +166,7 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     phiHat <- param$phiHat
 
     if (!is.null(seed)) 
-		set.seed(seed)
+        set.seed(seed)
     if (simLengthBias) {
         sind <- sort(muHat,index.return=TRUE)$ix
         muHat <- muHat[sind]
@@ -186,7 +186,7 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     s1 <- samples[1]
     s2 <- samples[2]
     if (!is.null(seed))
-		set.seed(seed)
+        set.seed(seed)
     L1 <- round(libsizeMag*runif(s1,min=libsizeRange[1],
         max=libsizeRange[2]))
     if (!is.null(seed)) set.seed(2*seed)
@@ -225,7 +225,7 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
 
     # Now we have to simulate annotation
     if (!is.null(seed))
-		set.seed(seed)
+        set.seed(seed)
     chromosome <- paste("chr",1+round(20*runif(N)),sep="")
     gene_id <- gene_name <- paste("gene",1:N,sep="_")
     if (!is.null(modelOrg)) {
@@ -248,16 +248,16 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     }
     else {
         if (!is.null(seed))
-			set.seed(seed)
+            set.seed(seed)
         gc_content <- runif(N)
         if (!is.null(seed))
-			set.seed(seed)
+            set.seed(seed)
         start <- 1 + round(1e+6*runif(N))
         if (!is.null(seed))
-			set.seed(seed)
+            set.seed(seed)
         end <- start + 250 + round(1e+6*runif(N))
         if (!is.null(seed))
-			set.seed(seed)
+            set.seed(seed)
         strand <- sample(c("+","-"),N,replace=TRUE)
         if (simLengthBias) {
             lenix <- sort(end-start,index.return=TRUE)$ix
@@ -268,7 +268,7 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
         }
     }
     if (!is.null(seed))
-		set.seed(seed)
+        set.seed(seed)
     biotype <- sample(paste("biotype",1:10),N,replace=TRUE)
     simData <- data.frame(
         chromosome=chromosome,

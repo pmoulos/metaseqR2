@@ -53,9 +53,9 @@
     function \code{metaseqR2:::makeContrastList}.
 }
 \examples{
-\donttest{
 require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+require(NOISeq)
+dataMatrix <- DESeq::counts(makeExampleCountDataSet())
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
 lengths <- round(1000*runif(nrow(dataMatrix)))
@@ -74,8 +74,6 @@ normDataMatrix <- normalizeNoiseq(dataMatrix,sampleList,normArgs,geneData)
 p <- statNoiseq(normDataMatrix,sampleList,contrast,
   geneData=geneData)
 }
-}
 \author{
     Panagiotis Moulos
 }
-

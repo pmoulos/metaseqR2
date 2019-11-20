@@ -47,4 +47,3 @@ diagplotBoxplot(normDataMatrix,sampleList)
 \author{
     Panagiotis Moulos
 }
-

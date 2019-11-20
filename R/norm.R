@@ -4,15 +4,15 @@ normalizeEdaseq <- function(geneCounts,sampleList,normArgs=NULL,
         normArgs <- getDefaults("normalization","edaseq")
     if (!is.matrix(geneCounts))
         geneCounts <- as.matrix(geneCounts)
-	if (!is.null(geneData) && is(geneData,"GenomicRanges")) {
-		gl <- NULL
-		if (!is.null(attr(geneData,"geneLength")))
-			gl <- attr(geneData,"geneLength")
-		geneData <- as.data.frame(geneData)
-		geneData <- geneData[,c(1:3,6,7,5,8,9)]
-		if (!is.null(gl))
-			attr(geneData,"geneLength") <- gl
-	}
+    if (!is.null(geneData) && is(geneData,"GenomicRanges")) {
+        gl <- NULL
+        if (!is.null(attr(geneData,"geneLength")))
+            gl <- attr(geneData,"geneLength")
+        geneData <- as.data.frame(geneData)
+        geneData <- geneData[,c(1:3,6,7,5,8,9)]
+        if (!is.null(gl))
+            attr(geneData,"geneLength") <- gl
+    }
     if (!is.null(geneData) && is.null(attr(geneData,"geneLength")))
         attr(geneData,"geneLength") <- rep(1,nrow(geneCounts))
     output <- tolower(output[1])
@@ -52,7 +52,7 @@ normalizeEdaseq <- function(geneCounts,sampleList,normArgs=NULL,
                     gc=geneData$gc_content,
                     length=attr(geneData,"geneLength"),
                     row.names=if (is.data.frame(geneData)) rownames(geneData)
-						else names(geneData)
+                        else names(geneData)
                 )
             )
         )
@@ -91,9 +91,9 @@ normalizeDeseq2 <- function(geneCounts,sampleList,normArgs=NULL,
     colData=DataFrame(conditions)
     design= as.formula(c("~", names(colData[1]))) 
     dds <- DESeqDataSetFromMatrix(geneCounts,colData,design=design,
-		tidy=normArgs$tidy)
+        tidy=normArgs$tidy)
     dds <- DESeq2::estimateSizeFactors(dds,type=normArgs$type,
-		locfunc=normArgs$locfunc)
+        locfunc=normArgs$locfunc)
     if (output=="native")
         return(dds) # Class: DESeqDataSet
     else if (output=="matrix")
@@ -129,24 +129,24 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
     checkTextArgs("output",output,c("matrix","native"))
     classes <- asClassVector(sampleList)
     if (!is.null(geneData)) {
-		if (is(geneData,"GenomicRanges")) {
-			gl <- NULL
-			if (!is.null(attr(geneData,"geneLength")))
-				gl <- attr(geneData,"geneLength")
-			else
-				gl <- width(geneData)
-			geneData <- as.data.frame(geneData)
-			geneData <- geneData[,c(1:3,6,7,5,8,9)]
-			if (!is.null(gl))
-				attr(geneData,"geneLength") <- gl
-		}
-		else {
-			if (is.null(attr(geneData,"geneLength"))) {
-				gl <- geneData$end - geneData$start + 1
-				attr(geneData,"geneLength") <- gl
-			}
-		}
-	}
+        if (is(geneData,"GenomicRanges")) {
+            gl <- NULL
+            if (!is.null(attr(geneData,"geneLength")))
+                gl <- attr(geneData,"geneLength")
+            else
+                gl <- width(geneData)
+            geneData <- as.data.frame(geneData)
+            geneData <- geneData[,c(1:3,6,7,5,8,9)]
+            if (!is.null(gl))
+                attr(geneData,"geneLength") <- gl
+        }
+        else {
+            if (is.null(attr(geneData,"geneLength"))) {
+                gl <- geneData$end - geneData$start + 1
+                attr(geneData,"geneLength") <- gl
+            }
+        }
+    }
     if (is.null(geneData)) {
         nsObj <- NOISeq::readData(
             data=geneCounts,
@@ -268,11 +268,11 @@ normalizeDss <- function(geneCounts,sampleList,normArgs=NULL,
     
     # make the design
     classes <- asClassVector(sampleList)
-	design <- as.data.frame(classes)
-	colnames(design) <- "designs"
+    design <- as.data.frame(classes)
+    colnames(design) <- "designs"
     
     # newSeqCountSet takes only matrices as gene.counts
-    if(class(geneCounts) == "data.frame") {
+    if (is(geneCounts,"data.frame")) {
         geneCountsTmp <- geneCounts
         allCols <- 1:ncol(geneCountsTmp)
         samCols <- match(unlist(sampleList),colnames(geneCountsTmp))
@@ -280,7 +280,7 @@ normalizeDss <- function(geneCounts,sampleList,normArgs=NULL,
         geneCountsTmp <- geneCounts[,samCols]
         geneCountsTmp= as.matrix(geneCountsTmp)
     }
-    if(class(geneCounts) == "matrix")
+    if (is(geneCounts,"matrix"))
         geneCountsTmp <- geneCounts
     
     seqD <- newSeqCountSet(geneCountsTmp,design) # create the class

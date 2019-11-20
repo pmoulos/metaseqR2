@@ -2,38 +2,38 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
     sampleList,cnt,statistics,
     rawList,normList,
     pMat=if (is(geneData,"GenomicRanges")) 
-		matrix(NA,length(geneData),length(statistics))
-		else matrix(NA,nrow(geneData),length(statistics)),
+        matrix(NA,length(geneData),length(statistics))
+        else matrix(NA,nrow(geneData),length(statistics)),
     adjpMat=if (is(geneData,"GenomicRanges"))
-		matrix(NA,length(geneData),length(statistics))
-		else matrix(NA,nrow(geneData),length(statistics)),
+        matrix(NA,length(geneData),length(statistics))
+        else matrix(NA,nrow(geneData),length(statistics)),
     sumP=if (is(geneData,"GenomicRanges")) rep(NA,length(geneData))
-		else rep(NA,nrow(geneData)),
+        else rep(NA,nrow(geneData)),
     adjSumP=if (is(geneData,"GenomicRanges")) rep(NA,length(geneData))
-		else rep(NA,nrow(geneData)),
+        else rep(NA,nrow(geneData)),
     exportWhat=c("annotation","p_value","adj_p_value","meta_p_value",
         "adj_meta_p_value","fold_change","stats","counts","flags"),
     exportScale=c("natural","log2","log10","rpgm","vst"),
     exportValues=c("raw","normalized"),
     exportStats=c("mean","median","sd","mad","cv","rcv"),
     logOffset=1,report=TRUE) {
-	if (is(geneData,"GenomicRanges")) {
-		geneData <- as.data.frame(geneData)
-		gci <- grep("gc_content",colnames(geneData))
-		nmi <- grep("gene_name",colnames(geneData))
-		bti <- grep("biotype",colnames(geneData))
-		baseInd <- c(1:3,6)
-		if (length(gci) > 0)
-			baseInd <- c(baseInd,gci,5)
-		else
-			baseInd <- c(baseInd,5)
-		if (length(nmi) > 0)
-			baseInd <- c(baseInd,nmi)
-		if (length(bti) > 0)
-			baseInd <- c(baseInd,bti)
-		geneData <- geneData[,baseInd]
-	}
-		
+    if (is(geneData,"GenomicRanges")) {
+        geneData <- as.data.frame(geneData)
+        gci <- grep("gc_content",colnames(geneData))
+        nmi <- grep("gene_name",colnames(geneData))
+        bti <- grep("biotype",colnames(geneData))
+        baseInd <- c(1:3,6)
+        if (length(gci) > 0)
+            baseInd <- c(baseInd,gci,5)
+        else
+            baseInd <- c(baseInd,5)
+        if (length(nmi) > 0)
+            baseInd <- c(baseInd,nmi)
+        if (length(bti) > 0)
+            baseInd <- c(baseInd,bti)
+        geneData <- geneData[,baseInd]
+    }
+        
     if (is.null(colnames(pMat)))
         colnames(pMat) <- statistics
     if (is.null(adjpMat))
@@ -43,7 +43,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
     
     export <- data.frame(row.names=rownames(geneData))
     if (report)
-		exportHtml <- as.matrix(export)
+        exportHtml <- as.matrix(export)
     theNames <- character(0)
     if ("annotation" %in% exportWhat) {
         disp("      binding annotation...")
@@ -86,65 +86,65 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
         if ("normalized" %in% exportValues) {
             tmp <- makeFoldChange(cnt,sampleList,normGeneCounts,logOffset)
             if (!("natural" %in% exportScale || "natural" %in% exportScale)) {
-				# In case only "rpgm" output requested, at least log2 fold
-				# changes must be exported if requested
-				disp("      binding log2 normalized fold changes...")
+                # In case only "rpgm" output requested, at least log2 fold
+                # changes must be exported if requested
+                disp("      binding log2 normalized fold changes...")
                 export <- cbind(export,log2(tmp))
                 if (report) 
                     exportHtml <- cbind(exportHtml,.makeHtmlCells(log2(tmp)))
                 theNames <- c(theNames,paste("log2_normalized_fold_change_",
                     colnames(tmp),sep=""))
-			}
-			else {
-				if ("natural" %in% exportScale) {
+            }
+            else {
+                if ("natural" %in% exportScale) {
                 disp("      binding natural normalized fold changes...")
-					export <- cbind(export,tmp)
-					if (report) 
-						exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
-					theNames <- c(theNames,
-						paste("natural_normalized_fold_change_",colnames(tmp),
-							sep=""))
-				}
-				if ("log2" %in% exportScale) {
-					disp("      binding log2 normalized fold changes...")
-					export <- cbind(export,log2(tmp))
-					if (report) 
-						exportHtml <- cbind(exportHtml,
-							.makeHtmlCells(log2(tmp)))
-					theNames <- c(theNames,paste("log2_normalized_fold_change_",
-						colnames(tmp),sep=""))
-				}
-			}
+                    export <- cbind(export,tmp)
+                    if (report) 
+                        exportHtml <- cbind(exportHtml,.makeHtmlCells(tmp))
+                    theNames <- c(theNames,
+                        paste("natural_normalized_fold_change_",colnames(tmp),
+                            sep=""))
+                }
+                if ("log2" %in% exportScale) {
+                    disp("      binding log2 normalized fold changes...")
+                    export <- cbind(export,log2(tmp))
+                    if (report) 
+                        exportHtml <- cbind(exportHtml,
+                            .makeHtmlCells(log2(tmp)))
+                    theNames <- c(theNames,paste("log2_normalized_fold_change_",
+                        colnames(tmp),sep=""))
+                }
+            }
         }
         if ("raw" %in% exportValues) {
             tmp <- makeFoldChange(cnt,sampleList,rawGeneCounts,logOffset)
             if (!("natural" %in% exportScale || "natural" %in% exportScale)) {
-				disp("      binding log2 raw fold changes...")
+                disp("      binding log2 raw fold changes...")
                 export <- cbind(export,log2(tmp))
                 if (report) 
                     exportHtml <- cbind(exportHtml,.makeHtmlCells(log2(tmp)))
                 theNames <- c(theNames,paste("log2_raw_fold_change_",
                     colnames(tmp),sep=""))
-			}
-			else {
-				if ("natural" %in% exportScale) {
-					disp("      binding natural raw fold changes...")
-					export <- cbind(export,tmp)
-					if (report) exportHtml <- cbind(exportHtml,
-						.makeHtmlCells(tmp))
-					theNames <- c(theNames,paste("natural_raw_fold_change_",
-						colnames(tmp),sep=""))
-				}
-				if ("log2" %in% exportScale) {
-					disp("      binding log2 raw fold changes...")
-					export <- cbind(export,log2(tmp))
-					if (report) 
-						exportHtml <- cbind(exportHtml,
-							.makeHtmlCells(log2(tmp)))
-					theNames <- c(theNames,paste("log2_raw_fold_change_",
-						colnames(tmp),sep=""))
-				}
-			}
+            }
+            else {
+                if ("natural" %in% exportScale) {
+                    disp("      binding natural raw fold changes...")
+                    export <- cbind(export,tmp)
+                    if (report) exportHtml <- cbind(exportHtml,
+                        .makeHtmlCells(tmp))
+                    theNames <- c(theNames,paste("natural_raw_fold_change_",
+                        colnames(tmp),sep=""))
+                }
+                if ("log2" %in% exportScale) {
+                    disp("      binding log2 raw fold changes...")
+                    export <- cbind(export,log2(tmp))
+                    if (report) 
+                        exportHtml <- cbind(exportHtml,
+                            .makeHtmlCells(log2(tmp)))
+                    theNames <- c(theNames,paste("log2_raw_fold_change_",
+                        colnames(tmp),sep=""))
+                }
+            }
             
         }
     }

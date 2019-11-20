@@ -63,7 +63,7 @@
     arguments so it should not be used individually
 }
 \details{
-	Regarding the \code{reprod} argument, ideally one would 
+    Regarding the \code{reprod} argument, ideally one would 
     want to create the same set of indices for a given 
     dataset so as to create reproducible p-values. If
     \code{reprod=TRUE}, a fixed seed is used by \code{meta_perm}

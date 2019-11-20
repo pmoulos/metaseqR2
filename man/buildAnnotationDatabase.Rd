@@ -45,38 +45,38 @@
     annotation downloads and formatting.
 }
 \details{
-	Regarding the \code{organisms} argument, it is a list
-	with specific format which instructs 
-	\code{buildAnnotationDatabase} on which organisms and
-	versions to download from the respective sources. Such
-	a list may have the format: 
-	\code{organisms=list(hg19=75, mm9=67, mm10=96:97)}
-	This is explained as follows:
-	\itemize{
-		\item A database comprising the human genome versions
-		\code{hg19} and the mouse genome versions 
-		\code{mm9, mm10} will be constructed.
-		\item If \code{"ensembl"} is in \code{sources}, 
-		version 75 is downloaded for \code{hg19} and versions 
-		\code{67, 96, 97} for \code{mm9, mm10}. 
-		\item If \code{"ucsc"} or \code{"refseq"} are in 
-		\code{sources}, the latest versions are downloaded
-		and marked by the download date. As UCSC and RefSeq
-		versions are not accessible in the same way as
-		Ensembl, this procedure cannot always be replicated.
-	}
-	\code{organisms} can also be a character vector with organism
-	names/versions (e.g. \code{organisms = c("mm10","hg19")}),
-	then the latest versions are downloaded in the case of 
-	Ensembl.
-	
-	Regarding \code{db}, this controls the location of the
-	installation database. If the default is used, then there is
-	no need to provide the local database path to any function
-	that uses the database (e.g. the main \code{metaseqr2}).
-	Otherwise, the user will either have to provide this each
-	time, or the annotation will have to be downloaded and used
-	on-the-fly.
+    Regarding the \code{organisms} argument, it is a list
+    with specific format which instructs 
+    \code{buildAnnotationDatabase} on which organisms and
+    versions to download from the respective sources. Such
+    a list may have the format: 
+    \code{organisms=list(hg19=75, mm9=67, mm10=96:97)}
+    This is explained as follows:
+    \itemize{
+        \item A database comprising the human genome versions
+        \code{hg19} and the mouse genome versions 
+        \code{mm9, mm10} will be constructed.
+        \item If \code{"ensembl"} is in \code{sources}, 
+        version 75 is downloaded for \code{hg19} and versions 
+        \code{67, 96, 97} for \code{mm9, mm10}. 
+        \item If \code{"ucsc"} or \code{"refseq"} are in 
+        \code{sources}, the latest versions are downloaded
+        and marked by the download date. As UCSC and RefSeq
+        versions are not accessible in the same way as
+        Ensembl, this procedure cannot always be replicated.
+    }
+    \code{organisms} can also be a character vector with organism
+    names/versions (e.g. \code{organisms = c("mm10","hg19")}),
+    then the latest versions are downloaded in the case of 
+    Ensembl.
+    
+    Regarding \code{db}, this controls the location of the
+    installation database. If the default is used, then there is
+    no need to provide the local database path to any function
+    that uses the database (e.g. the main \code{metaseqr2}).
+    Otherwise, the user will either have to provide this each
+    time, or the annotation will have to be downloaded and used
+    on-the-fly.
 }
 \examples{
 \donttest{
@@ -89,8 +89,8 @@ sources <- "ensembl"
 # If the example is not running in a multicore system, rc is ignored
 buildAnnotationDatabase(organisms,sources,db=myDb,rc=0.5)
 
-## A more complete case, don't run as example
-## Since we are using Ensembl, we can also ask for a version
+# A more complete case, don't run as example
+# Since we are using Ensembl, we can also ask for a version
 #organisms <- list(
 #    mm9=67,
 #    mm10=96:97,

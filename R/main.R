@@ -7,10 +7,10 @@ metaseqr2 <- function(
     contrast=NULL,
     libsizeList=NULL,
     embedCols=list(
-		idCol=4,
-		gcCol=NA,
-		nameCol=NA,
-		btCol=NA
+        idCol=4,
+        gcCol=NA,
+        nameCol=NA,
+        btCol=NA
     ),
     annotation=NULL,
     org=c("hg18","hg19","hg38","mm9","mm10","rn5","rn6","dm3","dm6",
@@ -20,9 +20,9 @@ metaseqr2 <- function(
     transLevel=c("gene","transcript","exon"),
     countType=c("gene","exon","utr"),
     utrOpts=list(
-		frac=1,
-		minLength=300,
-		downstream=50
+        frac=1,
+        minLength=300,
+        downstream=50
     ),
     exonFilters=list(
         minActiveExons=list(
@@ -98,9 +98,9 @@ metaseqr2 <- function(
     offlineReport=TRUE,
     ...
 ) {
-	# Save function call for report
-	FUN_CALL <- deparse(sys.call())
-	
+    # Save function call for report
+    FUN_CALL <- deparse(sys.call())
+    
     # Check for older argument names and adjust
     args <- as.list(match.call())
     backCheckedArgs <- .backwardsConvertArgs(args)
@@ -111,9 +111,9 @@ metaseqr2 <- function(
         argMap <- .backwardsMapOld2New()
         # Check what happens with the new argument embedCols
         if (!is.null(backCheckedArgs$args$embedCols)) {
-			embedCols <- backCheckedArgs$args$embedCols
-			backCheckedArgs$args$embedCols <- NULL
-		}
+            embedCols <- backCheckedArgs$args$embedCols
+            backCheckedArgs$args$embedCols <- NULL
+        }
         for (n in names(backCheckedArgs$args))
             assign(argMap[[n]],eval(backCheckedArgs$args[[n]]))
         # There are some nested arguments that also need correction
@@ -157,7 +157,7 @@ metaseqr2 <- function(
             }
         }
         if ("venn" %in% qcPlots)
-			qcPlots[which(qcPlots == "venn")] <- "statvenn"
+            qcPlots[which(qcPlots == "venn")] <- "statvenn"
     }
     else
         # Check if there are any mispelled or invalid parameters and throw a
@@ -215,12 +215,12 @@ metaseqr2 <- function(
     }
     
     # If report requested with SQLite RSQLite must be present,also pander
-	if (report) {
-		if (!requireNamespace("pander"))
-			stop("R package pander is required to build metaseqR2 reports!")
-		if (reportDb == "sqlite" && !requireNamespace("RSQLite"))
-			stop("R package RSQLite is required to build metaseqR reports!")
-	}
+    if (report) {
+        if (!requireNamespace("pander"))
+            stop("R package pander is required to build metaseqR2 reports!")
+        if (reportDb == "sqlite" && !requireNamespace("RSQLite"))
+            stop("R package RSQLite is required to build metaseqR reports!")
+    }
     
     # Initialize environmental variables
     HOME <- system.file(package="metaseqR2")
@@ -232,11 +232,11 @@ metaseqr2 <- function(
         PROJECT_PATH <- makeProjectPath(exportWhere,counts)
     assign("VERBOSE",verbose,envir=metaEnv)
     if (runLog) {
-		if (file.exists(file.path(PROJECT_PATH$logs,"metaseqr_run.log")))
-			unlink(file.path(PROJECT_PATH$logs,"metaseqr_run.log"))
+        if (file.exists(file.path(PROJECT_PATH$logs,"metaseqr_run.log")))
+            unlink(file.path(PROJECT_PATH$logs,"metaseqr_run.log"))
         logger <- create.logger(logfile=file.path(PROJECT_PATH$logs,
             "metaseqr_run.log"),level=2,logformat="%d %c %m")
-	}
+    }
     else
         logger <- NULL
     assign("LOGGER",logger,envir=metaEnv)
@@ -313,30 +313,30 @@ metaseqr2 <- function(
             countsName <- "imported custom data frame"
         }
     }
-	
-	# annotation cannot be "embedded" when countType is other than "gene" or
-	# transLevel is other than "gene"
-	if (!is.null(annotation) && !is.list(annotation)
-		&& is.character(annotation) && annotation == "embedded" 
-		&& countType != "gene")
-		stopwrap("The annotation argument cannot be \"embedded\" when the ",
-			"countType argument is other than \"gene\"!")
+    
+    # annotation cannot be "embedded" when countType is other than "gene" or
+    # transLevel is other than "gene"
+    if (!is.null(annotation) && !is.list(annotation)
+        && is.character(annotation) && annotation == "embedded" 
+        && countType != "gene")
+        stopwrap("The annotation argument cannot be \"embedded\" when the ",
+            "countType argument is other than \"gene\"!")
 
-	# annotation must be a list to be fed to buildCustomAnnotation
-	if (is.list(annotation)) {
-		# members are checked by buildCustomAnnotation if required
-		# We only need to check that the gtfFile exists here
-		if (!("gtf" %in% names(annotation)))
-			stopwrap("A gtf field must be provided with an existing GTF file ",
-				"when providing a list with custom annotation elements!")
-		if ("gtf" %in% names(annotation) && is.character(annotation$gtf)
-			&& !file.exists(annotation$gtf))
-			stopwrap("An existing GTF file must be provided when providing a ",
-				"list with custom annotation elements!")
-	}
-	
+    # annotation must be a list to be fed to buildCustomAnnotation
+    if (is.list(annotation)) {
+        # members are checked by buildCustomAnnotation if required
+        # We only need to check that the gtfFile exists here
+        if (!("gtf" %in% names(annotation)))
+            stopwrap("A gtf field must be provided with an existing GTF file ",
+                "when providing a list with custom annotation elements!")
+        if ("gtf" %in% names(annotation) && is.character(annotation$gtf)
+            && !file.exists(annotation$gtf))
+            stopwrap("An existing GTF file must be provided when providing a ",
+                "list with custom annotation elements!")
+    }
+    
     if (is.list(counts) && !is.data.frame(counts)
-		&& (countType=="exon" || countType=="utr")
+        && (countType=="exon" || countType=="utr")
         && annotation=="embedded") {
         warnwrap("annotation cannot be \"embedded\" when importing a stored ",
             "gene model! Setting to NULL...")
@@ -351,32 +351,32 @@ metaseqr2 <- function(
     checkTextArgs("fileType",fileType,c("auto","sam","bam","bed"),
         multiarg=FALSE)
     if (!is.null(annotation) && !is.list(annotation) 
-		&& !file.exists(annotation))
-		checkTextArgs("annotation",annotation,"embedded",multiarg=FALSE)
-	if (is.character(localDb) && file.exists(localDb)) {
-		if (!.userOrg(org,localDb) && is.null(annotation))
-			checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5",
-				"rn6","dm3","dm6","danrer7","pantro4","susscr3","tair10",
-				"equcab2"),multiarg=FALSE)
-	}
-	else {
-		# So only some annotations can be fetched on-the-fly
-		if (is.null(annotation)) 
-			checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5",
-				"rn6","dm3","dm6","danrer7","pantro4","susscr3","tair10",
-				"equcab2"),multiarg=FALSE)
-	}
-	if (is.character(localDb) && file.exists(localDb)) {
-		if (!.userRefdb(refdb,localDb) && is.null(annotation))
-			checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),
-				multiarg=FALSE)
-	}
-	else {
-		# So only some annotations can be fetched on-the-fly
-		if (is.null(annotation)) 
-			checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),
-				multiarg=FALSE)
-	}
+        && !file.exists(annotation))
+        checkTextArgs("annotation",annotation,"embedded",multiarg=FALSE)
+    if (is.character(localDb) && file.exists(localDb)) {
+        if (!.userOrg(org,localDb) && is.null(annotation))
+            checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5",
+                "rn6","dm3","dm6","danrer7","pantro4","susscr3","tair10",
+                "equcab2"),multiarg=FALSE)
+    }
+    else {
+        # So only some annotations can be fetched on-the-fly
+        if (is.null(annotation)) 
+            checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5",
+                "rn6","dm3","dm6","danrer7","pantro4","susscr3","tair10",
+                "equcab2"),multiarg=FALSE)
+    }
+    if (is.character(localDb) && file.exists(localDb)) {
+        if (!.userRefdb(refdb,localDb) && is.null(annotation))
+            checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),
+                multiarg=FALSE)
+    }
+    else {
+        # So only some annotations can be fetched on-the-fly
+        if (is.null(annotation)) 
+            checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),
+                multiarg=FALSE)
+    }
     checkTextArgs("transLevel",transLevel,c("gene","transcript","exon"),
         multiarg=FALSE)
     checkTextArgs("countType",countType,c("gene","exon","utr"),
@@ -415,13 +415,13 @@ metaseqr2 <- function(
     if (!is.na(restrictCores)) checkNumArgs("restrictCores",restrictCores,
         "numeric",c(0,1),"botheq")
     if (!is.na(pcut)) 
-		checkNumArgs("pcut",pcut,"numeric",c(0,1),"botheq")
+        checkNumArgs("pcut",pcut,"numeric",c(0,1),"botheq")
     if (!is.null(embedCols$gcCol) && !is.na(embedCols$gcCol)) 
-		checkNumArgs("embedCols$gcCol",embedCols$gcCol,"numeric",0,"gt")
+        checkNumArgs("embedCols$gcCol",embedCols$gcCol,"numeric",0,"gt")
     if (!is.null(embedCols$nameCol) && !is.na(embedCols$nameCol)) 
-		checkNumArgs("embedCols$nameCol",embedCols$nameCol,"numeric",0,"gt")
+        checkNumArgs("embedCols$nameCol",embedCols$nameCol,"numeric",0,"gt")
     if (!is.null(embedCols$btCol) && !is.na(embedCols$btCol)) 
-		checkNumArgs("embedCols$btCol",embedCols$btCol,"numeric",0,"gt")
+        checkNumArgs("embedCols$btCol",embedCols$btCol,"numeric",0,"gt")
     if (!is.na(logOffset)) checkNumArgs("logOffset",logOffset,"numeric",0,"gt")
     checkNumArgs("nperm",nperm,"numeric",10,"gt")
     if (!is.null(reportTop))
@@ -442,23 +442,23 @@ metaseqr2 <- function(
     
     # Check utrOpts if countType is "utr"
     if (countType == "utr") {
-		utrOptsDef <- getDefaults("utrOpts")
-		if (!is.null(utrOpts$frac)) {
-			checkNumArgs("utrOpts$frac",utrOpts$frac,"numeric",c(0,1),"both")
-			utrOptsDef$frac <- utrOpts$frac
-		}
-		if (!is.null(utrOpts$minLength)) {
-			checkNumArgs("utrOpts$minLength",utrOpts$minLength,"numeric",0,
-				"gt")
-			utrOptsDef$minLength <- utrOpts$minLength
-		}
-		if (!is.null(utrOpts$downstream)) {
-			checkNumArgs("utrOpts$downstream",utrOpts$downstream,"numeric",0,
-				"gte")
-			utrOptsDef$downstream <- utrOpts$downstream
-		}
-		utrOpts <- utrOptsDef
-	}
+        utrOptsDef <- getDefaults("utrOpts")
+        if (!is.null(utrOpts$frac)) {
+            checkNumArgs("utrOpts$frac",utrOpts$frac,"numeric",c(0,1),"both")
+            utrOptsDef$frac <- utrOpts$frac
+        }
+        if (!is.null(utrOpts$minLength)) {
+            checkNumArgs("utrOpts$minLength",utrOpts$minLength,"numeric",0,
+                "gt")
+            utrOptsDef$minLength <- utrOpts$minLength
+        }
+        if (!is.null(utrOpts$downstream)) {
+            checkNumArgs("utrOpts$downstream",utrOpts$downstream,"numeric",0,
+                "gte")
+            utrOptsDef$downstream <- utrOpts$downstream
+        }
+        utrOpts <- utrOptsDef
+    }
     
     # Check main functionality packages
     checkPackages(metaP,qcPlots)
@@ -466,7 +466,7 @@ metaseqr2 <- function(
     # Checks about countType have been performed before
     if (!is.null(annotation) && annotation == "embedded") {
         if (is.na(embedCols$gcCol) && countType=="gene" 
-			&& normalization=="edaseq")
+            && normalization=="edaseq")
             stopwrap("The column that contains the gene GC content ",
                 "(\"embedCols$gcCol\") argument is required when ",
                 "\"annotation\" is \"embedded\"!")
@@ -485,7 +485,7 @@ metaseqr2 <- function(
         
         if (is.na(embedCols$btCol) && countType=="gene") {
             warnwrap("The column that contains the gene biotypes ",
-				"(\"embedCols$btCol\") is missing with embedded annotation! ",
+                "(\"embedCols$btCol\") is missing with embedded annotation! ",
                 "Biotype filters and certain plots will not be available...")
             geneFilters$biotype=NULL
             toRemove <- match(c("biodetection","countsbio","saturation",
@@ -512,32 +512,32 @@ metaseqr2 <- function(
             qcPlots <- qcPlots[-toRemove]
     }
     if (transLevel %in% c("transcript","exon")) {
-		warnwrap("When transLevel is \"transcript\" or \"exon\", the GC bias ",
-			"plots are not available.")
-		if ("gcbias" %in% qcPlots)
-			qcPlots <- qcPlots[-which(qcPlots == "gcbias")]
-	}
+        warnwrap("When transLevel is \"transcript\" or \"exon\", the GC bias ",
+            "plots are not available.")
+        if ("gcbias" %in% qcPlots)
+            qcPlots <- qcPlots[-which(qcPlots == "gcbias")]
+    }
     
     # Check if drawing a Venn diagram among tests is possible
     if ("statvenn" %in% qcPlots && length(statistics)==1) {
         warnwrap("The creation of a Venn diagram among different statistical ",
-			"tests is possible only when more than one statistical algorithms ",
-			"are used! Removing from figures list...")
-		qcPlots <- qcPlots[-which(qcPlots == "statvenn")]
+            "tests is possible only when more than one statistical algorithms ",
+            "are used! Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "statvenn")]
     }
     # Check if drawing a Venn diagram among contrasts is possible
     if ("foldvenn" %in% qcPlots && length(contrast)==1) {
         warnwrap("The creation of a Venn diagram among different statistical ",
-			"comparisons is possible only when more than one contrast defined!",
-			" Removing from figures list...")
+            "comparisons is possible only when more than one contrast defined!",
+            " Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "foldvenn")]
     }
     # Check if drawing a deregulogram for contrast pairs
     if ("deregulogram" %in% qcPlots && length(contrast)==1) {
         warnwrap("The creation of a deregulogram for pairwise statistical ",
-			"comparisons is possible only when more than one contrast defined!",
-			" Removing from figures list...")
-		qcPlots <- qcPlots[-which(qcPlots == "deregulogram")]
+            "comparisons is possible only when more than one contrast defined!",
+            " Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "deregulogram")]
     }
     
     # Check additional input arguments for normalization and statistics
@@ -568,26 +568,26 @@ metaseqr2 <- function(
     
     # Check for replicates. DESeq2 cannot perform without them and ABSSeq cannot
     # perform complex model analysis if not provided with replicates.
-    if ("deseq2" %in% statistics && any(lengths(sampleList) < 2)) {	
-		stopwrap("DESeq2 does not support analysis without ",
-			"replication. Please choose another algorithm or ",
-			"provide replicates.")
+    if ("deseq2" %in% statistics && any(lengths(sampleList) < 2)) { 
+        stopwrap("DESeq2 does not support analysis without ",
+            "replication. Please choose another algorithm or ",
+            "provide replicates.")
     }
     
     if (!is.null(contrast) && "absseq" %in% statistics) {        
-		contrastListRepCheck <- makeContrastList(contrast,sampleList)
-		for (conName in names(contrastListRepCheck)) {
-			con <- contrastListRepCheck[[conName]]
-			cons <- unique(unlist(con))
-			# Checking if we have more than 2 conditions to compare 
-			# simultaneously
-			if (length(cons)>2) {
-				if (any(lengths(sampleList) < 2))
-					# Checking if there are no replicates
-					stopwrap("ABSSeq cannot perform complex design",
-						"analysis without replicates.")
-			}
-		}
+        contrastListRepCheck <- makeContrastList(contrast,sampleList)
+        for (conName in names(contrastListRepCheck)) {
+            con <- contrastListRepCheck[[conName]]
+            cons <- unique(unlist(con))
+            # Checking if we have more than 2 conditions to compare 
+            # simultaneously
+            if (length(cons)>2) {
+                if (any(lengths(sampleList) < 2))
+                    # Checking if there are no replicates
+                    stopwrap("ABSSeq cannot perform complex design",
+                        "analysis without replicates.")
+            }
+        }
     }
     
     # Display initialization report
@@ -618,17 +618,17 @@ metaseqr2 <- function(
             disp("  ",paste(n,libsizeList[[n]],sep=": "))
     }
     if (!is.null(annotation) && !is.list(annotation))
-		disp("Annotation: ",annotation)
-	if (is.list(annotation))
-		disp("Annotation: user provided GTF file")
+        disp("Annotation: ",annotation)
+    if (is.list(annotation))
+        disp("Annotation: user provided GTF file")
     disp("Organism: ",org)
     disp("Reference source: ",refdb)
     disp("Count type: ",countType)
     if (countType == "utr") {
-		disp("3' UTR fraction: ",utrOpts$frac)
-		disp("3' UTR minimum length: ",utrOpts$minLength,"bps")
-		disp("3' UTR downstream: ",utrOpts$downstream,"bps")
-	}
+        disp("3' UTR fraction: ",utrOpts$frac)
+        disp("3' UTR minimum length: ",utrOpts$minLength,"bps")
+        disp("3' UTR downstream: ",utrOpts$downstream,"bps")
+    }
     if (!is.null(preset))
         disp("Analysis preset: ",preset)
     disp("Transcriptional level: ",transLevel)
@@ -721,81 +721,81 @@ metaseqr2 <- function(
         progressFun(detail=text)
     }
     ############################################################################
-	
-	# geneData are always required, unless annotation is embedded, where we
-	# need only geneData as embedded annotation is not allowed anywhere else
-	disp("Loading gene annotation...")
-	if (!is.null(annotation) && annotation == "embedded") {
-		# The following should work if annotation elements are arranged 
-		# in MeV-like data style
-		if (!is.data.frame(counts)) {
-			disp("Reading counts file ",countsName,"...")
-			geneCounts <- read.delim(counts)
-		}
-		else
-			geneCounts <- counts
-		rownames(geneCounts) <- as.character(geneCounts[,embedCols$idCol])
-		allCols <- 1:ncol(geneCounts)
-		samCols <- match(unlist(sampleList),colnames(geneCounts))
-		samCols <- samCols[which(!is.na(samCols))]
-		annCols <- allCols[-samCols]
-		geneData <- geneCounts[,annCols]
-		geneCounts <- geneCounts[,samCols]		
-		colnames(geneData)[embedCols$idCol] <- "gene_id"
-		if (!is.na(embedCols$gcCol)) {
-			colnames(geneData)[embedCols$gcCol] <- "gc_content"
-			if (max(geneData$gc_content<=1)) # Is already divided
-				geneData$gc_content = 100*geneData$gc_content
-		}
-		if (!is.na(embedCols$nameCol)) 
-			colnames(geneData)[embedCols$nameCol] <- "gene_name"
-		if (!is.na(embedCols$btCol))
-			colnames(geneData)[embedCols$btCol] <- "biotype"
-		geneData <- GRanges(geneData)
-		names(geneData) <- geneData$gene_id
-	}
-	else {
-		geneData <- tryCatch(loadAnnotation(org,refdb,level=transLevel,
-			type="gene",version=version,db=localDb,rc=restrictCores),
-			error=function(e) {
-				# Not found and user based
-				if (!is.null(annotation)) { # Has been checked
-					gtfFile <- annotation$gtf
-					metadata <- annotation
-					metadata$gtf <- NULL
-					geneData <- importCustomAnnotation(gtfFile,metadata,
-						"gene","gene")
-				}
-				else
-					stop("Please provide an existing organism or a list ",
-						"with annotation metadata and GTF file!")
-			},finally="")
-	}
-	
-	# Now start examining additional required data per case...
+    
+    # geneData are always required, unless annotation is embedded, where we
+    # need only geneData as embedded annotation is not allowed anywhere else
+    disp("Loading gene annotation...")
+    if (!is.null(annotation) && annotation == "embedded") {
+        # The following should work if annotation elements are arranged 
+        # in MeV-like data style
+        if (!is.data.frame(counts)) {
+            disp("Reading counts file ",countsName,"...")
+            geneCounts <- read.delim(counts)
+        }
+        else
+            geneCounts <- counts
+        rownames(geneCounts) <- as.character(geneCounts[,embedCols$idCol])
+        allCols <- 1:ncol(geneCounts)
+        samCols <- match(unlist(sampleList),colnames(geneCounts))
+        samCols <- samCols[which(!is.na(samCols))]
+        annCols <- allCols[-samCols]
+        geneData <- geneCounts[,annCols]
+        geneCounts <- geneCounts[,samCols]      
+        colnames(geneData)[embedCols$idCol] <- "gene_id"
+        if (!is.na(embedCols$gcCol)) {
+            colnames(geneData)[embedCols$gcCol] <- "gc_content"
+            if (max(geneData$gc_content<=1)) # Is already divided
+                geneData$gc_content = 100*geneData$gc_content
+        }
+        if (!is.na(embedCols$nameCol)) 
+            colnames(geneData)[embedCols$nameCol] <- "gene_name"
+        if (!is.na(embedCols$btCol))
+            colnames(geneData)[embedCols$btCol] <- "biotype"
+        geneData <- GRanges(geneData)
+        names(geneData) <- geneData$gene_id
+    }
+    else {
+        geneData <- tryCatch(loadAnnotation(org,refdb,level=transLevel,
+            type="gene",version=version,db=localDb,rc=restrictCores),
+            error=function(e) {
+                # Not found and user based
+                if (!is.null(annotation)) { # Has been checked
+                    gtfFile <- annotation$gtf
+                    metadata <- annotation
+                    metadata$gtf <- NULL
+                    geneData <- importCustomAnnotation(gtfFile,metadata,
+                        "gene","gene")
+                }
+                else
+                    stop("Please provide an existing organism or a list ",
+                        "with annotation metadata and GTF file!")
+            },finally="")
+    }
+    
+    # Now start examining additional required data per case...
     if (countType=="exon") {
         # We need to load the exon annotation and see what counts have been
         # provided
         if (!fromPrevious) {
-			# Load exon annotation
-			disp("Loading exon annotation...")
-			exonData <- tryCatch(loadAnnotation(org,refdb,level=transLevel,
-				type=countType,version=version,db=localDb,summarized=TRUE,
-				rc=restrictCores),
-			error=function(e) {
-				# Not found and user based
-				if (!is.null(annotation)) { # Has been checked
-					gtfFile <- annotation$gtf
-					metadata <- annotation
-					metadata$gtf <- NULL
-					exonData <- importCustomAnnotation(gtfFile,metadata,
-						"gene","exon")
-				}
-				else
-					stop("Please provide an existing organism or a list ",
-						"with annotation metadata and GTF file!")
-			},finally="")
-			
+            # Load exon annotation
+            disp("Loading exon annotation...")
+            exonData <- tryCatch(loadAnnotation(org,refdb,level=transLevel,
+                type=countType,version=version,db=localDb,summarized=TRUE,
+                rc=restrictCores),
+            error=function(e) {
+                # Not found and user based
+                if (!is.null(annotation)) { # Has been checked
+                    gtfFile <- annotation$gtf
+                    metadata <- annotation
+                    metadata$gtf <- NULL
+                    exonData <- importCustomAnnotation(gtfFile,metadata,
+                        "gene","exon")
+                }
+                else
+                    stop("Please provide an existing organism or a list ",
+                        "with annotation metadata and GTF file!")
+            },finally="")
+            
             # Load/read counts
             if (!is.null(counts)) { # Provided
                 if (!is.data.frame(counts) && !is.list(counts)) {
@@ -803,16 +803,16 @@ metaseqr2 <- function(
                     exonCounts <- read.delim(counts,row.names=1)
                 }
                 else { # Already a data frame as input
-					if (is.character(counts[,1])) {
-						exonCounts <- as.matrix(counts[,-1])
-						rownames(exonCounts) <- as.character(counts[,1])
-					}
+                    if (is.character(counts[,1])) {
+                        exonCounts <- as.matrix(counts[,-1])
+                        rownames(exonCounts) <- as.character(counts[,1])
+                    }
                     else { # Should be named!
-						if (is.null(rownames(counts)))
-							stopwrap("A counts data frame as input should ",
-								"have rownames!")
-						exonCounts <- counts
-					}
+                        if (is.null(rownames(counts)))
+                            stopwrap("A counts data frame as input should ",
+                                "have rownames!")
+                        exonCounts <- counts
+                    }
                 }
             }
             else { # Coming from read2count
@@ -825,10 +825,10 @@ metaseqr2 <- function(
                     if (is.null(libsizeList))
                         libsizeList <- r2c$libsize
                     if (exportCountsTable) {
-						exonDataExp <- as.data.frame(exonData)
-						exonDataExp <- exonDataExp[,c(1:3,6,7,5,8,9)]
-						names(exonDataExp)[1] <- "chromosome"
-						disp("Exporting raw read counts table to ",
+                        exonDataExp <- as.data.frame(exonData)
+                        exonDataExp <- exonDataExp[,c(1:3,6,7,5,8,9)]
+                        names(exonDataExp)[1] <- "chromosome"
+                        disp("Exporting raw read counts table to ",
                             file.path(PROJECT_PATH[["lists"]],
                                 "raw_counts_table.txt.gz"))
                         resFile <- file.path(PROJECT_PATH[["lists"]],
@@ -837,7 +837,7 @@ metaseqr2 <- function(
                         write.table(cbind(
                             exonDataExp[rownames(exonCounts),],
                             exonCounts
-						),gzfh,sep="\t",row.names=FALSE,quote=FALSE)
+                        ),gzfh,sep="\t",row.names=FALSE,quote=FALSE)
                         close(gzfh)
                     }
                 }
@@ -849,14 +849,14 @@ metaseqr2 <- function(
             geneData <- .reduceGeneData(exonData[rownames(exonCounts)],geneData)
             disp("Processing exons...")
             theCounts <- constructGeneModel(exonCounts,exonData,type="exon",
-				rc=restrictCores)
+                rc=restrictCores)
 
             if (saveGeneModel) {
                 disp("Saving gene model to ",file.path(PROJECT_PATH[["data"]],
                     "gene_model.RData"))
                 save(theCounts,exonData,geneData,sampleList,transLevel,
                     countType,file=file.path(PROJECT_PATH$data,
-					"gene_model.RData"),compress=TRUE)
+                    "gene_model.RData"),compress=TRUE)
             }
         }
         else {
@@ -879,7 +879,7 @@ metaseqr2 <- function(
 
         # Apply exon filters
         if (!is.null(exonFilters)) {
-			exonFilterOut <- filterExons(theCounts,geneData,sampleList,
+            exonFilterOut <- filterExons(theCounts,geneData,sampleList,
                 exonFilters)
             exonFilterResult <- exonFilterOut$result
             exonFilterFlags <- exonFilterOut$flags
@@ -910,23 +910,23 @@ metaseqr2 <- function(
         # We need to load the utr annotation and see what counts have been
         # provided
         if (!fromPrevious) {
-			disp("Loading 3' UTR annotation...")
-			transcriptData <- tryCatch(loadAnnotation(org,refdb,
-				level=transLevel,type=countType,version=version,db=localDb,
-				summarized=TRUE,rc=restrictCores),error=function(e) {
-				# Not found and user based
-				if (!is.null(annotation)) { # Has been checked
-					gtfFile <- annotation$gtf
-					metadata <- annotation
-					metadata$gtf <- NULL
-					transcriptData <- importCustomAnnotation(gtfFile,metadata,
-						transLevel,countType)
-				}
-				else
-					stop("Please provide an existing organism or a list with ",
-						"annotation metadata and GTF file!")
-			},finally="")
-			
+            disp("Loading 3' UTR annotation...")
+            transcriptData <- tryCatch(loadAnnotation(org,refdb,
+                level=transLevel,type=countType,version=version,db=localDb,
+                summarized=TRUE,rc=restrictCores),error=function(e) {
+                # Not found and user based
+                if (!is.null(annotation)) { # Has been checked
+                    gtfFile <- annotation$gtf
+                    metadata <- annotation
+                    metadata$gtf <- NULL
+                    transcriptData <- importCustomAnnotation(gtfFile,metadata,
+                        transLevel,countType)
+                }
+                else
+                    stop("Please provide an existing organism or a list with ",
+                        "annotation metadata and GTF file!")
+            },finally="")
+            
             # Load/read counts
             if (!is.null(counts)) { # Otherwise coming ready from read2count
                 if (!is.data.frame(counts) && !is.list(counts)) {
@@ -935,16 +935,16 @@ metaseqr2 <- function(
                 }
                 else { # Already a data frame as input
                     if (is.character(counts[,1])) {
-						transcriptCounts <- as.matrix(counts[,-1])
-						rownames(transcriptCounts) <- as.character(counts[,1])
-					}
+                        transcriptCounts <- as.matrix(counts[,-1])
+                        rownames(transcriptCounts) <- as.character(counts[,1])
+                    }
                     else { # Should be named!
-						if (is.null(rownames(counts)))
-							stopwrap("A counts data frame as input should ",
-								"have rownames!")
-						transcriptCounts <- counts
-					}
-				}
+                        if (is.null(rownames(counts)))
+                            stopwrap("A counts data frame as input should ",
+                                "have rownames!")
+                        transcriptCounts <- counts
+                    }
+                }
             }
             else { # Coming from read2count
                 if (fromRaw) { # Double check
@@ -955,10 +955,10 @@ metaseqr2 <- function(
                     if (is.null(libsizeList))
                         libsizeList <- r2c$libsize
                     if (exportCountsTable) {
-						transcriptDataExp <- as.data.frame(transcriptData)
-						transcriptDataExp <- 
-							transcriptDataExp[,c(1:3,6,7,5,8,9)]
-						names(transcriptDataExp)[1] <- "chromosome"
+                        transcriptDataExp <- as.data.frame(transcriptData)
+                        transcriptDataExp <- 
+                            transcriptDataExp[,c(1:3,6,7,5,8,9)]
+                        names(transcriptDataExp)[1] <- "chromosome"
                         disp("Exporting raw read counts table to ",
                             file.path(PROJECT_PATH[["lists"]],
                             "raw_counts_table.txt.gz"))
@@ -966,15 +966,15 @@ metaseqr2 <- function(
                             "raw_counts_table.txt.gz")
                         gzfh <- gzfile(resFile,"w")
                         write.table(cbind(
-							transcriptDataExp[rownames(transcriptCounts),],
-							transcriptCounts
-						),gzfh,sep="\t",row.names=FALSE,quote=FALSE)
+                            transcriptDataExp[rownames(transcriptCounts),],
+                            transcriptCounts
+                        ),gzfh,sep="\t",row.names=FALSE,quote=FALSE)
                         close(gzfh)
                     }
                 }
             }
             transcriptCounts <- transcriptCounts[,unlist(sampleList,
-				use.names=FALSE)]
+                use.names=FALSE)]
 
             # Get the transcript counts per gene model
             disp("Checking chromosomes in transcript counts and gene ",
@@ -984,14 +984,14 @@ metaseqr2 <- function(
                     geneData)
             disp("Processing transcripts...")
             theCounts <- constructGeneModel(transcriptCounts,transcriptData,
-				type="utr",rc=restrictCores)
-			
+                type="utr",rc=restrictCores)
+            
             if (saveGeneModel) {
                 disp("Saving gene model to ",file.path(PROJECT_PATH[["data"]],
                     "gene_model.RData"))
                 save(theCounts,transcriptData,geneData,sampleList,countType,
-					transLevel,file=file.path(PROJECT_PATH$data,
-					"gene_model.RData"),compress=TRUE)
+                    transLevel,file=file.path(PROJECT_PATH$data,
+                    "gene_model.RData"),compress=TRUE)
             }
         }
         else {
@@ -1018,7 +1018,7 @@ metaseqr2 <- function(
         names(theGeneCounts) <- names(theTranscriptLengths) <- 
             names(theCounts)
         for (n in names(theGeneCounts))
-			theGeneCounts[[n]] <- sapply(theCounts[[n]],sum)
+            theGeneCounts[[n]] <- sapply(theCounts[[n]],sum)
         geneCounts <- do.call("cbind",theGeneCounts)
         # Based on the sum of their transcript lengths
         lengthList <- attr(theCounts,"lengthList")
@@ -1036,8 +1036,8 @@ metaseqr2 <- function(
     }
     
     else if (countType=="gene") {
-		# geneData has already been loaded and also geneCounts in the case of
-		# embedded annotation
+        # geneData has already been loaded and also geneCounts in the case of
+        # embedded annotation
         if (!fromPrevious) {
             # Load/read counts
             if (!is.null(counts)  && !is.list(counts)) {
@@ -1046,17 +1046,17 @@ metaseqr2 <- function(
                     geneCounts <- read.delim(counts)
                 }
                 else { # Already a data frame as input
-					if (is.character(counts[,1])) {
-						geneCounts <- as.matrix(counts[,-1])
-						rownames(geneCounts) <- as.character(counts[,1])
-					}
-					else { # Should be named!
-						if (is.null(rownames(counts)))
-							stopwrap("A counts data frame as input should ",
-								"have rownames!")
-						geneCounts <- counts
-					}
-				}
+                    if (is.character(counts[,1])) {
+                        geneCounts <- as.matrix(counts[,-1])
+                        rownames(geneCounts) <- as.character(counts[,1])
+                    }
+                    else { # Should be named!
+                        if (is.null(rownames(counts)))
+                            stopwrap("A counts data frame as input should ",
+                                "have rownames!")
+                        geneCounts <- counts
+                    }
+                }
             }
             else { # Coming from read2count
                 if (fromRaw) { # Double check
@@ -1066,9 +1066,9 @@ metaseqr2 <- function(
                     if (is.null(libsizeList))
                         libsizeList <- r2c$libsize
                     if (exportCountsTable) {
-						geneDataExp <- as.data.frame(geneData)
-						geneDataExp <- geneDataExp[,c(1:3,6,7,5,8,9)]
-						names(geneDataExp)[1] <- "chromosome"
+                        geneDataExp <- as.data.frame(geneData)
+                        geneDataExp <- geneDataExp[,c(1:3,6,7,5,8,9)]
+                        names(geneDataExp)[1] <- "chromosome"
                         disp("Exporting raw read counts table to ",
                             file.path(PROJECT_PATH[["lists"]],
                             "raw_counts_table.txt.gz"))
@@ -1076,7 +1076,7 @@ metaseqr2 <- function(
                             "raw_counts_table.txt.gz")
                         gzfh <- gzfile(resFile,"w")
                         write.table(cbind(
-							geneDataExp[rownames(geneCounts),],
+                            geneDataExp[rownames(geneCounts),],
                             geneCounts
                         ),gzfh,sep="\t",row.names=FALSE,quote=FALSE)
                         close(gzfh)
@@ -1189,10 +1189,10 @@ metaseqr2 <- function(
                 tempGenes <- normalizeAbsseq(geneCounts,sampleList,normArgs,
                     output="matrix")
             },
-			dss = {
-				tempGenes <- normalizeDss(geneCounts,sampleList,normArgs,
-					output="native")
-			},
+            dss = {
+                tempGenes <- normalizeDss(geneCounts,sampleList,normArgs,
+                    output="native")
+            },
             none = {
                 # In case some external normalization is applied (e.g. equal
                 # read counts from all samples)
@@ -1220,7 +1220,8 @@ metaseqr2 <- function(
             geneFilterResult$expression$custom
         )
         theDead <- unique(unlist(c(geneFilterResult,exonFilterResult)))
-        # Some genes filtered by zero, were present in exon filters, not yet applied
+        # Some genes filtered by zero, were present in exon filters, not yet 
+        # applied
         if (countType=="exon")
             theDead <- setdiff(theDead,theZeroNames)
         
@@ -1254,7 +1255,7 @@ metaseqr2 <- function(
         switch(normalization,
             edaseq = {
                 normGenes <- normalizeEdaseq(geneCountsExpr,sampleList,normArgs,
-					geneDataExpr,output="matrix")
+                    geneDataExpr,output="matrix")
             },
             deseq = {
                 normGenes <- normalizeDeseq(geneCountsExpr,sampleList,normArgs,
@@ -1280,7 +1281,7 @@ metaseqr2 <- function(
                 normGenes <- normalizeAbsseq(geneCountsExpr,sampleList,normArgs,
                     output="native")
             },
-			dss = {
+            dss = {
                 normGenes <- normalizeDss(geneCountsExpr,sampleList,normArgs,
                     output="native")
             },   
@@ -1296,8 +1297,8 @@ metaseqr2 <- function(
             progressFun(detail=text)
         }
         
-     # Apply filtering after normalization if desired (default)
-     disp("Normalizing with: ",normalization)   
+    # Apply filtering after normalization if desired (default)
+    disp("Normalizing with: ",normalization)   
         switch(normalization,
             edaseq = {
                 normGenes <- normalizeEdaseq(geneCounts,sampleList,
@@ -1327,7 +1328,7 @@ metaseqr2 <- function(
                 normGenes <- normalizeAbsseq(geneCounts,sampleList,
                     normArgs,output="native")
             },
-			dss = {
+            dss = {
                 normGenes <- normalizeDss(geneCounts,sampleList,normArgs,
                     output="native")
             },
@@ -1365,17 +1366,17 @@ metaseqr2 <- function(
             ABSDataSet = { # Has been normalized with ABSSeq
                  tempMatrix <- as.matrix(round(excounts(normGenes)))
             },
-			SeqCountSet = { # Has been normalized with DSS
-				# Dribble for taking a mtx out of SeqCountSet class
-				classes <- asClassVector(sampleList)
-				theDesign <- data.frame(condition=classes,
-					row.names=colnames(normGenes)) 
-            	cds <- newCountDataSet(as.matrix(round(
-					assayData(normGenes)$exprs)),theDesign$condition)
-            	DESeq::sizeFactors(cds) <- normalizationFactor(normGenes)
-				tempMatrix <- as.matrix(round(DESeq::counts(cds,
-					normalized=TRUE)))
-			}
+            SeqCountSet = { # Has been normalized with DSS
+                # Dribble for taking a mtx out of SeqCountSet class
+                classes <- asClassVector(sampleList)
+                theDesign <- data.frame(condition=classes,
+                    row.names=colnames(normGenes)) 
+                cds <- newCountDataSet(as.matrix(round(
+                    assayData(normGenes)$exprs)),theDesign$condition)
+                DESeq::sizeFactors(cds) <- normalizationFactor(normGenes)
+                tempMatrix <- as.matrix(round(DESeq::counts(cds,
+                    normalized=TRUE)))
+            }
         )
 
         # Implement gene filters after normalization
@@ -1400,7 +1401,8 @@ metaseqr2 <- function(
         )
         #when running maually exonFilterResult=NULL
         theDead <- unique(unlist(c(geneFilterResult,exonFilterResult)))
-        # Some genes filtered by zero, were present in exon filters, not yet applied
+        # Some genes filtered by zero, were present in exon filters, not yet 
+        # applied
         if (countType=="exon")
             theDead <- setdiff(theDead,theZeroNames)
         
@@ -1458,22 +1460,22 @@ metaseqr2 <- function(
                     excounts(normGenesExpr) <-
                         excounts(normGenesExpr)[-theDeadInd,]
                 },
-				SeqCountSet = { 
-					normGenesExpr <- normGenes
-					# Subset raw counts table
-					normGenesExpr <- normGenesExpr[-theDeadInd,] 
-					# All the other tools here return a matrix. DSS must do the 
-					# same. --> otherwise error in rbind of line 3192
-					classes <- asClassVector(sampleList)
-				    theDesign <- data.frame(condition=classes,
-						row.names=colnames(normGenesExpr)) 
-					cds <- newCountDataSet(as.matrix(round(
-						assayData(normGenesExpr)$exprs)),theDesign$condition)
-            	    DESeq::sizeFactors(cds) <- 
-						normalizationFactor(normGenesExpr)
-				 	normGenesExpr <- as.matrix(round(DESeq::counts(cds,
-						normalized=TRUE)))
-				}
+                SeqCountSet = { 
+                    normGenesExpr <- normGenes
+                    # Subset raw counts table
+                    normGenesExpr <- normGenesExpr[-theDeadInd,] 
+                    # All the other tools here return a matrix. DSS must do the 
+                    # same. --> otherwise error in rbind of line 3192
+                    classes <- asClassVector(sampleList)
+                    theDesign <- data.frame(condition=classes,
+                        row.names=colnames(normGenesExpr)) 
+                    cds <- newCountDataSet(as.matrix(round(
+                        assayData(normGenesExpr)$exprs)),theDesign$condition)
+                    DESeq::sizeFactors(cds) <- 
+                        normalizationFactor(normGenesExpr)
+                    normGenesExpr <- as.matrix(round(DESeq::counts(cds,
+                        normalized=TRUE)))
+                }
             )
             geneCountsExpr <- geneCounts[rownames(normGenesExpr),]
             geneDataExpr <- geneData[-theDeadInd]
@@ -1672,33 +1674,33 @@ metaseqr2 <- function(
             normGenes <- as.matrix(round(excounts(normGenes)))
             normGenesExpr <- as.matrix(round(excounts(normGenesExpr)))
         },
-		SeqCountSet = {
-			# Way to take normalized counts out of DSS as a matrix
+        SeqCountSet = {
+            # Way to take normalized counts out of DSS as a matrix
             classes <- asClassVector(sampleList)
-			theDesign <- data.frame(condition=classes,
-				row.names=colnames(normGenes)) 
-        	cds <- newCountDataSet(as.matrix(round(assayData(normGenes)$exprs)),
-               	 theDesign$condition)
-       		DESeq::sizeFactors(cds) <- normalizationFactor(normGenes)
-			normGenes <- as.matrix(round(DESeq::counts(cds,normalized=TRUE)))
+            theDesign <- data.frame(condition=classes,
+                row.names=colnames(normGenes)) 
+            cds <- newCountDataSet(as.matrix(round(assayData(normGenes)$exprs)),
+                 theDesign$condition)
+            DESeq::sizeFactors(cds) <- normalizationFactor(normGenes)
+            normGenes <- as.matrix(round(DESeq::counts(cds,normalized=TRUE)))
            
-			cdsExpr <- newCountDataSet(as.matrix(round(assayData(
-				normGenesExpr)$exprs)),theDesign$condition)
-       		DESeq::sizeFactors(cdsExpr) <- normalizationFactor(normGenesExpr)
-			normGenesExpr <- as.matrix(round(DESeq::counts(cdsExpr,
-				normalized=TRUE)))
+            cdsExpr <- newCountDataSet(as.matrix(round(assayData(
+                normGenesExpr)$exprs)),theDesign$condition)
+            DESeq::sizeFactors(cdsExpr) <- normalizationFactor(normGenesExpr)
+            normGenesExpr <- as.matrix(round(DESeq::counts(cdsExpr,
+                normalized=TRUE)))
         }
         # We don't need the matrix case
     )
 
     # Now that everything is a matrix, export the normalized counts if asked
     if (exportCountsTable) {
-		geneDataExprExp <- as.data.frame(geneDataExpr)
-		geneDataExprExp <- geneDataExprExp[,c(1:3,6,7,5,8,9)]
-		colnames(geneDataExprExp)[1] <- "chromosome"
-		geneDataFilteredExp <- as.data.frame(geneDataFiltered)
-		geneDataFilteredExp <- geneDataFilteredExp[,c(1:3,6,7,5,8,9)]
-		colnames(geneDataFilteredExp)[1] <- "chromosome"
+        geneDataExprExp <- as.data.frame(geneDataExpr)
+        geneDataExprExp <- geneDataExprExp[,c(1:3,6,7,5,8,9)]
+        colnames(geneDataExprExp)[1] <- "chromosome"
+        geneDataFilteredExp <- as.data.frame(geneDataFiltered)
+        geneDataFilteredExp <- geneDataFilteredExp[,c(1:3,6,7,5,8,9)]
+        colnames(geneDataFilteredExp)[1] <- "chromosome"
         disp("Exporting and compressing normalized read counts table to ",
             file.path(PROJECT_PATH[["lists"]],"normalized_counts_table.txt"))
         expo <- cbind(
@@ -1712,7 +1714,8 @@ metaseqr2 <- function(
         close(gzfh)
     }
 
-    # Calculate meta-statistics, if more than one statistical algorithm has been used
+    # Calculate meta-statistics, if more than one statistical algorithm has been 
+    # used
     if (length(statistics)>1) {
         sumpList <- metaTest(
             cpList=cpList,
@@ -1828,7 +1831,7 @@ metaseqr2 <- function(
     }
     
     reportTables <- vector("list",length(contrast))
-	names(reportTables) <- contrast
+    names(reportTables) <- contrast
     
     counter <- 1
     for (cnt in contrast) {
@@ -1991,54 +1994,54 @@ metaseqr2 <- function(
         # If report requested, build a more condensed summary table, while the
         # complete tables are available for download
         if (report) { 
-			if (length(statistics) > 1) {
-				ew <- c("annotation","meta_p_value","adj_meta_p_value",
-					"fold_change","stats")
-				if (is.null(adjSumpList))
-					adjSumpList <- cmclapply(sumpList,
-						function(x,a) return(p.adjust(x,a)),
-							adjustMethod,rc=restrictCores)
-			}
-			else
-				ew <- c("annotation","p_value","adj_p_value","fold_change",
-					"stats")
-			esc <- "rpgm"
-			ev <- "normalized"
-			est <- "mean"
-			
-			faR <- attr(geneDataExpr,"geneLength")			
-			facR <- faR[rownames(normGenesExpr)]
-			normListR <- makeTransformation(normGenesExpr,esc,facR,logOffset)
-			
-			disp("    Adding report data...")
-			reportTables[[cnt]] <- buildExport(
-				geneData=geneDataExpr,
-				rawGeneCounts=geneCountsExpr,
-				normGeneCounts=normGenesExpr,
-				flags=goodFlags,
-				sampleList=sampleList,
-				cnt=cnt,
-				statistics=statistics,
-				rawList=NULL,
-				normList=normListR,
-				pMat=cpList[[cnt]],
-				adjpMat=adjCpList[[cnt]],
-				sumP=sumpList[[cnt]],
-				adjSumP=adjSumpList[[cnt]],
-				exportWhat=ew,
-				exportScale=esc,
-				exportValues=ev,
-				exportStats=est,
-				logOffset=logOffset,
-				report=FALSE
-			)$textTable
-			reportTables[[cnt]] <- reportTables[[cnt]][order(pp),]
-			
-			if (!is.null(reportTop)) {
-				topi <- ceiling(reportTop*nrow(reportTables[[cnt]]))
-				reportTables[[cnt]] <- reportTables[[cnt]][1:topi,,drop=FALSE]
-			}
-		}
+            if (length(statistics) > 1) {
+                ew <- c("annotation","meta_p_value","adj_meta_p_value",
+                    "fold_change","stats")
+                if (is.null(adjSumpList))
+                    adjSumpList <- cmclapply(sumpList,
+                        function(x,a) return(p.adjust(x,a)),
+                            adjustMethod,rc=restrictCores)
+            }
+            else
+                ew <- c("annotation","p_value","adj_p_value","fold_change",
+                    "stats")
+            esc <- "rpgm"
+            ev <- "normalized"
+            est <- "mean"
+            
+            faR <- attr(geneDataExpr,"geneLength")          
+            facR <- faR[rownames(normGenesExpr)]
+            normListR <- makeTransformation(normGenesExpr,esc,facR,logOffset)
+            
+            disp("    Adding report data...")
+            reportTables[[cnt]] <- buildExport(
+                geneData=geneDataExpr,
+                rawGeneCounts=geneCountsExpr,
+                normGeneCounts=normGenesExpr,
+                flags=goodFlags,
+                sampleList=sampleList,
+                cnt=cnt,
+                statistics=statistics,
+                rawList=NULL,
+                normList=normListR,
+                pMat=cpList[[cnt]],
+                adjpMat=adjCpList[[cnt]],
+                sumP=sumpList[[cnt]],
+                adjSumP=adjSumpList[[cnt]],
+                exportWhat=ew,
+                exportScale=esc,
+                exportValues=ev,
+                exportStats=est,
+                logOffset=logOffset,
+                report=FALSE
+            )$textTable
+            reportTables[[cnt]] <- reportTables[[cnt]][order(pp),]
+            
+            if (!is.null(reportTop)) {
+                topi <- ceiling(reportTop*nrow(reportTables[[cnt]]))
+                reportTables[[cnt]] <- reportTables[[cnt]][1:topi,,drop=FALSE]
+            }
+        }
     }
 
     ############################################################################
@@ -2057,11 +2060,11 @@ metaseqr2 <- function(
     # Check if we have more than 6 samples in total, pairwise plots are not
     # meaningful
     if (length(unlist(sampleList)) > 6 && "pairwise" %in% qcPlots) {
-		warnwrap("Pairwise sample comparison plot becomes indistinguishable ",
-			"for more than 6 samples! Removing from plots...")
-		qcPlots <- qcPlots[-which(qcPlots == "pairwise")]
-	}
-	
+        warnwrap("Pairwise sample comparison plot becomes indistinguishable ",
+            "for more than 6 samples! Removing from plots...")
+        qcPlots <- qcPlots[-which(qcPlots == "pairwise")]
+    }
+    
     if (!is.null(qcPlots)) {
         disp("Creating quality control graphs...")
         plots <- list(
@@ -2088,7 +2091,8 @@ metaseqr2 <- function(
                 annotation=geneData,plotType=intersect(qcPlots,plots$norm),
                 isNorm=FALSE,output=fig,path=PROJECT_PATH$normalization)
             
-            if (whenApplyFilter=="prenorm") # The annotation dimensions change...
+            # The annotation dimensions change...
+            if (whenApplyFilter=="prenorm")
                 figNorm[[fig]] <- metaseqrPlot(normGenes,sampleList,
                     annotation=geneDataExpr,plotType=intersect(qcPlots,
                     plots$norm),isNorm=TRUE,output=fig,
@@ -2124,15 +2128,15 @@ metaseqr2 <- function(
         
         ########################################################################
         #assign("sampleList",sampleList,envir=parent.frame())
-		#assign("geneCounts",geneCounts,envir=parent.frame())
-		#assign("normGenes",normGenes,envir=parent.frame())
-		#assign("normGenesExpr",normGenes,envir=parent.frame())
-		#assign("sumpList",sumpList,envir=parent.frame())
-		#assign("cpList",cpList,envir=parent.frame())
-		#assign("contrastList",contrastList,envir=parent.frame())
-		#assign("geneData",geneData,envir=parent.frame())
-		#assign("geneDataExpr",geneDataExpr,envir=parent.frame())
-		########################################################################
+        #assign("geneCounts",geneCounts,envir=parent.frame())
+        #assign("normGenes",normGenes,envir=parent.frame())
+        #assign("normGenesExpr",normGenes,envir=parent.frame())
+        #assign("sumpList",sumpList,envir=parent.frame())
+        #assign("cpList",cpList,envir=parent.frame())
+        #assign("contrastList",contrastList,envir=parent.frame())
+        #assign("geneData",geneData,envir=parent.frame())
+        #assign("geneDataExpr",geneDataExpr,envir=parent.frame())
+        ########################################################################
     }
 
     ############################################################################
@@ -2144,32 +2148,32 @@ metaseqr2 <- function(
     ############################################################################
     
     if (report) {
-		obj <- list(
-			sampleList=sampleList,
-			contrastList=contrastList,
-			qcPlots=qcPlots,
-			geneCounts=geneCounts,
-			geneData=geneData,
-			geneDataExpr=geneDataExpr,
-			geneDataFiltered=geneDataFiltered,
-			totalGeneData=totalGeneData,
-			normGenes=normGenes,
-			normGenesExpr=normGenesExpr,
-			cpList=cpList,
-			sumpList=sumpList,
-			pcut=pcut,
-			metaP=metaP,
-			whenApplyFilter=whenApplyFilter,
-			PROJECT_PATH=PROJECT_PATH
-		)
-		if (reportDb == "sqlite")
-			.createSqlPlotDb(obj)
-		else if (reportDb == "dexie")
-			.createDexiePlotDb(obj)
-		
-		disp("Creating HTML report...")
-		
-		if (!is.null(qcPlots)) {
+        obj <- list(
+            sampleList=sampleList,
+            contrastList=contrastList,
+            qcPlots=qcPlots,
+            geneCounts=geneCounts,
+            geneData=geneData,
+            geneDataExpr=geneDataExpr,
+            geneDataFiltered=geneDataFiltered,
+            totalGeneData=totalGeneData,
+            normGenes=normGenes,
+            normGenesExpr=normGenesExpr,
+            cpList=cpList,
+            sumpList=sumpList,
+            pcut=pcut,
+            metaP=metaP,
+            whenApplyFilter=whenApplyFilter,
+            PROJECT_PATH=PROJECT_PATH
+        )
+        if (reportDb == "sqlite")
+            .createSqlPlotDb(obj)
+        else if (reportDb == "dexie")
+            .createDexiePlotDb(obj)
+        
+        disp("Creating HTML report...")
+        
+        if (!is.null(qcPlots)) {
             # First create zip archives of the figures
             disp("Compressing figures...")
             zipfiles <- file.path(PROJECT_PATH$plots,paste("metaseqr_figures_",
@@ -2197,8 +2201,8 @@ metaseqr2 <- function(
         else
             figRaw <- figUnorm <- figNorm <- figStat <- figOther <-
                 figVenn <- NULL
-		
-		# Then see what is going of if default report changed
+        
+        # Then see what is going of if default report changed
         if (tolower(reportTemplate)=="default") {
             if (exists("TEMPLATE")) {
                 reportTemplate=list(
@@ -2234,61 +2238,57 @@ metaseqr2 <- function(
         }
         else
             warnwrap(paste("The report loader image was not provided!"))
-		
-		# Here we must download all required libraries and put them in the js
-		# folder of the report to make it available offline
-		if (offlineReport) {
-			.downloadJsLibs(PROJECT_PATH,reportDb)
-			paceHeader <- paste0("<script type=\"text/javascript\" ",
-				"src=\"js/pace.min.js\"></script>")
-		}
-		else
-			paceHeader <- paste0("<script type=\"text/javascript\" ",
-				"src=\"https://raw.github.com/HubSpot/pace/v1.0.0/",
-				"pace.min.js\"></script>")
-		
-		if (hasTemplate) {
-			execTime <- elap2human(TB)
+        
+        # Here we must download all required libraries and put them in the js
+        # folder of the report to make it available offline
+        if (offlineReport) {
+            .downloadJsLibs(PROJECT_PATH,reportDb)
+            paceHeader <- paste0("<script type=\"text/javascript\" ",
+                "src=\"js/pace.min.js\"></script>")
+        }
+        else
+            paceHeader <- paste0("<script type=\"text/javascript\" ",
+                "src=\"https://raw.github.com/HubSpot/pace/v1.0.0/",
+                "pace.min.js\"></script>")
+        
+        if (hasTemplate) {
+            execTime <- elap2human(TB)
             REPORT_ENV <- .makeReportEnv(environment())
             assign("REPORT_ENV",REPORT_ENV,envir=.GlobalEnv)
             
             file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
-            #file.copy("/media/raid/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-			#file.copy("C:/software/metaseqR2-local/inst/metaseqr2_report.Rmd",
-				file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
-				overwrite=TRUE)
-			invisible(knitr::knit_meta(class=NULL,clean=TRUE))
-			
-			render(
-				input=file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
-				output_file="index.html",
-				output_dir=PROJECT_PATH$main,
-				#output_format="html_document",
-				#envir=new.env(parent=globalenv()),
-				#clean=FALSE,
-				envir=REPORT_ENV
-			)
-			gc(verbose=FALSE)
-			# Remove the Rmd file after rendering the report
-			unlink(file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"))
-			
-			####################################################################
-			# Replace a jQuery incompatibility bug line.. Hopefully to remove...
-			# Also add pace.js in header on the top... header-includes does not
-			# work...
-			L <- readLines(file.path(PROJECT_PATH$main,"index.html"))
-			# pace.js
-			hi <- grep("<head>",L)
-			if (length(hi) > 0)
-				L[hi] <- paste0(L[hi],"\n",paceHeader)
-			# jQuery bug
-			ln <- grep(paste("$(\".menu\").find(\"li[data-target=\" +",
-				"window.page + \"]\").trigger(\"click\");"),L,fixed=TRUE)
-			if (length(ln) == 1)
-				L[ln] <- paste("$(\".menu\").find(\"li[data-target='\" +",
-				"window.page + \"']\").trigger(\"click\");")
-			cat(L,file=file.path(PROJECT_PATH$main,"index.html"),sep="\n")
-			####################################################################
+                file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
+                overwrite=TRUE)
+            invisible(knitr::knit_meta(class=NULL,clean=TRUE))
+            
+            render(
+                input=file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),
+                output_file="index.html",
+                output_dir=PROJECT_PATH$main,
+                envir=REPORT_ENV
+            )
+            gc(verbose=FALSE)
+            
+            # Remove the Rmd file after rendering the report
+            unlink(file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"))
+            
+            ####################################################################
+            # Replace a jQuery incompatibility bug line.. Hopefully to remove...
+            # Also add pace.js in header on the top... header-includes does not
+            # work...
+            L <- readLines(file.path(PROJECT_PATH$main,"index.html"))
+            # pace.js
+            hi <- grep("<head>",L)
+            if (length(hi) > 0)
+                L[hi] <- paste0(L[hi],"\n",paceHeader)
+            # jQuery bug
+            ln <- grep(paste("$(\".menu\").find(\"li[data-target=\" +",
+                "window.page + \"]\").trigger(\"click\");"),L,fixed=TRUE)
+            if (length(ln) == 1)
+                L[ln] <- paste("$(\".menu\").find(\"li[data-target='\" +",
+                "window.page + \"']\").trigger(\"click\");")
+            cat(L,file=file.path(PROJECT_PATH$main,"index.html"),sep="\n")
+            ####################################################################
         }
     }
 
@@ -2463,43 +2463,43 @@ metaseqr2 <- function(
 
 
 constructGeneModel <- function(countData,annoData,type,rc=NULL) {
-	# countData is a matrix, must have exact rownames as annoData GRanges
-	if (!all(rownames(countData) == names(annoData)))
-		stop("The rownames of the provided counts are not the same (or in ",
-			" the same order) as the provided annotation GRanges!")
-	
-	# Messaging...
-	msg <- "provided count regions"
-	if (!missing(type)) {
-		if (type == "exon")
-			msg <- "exons"
-		else if (type == "utr")
-			msg <- "transcripts (UTR regions)"
-	}
-	
-	# Create splitting factor
-	theGenes <- factor(annoData$gene_id,levels=unique(annoData$gene_id))
-	
-	# Split the counts vectors...
-	theCounts <- cmclapply(colnames(countData),function(n,f,M) {
-		disp("  Separating ",msg," per gene for ",n,"...")
+    # countData is a matrix, must have exact rownames as annoData GRanges
+    if (!all(rownames(countData) == names(annoData)))
+        stop("The rownames of the provided counts are not the same (or in ",
+            " the same order) as the provided annotation GRanges!")
+    
+    # Messaging...
+    msg <- "provided count regions"
+    if (!missing(type)) {
+        if (type == "exon")
+            msg <- "exons"
+        else if (type == "utr")
+            msg <- "transcripts (UTR regions)"
+    }
+    
+    # Create splitting factor
+    theGenes <- factor(annoData$gene_id,levels=unique(annoData$gene_id))
+    
+    # Split the counts vectors...
+    theCounts <- cmclapply(colnames(countData),function(n,f,M) {
+        disp("  Separating ",msg," per gene for ",n,"...")
         co <- M[,n]
         names(co) <- rownames(M)
         return(split(co,f))
-	},theGenes,countData,rc=rc)
-	names(theCounts) <- colnames(countData)
-	
-	# and the width of the merged exons
-	w <- width(annoData)
-	if (type == "exon")
-		names(w) <- annoData$exon_id
-	else if (type == "utr")
-		names(w) <- annoData$transcript_id
-	lengthList <- split(w,theGenes)
-	attr(theCounts,"lengthList") <- lengthList
-	# The exon lengths information is essentially redundant in the new version,
-	# unless we need it for some QC distribution later on...
-	
+    },theGenes,countData,rc=rc)
+    names(theCounts) <- colnames(countData)
+    
+    # and the width of the merged exons
+    w <- width(annoData)
+    if (type == "exon")
+        names(w) <- annoData$exon_id
+    else if (type == "utr")
+        names(w) <- annoData$transcript_id
+    lengthList <- split(w,theGenes)
+    attr(theCounts,"lengthList") <- lengthList
+    # The exon lengths information is essentially redundant in the new version,
+    # unless we need it for some QC distribution later on...
+    
     return(theCounts)
 }
 
@@ -2514,22 +2514,24 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
 }
 
 .userOrg <- function(org,db=NULL) {
-	ua <- getUserAnnotations(db)
-	if (nrow(ua) == 0)
-		return(FALSE)
-	orgs <- unique(ua$organism)
-	return(org %in% orgs)
+    ua <- getUserAnnotations(db)
+    if (nrow(ua) == 0)
+        return(FALSE)
+    orgs <- unique(ua$organism)
+    return(org %in% orgs)
 }
 
 .userRefdb <- function(refdb,db=NULL) {
-	us <- getUserAnnotations(db)
-	if (nrow(us) == 0)
-		return(FALSE)
-	refdbs <- unique(us$source)
-	return(refdb %in% refdbs)
+    us <- getUserAnnotations(db)
+    if (nrow(us) == 0)
+        return(FALSE)
+    refdbs <- unique(us$source)
+    return(refdb %in% refdbs)
 }
 
 .backwardsCompatibility <- function(dataFile) {
+    the.counts <- count.type <- sample.list <- gene.data <- transcript.data <-
+        exon.data <- NULL
     tmpEnv <- new.env()
     load(dataFile,tmpEnv)
     if (!is.null(tmpEnv$the.counts)) { # Old file
@@ -2545,12 +2547,12 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
         
         # Delete old
         if (exists("the.counts",envir=tmpEnv)) {
-			rm(the.counts,count.type,sample.list,gene.data,envir=tmpEnv)
-			if (!is.null(tmpEnv$transcript.data))
-				rm(transcript.data,envir=tmpEnv)
-			if (!is.null(tmpEnv$exon.data))
-				rm(exon.data,envir=tmpEnv)
-		}        
+            rm(the.counts,count.type,sample.list,gene.data,envir=tmpEnv)
+            if (!is.null(tmpEnv$transcript.data))
+                rm(transcript.data,envir=tmpEnv)
+            if (!is.null(tmpEnv$exon.data))
+                rm(exon.data,envir=tmpEnv)
+        }        
     }
     return(tmpEnv)
 }

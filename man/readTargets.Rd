@@ -35,7 +35,7 @@
     files for each sample from an external file.
 }
 \details{
-	Regarding the input file, its files must be structured 
+    Regarding the input file, its files must be structured 
     as follows: the first line of the external tab delimited
     file should contain column names (names are not
     important). The first column MUST contain UNIQUE sample 

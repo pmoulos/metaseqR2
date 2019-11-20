@@ -36,7 +36,7 @@ filterExons <- function(theCounts,geneData,sampleList,exonFilters,rc=0.8) {
                                     return(FALSE)
                                 else
                                     return(TRUE)
-							}
+                            }
                         },exonFilters$minActiveExons,rc=rc)
                         pass[[n]] <- do.call("c",pass[[n]])
                     }

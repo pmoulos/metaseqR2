@@ -25,84 +25,84 @@ library(rmdformats)
 # Global options
 options(max.print="75")
 opts_chunk$set(
-	echo=FALSE,
-	cache=FALSE,
-	prompt=FALSE,
-	tidy=TRUE,
-	comment=NA,
-	message=FALSE,
-	warning=FALSE,
-	results="asis",
-	eval=TRUE
+    echo=FALSE,
+    cache=FALSE,
+    prompt=FALSE,
+    tidy=TRUE,
+    comment=NA,
+    message=FALSE,
+    warning=FALSE,
+    results="asis",
+    eval=TRUE
 )
 opts_knit$set(width=75)
 ```
 
 ```{r load_js}
 if (offlineReport) {
-	#cat("<script type=\"text/javascript\" src=\"js/pace.min.js\"></script>",
-	#	sep="")
-	cat("<script type=\"text/javascript\" src=\"js/highcharts.js\"></script>",
-		sep="")
-	cat("<script type=\"text/javascript\" src=\"js/highcharts-more.js\">",
-		"</script>",sep="")
-	cat("<script type=\"text/javascript\" src=\"js/exporting.js\"></script>",
-		sep="")
-	cat("<script type=\"text/javascript\" src=\"js/offline-exporting.js\">",
-		"</script>",sep="")
-	cat("<script type=\"text/javascript\" src=\"js/export-data.js\"></script>",
-		sep="")
-	cat("<script type=\"text/javascript\" src=\"js/canvas2svg.js\"></script>",
-		sep="")
-	cat("<script type=\"text/javascript\" src=\"js/jvenn.min.js\"></script>",
-		sep="")
-	if (reportDb == "sqlite") {
-		cat("<script>Module = { TOTAL_MEMORY: 134217728 };</script>")
-		cat("<script type=\"text/javascript\" src=\"js/sql.js\"></script>",
-			sep="")
-	}
-	else if (reportDb == "dexie")
-	   cat("<script type=\"text/javascript\" src=\"js/dexie.min.js\"></script>",
-			sep="")
+    #cat("<script type=\"text/javascript\" src=\"js/pace.min.js\"></script>",
+    #   sep="")
+    cat("<script type=\"text/javascript\" src=\"js/highcharts.js\"></script>",
+        sep="")
+    cat("<script type=\"text/javascript\" src=\"js/highcharts-more.js\">",
+        "</script>",sep="")
+    cat("<script type=\"text/javascript\" src=\"js/exporting.js\"></script>",
+        sep="")
+    cat("<script type=\"text/javascript\" src=\"js/offline-exporting.js\">",
+        "</script>",sep="")
+    cat("<script type=\"text/javascript\" src=\"js/export-data.js\"></script>",
+        sep="")
+    cat("<script type=\"text/javascript\" src=\"js/canvas2svg.js\"></script>",
+        sep="")
+    cat("<script type=\"text/javascript\" src=\"js/jvenn.min.js\"></script>",
+        sep="")
+    if (reportDb == "sqlite") {
+        cat("<script>Module = { TOTAL_MEMORY: 134217728 };</script>")
+        cat("<script type=\"text/javascript\" src=\"js/sql.js\"></script>",
+            sep="")
+    }
+    else if (reportDb == "dexie")
+       cat("<script type=\"text/javascript\" src=\"js/dexie.min.js\"></script>",
+            sep="")
 } else {
-	#cat("<script type=\"text/javascript\" src=\"https://raw.github.com/",
-	#	"HubSpot/pace/v1.0.0/pace.min.js\"></script>",sep="")
-	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
-		"highcharts.js\"></script>",sep="")
-	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
-		"highcharts-more.js\"></script>",sep="")
-	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
-		"modules/exporting.js\"></script>",sep="")
-	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
-		"modules/offline-exporting.js\"></script>",sep="")
-	cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
-		"modules/export-data.js\"></script>",sep="")
-	cat("<script type=\"text/javascript\ ",
-		"src=\"http://jvenn.toulouse.inra.fr/app/js/canvas2svg.js\">",
-		"</script>",sep="")
-	cat("<script type=\"text/javascript\" ",
-		"src=\"http://jvenn.toulouse.inra.fr/app/js/jvenn.min.js\">",
-		"</script>",sep="")
-	if (reportDb == "sqlite") {
-		cat("<script>Module = { TOTAL_MEMORY: 134217728 };</script>")
-		cat("<script type=\"text/javascript\" src=\"",
-		"https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js\">",
-		"</script>",sep="")
-	}
-	else if (reportDb == "dexie")
-		cat("<script type=\"text/javascript\" ",
-			"src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
-			"</script>",sep="")
+    #cat("<script type=\"text/javascript\" src=\"https://raw.github.com/",
+    #   "HubSpot/pace/v1.0.0/pace.min.js\"></script>",sep="")
+    cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+        "highcharts.js\"></script>",sep="")
+    cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+        "highcharts-more.js\"></script>",sep="")
+    cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+        "modules/exporting.js\"></script>",sep="")
+    cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+        "modules/offline-exporting.js\"></script>",sep="")
+    cat("<script type=\"text/javascript\" src=\"https://code.highcharts.com/",
+        "modules/export-data.js\"></script>",sep="")
+    cat("<script type=\"text/javascript\ ",
+        "src=\"http://jvenn.toulouse.inra.fr/app/js/canvas2svg.js\">",
+        "</script>",sep="")
+    cat("<script type=\"text/javascript\" ",
+        "src=\"http://jvenn.toulouse.inra.fr/app/js/jvenn.min.js\">",
+        "</script>",sep="")
+    if (reportDb == "sqlite") {
+        cat("<script>Module = { TOTAL_MEMORY: 134217728 };</script>")
+        cat("<script type=\"text/javascript\" src=\"",
+        "https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js\">",
+        "</script>",sep="")
+    }
+    else if (reportDb == "dexie")
+        cat("<script type=\"text/javascript\" ",
+            "src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
+            "</script>",sep="")
 }
 if (reportDb == "dexie")
-	cat("<script type=\"text/javascript\" src=\"data/reportdb.js\"></script>")
+    cat("<script type=\"text/javascript\" src=\"data/reportdb.js\"></script>")
 ```
 
 ```{js pace_opts}
 Pace.options = {
-	ajax: false,
-	restartOnPushState: false,
-	restartOnRequestAfter: false
+    ajax: false,
+    restartOnPushState: false,
+    restartOnRequestAfter: false
 }
 ```
 
@@ -110,238 +110,238 @@ Pace.options = {
 
 ```{r decide_dexie}
 if (reportDb == "dexie") {
-	code <- paste0(
-		"var DEXIE = true;\n",
-		"var db = new Dexie('plotdb');\n",
-		"db.version(1).stores({\n",
-		"    plots: '++_id,[name+type+subtype]'\n",
-		"});\n",
-		"db.plots.clear().then(console.log('Previous plots cleared!'));\n",
-		"db.plots.bulkAdd(plotData);"
-	)
+    code <- paste0(
+        "var DEXIE = true;\n",
+        "var db = new Dexie('plotdb');\n",
+        "db.version(1).stores({\n",
+        "    plots: '++_id,[name+type+subtype]'\n",
+        "});\n",
+        "db.plots.clear().then(console.log('Previous plots cleared!'));\n",
+        "db.plots.bulkAdd(plotData);"
+    )
 } else if (reportDb == "sqlite")
-	code <- "var DEXIE = false;"
+    code <- "var DEXIE = false;"
 cat("<script>\n",code,"\n</script>")
 ```
 
 ```{js define_getplot_funs}
 getPlotFromDb = function(query,renderId) {
-	if (DEXIE) {
-		$("#loader").show();
-		db.plots.get({
-			name: query.name,
-			type: query.type,
-			subtype: query.subtype
-		},function(res) {
-			var chartData = res.json;
-			chartData.chart.renderTo = renderId;
-			chartData.chart.events = {
+    if (DEXIE) {
+        $("#loader").show();
+        db.plots.get({
+            name: query.name,
+            type: query.type,
+            subtype: query.subtype
+        },function(res) {
+            var chartData = res.json;
+            chartData.chart.renderTo = renderId;
+            chartData.chart.events = {
                 load: function() {
                     $("#loader").hide();
                 }
             };
-			var chart = new Highcharts.Chart(chartData);
-		});
-	}
-	else {
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', './data/reportdb.sqlite',true);
-		xhr.responseType = 'arraybuffer';
-		xhr.onload = function(e) {
-			var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + 
-				"'" +" AND type='" + query.type + "'" + " AND subtype='" + 
-				query.subtype + "';";
-			var uInt8Array = new Uint8Array(this.response);
-			var db = new SQL.Database(uInt8Array);
-			var contents = db.exec(sqlQuery);
-			var chartData = JSON.parse(contents[0].values[0][0]);
-			//console.log(chartData)
-			chartData.chart.renderTo = renderId;
-			chartData.chart.events = {
-				load: function() {
-					$("#loader").hide();
-				}
-			};
-			var chart = new Highcharts.Chart(chartData);
-		};
-		xhr.send();
-		$("#loader").show();
-	}
+            var chart = new Highcharts.Chart(chartData);
+        });
+    }
+    else {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', './data/reportdb.sqlite',true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onload = function(e) {
+            var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + 
+                "'" +" AND type='" + query.type + "'" + " AND subtype='" + 
+                query.subtype + "';";
+            var uInt8Array = new Uint8Array(this.response);
+            var db = new SQL.Database(uInt8Array);
+            var contents = db.exec(sqlQuery);
+            var chartData = JSON.parse(contents[0].values[0][0]);
+            //console.log(chartData)
+            chartData.chart.renderTo = renderId;
+            chartData.chart.events = {
+                load: function() {
+                    $("#loader").hide();
+                }
+            };
+            var chart = new Highcharts.Chart(chartData);
+        };
+        xhr.send();
+        $("#loader").show();
+    }
 }
 
 getPlotWithFunFromDb = function(query,renderId) {
-	if (DEXIE) {
-		$("#loader").show();
-		db.plots.get({
-			name: query.name,
-			type: query.type,
-			subtype: query.subtype
-		},function(res) {
-			var chartData = res.json;
-			chartData.chart.renderTo = renderId;
-			
-			// Deserialize the stored functions - only in a couple of cases
-			if (query.type === "countsbio") {
-				chartData.yAxis.labels.formatter = new Function('return ' +
-					chartData.yAxis.labels.formatter)()
-					
-				chartData.plotOptions.scatter.tooltip.pointFormatter = 
-					new Function('return ' +
-						chartData.plotOptions.scatter.tooltip.pointFormatter)()
-				
-				chartData.plotOptions.boxplot.events.legendItemClick = 
-					new Function('return ' + 
-						chartData.plotOptions.boxplot.events.legendItemClick)()
-			}
-			if (query.type === "boxplot") {
-				chartData.plotOptions.boxplot.tooltip.pointFormatter = 
-					new Function('return ' +
-						chartData.plotOptions.boxplot.tooltip.pointFormatter)()
-				
-				chartData.plotOptions.boxplot.events.legendItemClick = 
-					new Function('return ' + 
-						chartData.plotOptions.boxplot.events.legendItemClick)()
-			}
-			
-			chartData.chart.events = {
+    if (DEXIE) {
+        $("#loader").show();
+        db.plots.get({
+            name: query.name,
+            type: query.type,
+            subtype: query.subtype
+        },function(res) {
+            var chartData = res.json;
+            chartData.chart.renderTo = renderId;
+            
+            // Deserialize the stored functions - only in a couple of cases
+            if (query.type === "countsbio") {
+                chartData.yAxis.labels.formatter = new Function('return ' +
+                    chartData.yAxis.labels.formatter)()
+                    
+                chartData.plotOptions.scatter.tooltip.pointFormatter = 
+                    new Function('return ' +
+                        chartData.plotOptions.scatter.tooltip.pointFormatter)()
+                
+                chartData.plotOptions.boxplot.events.legendItemClick = 
+                    new Function('return ' + 
+                        chartData.plotOptions.boxplot.events.legendItemClick)()
+            }
+            if (query.type === "boxplot") {
+                chartData.plotOptions.boxplot.tooltip.pointFormatter = 
+                    new Function('return ' +
+                        chartData.plotOptions.boxplot.tooltip.pointFormatter)()
+                
+                chartData.plotOptions.boxplot.events.legendItemClick = 
+                    new Function('return ' + 
+                        chartData.plotOptions.boxplot.events.legendItemClick)()
+            }
+            
+            chartData.chart.events = {
                 load: function() {
                     $("#loader").hide();
                 }
             };
-			var chart = new Highcharts.Chart(chartData);
-		});
-	}
-	else {
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', './data/reportdb.sqlite',true);
-		xhr.responseType = 'arraybuffer';
-		xhr.onload = function(e) {
-			var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + 
-				"'" + " AND type='" + query.type + "'" + " AND subtype='" + 
-				query.subtype + "';";
-			var uInt8Array = new Uint8Array(this.response);
-			var db = new SQL.Database(uInt8Array);
-			var contents = db.exec(sqlQuery);
-			var chartData = JSON.parse(contents[0].values[0][0]);
-			
-			// Deserialize the stored functions - only in a couple of cases
-			if (query.type === "countsbio") {
-				chartData.yAxis.labels.formatter = new Function('return ' +
-					chartData.yAxis.labels.formatter)()
-					
-				chartData.plotOptions.scatter.tooltip.pointFormatter = 
-					new Function('return ' +
-						chartData.plotOptions.scatter.tooltip.pointFormatter)()
-				
-				chartData.plotOptions.boxplot.events.legendItemClick = 
-					new Function('return ' + 
-						chartData.plotOptions.boxplot.events.legendItemClick)()
-			}
-			if (query.type === "boxplot") {
-				chartData.plotOptions.boxplot.tooltip.pointFormatter = 
-					new Function('return ' +
-						chartData.plotOptions.boxplot.tooltip.pointFormatter)()
-				
-				chartData.plotOptions.boxplot.events.legendItemClick = 
-					new Function('return ' + 
-						chartData.plotOptions.boxplot.events.legendItemClick)()
-			}
-			
-			chartData.chart.renderTo = renderId;
-			chartData.chart.events = {
-				load: function() {
-					$("#loader").hide();
-				}
-			};
-			var chart = new Highcharts.Chart(chartData);
-		};
-		xhr.send();
-		$("#loader").show();
-	}
+            var chart = new Highcharts.Chart(chartData);
+        });
+    }
+    else {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', './data/reportdb.sqlite',true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onload = function(e) {
+            var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + 
+                "'" + " AND type='" + query.type + "'" + " AND subtype='" + 
+                query.subtype + "';";
+            var uInt8Array = new Uint8Array(this.response);
+            var db = new SQL.Database(uInt8Array);
+            var contents = db.exec(sqlQuery);
+            var chartData = JSON.parse(contents[0].values[0][0]);
+            
+            // Deserialize the stored functions - only in a couple of cases
+            if (query.type === "countsbio") {
+                chartData.yAxis.labels.formatter = new Function('return ' +
+                    chartData.yAxis.labels.formatter)()
+                    
+                chartData.plotOptions.scatter.tooltip.pointFormatter = 
+                    new Function('return ' +
+                        chartData.plotOptions.scatter.tooltip.pointFormatter)()
+                
+                chartData.plotOptions.boxplot.events.legendItemClick = 
+                    new Function('return ' + 
+                        chartData.plotOptions.boxplot.events.legendItemClick)()
+            }
+            if (query.type === "boxplot") {
+                chartData.plotOptions.boxplot.tooltip.pointFormatter = 
+                    new Function('return ' +
+                        chartData.plotOptions.boxplot.tooltip.pointFormatter)()
+                
+                chartData.plotOptions.boxplot.events.legendItemClick = 
+                    new Function('return ' + 
+                        chartData.plotOptions.boxplot.events.legendItemClick)()
+            }
+            
+            chartData.chart.renderTo = renderId;
+            chartData.chart.events = {
+                load: function() {
+                    $("#loader").hide();
+                }
+            };
+            var chart = new Highcharts.Chart(chartData);
+        };
+        xhr.send();
+        $("#loader").show();
+    }
 }
 
 getVennFromDb = function(query,renderId) {
-	if (DEXIE) {
-		$("#loader").show();
-		db.plots.get({
-			name: query.name,
-			type: query.type,
-			subtype: query.subtype
-		},function(res) {
-			var chartData = res.json;
-			chartData.fnClickCallback = function() {
-				var value = '';
-				if (this.listnames.length == 1) {
-					value += 'Elements only in ';
-				} else {
-					value += 'Common elements in ';
-				}
-				for (name in this.listnames) {
-					value += this.listnames[name] + ' ';
-				}
-				value += ':\n';
-				for (val in this.list) {
-					value += this.list[val] + '\n';
-				}
-				if (query.subtype === "stat_dereg" 
-					|| query.subtype === "stat_up"
-					|| query.subtype === "stat_down") {
+    if (DEXIE) {
+        $("#loader").show();
+        db.plots.get({
+            name: query.name,
+            type: query.type,
+            subtype: query.subtype
+        },function(res) {
+            var chartData = res.json;
+            chartData.fnClickCallback = function() {
+                var value = '';
+                if (this.listnames.length == 1) {
+                    value += 'Elements only in ';
+                } else {
+                    value += 'Common elements in ';
+                }
+                for (name in this.listnames) {
+                    value += this.listnames[name] + ' ';
+                }
+                value += ':\n';
+                for (val in this.list) {
+                    value += this.list[val] + '\n';
+                }
+                if (query.subtype === "stat_dereg" 
+                    || query.subtype === "stat_up"
+                    || query.subtype === "stat_down") {
                     $('#jvenn_stat_list').text(value);
                 }
                 if (query.subtype === "fold_dereg" 
-					|| query.subtype === "fold_up"
-					|| query.subtype === "fold_down") {
+                    || query.subtype === "fold_up"
+                    || query.subtype === "fold_down") {
                     $('#jvenn_fold_list').text(value);
                 }
-			}
-			$('#'+renderId).jvenn(chartData);
-			$("#loader").hide();
-		});
-	}
-	else {
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', './data/reportdb.sqlite',true);
-		xhr.responseType = 'arraybuffer';
-		xhr.onload = function(e) {
-			var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + 
-				"'" +" AND type='" + query.type + "'" + " AND subtype='" + 
-				query.subtype + "';";
-			
-			var uInt8Array = new Uint8Array(this.response);
-			var db = new SQL.Database(uInt8Array);
-			var contents = db.exec(sqlQuery);
-			var chartData = JSON.parse(contents[0].values[0][0]);
-			chartData.fnClickCallback = function() {
-				var value = '';
-				if (this.listnames.length == 1) {
-					value += 'Elements only in ';
-				} else {
-					value += 'Common elements in ';
-				}
-				for (name in this.listnames) {
-					value += this.listnames[name] + ' ';
-				}
-				value += ':\n';
-				for (val in this.list) {
-					value += this.list[val] + '\n';
-				}
-				if (query.subtype === "stat_dereg" 
-					|| query.subtype === "stat_up"
-					|| query.subtype === "stat_down") {
+            }
+            $('#'+renderId).jvenn(chartData);
+            $("#loader").hide();
+        });
+    }
+    else {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', './data/reportdb.sqlite',true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onload = function(e) {
+            var sqlQuery = "SELECT json FROM plot WHERE name='" + query.name + 
+                "'" +" AND type='" + query.type + "'" + " AND subtype='" + 
+                query.subtype + "';";
+            
+            var uInt8Array = new Uint8Array(this.response);
+            var db = new SQL.Database(uInt8Array);
+            var contents = db.exec(sqlQuery);
+            var chartData = JSON.parse(contents[0].values[0][0]);
+            chartData.fnClickCallback = function() {
+                var value = '';
+                if (this.listnames.length == 1) {
+                    value += 'Elements only in ';
+                } else {
+                    value += 'Common elements in ';
+                }
+                for (name in this.listnames) {
+                    value += this.listnames[name] + ' ';
+                }
+                value += ':\n';
+                for (val in this.list) {
+                    value += this.list[val] + '\n';
+                }
+                if (query.subtype === "stat_dereg" 
+                    || query.subtype === "stat_up"
+                    || query.subtype === "stat_down") {
                     $('#jvenn_stat_list').text(value);
                 }
                 if (query.subtype === "fold_dereg" 
-					|| query.subtype === "fold_up"
-					|| query.subtype === "fold_down") {
+                    || query.subtype === "fold_up"
+                    || query.subtype === "fold_down") {
                     $('#jvenn_fold_list').text(value);
                 }
-			}
-			$('#'+renderId).jvenn(chartData);
-			$("#loader").hide();
-		};
-		xhr.send();
-		$("#loader").show();
-	}
+            }
+            $('#'+renderId).jvenn(chartData);
+            $("#loader").hide();
+        };
+        xhr.send();
+        $("#loader").show();
+    }
 }
 ```
 
@@ -352,7 +352,7 @@ p {
 }
 
 .detable-container {
-	font-size: 0.8em;
+    font-size: 0.8em;
 }
 
 .header-panel {
@@ -364,80 +364,80 @@ p {
 
 .header-panel h1.subtitle {
     font-size: 16px;
-	font-weight: 600;
+    font-weight: 600;
 }
 
 .figure-hint {
-	text-align: justify;
-	font-size: 0.9em;
+    text-align: justify;
+    font-size: 0.9em;
 }
 
 .hc-rect-sm {
-	width: 640px;
-	height: 640px;
-	margin: auto;
+    width: 640px;
+    height: 640px;
+    margin: auto;
 }
 
 .hc-rect-xs {
-	width: 320px;
-	height: 320px;
-	margin: auto;
+    width: 320px;
+    height: 320px;
+    margin: auto;
 }
 
 .hc-selector-label {
-	color: #0030CE;
-	font-size: 0.9em;
-	font-weight: 600;
+    color: #0030CE;
+    font-size: 0.9em;
+    font-weight: 600;
 }
 
 .deheatmap-container {
-	width: 740px;
-	height: 860px;
-	text-align: center;
-	margin: 25px auto 5px;
+    width: 740px;
+    height: 860px;
+    text-align: center;
+    margin: 25px auto 5px;
 }
 
 .coheatmap-container {
-	width: 640px;
-	height: 640px;
-	text-align: center;
-	margin: auto;
+    width: 640px;
+    height: 640px;
+    text-align: center;
+    margin: auto;
 }
 
 .link-box {
-	background-color: #D5EEEB; 
-	border-style: solid; 
-	border-color: #00887A; 
-	border-width: 1px; 
-	width: 80%; 
-	padding: 10px;
-	margin-top: 20px;
-	-moz-border-radius: 5px;
+    background-color: #D5EEEB; 
+    border-style: solid; 
+    border-color: #00887A; 
+    border-width: 1px; 
+    width: 80%; 
+    padding: 10px;
+    margin-top: 20px;
+    -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     -khtml-border-radius: 5px;
     border-radius: 5px;
 }
 
 .hidden-element {
-	visibility: hidden;
-	width: 10px;
-	height: 10px;
+    visibility: hidden;
+    width: 10px;
+    height: 10px;
 }
 
 .jvenn_list {
-	font-size: 0.9em;
-	font-wight: 600;
-	width: 100%;
-	height: 300px;
+    font-size: 0.9em;
+    font-wight: 600;
+    width: 100%;
+    height: 300px;
 }
 
 #summary_log_container {
-	font-family: "Courier New", Courier, monospace;
-	font-size: 0.9em;
-	height: 400px;
-	overflow-y: scroll;
-	overflow-x: hidden;
-	overflow-wrap: normal;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.9em;
+    height: 400px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    overflow-wrap: normal;
 }
 
 /******************************* Chart loading ********************************/
@@ -547,43 +547,43 @@ biotypes <- unique(as.character(geneData$biotype))
 reportMessages <- makeReportMessages("en")
 
 qualPlots <- c("mds","biodetection","countsbio","saturation","readnoise",
-	"correl","pairwise","filtered")
+    "correl","pairwise","filtered")
 normPlots <- c("boxplot","gcbias","lengthbias","meandiff","meanvar","rnacomp")
 statPlots <- c("deheatmap","volcano","mastat","biodist","statvenn","foldvenn",
-	"deregulogram")
+    "deregulogram")
 
 covarsRaw <- covarsStat <- NULL
 if (any(qcPlots %in% c("biodetection","countsbio","saturation","rnacomp",
-	"readnoise"))) {
-	covarsRaw <- list(
-		data=geneCounts,
-		length=width(geneData),
-		gc=as.numeric(geneData$gc_content),
-		chromosome=data.frame(
-			chromosome=as.character(seqnames(geneData)),
-			start=start(geneData),
-			end=end(geneData)
-		),
-		factors=data.frame(class=asClassVector(sampleList)),
-		biotype=as.character(geneData$biotype),
-		gene_name=as.character(geneData$gene_name)
-	)
+    "readnoise"))) {
+    covarsRaw <- list(
+        data=geneCounts,
+        length=width(geneData),
+        gc=as.numeric(geneData$gc_content),
+        chromosome=data.frame(
+            chromosome=as.character(seqnames(geneData)),
+            start=start(geneData),
+            end=end(geneData)
+        ),
+        factors=data.frame(class=asClassVector(sampleList)),
+        biotype=as.character(geneData$biotype),
+        gene_name=as.character(geneData$gene_name)
+    )
 }
 
 if ("biodist" %in% qcPlots) {
-	covarsStat <- list(
-		data=normGenesExpr,
-		length=width(geneDataExpr),
-		gc=as.numeric(geneDataExpr$gc_content),
-		chromosome=data.frame(
-			chromosome=as.character(seqnames(geneDataExpr)),
-			start=start(geneDataExpr),
-			end=end(geneDataExpr)
-		),
-		factors=data.frame(class=asClassVector(sampleList)),
-		biotype=as.character(geneDataExpr$biotype),
-		gene_name=as.character(geneDataExpr$gene_name)
-	)
+    covarsStat <- list(
+        data=normGenesExpr,
+        length=width(geneDataExpr),
+        gc=as.numeric(geneDataExpr$gc_content),
+        chromosome=data.frame(
+            chromosome=as.character(seqnames(geneDataExpr)),
+            start=start(geneDataExpr),
+            end=end(geneDataExpr)
+        ),
+        factors=data.frame(class=asClassVector(sampleList)),
+        biotype=as.character(geneDataExpr$biotype),
+        gene_name=as.character(geneDataExpr$gene_name)
+    )
 }
 ```
 
@@ -769,63 +769,63 @@ if (fromRaw) {
             cat("a gene ")
         else if (countType=="utr") 
             cat("a 3'UTR ")
-	}
-	else if (transLevel=="transcript") {
-		if (countType=="exon")
-			cat("an exon ")
-		else if (countType=="utr")
-			cat("a 3'UTR ")
-	}
-	else if (transLevel=="exon") {
-		if (countType=="exon")
-			cat("an exon ")
-	}
-	cat("read counts table, ")
-	if (fileType=="bam" || fileType=="sam")
-		cat("using the Bioconductor package GenomicRanges. ")
-	else if (fileType=="bed")
-		cat("using the Bioconductor packages rtracklayer and GenomicRanges. ")
-	cat("In the final read counts table, each row represented ")
-	if (countType=="exon") cat("one exon, ") 
-	    else if 
-	(countType=="gene") 
-	    cat("one gene, ")
-	cat("each column one RNA-Seq sample and each cell, the corresponding ",
-	    "read counts associated with each row and column.")
+    }
+    else if (transLevel=="transcript") {
+        if (countType=="exon")
+            cat("an exon ")
+        else if (countType=="utr")
+            cat("a 3'UTR ")
+    }
+    else if (transLevel=="exon") {
+        if (countType=="exon")
+            cat("an exon ")
+    }
+    cat("read counts table, ")
+    if (fileType=="bam" || fileType=="sam")
+        cat("using the Bioconductor package GenomicRanges. ")
+    else if (fileType=="bed")
+        cat("using the Bioconductor packages rtracklayer and GenomicRanges. ")
+    cat("In the final read counts table, each row represented ")
+    if (countType=="exon") cat("one exon, ") 
+        else if 
+    (countType=="gene") 
+        cat("one gene, ")
+    cat("each column one RNA-Seq sample and each cell, the corresponding ",
+        "read counts associated with each row and column.")
 }
 
 if (countType == "exon") {
     if (!is.null(exonFilters)) {
-	    cat("The exon read counts were filtered for artifacts that could",
-		    "affect the subsequent normalization and statistical testing",
-		    "procedures as follows: ")
-		msgExonFiltersMinActiveExons <- NULL
-		if (!is.null(exonFilters$minActiveExons)) {
-			msgExonFiltersMinActiveExons <- paste(
-				"if an annotated ",transLevel," had up to ", 
-				exonFilters$minActiveExons$exonsPerGene," exons, read ",
-				"presence was required in at least ",
-				exonFilters$minActiveExons$minExons," of the exons, else if ", 
-				"an annotated ",transLevel," had more than ",
-				exonFilters$minActiveExons$exonsPerGene," exons, then read ",
-				"presence was required in at least ",
-				exonFilters$minActiveExons$frac,
-				"x&lceil;E&rceil; exons, where &lceil;<sup>.</sup>&rceil; is ",
-				"the <em>ceiling</em> mathematical function. The application ",
-				"of this filter resulted in the exclusion of ",
-				length(exonFilterResult$minActiveExons)," ",transLevel,
-				"s from further analysis. ",sep=""
-			)
-		}
-		cat(msgExonFiltersMinActiveExons,sep=", ")
-		cat("The total number of ",transLevel,"s excluded due to the ",
-		    "application of exon filters was ",
-		     sum(as.numeric(sapply(exonFilterResult,length))),". ",sep="")
-	}
-	cat("The final read counts for each ",transLevel," model were calculated",
-	    "as the sums of their exon reads, creating a ",transLevel," counts",
-	    "table where each row corresponded to an Ensembl",transLevel,
-	    " model and each column corresponded to an RNA-Seq sample. ")
+        cat("The exon read counts were filtered for artifacts that could",
+            "affect the subsequent normalization and statistical testing",
+            "procedures as follows: ")
+        msgExonFiltersMinActiveExons <- NULL
+        if (!is.null(exonFilters$minActiveExons)) {
+            msgExonFiltersMinActiveExons <- paste(
+                "if an annotated ",transLevel," had up to ", 
+                exonFilters$minActiveExons$exonsPerGene," exons, read ",
+                "presence was required in at least ",
+                exonFilters$minActiveExons$minExons," of the exons, else if ", 
+                "an annotated ",transLevel," had more than ",
+                exonFilters$minActiveExons$exonsPerGene," exons, then read ",
+                "presence was required in at least ",
+                exonFilters$minActiveExons$frac,
+                "x&lceil;E&rceil; exons, where &lceil;<sup>.</sup>&rceil; is ",
+                "the <em>ceiling</em> mathematical function. The application ",
+                "of this filter resulted in the exclusion of ",
+                length(exonFilterResult$minActiveExons)," ",transLevel,
+                "s from further analysis. ",sep=""
+            )
+        }
+        cat(msgExonFiltersMinActiveExons,sep=", ")
+        cat("The total number of ",transLevel,"s excluded due to the ",
+            "application of exon filters was ",
+             sum(as.numeric(sapply(exonFilterResult,length))),". ",sep="")
+    }
+    cat("The final read counts for each ",transLevel," model were calculated",
+        "as the sums of their exon reads, creating a ",transLevel," counts",
+        "table where each row corresponded to an Ensembl",transLevel,
+        " model and each column corresponded to an RNA-Seq sample. ")
 }
 
 cat("The ",transLevel," counts table was normalized for inherent systematic ",
@@ -839,162 +839,162 @@ cat("was a table with normalized counts, which can be used for differential",
     "for count data. ")
     
 if (!is.null(geneFilters)) {
-	cat("Prior to the statistical testing procedure, the ",transLevel," read ",
-	"counts were filtered for possible artifacts that could affect the ",
-	"subsequent statistical testing procedures. Genes/transcripts presenting ",
-	"any of the following were excluded from further analysis: ")
-	
-	latinNumbered <- c("i)","ii)","iii)","iv)","v)","vi)","vii)","viii)","ix)",
-		"x)","xi)","xii)","xiii)","xiv)","xv)")
-	counter <- 0
-	msgGeneFiltersLength <- msgGeneFiltersExpressionMedian <- 
-		msgGeneFiltersExpressionMean <- msgGeneFiltersExpressionQuantile <-
-		msgGeneFiltersExpressionKnown <- msgGeneFiltersExpressionCustom <-
-		msgGeneFiltersBiotype <- msgGeneFiltersAvgReads <- 
-		msgGeneFiltersPresence <- NULL
-	if (!is.null(geneFilters$length)) {
-		counter <- counter + 1
-		msgGeneFiltersLength <- paste(
-			latinNumbered[counter]," ",transLevel,"s with length less than ", geneFilters$length$length," (",length(geneFilterResult$length),
-			" genes)",sep=""
-		)
-	}
-	if (!is.null(geneFilters$avgReads)) {
-		counter <- counter + 1
-		msgGeneFiltersAvgReads <- paste(
-			latinNumbered[counter]," ",transLevel,"s whose average reads per ",
-			geneFilters$avgReads$averagePerBp," bp was less than the ",
-			100*geneFilters$avgReads$quantile,"<sup>th</sup> quantile of the ",
-			"total normalized distribution of average reads per ",
-			geneFilters$avgReads$averagePerBp,"bp (",
-			length(geneFilterResult$averagePerBp)," ",transLevel,"s with ",
-			"cutoff value ",round(geneFilterCutoff$avgReads,digits=5)," ",
-			"average reads per ",geneFilters$avgReads$averagePerBp," bp)",sep=""
-		)
-	}
-	if (!is.null(geneFilters$expression)) {
-		if (!is.null(geneFilters$expression$median)
-		    && geneFilters$expression$median) {
-			counter <- counter + 1
-			msgGeneFiltersExpressionMedian <- paste(
-				latinNumbered[counter]," ",transLevel,"s with read counts ",
-				"below the median read counts of the total normalized count ",
-				"distribution (",length(geneFilterResult$expression$median)," ",
-				transLevel,"s with cutoff value ",
-				geneFilterCutoff$expression$median," normalized read counts)",
-				sep=""
-			)
-		}
-		if (!is.null(geneFilters$expression$mean) 
-		    && geneFilters$expression$mean) {
-			counter <- counter + 1
-			msgGeneFiltersExpressionMean <- paste(
-				latinNumbered[counter]," ",transLevel,"s with read counts ",
-				"below the mean read counts of the total normalized counts ",
-				"distribution (",length(geneFilterResult$expression$mean)," ",
-				transLevel,"s with cutoff value ",
-				geneFilterCutoff$expression$mean," normalized read counts)",
-				sep=""
-			)
-		}
-		if (!is.null(geneFilters$expression$quantile) 
-		    && !is.na(geneFilters$expression$quantile)) {
-			counter <- counter + 1
-			msgGeneFiltersExpressionQuantile <- paste(
-				latinNumbered[counter]," ",transLevel,"s with read counts ",
-				"below the ",100*geneFilters$expression$quantile,
-				"<sup>th</sup> quantile of the normalized counts distribution ",
-				"(",length(geneFilterResult$expression$quantile)," ",transLevel,
-				"s with cutoff value ",geneFilterCutoff$expression$quantile," ",
-				"normalized read counts)",sep=""
-			)
-		}
-		if (!is.null(geneFilters$expression$known) 
-		    && !is.na(geneFilters$expression$known)) {
-			counter <- counter + 1
-			msgGeneFiltersExpressionKnown <- paste(
-				latinNumbered[counter]," ",transLevel,"s with read counts ",
-				"below the 90<sup>th</sup> quantile of the counts of the ",
-				"following ",transLevel,"s, known to not being expressed from ",
-				"the related literature: ",
-				paste(geneFilters$expression$known,collapse=", "),
-				"(",length(geneFilterResult$expression$known)," ",transLevel,
-				"s with cutoff value",geneFilterCutoff$expression$known,
-				" normalized read counts)",sep=""
-			)
-		}
-		if (!is.null(geneFilters$expression$custom) 
-		    && !is.na(geneFilters$expression$custom)) {
-			counter <- counter + 1
-			msgGeneFiltersExpressionCustom <- paste(
-				latinNumbered[counter]," genes not passing the user defined ",
-				"filter provided to the metaseqr pipeline (",
-				length(geneFilterResult$expression$custom)," ",transLevel,
-				"s with cutoff value",geneFilterCutoff$expression$custom,")",
-				sep=""
-			)
-		}
-	}
-	if (!is.null(geneFilters$biotype)) {
-		counter <- counter + 1
-		msgGeneFiltersBiotype <- paste(
-			latinNumbered[counter]," ",transLevel,"s whose biotype matched ",
-			"the following: ",
-			paste(
-			    names(geneFilters$biotype)[which(unlist(geneFilters$biotype))],
-			    collapse=", "
-			),
-			" (",length(geneFilterResult$biotype)," ",transLevel,"s)",sep=""
-		)
-	}
-	if (!is.null(geneFilters$presence)) {
-		counter <- counter + 1
-		msgGeneFiltersPresence <- paste(
-			latinNumbered[counter]," ",transLevel,"s where ",
-			geneFilters$presence$frac*100,"% of samples were not above ",
-			geneFilters$presence$minCount," counts (",
-			length(geneFilterResult$presence)," ",transLevel,"s)",sep=""
-		)
-		if (geneFilters$presence$perCondition)
-		    msgGeneFiltersPresence <- 
-			    paste(msgGeneFiltersPresence," condition-wise",sep="")
-		else
-		    msgGeneFiltersPresence <- 
-			    paste(msgGeneFiltersPresence," across all samples",sep="")
-	}
-	
-	cat(msgGeneFiltersLength,msgGeneFiltersAvgReads,
-	    msgGeneFiltersExpressionMedian,msgGeneFiltersExpressionMean,
-		msgGeneFiltersExpressionQuantile,msgGeneFiltersExpressionKnown,
-		msgGeneFiltersExpressionCustom,msgGeneFiltersBiotype,
-		msgGeneFiltersPresence,sep=", ")
-	cat(". The total number of ",transLevel,"s excluded due to the ",
-	    "application of ",transLevel," filters was ",
-	    sum(as.numeric(sapply(geneFilterResult,length))),". ",sep="")
-	cat("The total (unified) number of ",transLevel,"s  excluded due to the ",
-	    "application of all filters was ",length(theZeros) + length(theDead),
-	    ". ",sep="")
+    cat("Prior to the statistical testing procedure, the ",transLevel," read ",
+    "counts were filtered for possible artifacts that could affect the ",
+    "subsequent statistical testing procedures. Genes/transcripts presenting ",
+    "any of the following were excluded from further analysis: ")
+    
+    latinNumbered <- c("i)","ii)","iii)","iv)","v)","vi)","vii)","viii)","ix)",
+        "x)","xi)","xii)","xiii)","xiv)","xv)")
+    counter <- 0
+    msgGeneFiltersLength <- msgGeneFiltersExpressionMedian <- 
+        msgGeneFiltersExpressionMean <- msgGeneFiltersExpressionQuantile <-
+        msgGeneFiltersExpressionKnown <- msgGeneFiltersExpressionCustom <-
+        msgGeneFiltersBiotype <- msgGeneFiltersAvgReads <- 
+        msgGeneFiltersPresence <- NULL
+    if (!is.null(geneFilters$length)) {
+        counter <- counter + 1
+        msgGeneFiltersLength <- paste(
+            latinNumbered[counter]," ",transLevel,"s with length less than ", geneFilters$length$length," (",length(geneFilterResult$length),
+            " genes)",sep=""
+        )
+    }
+    if (!is.null(geneFilters$avgReads)) {
+        counter <- counter + 1
+        msgGeneFiltersAvgReads <- paste(
+            latinNumbered[counter]," ",transLevel,"s whose average reads per ",
+            geneFilters$avgReads$averagePerBp," bp was less than the ",
+            100*geneFilters$avgReads$quantile,"<sup>th</sup> quantile of the ",
+            "total normalized distribution of average reads per ",
+            geneFilters$avgReads$averagePerBp,"bp (",
+            length(geneFilterResult$averagePerBp)," ",transLevel,"s with ",
+            "cutoff value ",round(geneFilterCutoff$avgReads,digits=5)," ",
+            "average reads per ",geneFilters$avgReads$averagePerBp," bp)",sep=""
+        )
+    }
+    if (!is.null(geneFilters$expression)) {
+        if (!is.null(geneFilters$expression$median)
+            && geneFilters$expression$median) {
+            counter <- counter + 1
+            msgGeneFiltersExpressionMedian <- paste(
+                latinNumbered[counter]," ",transLevel,"s with read counts ",
+                "below the median read counts of the total normalized count ",
+                "distribution (",length(geneFilterResult$expression$median)," ",
+                transLevel,"s with cutoff value ",
+                geneFilterCutoff$expression$median," normalized read counts)",
+                sep=""
+            )
+        }
+        if (!is.null(geneFilters$expression$mean) 
+            && geneFilters$expression$mean) {
+            counter <- counter + 1
+            msgGeneFiltersExpressionMean <- paste(
+                latinNumbered[counter]," ",transLevel,"s with read counts ",
+                "below the mean read counts of the total normalized counts ",
+                "distribution (",length(geneFilterResult$expression$mean)," ",
+                transLevel,"s with cutoff value ",
+                geneFilterCutoff$expression$mean," normalized read counts)",
+                sep=""
+            )
+        }
+        if (!is.null(geneFilters$expression$quantile) 
+            && !is.na(geneFilters$expression$quantile)) {
+            counter <- counter + 1
+            msgGeneFiltersExpressionQuantile <- paste(
+                latinNumbered[counter]," ",transLevel,"s with read counts ",
+                "below the ",100*geneFilters$expression$quantile,
+                "<sup>th</sup> quantile of the normalized counts distribution ",
+                "(",length(geneFilterResult$expression$quantile)," ",transLevel,
+                "s with cutoff value ",geneFilterCutoff$expression$quantile," ",
+                "normalized read counts)",sep=""
+            )
+        }
+        if (!is.null(geneFilters$expression$known) 
+            && !is.na(geneFilters$expression$known)) {
+            counter <- counter + 1
+            msgGeneFiltersExpressionKnown <- paste(
+                latinNumbered[counter]," ",transLevel,"s with read counts ",
+                "below the 90<sup>th</sup> quantile of the counts of the ",
+                "following ",transLevel,"s, known to not being expressed from ",
+                "the related literature: ",
+                paste(geneFilters$expression$known,collapse=", "),
+                "(",length(geneFilterResult$expression$known)," ",transLevel,
+                "s with cutoff value",geneFilterCutoff$expression$known,
+                " normalized read counts)",sep=""
+            )
+        }
+        if (!is.null(geneFilters$expression$custom) 
+            && !is.na(geneFilters$expression$custom)) {
+            counter <- counter + 1
+            msgGeneFiltersExpressionCustom <- paste(
+                latinNumbered[counter]," genes not passing the user defined ",
+                "filter provided to the metaseqr pipeline (",
+                length(geneFilterResult$expression$custom)," ",transLevel,
+                "s with cutoff value",geneFilterCutoff$expression$custom,")",
+                sep=""
+            )
+        }
+    }
+    if (!is.null(geneFilters$biotype)) {
+        counter <- counter + 1
+        msgGeneFiltersBiotype <- paste(
+            latinNumbered[counter]," ",transLevel,"s whose biotype matched ",
+            "the following: ",
+            paste(
+                names(geneFilters$biotype)[which(unlist(geneFilters$biotype))],
+                collapse=", "
+            ),
+            " (",length(geneFilterResult$biotype)," ",transLevel,"s)",sep=""
+        )
+    }
+    if (!is.null(geneFilters$presence)) {
+        counter <- counter + 1
+        msgGeneFiltersPresence <- paste(
+            latinNumbered[counter]," ",transLevel,"s where ",
+            geneFilters$presence$frac*100,"% of samples were not above ",
+            geneFilters$presence$minCount," counts (",
+            length(geneFilterResult$presence)," ",transLevel,"s)",sep=""
+        )
+        if (geneFilters$presence$perCondition)
+            msgGeneFiltersPresence <- 
+                paste(msgGeneFiltersPresence," condition-wise",sep="")
+        else
+            msgGeneFiltersPresence <- 
+                paste(msgGeneFiltersPresence," across all samples",sep="")
+    }
+    
+    cat(msgGeneFiltersLength,msgGeneFiltersAvgReads,
+        msgGeneFiltersExpressionMedian,msgGeneFiltersExpressionMean,
+        msgGeneFiltersExpressionQuantile,msgGeneFiltersExpressionKnown,
+        msgGeneFiltersExpressionCustom,msgGeneFiltersBiotype,
+        msgGeneFiltersPresence,sep=", ")
+    cat(". The total number of ",transLevel,"s excluded due to the ",
+        "application of ",transLevel," filters was ",
+        sum(as.numeric(sapply(geneFilterResult,length))),". ",sep="")
+    cat("The total (unified) number of ",transLevel,"s  excluded due to the ",
+        "application of all filters was ",length(theZeros) + length(theDead),
+        ". ",sep="")
 }
 
 cat("The resulting ",transLevel," counts table was subjected to differential ",
-	"expression analysis for the contrasts ",
-	paste(gsub("_vs_"," versus ",contrast),collapse=", "),sep="")
+    "expression analysis for the contrasts ",
+    paste(gsub("_vs_"," versus ",contrast),collapse=", "),sep="")
 if (length(statistics)>1) {
-	cat(" using the Bioconductor packages ",paste(unlist(
-	    reportMessages$stat[statistics],use.names=FALSE),collapse=", "),". ",
-	    sep="")
-	if (metaP!="none") {
-		cat("In order to combine the statistical significance from multiple ",
-		    "algorithms and perform meta-analysis, the ")
-		    cat(reportMessages$meta[[metaP]],"method was applied. ")
-	}
+    cat(" using the Bioconductor packages ",paste(unlist(
+        reportMessages$stat[statistics],use.names=FALSE),collapse=", "),". ",
+        sep="")
+    if (metaP!="none") {
+        cat("In order to combine the statistical significance from multiple ",
+            "algorithms and perform meta-analysis, the ")
+            cat(reportMessages$meta[[metaP]],"method was applied. ")
+    }
 } else {
-	cat(" using the Bioconductor package ",reportMessages$stat[[statistics]],
-	    ". ",sep="")
+    cat(" using the Bioconductor package ",reportMessages$stat[[statistics]],
+        ". ",sep="")
 }
 
 if (!is.na(pcut))
-	if (pcut==1) plasm <- 0.05 else plasm <- pcut
+    if (pcut==1) plasm <- 0.05 else plasm <- pcut
 
 cat("The final numbers of differentially expressed ",transLevel,"s were (per ",
     "contrast): ",sep="")
@@ -1002,80 +1002,80 @@ msgContrast <- character(length(contrast))
 names(msgContrast) <- contrast
 
 for (cnt in contrast) {
-	if (!is.na(pcut) && length(which(sumpList[[cnt]]<plasm))==0) {
-		msgContrast[cnt] <- paste(
-		    "for the contrast ",gsub("_vs_"," versus ",cnt),
-		    ", no differentially expressed ",transLevel,"s were found",
-			" with a p-value threshold of ",plasm,sep=""
-		)
-	} else if (is.na(pcut)) {
-		msgContrast[cnt] <- paste(
-		    "for the contrast ",gsub("_vs_"," versus ",cnt),
-		    ", no statistical threshold defined",sep=""
-		)
-	} else {
-		if (adjustMethod != "none") {
-			addTextP <- paste(
-			    " (",length(which(p.adjust(sumpList[[cnt]],
-			    adjustMethod)<plasm)),")",sep=""
-			)
-			hasFdrText <- " (FDR or adjusted p-value)"
-		}
-		else
-			addTextP <- hasFdrText <- NULL
-		if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
-			tmp <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
-			    sumpList[[cnt]]<plasm),,drop=FALSE],logOffset))
-			if (adjustMethod != "none") {
-				areThere <- which(p.adjust(sumpList[[cnt]],adjustMethod)<plasm)
-				if (length(areThere) > 0) {
-					if (length(areThere)==1) {
-						tmpF <- log2(makeFoldChange(cnt,sampleList,
-						    normGenesExpr[areThere,,drop=FALSE],logOffset))
-						addTextFu <- 
-						    paste(" (",length(which(tmpF>=1)),")",sep="")
-						addTextFd <- 
-						    paste(" (",length(which(tmpF<=-1)),")",sep="")
-						addTextFn <- 
-						    paste(" (",length(which(abs(tmpF)<1)),")",sep="")
-					}
-					else {
-						tmpF <- log2(makeFoldChange(cnt,sampleList,
-						    normGenesExpr[areThere,,drop=FALSE],logOffset))
-						addTextFu <- 
-						    paste(" (",length(which(tmpF>=1)),")",sep="")
-						addTextFd <- 
-						    paste(" (",length(which(tmpF<=-1)),")",sep="")
-						addTextFn <- 
-						    paste(" (",length(which(abs(tmpF)<1)),")",sep="")
-					}
-				}
-				else
-					addTextFu <- addTextFd <- addTextFn <- NULL
-			}
-			else
-				addTextFu <- addTextFd <- addTextFn <- NULL
-			msgContrast[cnt] <- paste(
-			    "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
-			    length(which(sumpList[[cnt]]<plasm)),addTextP,
-			    " statistically significant ",transLevel,"s were found with ",
-			    "a p-value",hasFdrText," threshold of ",plasm," and of these, ",
-			    length(which(tmp>=1)),addTextFu," were up-regulated, ",
-			    length(which(tmp<=-1)),addTextFd," were down-regulated and ",
-			    length(which(abs(tmp)<1)),addTextFn," were not ",
-			    "differentially expressed according to an absolute fold ",
-			    "change cutoff value of 1 in log<sub>2</sub> scale",sep=""
-			)
-		}
-		else
-			msgContrast[cnt] <- paste(
-			    "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
-			    length(which(sumpList[[cnt]]<plasm)),addTextP,
-			    " differentially expressed ",transLevel,"s were found with ",
-			    "a p-value",hasFdrText," threshold of ",plasm," at least in ",
-			    "one condition",sep=""
-			)
-	}
+    if (!is.na(pcut) && length(which(sumpList[[cnt]]<plasm))==0) {
+        msgContrast[cnt] <- paste(
+            "for the contrast ",gsub("_vs_"," versus ",cnt),
+            ", no differentially expressed ",transLevel,"s were found",
+            " with a p-value threshold of ",plasm,sep=""
+        )
+    } else if (is.na(pcut)) {
+        msgContrast[cnt] <- paste(
+            "for the contrast ",gsub("_vs_"," versus ",cnt),
+            ", no statistical threshold defined",sep=""
+        )
+    } else {
+        if (adjustMethod != "none") {
+            addTextP <- paste(
+                " (",length(which(p.adjust(sumpList[[cnt]],
+                adjustMethod)<plasm)),")",sep=""
+            )
+            hasFdrText <- " (FDR or adjusted p-value)"
+        }
+        else
+            addTextP <- hasFdrText <- NULL
+        if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
+            tmp <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
+                sumpList[[cnt]]<plasm),,drop=FALSE],logOffset))
+            if (adjustMethod != "none") {
+                areThere <- which(p.adjust(sumpList[[cnt]],adjustMethod)<plasm)
+                if (length(areThere) > 0) {
+                    if (length(areThere)==1) {
+                        tmpF <- log2(makeFoldChange(cnt,sampleList,
+                            normGenesExpr[areThere,,drop=FALSE],logOffset))
+                        addTextFu <- 
+                            paste(" (",length(which(tmpF>=1)),")",sep="")
+                        addTextFd <- 
+                            paste(" (",length(which(tmpF<=-1)),")",sep="")
+                        addTextFn <- 
+                            paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+                    }
+                    else {
+                        tmpF <- log2(makeFoldChange(cnt,sampleList,
+                            normGenesExpr[areThere,,drop=FALSE],logOffset))
+                        addTextFu <- 
+                            paste(" (",length(which(tmpF>=1)),")",sep="")
+                        addTextFd <- 
+                            paste(" (",length(which(tmpF<=-1)),")",sep="")
+                        addTextFn <- 
+                            paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+                    }
+                }
+                else
+                    addTextFu <- addTextFd <- addTextFn <- NULL
+            }
+            else
+                addTextFu <- addTextFd <- addTextFn <- NULL
+            msgContrast[cnt] <- paste(
+                "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
+                length(which(sumpList[[cnt]]<plasm)),addTextP,
+                " statistically significant ",transLevel,"s were found with ",
+                "a p-value",hasFdrText," threshold of ",plasm," and of these, ",
+                length(which(tmp>=1)),addTextFu," were up-regulated, ",
+                length(which(tmp<=-1)),addTextFd," were down-regulated and ",
+                length(which(abs(tmp)<1)),addTextFn," were not ",
+                "differentially expressed according to an absolute fold ",
+                "change cutoff value of 1 in log<sub>2</sub> scale",sep=""
+            )
+        }
+        else
+            msgContrast[cnt] <- paste(
+                "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
+                length(which(sumpList[[cnt]]<plasm)),addTextP,
+                " differentially expressed ",transLevel,"s were found with ",
+                "a p-value",hasFdrText," threshold of ",plasm," at least in ",
+                "one condition",sep=""
+            )
+    }
 }
 cat(paste(msgContrast,collapse=", "))
 cat(". Literature references for all the algorithms used can be found at the ",
@@ -1104,9 +1104,9 @@ cat(paste(unlist(sampleList),collapse=", "))
 **Samples excluded:** 
 ```{r summary_input_options_4}
 if (!is.null(excludeList) && !is.na(excludeList)) {
-	cat(paste(unlist(excludeList),collapse=", ")) 
+    cat(paste(unlist(excludeList),collapse=", ")) 
 } else {
-	cat("none")
+    cat("none")
 }
 
 ```
@@ -1119,10 +1119,10 @@ cat(paste(contrast,collapse=", "))
 **Library sizes:**
 ```{r summary_input_options_6}
 if (!is.null(libsizeList)) {
-	cat("<ul>")
-	for (n in names(libsizeList)) 
-	    cat("<li>",paste("<em>",n,"</em>: ",libsizeList[[n]],sep=""),"</li>")
-	cat("</ul>")
+    cat("<ul>")
+    for (n in names(libsizeList)) 
+        cat("<li>",paste("<em>",n,"</em>: ",libsizeList[[n]],sep=""),"</li>")
+    cat("</ul>")
 } else {
     cat("not available")
 }
@@ -1145,66 +1145,66 @@ cat(countType)
 
 ```{r summary_input_options_10}
 if (countType=="utr" && !is.null(utrOpts)) {
-	cat("<strong>3' UTR fraction:</strong> ",utrOpts$frac)
-	cat("<strong>3' UTR minimum length:</strong> ",utrOpts$minLength,"bps")
-	cat("<strong>3' UTR downstream:</strong> ",utrOpts$downstream,"bps")
+    cat("<strong>3' UTR fraction:</strong> ",utrOpts$frac)
+    cat("<strong>3' UTR minimum length:</strong> ",utrOpts$minLength,"bps")
+    cat("<strong>3' UTR downstream:</strong> ",utrOpts$downstream,"bps")
 }
 ```
 
 **Exon filters:**
 ```{r summary_input_options_11}
 if (!is.null(exonFilters)) {
-	cat(paste(names(exonFilters),collapse=", "),"<br/>")
-	for (ef in names(exonFilters)) {
-		cat("<ul>")
-		cat("<li><em><span style=\"font-size:1em\">",ef,"</span></em><ul>",
-			sep="")
-		for (efp in names(exonFilters[[ef]])) {
-			if (length(exonFilters[[ef]][[efp]]) == 1 
-				&& is.function(exonFilters[[ef]][[efp]]))
-				cat("<li>custom function</li>")
-			else if (length(exonFilters[[ef]][[efp]]) == 1)
-				cat("<li>",paste(efp,exonFilters[[ef]][[efp]],sep=": "),
-					"</li>",sep="")
-			else if (length(exonFilters[[ef]][[efp]]) > 1)
-				cat("<li>",paste(efp,paste(exonFilters[[ef]][[efp]],
-					collapse=", "),sep=": "),"</li>",sep="")
-		}
-		cat("</ul></li></ul>")
-	}
+    cat(paste(names(exonFilters),collapse=", "),"<br/>")
+    for (ef in names(exonFilters)) {
+        cat("<ul>")
+        cat("<li><em><span style=\"font-size:1em\">",ef,"</span></em><ul>",
+            sep="")
+        for (efp in names(exonFilters[[ef]])) {
+            if (length(exonFilters[[ef]][[efp]]) == 1 
+                && is.function(exonFilters[[ef]][[efp]]))
+                cat("<li>custom function</li>")
+            else if (length(exonFilters[[ef]][[efp]]) == 1)
+                cat("<li>",paste(efp,exonFilters[[ef]][[efp]],sep=": "),
+                    "</li>",sep="")
+            else if (length(exonFilters[[ef]][[efp]]) > 1)
+                cat("<li>",paste(efp,paste(exonFilters[[ef]][[efp]],
+                    collapse=", "),sep=": "),"</li>",sep="")
+        }
+        cat("</ul></li></ul>")
+    }
 } else {
-	cat("none applied")
+    cat("none applied")
 }
 ```
 
 ```{r summary_input_options_12}
 if (!is.null(preset))
-	cat("<strong>Analysis preset:</strong>",reportMessages$preset[[preset]])
+    cat("<strong>Analysis preset:</strong>",reportMessages$preset[[preset]])
 ```
 
 **Gene filters:**
 ```{r summary_input_options_13}
 if (!is.null(geneFilters)) {
-	cat(paste(names(geneFilters),collapse=", "),"<br/>")
-	for (gf in names(geneFilters)) {
-		cat("<ul>")
-		cat("<li><em><span style=\"font-size:1em\">",gf,"</span></em><ul>",
-		    sep="")
-		for (gfp in names(geneFilters[[gf]])) {
-			if (length(geneFilters[[gf]][[gfp]]) == 1 
-			    && is.function(geneFilters[[gf]][[gfp]]))
-				cat("<li>custom function</li>")
-			else if (length(geneFilters[[gf]][[gfp]]) == 1)
-				cat("<li>",paste(gfp,geneFilters[[gf]][[gfp]],sep=": "),"</li>",
-				    sep="")
-			else if (length(geneFilters[[gf]][[gfp]]) > 1)
-				cat("<li>",paste(gfp,paste(geneFilters[[gf]][[gfp]],
-					collapse=", "),sep=": "),"</li>",sep="")
-		}
-		cat("</ul></li></ul>")
-	}
+    cat(paste(names(geneFilters),collapse=", "),"<br/>")
+    for (gf in names(geneFilters)) {
+        cat("<ul>")
+        cat("<li><em><span style=\"font-size:1em\">",gf,"</span></em><ul>",
+            sep="")
+        for (gfp in names(geneFilters[[gf]])) {
+            if (length(geneFilters[[gf]][[gfp]]) == 1 
+                && is.function(geneFilters[[gf]][[gfp]]))
+                cat("<li>custom function</li>")
+            else if (length(geneFilters[[gf]][[gfp]]) == 1)
+                cat("<li>",paste(gfp,geneFilters[[gf]][[gfp]],sep=": "),"</li>",
+                    sep="")
+            else if (length(geneFilters[[gf]][[gfp]]) > 1)
+                cat("<li>",paste(gfp,paste(geneFilters[[gf]][[gfp]],
+                    collapse=", "),sep=": "),"</li>",sep="")
+        }
+        cat("</ul></li></ul>")
+    }
 } else {
-	cat("none applied")
+    cat("none applied")
 }
 ```
 
@@ -1221,86 +1221,86 @@ cat(reportMessages$norm[[normalization]])
 **Normalization arguments:**
 ```{r summary_input_options_16}
 if (!is.null(normArgs)) {
-	if (normalization == "each") {
-		for (n in names(normArgs)) {
-			cat("<strong>Statistical arguments for",
-				reportMessages$norm[[n]],": </strong>",
-				paste(names(normArgs[[n]]),collapse=", "))
-			if (length(normArgs[[n]]) > 0) {
-				cat("<ul>")
-				for (na in names(normArgs[[n]])) {
-					if (length(normArgs[[n]][[na]]) == 1 
-					    && is.function(normArgs[[n]][[na]])) {
-						cat("<li>",na,": ",
-						    as.character(substitute(normArgs[[na]])),
-						"</li>",sep="")
-					} else if (length(normArgs[[n]][[na]]) == 1) {
-						cat("<li>",paste(na,normArgs[[n]][[na]],sep=": "),
-						    "</li>")
-					} else if (length(normArgs[[n]][[na]]) > 1) {
-						cat("<li>",paste(na,paste(normArgs[[n]][[na]],
-							collapse=", "),sep=": "),"</li>")
-					}
-				}
-				cat("</ul>")
-			}
-			else cat("not available or not required")
-		}
-	}
-	else {
-		cat(paste(names(normArgs),collapse=", "),"<br/>")
-		cat("<ul>")
-		for (na in names(normArgs)) {
-			if (length(normArgs[[na]])==1 && is.function(normArgs[[na]])) {
-				cat("<li>",as.character(substitute(normArgs[[na]])),"</li>",
-					sep="")
-			} else if (length(normArgs[[na]]) == 1) {
-				cat("<li>",paste(na,normArgs[[na]],sep=": "),"</li>")
-			}
-			else if (length(normArgs[[na]]) > 1) {
-				cat("<li>",paste(na,paste(normArgs[[na]],collapse=", "),
-					sep=": "),"</li>")
-			}
-		}
-		cat("</ul>")
-	}
+    if (normalization == "each") {
+        for (n in names(normArgs)) {
+            cat("<strong>Statistical arguments for",
+                reportMessages$norm[[n]],": </strong>",
+                paste(names(normArgs[[n]]),collapse=", "))
+            if (length(normArgs[[n]]) > 0) {
+                cat("<ul>")
+                for (na in names(normArgs[[n]])) {
+                    if (length(normArgs[[n]][[na]]) == 1 
+                        && is.function(normArgs[[n]][[na]])) {
+                        cat("<li>",na,": ",
+                            as.character(substitute(normArgs[[na]])),
+                        "</li>",sep="")
+                    } else if (length(normArgs[[n]][[na]]) == 1) {
+                        cat("<li>",paste(na,normArgs[[n]][[na]],sep=": "),
+                            "</li>")
+                    } else if (length(normArgs[[n]][[na]]) > 1) {
+                        cat("<li>",paste(na,paste(normArgs[[n]][[na]],
+                            collapse=", "),sep=": "),"</li>")
+                    }
+                }
+                cat("</ul>")
+            }
+            else cat("not available or not required")
+        }
+    }
+    else {
+        cat(paste(names(normArgs),collapse=", "),"<br/>")
+        cat("<ul>")
+        for (na in names(normArgs)) {
+            if (length(normArgs[[na]])==1 && is.function(normArgs[[na]])) {
+                cat("<li>",as.character(substitute(normArgs[[na]])),"</li>",
+                    sep="")
+            } else if (length(normArgs[[na]]) == 1) {
+                cat("<li>",paste(na,normArgs[[na]],sep=": "),"</li>")
+            }
+            else if (length(normArgs[[na]]) > 1) {
+                cat("<li>",paste(na,paste(normArgs[[na]],collapse=", "),
+                    sep=": "),"</li>")
+            }
+        }
+        cat("</ul>")
+    }
 } else {
-	cat("not available")
+    cat("not available")
 }
 ```
 
 **Statistical algorithm(s):** 
 ```{r summary_input_options_17}
 cat(paste(unlist(reportMessages$stat[statistics],use.names=FALSE),
-	collapse=", "))
+    collapse=", "))
 ```
 
 ```{r summary_input_options_18}
 if (!is.null(statArgs)) {
-	for (s in names(statArgs)) {
-		cat("<strong>Statistical arguments for ",reportMessages$stat[[s]],
-			": </strong>",paste(names(statArgs[[s]]),collapse=", "),sep="")
-		if (length(statArgs[[s]]) > 0) {
-			cat("<ul>")
-			for (sa in names(statArgs[[s]])) {
-				if (length(statArgs[[s]][[sa]]) == 1 
-				    && is.function(statArgs[[s]][[sa]])) {
-					cat("<li>",sa,": ",as.character(substitute(statArgs[[na]])),
-					    "</li>",sep="")
-				} else if (length(statArgs[[s]][[sa]])==1) {
-					cat("<li>",paste(sa,statArgs[[s]][[sa]],sep=": "),"</li>")
-				} else if (length(statArgs[[s]][[sa]])>1) {
-					cat("<li>",paste(sa,paste(statArgs[[s]][[sa]],
-						collapse=", "),sep=": "),"</li>")
-				}
-			}
-			cat("</ul>")
-		} else {
-			cat("not available or not required<br/>")
-		}
-	}
+    for (s in names(statArgs)) {
+        cat("<strong>Statistical arguments for ",reportMessages$stat[[s]],
+            ": </strong>",paste(names(statArgs[[s]]),collapse=", "),sep="")
+        if (length(statArgs[[s]]) > 0) {
+            cat("<ul>")
+            for (sa in names(statArgs[[s]])) {
+                if (length(statArgs[[s]][[sa]]) == 1 
+                    && is.function(statArgs[[s]][[sa]])) {
+                    cat("<li>",sa,": ",as.character(substitute(statArgs[[na]])),
+                        "</li>",sep="")
+                } else if (length(statArgs[[s]][[sa]])==1) {
+                    cat("<li>",paste(sa,statArgs[[s]][[sa]],sep=": "),"</li>")
+                } else if (length(statArgs[[s]][[sa]])>1) {
+                    cat("<li>",paste(sa,paste(statArgs[[s]][[sa]],
+                        collapse=", "),sep=": "),"</li>")
+                }
+            }
+            cat("</ul>")
+        } else {
+            cat("not available or not required<br/>")
+        }
+    }
 } else {
-	cat("<strong>Statistical arguments not available</strong>")
+    cat("<strong>Statistical arguments not available</strong>")
 }
 ```
 
@@ -1347,25 +1347,25 @@ if (!is.na(exportWhere)) cat(exportWhere) else cat("default")
 **Output data:** 
 ```{r summary_input_options_27}
 cat(paste(unlist(reportMessages$export[exportWhat],use.names=FALSE),
-	collapse=", "))
+    collapse=", "))
 ```
 
 **Output scale(s):** 
 ```{r summary_input_options_28}
 cat(paste(unlist(reportMessages$export[exportScale],use.names=FALSE),
-	collapse=", "))
+    collapse=", "))
 ```
 
 **Output values:** 
 ```{r summary_input_options_29}
 cat(paste(unlist(reportMessages$export[exportValues],use.names=FALSE),
-	collapse=", "))
+    collapse=", "))
 ```
 
 **Output statistics:**
 ```{r summary_input_options_30}
 cat(paste(unlist(reportMessages$export[exportStats],use.names=FALSE),
-	collapse=", "))
+    collapse=", "))
 ```
 
 **Total run time:**
@@ -1398,12 +1398,12 @@ cat(length(theZeros))
 ```{r summary_filtered_howmany_3}
 cat(sum(as.numeric(sapply(exonFilterResult,length))))
 if (sum(as.numeric(sapply(exonFilterResult,length))) != 0) {
-	cat("<em> which is the <strong>union</strong> of</em>")
-	cat("<ul>")
-	for (n in names(exonFilterResult)) {
-		cat("<li>",n,": ",length(exonFilterResult[[n]]),"</li>")
-	}
-	cat("</ul>")
+    cat("<em> which is the <strong>union</strong> of</em>")
+    cat("<ul>")
+    for (n in names(exonFilterResult)) {
+        cat("<li>",n,": ",length(exonFilterResult[[n]]),"</li>")
+    }
+    cat("</ul>")
 }
 ```
 * Filtered because of gene filters:
@@ -1414,25 +1414,25 @@ cat(length(unique(unlist(geneFilterResult))))
 ```{r summary_filtered_howmany_5}
 cat("<ul>")
 for (n in names(geneFilterResult)) {
-	if (!is.list(geneFilterResult[[n]])) {
-		if (!is.null(geneFilterResult[[n]]))
-			cat("<li>",n,": ",length(unlist(geneFilterResult[[n]])),
-				" genes with filter cutoff value ",geneFilterCutoff[[n]],
-				"</li>",sep="")
-	}
-	else {
-		cat("<li>",n,": ",length(unlist(geneFilterResult[[n]])),
-			" ",transLevel,"s further decomposed to (filter name, filtered ",
-			transLevel,"s, filter cutoff):</li>",sep="")
-		cat("<ul>")
-		for (nn in names(geneFilterResult[[n]])) {
-			if (!is.null(geneFilterResult[[n]][[nn]]))
-				cat("<li>",nn,": ",length(unlist(geneFilterResult[[n]][[nn]])),
-				" ",transLevel,"s with filter cutoff value ",
-				paste(geneFilterCutoff[[n]][[nn]],collapse=", "),"</li>",sep="")
-		}
-		cat("</ul>")
-	}
+    if (!is.list(geneFilterResult[[n]])) {
+        if (!is.null(geneFilterResult[[n]]))
+            cat("<li>",n,": ",length(unlist(geneFilterResult[[n]])),
+                " genes with filter cutoff value ",geneFilterCutoff[[n]],
+                "</li>",sep="")
+    }
+    else {
+        cat("<li>",n,": ",length(unlist(geneFilterResult[[n]])),
+            " ",transLevel,"s further decomposed to (filter name, filtered ",
+            transLevel,"s, filter cutoff):</li>",sep="")
+        cat("<ul>")
+        for (nn in names(geneFilterResult[[n]])) {
+            if (!is.null(geneFilterResult[[n]][[nn]]))
+                cat("<li>",nn,": ",length(unlist(geneFilterResult[[n]][[nn]])),
+                " ",transLevel,"s with filter cutoff value ",
+                paste(geneFilterCutoff[[n]][[nn]],collapse=", "),"</li>",sep="")
+        }
+        cat("</ul>")
+    }
 }
 cat("</ul>")
 ```
@@ -1450,126 +1450,126 @@ cat(transLevel,"s",sep="")
 cat("<strong>",transLevel,"s per contrast: </strong>",sep="")
 if (!is.na(pcut) && pcut==1)
     cat("The p-value cutoff during the analysis was set to 1 so as to ",
-	    "retrieve the total ",transLevel," list which passed the filtering ",
-		"procedure. Each ",transLevel," in the list is accompanied by its ",
-		"statistical scores (p-value, FDR, etc.)")
+        "retrieve the total ",transLevel," list which passed the filtering ",
+        "procedure. Each ",transLevel," in the list is accompanied by its ",
+        "statistical scores (p-value, FDR, etc.)")
 
 cat("<ul>")
 for (cnt in contrast) {
-	cat("<li><strong>",cnt,": </strong>",sep="")
-	if (!is.na(pcut) && length(which(sumpList[[cnt]]<pcut)) == 0) {
-		cat("no differentially expressed ",transLevel,"s","</li>",sep="")
-	} else if (is.na(pcut)) {
-		cat("no statistical threshold defined","</li>")
-	} else {
-		if (!is.na(pcut) && pcut==1)
-			plasm <- 0.05
-		else
-			plasm <- pcut
-		if (adjustMethod!="none") {
-			addTextP <- paste("(",length(which(p.adjust(sumpList[[cnt]],
-			    adjustMethod) < plasm)),")",sep="")
-			hasFdrText <- "(FDR or adjusted p-value)"
-		}
-		else
-			addTextP <- hasFdrText <- NULL
-		if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
-			tmpP <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
-			    sumpList[[cnt]] < plasm),,drop=FALSE],logOffset))
-			if (adjustMethod != "none") {
-				areThere <- which(p.adjust(sumpList[[cnt]],adjustMethod)<plasm)
-				if (length(areThere)>0) {
-					if (length(areThere) == 1) {
-						tmpF <- log2(makeFoldChange(cnt,sampleList,
-						    normGenesExpr[areThere,,drop=FALSE],logOffset))
-						addTextFu <- 
-						    paste(" (",length(which(tmpF>=1)),")",sep="")
-						addTextFd <- 
-						    paste(" (",length(which(tmpF<=-1)),")",sep="")
-						addTextFn <- 
-						    paste(" (",length(which(abs(tmpF)<1)),")",sep="")
-					}
-					else {
-						tmpF <- log2(makeFoldChange(cnt,sampleList,
-						    normGenesExpr[areThere,,drop=FALSE],logOffset))
-						addTextFu <- 
-						    paste(" (",length(which(tmpF>=1)),")",sep="")
-						addTextFd <- 
-						    paste(" (",length(which(tmpF<=-1)),")",sep="")
-						addTextFn <- 
-						    paste(" (",length(which(abs(tmpF)<1)),")",sep="")
-					}
-				} else {
-					addTextFu <- addTextFd <- addTextFn <- NULL
-				}
-			} else {
-				addTextFu <- addTextFd <- addTextFn <- NULL
-			}
-			cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
-			    " statistically significant ",transLevel,"s of which ",
-			    length(which(tmpP>=1)),addTextFu," up regulated, ",
-			    length(which(tmpP<=-1)),addTextFd," down regulated and ",
-			    length(which(abs(tmpP)<1)),addTextFn," not differentially ",
-			    "expressed according to a p-value ",hasFdrText," threshold of ",
-			    plasm," and an absolute fold change cutoff value of 1 in ",
-			    "log<sub>2</sub> scale.",sep="")
-		} else {
-			cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
-			    " statistically significant, differentially expressed in at",
-			    " least one condition at a p-value ",hasFdrText,
-			    " threshold of ",plasm,".",sep="")
-		}
-		if (length(statistics)>1 && metaP != "none") {
-			cat(" These numbers refer to the combined analysis performed by ",
-			    "metaseqR2. Per statistical algorithm, the differentially ",
-			    "expressed ",transLevel,"s are:",sep="")
-			cat("<ul>")
-			for (s in statistics) {
-				cat("<li><em>",reportMessages$stat[[s]],": </em>",sep="")
-				if (adjustMethod!="none") {
-					addTextP <- paste("(",length(which(p.adjust(
-					    cpList[[cnt]][,s],adjustMethod)<plasm)),")",sep="")
-					hasFdrText <- "(FDR or adjusted p-value)"
-				} else {
-					addTextP <- hasFdrText <- NULL
-				}
-				if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
-					tmpP <- log2(makeFoldChange(cnt,sampleList,
-					    normGenesExpr[which(cpList[[cnt]][,s]<plasm),,
-					    drop=FALSE],logOffset))
-					if (adjustMethod != "none") {
-						tmpF <- log2(makeFoldChange(cnt,sampleList,
-						    normGenesExpr[which(p.adjust(cpList[[cnt]][,s],
-						    adjustMethod)<plasm),,drop=FALSE],logOffset))
-						addTextFu <- 
-						    paste("(",length(which(tmpF>=1)),")",sep="")
-						addTextFd <- 
-						    paste("(",length(which(tmpF<=-1)),")",sep="")
-						addTextFn <- 
-						    paste("(",length(which(abs(tmpF)<1)),")",sep="")
-					} else {
-						addTextFu <- addTextFd <- addTextFn <- NULL
-					}
-					cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
-					    " statistically significant ",transLevel,"s of which ",
-					    length(which(tmpP>=1))," ",addTextFu," up regulated, ",
-						length(which(tmpP<=-1)),addTextFd," down regulated ",
-						"and ",length(which(abs(tmpP)<1))," ",addTextFn,
-						" not differentially expressed according to a p-value ",
-						hasFdrText," threshold of ",plasm," and an absolute ",
-						"fold change cutoff value of 1 in log<sub>2</sub> ",
-						"scale.",sep="")
-				} else {
-					cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
-					    " statistically significant, differentially expressed ",
-					    "in at least one condition at a p-value ",hasFdrText,
-					    " threshold of ",plasm,".",sep="")
-				}
-				cat("</li>")
-			}
-			cat("</ul>")
-		}
-	}
+    cat("<li><strong>",cnt,": </strong>",sep="")
+    if (!is.na(pcut) && length(which(sumpList[[cnt]]<pcut)) == 0) {
+        cat("no differentially expressed ",transLevel,"s","</li>",sep="")
+    } else if (is.na(pcut)) {
+        cat("no statistical threshold defined","</li>")
+    } else {
+        if (!is.na(pcut) && pcut==1)
+            plasm <- 0.05
+        else
+            plasm <- pcut
+        if (adjustMethod!="none") {
+            addTextP <- paste("(",length(which(p.adjust(sumpList[[cnt]],
+                adjustMethod) < plasm)),")",sep="")
+            hasFdrText <- "(FDR or adjusted p-value)"
+        }
+        else
+            addTextP <- hasFdrText <- NULL
+        if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
+            tmpP <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
+                sumpList[[cnt]] < plasm),,drop=FALSE],logOffset))
+            if (adjustMethod != "none") {
+                areThere <- which(p.adjust(sumpList[[cnt]],adjustMethod)<plasm)
+                if (length(areThere)>0) {
+                    if (length(areThere) == 1) {
+                        tmpF <- log2(makeFoldChange(cnt,sampleList,
+                            normGenesExpr[areThere,,drop=FALSE],logOffset))
+                        addTextFu <- 
+                            paste(" (",length(which(tmpF>=1)),")",sep="")
+                        addTextFd <- 
+                            paste(" (",length(which(tmpF<=-1)),")",sep="")
+                        addTextFn <- 
+                            paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+                    }
+                    else {
+                        tmpF <- log2(makeFoldChange(cnt,sampleList,
+                            normGenesExpr[areThere,,drop=FALSE],logOffset))
+                        addTextFu <- 
+                            paste(" (",length(which(tmpF>=1)),")",sep="")
+                        addTextFd <- 
+                            paste(" (",length(which(tmpF<=-1)),")",sep="")
+                        addTextFn <- 
+                            paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+                    }
+                } else {
+                    addTextFu <- addTextFd <- addTextFn <- NULL
+                }
+            } else {
+                addTextFu <- addTextFd <- addTextFn <- NULL
+            }
+            cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
+                " statistically significant ",transLevel,"s of which ",
+                length(which(tmpP>=1)),addTextFu," up regulated, ",
+                length(which(tmpP<=-1)),addTextFd," down regulated and ",
+                length(which(abs(tmpP)<1)),addTextFn," not differentially ",
+                "expressed according to a p-value ",hasFdrText," threshold of ",
+                plasm," and an absolute fold change cutoff value of 1 in ",
+                "log<sub>2</sub> scale.",sep="")
+        } else {
+            cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
+                " statistically significant, differentially expressed in at",
+                " least one condition at a p-value ",hasFdrText,
+                " threshold of ",plasm,".",sep="")
+        }
+        if (length(statistics)>1 && metaP != "none") {
+            cat(" These numbers refer to the combined analysis performed by ",
+                "metaseqR2. Per statistical algorithm, the differentially ",
+                "expressed ",transLevel,"s are:",sep="")
+            cat("<ul>")
+            for (s in statistics) {
+                cat("<li><em>",reportMessages$stat[[s]],": </em>",sep="")
+                if (adjustMethod!="none") {
+                    addTextP <- paste("(",length(which(p.adjust(
+                        cpList[[cnt]][,s],adjustMethod)<plasm)),")",sep="")
+                    hasFdrText <- "(FDR or adjusted p-value)"
+                } else {
+                    addTextP <- hasFdrText <- NULL
+                }
+                if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
+                    tmpP <- log2(makeFoldChange(cnt,sampleList,
+                        normGenesExpr[which(cpList[[cnt]][,s]<plasm),,
+                        drop=FALSE],logOffset))
+                    if (adjustMethod != "none") {
+                        tmpF <- log2(makeFoldChange(cnt,sampleList,
+                            normGenesExpr[which(p.adjust(cpList[[cnt]][,s],
+                            adjustMethod)<plasm),,drop=FALSE],logOffset))
+                        addTextFu <- 
+                            paste("(",length(which(tmpF>=1)),")",sep="")
+                        addTextFd <- 
+                            paste("(",length(which(tmpF<=-1)),")",sep="")
+                        addTextFn <- 
+                            paste("(",length(which(abs(tmpF)<1)),")",sep="")
+                    } else {
+                        addTextFu <- addTextFd <- addTextFn <- NULL
+                    }
+                    cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
+                        " statistically significant ",transLevel,"s of which ",
+                        length(which(tmpP>=1))," ",addTextFu," up regulated, ",
+                        length(which(tmpP<=-1)),addTextFd," down regulated ",
+                        "and ",length(which(abs(tmpP)<1))," ",addTextFn,
+                        " not differentially expressed according to a p-value ",
+                        hasFdrText," threshold of ",plasm," and an absolute ",
+                        "fold change cutoff value of 1 in log<sub>2</sub> ",
+                        "scale.",sep="")
+                } else {
+                    cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
+                        " statistically significant, differentially expressed ",
+                        "in at least one condition at a p-value ",hasFdrText,
+                        " threshold of ",plasm,".",sep="")
+                }
+                cat("</li>")
+            }
+            cat("</ul>")
+        }
+    }
 }
 cat("</ul>")
 ```
@@ -1589,253 +1589,253 @@ cat("</code></pre>")
 
 ```{r summary_run_log}
 if (runLog) {
-	cat("<h3>Run log</h3>")
-	cat("<div id=\"summary_log_container\">")
-	logString <- paste(readLines(file.path(PROJECT_PATH$logs,
-	    "metaseqr_run.log")),collapse="---EOL---")
-	logString <- gsub("\\$","->",logString)
-	cat(gsub("---EOL---","<br/>",logString))
-	cat("</div>")
+    cat("<h3>Run log</h3>")
+    cat("<div id=\"summary_log_container\">")
+    logString <- paste(readLines(file.path(PROJECT_PATH$logs,
+        "metaseqr_run.log")),collapse="---EOL---")
+    logString <- gsub("\\$","->",logString)
+    cat(gsub("---EOL---","<br/>",logString))
+    cat("</div>")
 } else {
-	cat("<h4>No logging requested</h4>")
+    cat("<h4>No logging requested</h4>")
 }
 ```
 
 ```{r decide_qc}
 if (any(qcPlots %in% qualPlots)) {
-	pandoc.header("Quality control",level=1)
-	pandoc.header("Quality control figures {.tabset .tabset-pills}",level=2)
-	cat("The following figures summarize the quality control steps and ",
-		"assessment performed by the ```metaseqr2``` pipeline. Each figure ",
-		"category is accompanied by an explanatory text. All figures are ",
-		"interactive wih additional controls on the top right of the figure.",
-		sep="")
+    pandoc.header("Quality control",level=1)
+    pandoc.header("Quality control figures {.tabset .tabset-pills}",level=2)
+    cat("The following figures summarize the quality control steps and ",
+        "assessment performed by the ```metaseqr2``` pipeline. Each figure ",
+        "category is accompanied by an explanatory text. All figures are ",
+        "interactive wih additional controls on the top right of the figure.",
+        sep="")
 }
                 
 ```
 
 ```{r analysis_figures_mds}
 if ("mds" %in% qcPlots) {
-	pandoc.header("MDS",level=3)
-	
-	## Get chart data as serialized JSON
-	#json <- diagplotMds(geneCounts,sampleList,output="json")
-	
-	cat("<h4><strong>Multidimensional scaling</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$mds,
-	    "<br/><br/></div>",sep="")
-	
-	# Container div
-	cat("<div class=\"hc-rect-sm\" id=\"mds_container\"></div>",sep="")
-	## Render the chart
-	#cat("<script>$('#mds_container').highcharts(",json,");</script>",sep="")
-	# A hidden element to trigger upon page load and fetch the plot
-	cat("<button id=\"_mds_trigger\" class=\"hidden-element\"></button>",sep="")
+    pandoc.header("MDS",level=3)
+    
+    ## Get chart data as serialized JSON
+    #json <- diagplotMds(geneCounts,sampleList,output="json")
+    
+    cat("<h4><strong>Multidimensional scaling</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$mds,
+        "<br/><br/></div>",sep="")
+    
+    # Container div
+    cat("<div class=\"hc-rect-sm\" id=\"mds_container\"></div>",sep="")
+    ## Render the chart
+    #cat("<script>$('#mds_container').highcharts(",json,");</script>",sep="")
+    # A hidden element to trigger upon page load and fetch the plot
+    cat("<button id=\"_mds_trigger\" class=\"hidden-element\"></button>",sep="")
 }
 ```
 
 ```{r analysis_figures_biodetection}
 if ("biodetection" %in% qcPlots) {
-	pandoc.header("Biodetection",level=3)
-	
-	cat("<h4><strong>Biotype detection</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
-	    "<br/><br/></div>",sep="")
-	    
-	# Create a selector for each sample
-	items <- paste("<option value=",paste("biodetection",samples,sep="_"),">",
-		samples,"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a sample to display plot for",
-		"</div>",sep="")
-	cat("<select id=\"biodetection_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	# Container div
-	cat("<div class=\"hc-rect-sm\" id=\"biodetection_container\"></div>",sep="")
-	
-	#if (reportDb == "dexie") {
-	#	# Get chart data as list
-	#	log <- capture.output({
-	#		json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
-	#			whichPlot="biodetection",output="json")
-	#	})
-	#	
-	#	# Add extra data, serialize and import the plots to Dexie
-	#	preImport <- vector("list",length(json))
-	#	for (i in 1:length(json)) {
-	#		preImport[[i]] <- list(
-	#			name=paste("biodetection",samples[i],sep="_"),
-	#			type="biodetection",
-	#			subtype="generic",
-	#			json=json[[samples[i]]]
-	#		)
-	#	}
-	#	toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
-	#	
-	#	# Import script
-	#	cat("<script type=\"text/javascript\">")
-	#	cat("db.plots.bulkAdd(",toImport,");",sep="")
-	#	cat("</script>")
-	#	
-	#	# Initialize first plot with serialized JSON
-	#	cat("<script>$('#biodetection_container').highcharts(",
-	#		toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),
-	#		");</script>",sep="")
-	#}
+    pandoc.header("Biodetection",level=3)
+    
+    cat("<h4><strong>Biotype detection</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$biodetection,
+        "<br/><br/></div>",sep="")
+        
+    # Create a selector for each sample
+    items <- paste("<option value=",paste("biodetection",samples,sep="_"),">",
+        samples,"</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a sample to display plot for",
+        "</div>",sep="")
+    cat("<select id=\"biodetection_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    # Container div
+    cat("<div class=\"hc-rect-sm\" id=\"biodetection_container\"></div>",sep="")
+    
+    #if (reportDb == "dexie") {
+    #   # Get chart data as list
+    #   log <- capture.output({
+    #       json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
+    #           whichPlot="biodetection",output="json")
+    #   })
+    #   
+    #   # Add extra data, serialize and import the plots to Dexie
+    #   preImport <- vector("list",length(json))
+    #   for (i in 1:length(json)) {
+    #       preImport[[i]] <- list(
+    #           name=paste("biodetection",samples[i],sep="_"),
+    #           type="biodetection",
+    #           subtype="generic",
+    #           json=json[[samples[i]]]
+    #       )
+    #   }
+    #   toImport <- toJSON(preImport,auto_unbox=TRUE,null="null")
+    #   
+    #   # Import script
+    #   cat("<script type=\"text/javascript\">")
+    #   cat("db.plots.bulkAdd(",toImport,");",sep="")
+    #   cat("</script>")
+    #   
+    #   # Initialize first plot with serialized JSON
+    #   cat("<script>$('#biodetection_container').highcharts(",
+    #       toJSON(preImport[[1]]$json,auto_unbox=TRUE,null="null"),
+    #       ");</script>",sep="")
+    #}
 }
 ```
 
 ```{r analysis_figures_countsbio}
 if ("countsbio" %in% qcPlots) {
-	pandoc.header("Biocounts",level=3)
-	
-	cat("<h4><strong>Biotype representation</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$countsbio,
-	    "<br/><br/></div>",sep="")
-	
-	cat("<h4><em>Biotypes within samples</em></h4>")
-	
-	# Create a selector for each sample
-	items <- paste("<option value=",paste("countsbio",samples,sep="_"),">",
-		samples,"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a sample to display plot for",
-		"</div>",sep="")
-	cat("<select id=\"countsbio_sample_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	# Container div - sample
-	cat("<div class=\"hc-rect-sm\" id=\"countsbio_sample_container\"></div>",
-		sep="")
-	
-	cat("<br/><h4><em>Biotype representation across samples</em></h4>")
-	
-	# Create a selector for each biotype
-	items <- paste("<option value=",paste("countsbio",biotypes,sep="_"),">",
-		biotypes,"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a biotype to display plot for",
-		"</div>",sep="")
-	cat("<select id=\"countsbio_biotype_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	# Container div - biotype
-	cat("<div class=\"hc-rect-sm\" id=\"countsbio_biotype_container\">",
-		"</div>",sep="")	
+    pandoc.header("Biocounts",level=3)
+    
+    cat("<h4><strong>Biotype representation</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$countsbio,
+        "<br/><br/></div>",sep="")
+    
+    cat("<h4><em>Biotypes within samples</em></h4>")
+    
+    # Create a selector for each sample
+    items <- paste("<option value=",paste("countsbio",samples,sep="_"),">",
+        samples,"</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a sample to display plot for",
+        "</div>",sep="")
+    cat("<select id=\"countsbio_sample_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    # Container div - sample
+    cat("<div class=\"hc-rect-sm\" id=\"countsbio_sample_container\"></div>",
+        sep="")
+    
+    cat("<br/><h4><em>Biotype representation across samples</em></h4>")
+    
+    # Create a selector for each biotype
+    items <- paste("<option value=",paste("countsbio",biotypes,sep="_"),">",
+        biotypes,"</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a biotype to display plot for",
+        "</div>",sep="")
+    cat("<select id=\"countsbio_biotype_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    # Container div - biotype
+    cat("<div class=\"hc-rect-sm\" id=\"countsbio_biotype_container\">",
+        "</div>",sep="")    
 }
 ```
 
 ```{r analysis_figures_saturation}
 if ("saturation" %in% qcPlots) {
-	pandoc.header("Saturation",level=3)
-	
-	cat("<h4><strong>Biotype representation</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$saturation,
-	    "<br/><br/></div>",sep="")
-	
-	cat("<h4><em>Read saturation per biotype for all samples</em></h4>")
-	
-	# Create a selector for each sample
-	items <- paste("<option value=",paste("saturation",samples,sep="_"),">",
-		samples,"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a sample to display plot for",
-		"</div>",sep="")
-	cat("<select id=\"saturation_sample_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	# Container div - sample
-	cat("<div class=\"hc-rect-sm\" id=\"saturation_sample_container\"></div>",
-		sep="")
-	
-	cat("<br/><h4><em>Read saturation per sample for all biotypes</em></h4>")
-	
-	# Create a selector for each biotype
-	items <- paste("<option value=",paste("saturation",biotypes,sep="_"),">",
-		biotypes,"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a biotype to display plot for",
-		"</div>",sep="")
-	cat("<select id=\"saturation_biotype_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	# Container div - biotype
-	cat("<div class=\"hc-rect-sm\" id=\"saturation_biotype_container\">",
-		"</div>",sep="")
+    pandoc.header("Saturation",level=3)
+    
+    cat("<h4><strong>Biotype representation</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$saturation,
+        "<br/><br/></div>",sep="")
+    
+    cat("<h4><em>Read saturation per biotype for all samples</em></h4>")
+    
+    # Create a selector for each sample
+    items <- paste("<option value=",paste("saturation",samples,sep="_"),">",
+        samples,"</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a sample to display plot for",
+        "</div>",sep="")
+    cat("<select id=\"saturation_sample_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    # Container div - sample
+    cat("<div class=\"hc-rect-sm\" id=\"saturation_sample_container\"></div>",
+        sep="")
+    
+    cat("<br/><h4><em>Read saturation per sample for all biotypes</em></h4>")
+    
+    # Create a selector for each biotype
+    items <- paste("<option value=",paste("saturation",biotypes,sep="_"),">",
+        biotypes,"</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a biotype to display plot for",
+        "</div>",sep="")
+    cat("<select id=\"saturation_biotype_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    # Container div - biotype
+    cat("<div class=\"hc-rect-sm\" id=\"saturation_biotype_container\">",
+        "</div>",sep="")
 }
 ```
 
 ```{r analysis_figures_readsnoise}
 if ("readnoise" %in% qcPlots) {
-	pandoc.header("Reads noise",level=3)
-	
-	cat("<h4><strong>RNA-Seq reads noise</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$readnoise,
-	    "<br/><br/></div>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"readsnoise_container\"></div>",
-		sep="")
-	cat("<button id=\"_readnoise_trigger\" class=\"hidden-element\"></button>",
-		sep="")
+    pandoc.header("Reads noise",level=3)
+    
+    cat("<h4><strong>RNA-Seq reads noise</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$readnoise,
+        "<br/><br/></div>",sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"readsnoise_container\"></div>",
+        sep="")
+    cat("<button id=\"_readnoise_trigger\" class=\"hidden-element\"></button>",
+        sep="")
 }
 ```
 
 ```{r analysis_figures_correl}
 if ("correl" %in% qcPlots) {
-	pandoc.header("Correlation",level=3)
-	
-	cat("<h4><strong>Pairwise sample correlations</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$correl,
-	    "<br/><br/></div>",sep="")
-	
-	corMat <- cor(geneCounts)
+    pandoc.header("Correlation",level=3)
+    
+    cat("<h4><strong>Pairwise sample correlations</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$correl,
+        "<br/><br/></div>",sep="")
+    
+    corMat <- cor(geneCounts)
     if (!is.null(colnames(geneCounts)))
         colnames(corMat) <- colnames(geneCounts)
     
-	n <- dim(corMat)[1]
-	labs <- matrix(NA,n,n)
-	for (i in 1:n)
-		for (j in 1:n)
-			labs[i,j] <- sprintf("%.2f",corMat[i,j])
-	if (n <= 5)
-		notecex <- 1.2
-	else if (n > 5 & n < 10)
-		notecex <- 0.9
-	else
-		notecex <- 0.7
-	
-	h <- list(heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,
-		cellnote=labs,colors=colorRampPalette(c("yellow","grey","blue")),
-		k_col=length(sampleList),k_row=length(sampleList)) %>%
-		layout(width=640,height=480))
-	setNames(h,NULL)
-	htmltools::tagList(tags$div(id="cormap",class="coheatmap-container",h[[1]]))
-	#heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,
-	#	cellnote=labs,colors=colorRampPalette(c("yellow","grey","blue")),
-	#	k_col=length(sampleList),k_row=length(sampleList)) %>%
-	#	layout(width=640,height=480)
+    n <- dim(corMat)[1]
+    labs <- matrix(NA,n,n)
+    for (i in 1:n)
+        for (j in 1:n)
+            labs[i,j] <- sprintf("%.2f",corMat[i,j])
+    if (n <= 5)
+        notecex <- 1.2
+    else if (n > 5 & n < 10)
+        notecex <- 0.9
+    else
+        notecex <- 0.7
+    
+    h <- list(heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,
+        cellnote=labs,colors=colorRampPalette(c("yellow","grey","blue")),
+        k_col=length(sampleList),k_row=length(sampleList)) %>%
+        layout(width=640,height=480))
+    setNames(h,NULL)
+    htmltools::tagList(tags$div(id="cormap",class="coheatmap-container",h[[1]]))
+    #heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,
+    #   cellnote=labs,colors=colorRampPalette(c("yellow","grey","blue")),
+    #   k_col=length(sampleList),k_row=length(sampleList)) %>%
+    #   layout(width=640,height=480)
 }
 ```
 
 ```{r analysis_figures_pairwise}
 if ("pairwise" %in% qcPlots) {
-	pandoc.header("Pairwise",level=3)
-	
-	#cat("<h4><strong>Pairwise sample correlations</strong></h4>")
-	#cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
-	#    "<br/><br/></div>",sep="")
-	#cat("<div style=\"text-align:center\">")
-	#
+    pandoc.header("Pairwise",level=3)
+    
+    #cat("<h4><strong>Pairwise sample correlations</strong></h4>")
+    #cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
+    #    "<br/><br/></div>",sep="")
+    #cat("<div style=\"text-align:center\">")
+    #
     #x <- nat2log(as.matrix(geneCounts))
     #n <- ncol(x)
     #if (!is.null(colnames(x)))
     #    nams <- colnames(x)
     #else
     #    nams <- paste("Sample_",1:ncol(x),sep="")
-	#
+    #
     #par(mfrow=c(n,n),mar=c(1,1,1,1),oma=c(1,1,0,0),mgp=c(2,0.5,0),cex.axis=0.6,
     #    cex.lab=0.6)
-	#
+    #
     #for (i in 1:n) {
     #    for (j in 1:n) {
     #        if (i==j) { # Diagonal
@@ -1864,360 +1864,360 @@ if ("pairwise" %in% qcPlots) {
     #cat("</div>")
     
     cat("<h4><strong>Pairwise sample correlations</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
-	    "<br/><br/></div>",sep="")
-	    
-	nams <- colnames(geneCounts)
-	n <- ncol(geneCounts)
-	plotNames <- character(n*(n-1)/2)
-	counter <- 0
-	for (i in 1:(n-1)) {
-		for (j in (i+1):n) {
-			counter <- counter + 1
-			plotNames[counter] <- paste(nams[i],nams[j],sep="_vs_")
-		}
-	}
-	
-	# Create a selector for each sample
-	items <- paste("<option value=",plotNames,">",gsub("_vs_"," vs ",plotNames),
-		"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a pair to display plot for",
-		"</div>",sep="")
-	cat("<select id=\"pairwise_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	cat("<h4><em>X-Y plots</em></h4>")
-	# Container div - sample
-	cat("<div class=\"hc-rect-sm\" id=\"pairwise_xy_container\"></div>",
-		sep="")
-	
-	cat("<br/><h4><em>M-D plots</em></h4>")
-	# Container div - sample
-	cat("<div class=\"hc-rect-sm\" id=\"pairwise_md_container\"></div>",
-		sep="")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
+        "<br/><br/></div>",sep="")
+        
+    nams <- colnames(geneCounts)
+    n <- ncol(geneCounts)
+    plotNames <- character(n*(n-1)/2)
+    counter <- 0
+    for (i in 1:(n-1)) {
+        for (j in (i+1):n) {
+            counter <- counter + 1
+            plotNames[counter] <- paste(nams[i],nams[j],sep="_vs_")
+        }
+    }
+    
+    # Create a selector for each sample
+    items <- paste("<option value=",plotNames,">",gsub("_vs_"," vs ",plotNames),
+        "</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a pair to display plot for",
+        "</div>",sep="")
+    cat("<select id=\"pairwise_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    cat("<h4><em>X-Y plots</em></h4>")
+    # Container div - sample
+    cat("<div class=\"hc-rect-sm\" id=\"pairwise_xy_container\"></div>",
+        sep="")
+    
+    cat("<br/><h4><em>M-D plots</em></h4>")
+    # Container div - sample
+    cat("<div class=\"hc-rect-sm\" id=\"pairwise_md_container\"></div>",
+        sep="")
 }
 ```
 
 ```{r analysis_figures_filtered}
 if ("filtered" %in% qcPlots) {
-	pandoc.header("Filtered",level=3)
-	
-	cat("<h4><strong>Chromosome and biotype distribution of filtered ",
-		transLevel,"s</strong></h4>",sep="")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$filtered,
-	    "<br/><br/></div>",sep="")
-	cat("<h4>Chromosome distribution of filtered",transLevel,"s</h4>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"chromosome_distr_container\"></div>",
-		sep="")
-	cat("<h4>Biotype distribution of filtered ",transLevel,"s</h4>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"biotype_distr_container\"></div>",
-		sep="")
-	cat("<button id=\"_filtered_trigger\" class=\"hidden-element\"></button>",
-		sep="")
+    pandoc.header("Filtered",level=3)
+    
+    cat("<h4><strong>Chromosome and biotype distribution of filtered ",
+        transLevel,"s</strong></h4>",sep="")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$filtered,
+        "<br/><br/></div>",sep="")
+    cat("<h4>Chromosome distribution of filtered",transLevel,"s</h4>",sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"chromosome_distr_container\"></div>",
+        sep="")
+    cat("<h4>Biotype distribution of filtered ",transLevel,"s</h4>",sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"biotype_distr_container\"></div>",
+        sep="")
+    cat("<button id=\"_filtered_trigger\" class=\"hidden-element\"></button>",
+        sep="")
 }
 ```
 
 ```{r decide_norm}
 if (any(qcPlots %in% normPlots)) {
-	pandoc.header("Normalization",level=1)
-	pandoc.header("Normalization assessment figures {.tabset .tabset-pills}",
-		level=2)
-	cat("The following figures allow for the assessment of the ",
-		"normalization procedures performed by the ```metaseqr2``` pipeline. ",
-		"Each figure category is accompanied by an explanatory text. All ",
-		"figures are interactive wih additional controls on the top right of ",
-		"the figure.",sep="")
+    pandoc.header("Normalization",level=1)
+    pandoc.header("Normalization assessment figures {.tabset .tabset-pills}",
+        level=2)
+    cat("The following figures allow for the assessment of the ",
+        "normalization procedures performed by the ```metaseqr2``` pipeline. ",
+        "Each figure category is accompanied by an explanatory text. All ",
+        "figures are interactive wih additional controls on the top right of ",
+        "the figure.",sep="")
 }
 ```
 
 ```{r analysis_figures_boxplot}
 if ("boxplot" %in% qcPlots) {
-	pandoc.header("Boxplots",level=3)
-	
-	cat("<h4><strong>Boxplots</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$boxplot,
-		"<br/><br/></div>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"boxplot_unorm_container\"></div>",
-		sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"boxplot_norm_container\"></div>",
-		sep="")
-	cat("<br/><br/>")
-	cat("<button id=\"_boxplot_trigger\" class=\"hidden-element\"></button>",
-		sep="")
+    pandoc.header("Boxplots",level=3)
+    
+    cat("<h4><strong>Boxplots</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$boxplot,
+        "<br/><br/></div>",sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"boxplot_unorm_container\"></div>",
+        sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"boxplot_norm_container\"></div>",
+        sep="")
+    cat("<br/><br/>")
+    cat("<button id=\"_boxplot_trigger\" class=\"hidden-element\"></button>",
+        sep="")
 }
 ```
 
 ```{r analysis_figures_gcbias}
 if ("gcbias" %in% qcPlots) {
-	pandoc.header("GC bias",level=3)
-	
-	cat("<h4><strong>GC bias assessment plots</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$gcbias,
-		"<br/><br/></div>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"gcbias_unorm_container\"></div>",
-		sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"gcbias_norm_container\"></div>",
-		sep="")
-	cat("<br/><br/>")
-	cat("<button id=\"_gcbias_trigger\" class=\"hidden-element\"></button>",
-		sep="")
+    pandoc.header("GC bias",level=3)
+    
+    cat("<h4><strong>GC bias assessment plots</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$gcbias,
+        "<br/><br/></div>",sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"gcbias_unorm_container\"></div>",
+        sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"gcbias_norm_container\"></div>",
+        sep="")
+    cat("<br/><br/>")
+    cat("<button id=\"_gcbias_trigger\" class=\"hidden-element\"></button>",
+        sep="")
 }
 ```
 
 ```{r analysis_figures_lengthbias}
 if ("lengthbias" %in% qcPlots) {
-	pandoc.header("Length bias",level=3)
-	
-	cat("<h4><strong>Length bias assessment plots</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$lengthbias,
-		"<br/><br/></div>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"lengthbias_unorm_container\"></div>",
-		sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"lengthbias_norm_container\"></div>",
-		sep="")
-	cat("<br/><br/>")
-	cat("<button id=\"_lengthbias_trigger\" class=\"hidden-element\"></button>",
-		sep="")
+    pandoc.header("Length bias",level=3)
+    
+    cat("<h4><strong>Length bias assessment plots</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$lengthbias,
+        "<br/><br/></div>",sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"lengthbias_unorm_container\"></div>",
+        sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"lengthbias_norm_container\"></div>",
+        sep="")
+    cat("<br/><br/>")
+    cat("<button id=\"_lengthbias_trigger\" class=\"hidden-element\"></button>",
+        sep="")
 }
 ```
 
 ```{r analysis_figures_meandiff}
 if ("meandiff" %in% qcPlots) {
-	pandoc.header("Mean-Difference",level=3)
-	
-	cat("<h4><strong>Mean-difference plots for normalization assessment",
-		"</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$meandiff,
-		"<br/><br/></div>",sep="")
-	
-	# Create a selector for each sample
-	namList <- vector("list",length(sampleList))
-	names(namList) <- names(sampleList)
-	for (n in names(sampleList)) {
-		pairMatrix <- combn(1:length(sampleList[[n]]),2)
-		nm <- character(0)
-		for (i in 1:ncol(pairMatrix)) {
-			s1 <- sampleList[[n]][pairMatrix[1,i]]
-			s2 <- sampleList[[n]][pairMatrix[2,i]]
-			nm <- c(nm,paste(s1,"_vs_",s2,sep=""))
-		}
-		namList[[n]] <- nm
-	}
-	
-	html <- ""
-	for (n in names(namList)) {
-		nams <- namList[[n]]
-		items <- paste("<option value=",nams,">",gsub("_vs_"," vs ",nams),
-			"</option>",sep="")
-		html <- paste(html,"<optgroup label=\"",n,"\">",items,"</optgroup>",
-			sep="")
-	}
-	
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a pair to display plots for",
-		"</div>",sep="")
-	cat("<select id=\"meandiff_selector\">",html,"</select>",sep="")
-	cat("</div>")
-	
-	# Container div - un-normalized
-	cat("<div class=\"hc-rect-sm\" id=\"meandiff_unorm_container\"></div>",
-		sep="")
-	# Container div - normalized
-	cat("<div class=\"hc-rect-sm\" id=\"meandiff_norm_container\"></div>",
-		sep="")	
+    pandoc.header("Mean-Difference",level=3)
+    
+    cat("<h4><strong>Mean-difference plots for normalization assessment",
+        "</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$meandiff,
+        "<br/><br/></div>",sep="")
+    
+    # Create a selector for each sample
+    namList <- vector("list",length(sampleList))
+    names(namList) <- names(sampleList)
+    for (n in names(sampleList)) {
+        pairMatrix <- combn(1:length(sampleList[[n]]),2)
+        nm <- character(0)
+        for (i in 1:ncol(pairMatrix)) {
+            s1 <- sampleList[[n]][pairMatrix[1,i]]
+            s2 <- sampleList[[n]][pairMatrix[2,i]]
+            nm <- c(nm,paste(s1,"_vs_",s2,sep=""))
+        }
+        namList[[n]] <- nm
+    }
+    
+    html <- ""
+    for (n in names(namList)) {
+        nams <- namList[[n]]
+        items <- paste("<option value=",nams,">",gsub("_vs_"," vs ",nams),
+            "</option>",sep="")
+        html <- paste(html,"<optgroup label=\"",n,"\">",items,"</optgroup>",
+            sep="")
+    }
+    
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a pair to display plots for",
+        "</div>",sep="")
+    cat("<select id=\"meandiff_selector\">",html,"</select>",sep="")
+    cat("</div>")
+    
+    # Container div - un-normalized
+    cat("<div class=\"hc-rect-sm\" id=\"meandiff_unorm_container\"></div>",
+        sep="")
+    # Container div - normalized
+    cat("<div class=\"hc-rect-sm\" id=\"meandiff_norm_container\"></div>",
+        sep="") 
 }
 ```
 
 ```{r analysis_figures_meanvar}
 if ("meanvar" %in% qcPlots) {
-	pandoc.header("Mean-Variance",level=3)
-	
-	cat("<h4><strong>Mean-variance plot for normalization assessment",
-		"</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$meanvar,
-		"<br/><br/></div>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"meanvar_unorm_container\"></div>",
-		sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"meanvar_norm_container\"></div>",
-		sep="")
-	cat("<button id=\"_meanvar_trigger\" class=\"hidden-element\"></button>",
-		sep="")
+    pandoc.header("Mean-Variance",level=3)
+    
+    cat("<h4><strong>Mean-variance plot for normalization assessment",
+        "</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$meanvar,
+        "<br/><br/></div>",sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"meanvar_unorm_container\"></div>",
+        sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"meanvar_norm_container\"></div>",
+        sep="")
+    cat("<button id=\"_meanvar_trigger\" class=\"hidden-element\"></button>",
+        sep="")
 }
 ```
 
 ```{r analysis_figures_rnacomp}
 if ("rnacomp" %in% qcPlots) {
-	pandoc.header("Rna composition",level=3)
-	
-	cat("<h4><strong>RNA composition plot</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$rnacomp,
-		"<br/><br/></div>",sep="")
-		
-	cat("<div class=\"hc-rect-sm\" id=\"rnacomp_unorm_container\"></div>",
-		sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"rnacomp_norm_container\"></div>",sep="")
-	cat("<button id=\"_rnacomp_trigger\" class=\"hidden-element\"></button>",
-		sep="")
+    pandoc.header("Rna composition",level=3)
+    
+    cat("<h4><strong>RNA composition plot</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$rnacomp,
+        "<br/><br/></div>",sep="")
+        
+    cat("<div class=\"hc-rect-sm\" id=\"rnacomp_unorm_container\"></div>",
+        sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"rnacomp_norm_container\"></div>",sep="")
+    cat("<button id=\"_rnacomp_trigger\" class=\"hidden-element\"></button>",
+        sep="")
 }
 ```
 
 ```{r decide_stat}
 if (any(qcPlots %in% statPlots)) {
-	pandoc.header("Statistics",level=1)
-	pandoc.header(
-		"Differential expression assessment figures {.tabset .tabset-pills}",
-		level=2)
-	cat("The following figures allow for the assessment of the statistical ",
-		"testing procedures performed by the ```metaseqr2``` pipeline. Each ",
-		"figure category is accompanied by an explanatory text. All figures ",
-		"are interactive wih additional controls on the top right of the ",
-		"figure.",sep="")
+    pandoc.header("Statistics",level=1)
+    pandoc.header(
+        "Differential expression assessment figures {.tabset .tabset-pills}",
+        level=2)
+    cat("The following figures allow for the assessment of the statistical ",
+        "testing procedures performed by the ```metaseqr2``` pipeline. Each ",
+        "figure category is accompanied by an explanatory text. All figures ",
+        "are interactive wih additional controls on the top right of the ",
+        "figure.",sep="")
 }
 ```
 
 ```{r analysis_figures_volcano}
 if ("volcano" %in% qcPlots) {
-	pandoc.header("Volcano",level=3)
-	
-	cat("<h4><strong>Volcano plots</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$volcano,
-	    "<br/><br/></div>",sep="")
-	    
-	nn <- names(contrastList)
-	namc <- character(0)
-	for (n in nn) {
-		fc <- log2(makeFoldChange(n,sampleList,normGenesExpr[1:3,],1))
-		for (contr in colnames(fc))
-			namc <- c(namc,contr)
-	}
-	
-	# Create a selector for each contrast
-	items <- paste("<option value=",paste("volcano",namc,sep="_"),">",
-		gsub("_vs_"," vs ",namc),"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
-		"for </div>",sep="")
-	cat("<select id=\"volcano_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	# Container div
-	cat("<div class=\"hc-rect-sm\" id=\"volcano_container\"></div>",sep="")
+    pandoc.header("Volcano",level=3)
+    
+    cat("<h4><strong>Volcano plots</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$volcano,
+        "<br/><br/></div>",sep="")
+        
+    nn <- names(contrastList)
+    namc <- character(0)
+    for (n in nn) {
+        fc <- log2(makeFoldChange(n,sampleList,normGenesExpr[1:3,],1))
+        for (contr in colnames(fc))
+            namc <- c(namc,contr)
+    }
+    
+    # Create a selector for each contrast
+    items <- paste("<option value=",paste("volcano",namc,sep="_"),">",
+        gsub("_vs_"," vs ",namc),"</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
+        "for </div>",sep="")
+    cat("<select id=\"volcano_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    # Container div
+    cat("<div class=\"hc-rect-sm\" id=\"volcano_container\"></div>",sep="")
 }
 ```
 
 ```{r analysis_figures_mastat}
 if ("mastat" %in% qcPlots) {
-	pandoc.header("MA",level=3)
-	
-	cat("<h4><strong>Mean-Difference (MA) plots</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$mastat,
-	    "<br/><br/></div>",sep="")
-	
-	nn <- names(contrastList)
-	namc <- character(0)
-	for (n in nn) {
-		m <- log2(makeFoldChange(n,sampleList,normGenesExpr[1:3,],1))
-		for (contr in colnames(m))
-			namc <- c(namc,contr)
-	}
-	
-	# Create a selector for each contrast
-	items <- paste("<option value=",paste("mastat",namc,sep="_"),">",
-		gsub("_vs_"," vs ",namc),"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
-		"for </div>",sep="")
-	cat("<select id=\"mastat_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	# Container div
-	cat("<div class=\"hc-rect-sm\" id=\"mastat_container\"></div>",sep="")
+    pandoc.header("MA",level=3)
+    
+    cat("<h4><strong>Mean-Difference (MA) plots</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$mastat,
+        "<br/><br/></div>",sep="")
+    
+    nn <- names(contrastList)
+    namc <- character(0)
+    for (n in nn) {
+        m <- log2(makeFoldChange(n,sampleList,normGenesExpr[1:3,],1))
+        for (contr in colnames(m))
+            namc <- c(namc,contr)
+    }
+    
+    # Create a selector for each contrast
+    items <- paste("<option value=",paste("mastat",namc,sep="_"),">",
+        gsub("_vs_"," vs ",namc),"</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
+        "for </div>",sep="")
+    cat("<select id=\"mastat_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    # Container div
+    cat("<div class=\"hc-rect-sm\" id=\"mastat_container\"></div>",sep="")
 }
 ```
 
 ```{r analysis_figures_deheatmap}
 if ("deheatmap" %in% qcPlots) {
-	pandoc.header("Heatmap",level=3)
-	
-	cat("<h4><strong>Differential expression heatmaps</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$deheatmap,
-	    "<br/><br/></div>",sep="")
-	
-	# Create a selector for each contrast
-	items <- paste("<option value=",
-		paste("deheatmap",gsub("\\.","__",names(contrastList)),sep="_"),">",
-		gsub("_vs_"," vs ",names(contrastList)),"</option>",sep="")
-	scal <- paste("<option value=",c("asis","zscore"),">",
-		c("log2 reads","z-scores"),"</option>",sep="")
-	cat("<div class=\"row\"><div class=\"col-sm-12\">",sep="")
-	cat("<div class=\"row\"><div class=\"col-sm-6\">")
-	cat("<div class=\"hc-selector-label\">Select a contrast to display ",
-		"heatmap for </div>",sep="")
-	cat("<select id=\"heatmap_contrast_selector\">",items,"</select>",sep="")
-	cat("</div><div class=\"col-sm-6\">")
-	cat("<div class=\"pull-right\">")
-	cat("<div class=\"hc-selector-label\">Select a scale to display heatmap ",
-		"for </div>",sep="")
-	cat("<select id=\"heatmap_scale_selector\">",scal,"</select>",sep="")
-	cat("</div></div></div></div></div>")
-	
-	hList <- vector("list",length(contrastList)*2)
-	hNames <- character(length(contrastList)*2)
-	hInd <- 0
-	for (cnt in names(contrastList)) {
-		s <- names(unlist(contrastList[[cnt]]))
-		if (is.na(pcut))
-			pcut <- 0.05
-		ind <- which(sumpList[[cnt]]<=pcut)
-		if (length(ind) > 0)
-			mat <- as.matrix(normGenesExpr[ind,s])
-		else
-			mat <- as.matrix(normGenesExpr[,s])
-		if (!is.null(reportTop)) {
-			topg <- ceiling(reportTop*nrow(mat))
-			mat <- mat[1:topg,,drop=FALSE]
-		}
-		# As is scale
-		hInd <- hInd + 1
-		hNames[hInd] <- paste0("deheatmap_",gsub("\\.","__",cnt),"_asis")
-		hList[[hInd]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
-			labRow=rep(NA,nrow(mat)),
-			main=paste("DEG heatmap",cnt,"log2 reads")) %>% 
-			layout(width=720,height=840)
-		# z-scores
-		M <- t(scale(t(nat2log(mat))))
-		hInd <- hInd + 1
-		hNames[hInd] <- paste0("deheatmap_",gsub("\\.","__",cnt),"_zscore")
-		hList[[hInd]] <- heatmaply(M,trace="none",colors=bluered(64),
-			labRow=rep(NA,nrow(mat)),
-			main=paste("DEG heatmap",cnt,"z-scores")) %>% 
-			layout(width=720,height=840)
-	}
-	setNames(hList,NULL)
-	
-	# Dirty hack
-	toEval <- "htmltools::tagList("
-	hItems <- character(length(hList))
-	for (i in 1:length(hList))
-		hItems[i] <- paste0("tags$div(id='",hNames[i],
-			"', class='deheatmap-container',hList[[",i,"]])")
-	toEval <- paste0(toEval,paste(hItems,collapse=","),")")
-	eval(parse(text=toEval))
-	
-	#htmltools::tagList(
-	#	tags$div(id=paste("deheatmap",gsub("\\.","__",names(contrastList)[1]),
-	#		sep="_"),class="deheatmap-container",hList[[1]]),
-	#	tags$div(id=paste("deheatmap",gsub("\\.","__",names(contrastList)[2]),
-	#		sep="_"),class="deheatmap-container",hList[[2]])
-	#)
+    pandoc.header("Heatmap",level=3)
+    
+    cat("<h4><strong>Differential expression heatmaps</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$deheatmap,
+        "<br/><br/></div>",sep="")
+    
+    # Create a selector for each contrast
+    items <- paste("<option value=",
+        paste("deheatmap",gsub("\\.","__",names(contrastList)),sep="_"),">",
+        gsub("_vs_"," vs ",names(contrastList)),"</option>",sep="")
+    scal <- paste("<option value=",c("asis","zscore"),">",
+        c("log2 reads","z-scores"),"</option>",sep="")
+    cat("<div class=\"row\"><div class=\"col-sm-12\">",sep="")
+    cat("<div class=\"row\"><div class=\"col-sm-6\">")
+    cat("<div class=\"hc-selector-label\">Select a contrast to display ",
+        "heatmap for </div>",sep="")
+    cat("<select id=\"heatmap_contrast_selector\">",items,"</select>",sep="")
+    cat("</div><div class=\"col-sm-6\">")
+    cat("<div class=\"pull-right\">")
+    cat("<div class=\"hc-selector-label\">Select a scale to display heatmap ",
+        "for </div>",sep="")
+    cat("<select id=\"heatmap_scale_selector\">",scal,"</select>",sep="")
+    cat("</div></div></div></div></div>")
+    
+    hList <- vector("list",length(contrastList)*2)
+    hNames <- character(length(contrastList)*2)
+    hInd <- 0
+    for (cnt in names(contrastList)) {
+        s <- names(unlist(contrastList[[cnt]]))
+        if (is.na(pcut))
+            pcut <- 0.05
+        ind <- which(sumpList[[cnt]]<=pcut)
+        if (length(ind) > 0)
+            mat <- as.matrix(normGenesExpr[ind,s])
+        else
+            mat <- as.matrix(normGenesExpr[,s])
+        if (!is.null(reportTop)) {
+            topg <- ceiling(reportTop*nrow(mat))
+            mat <- mat[1:topg,,drop=FALSE]
+        }
+        # As is scale
+        hInd <- hInd + 1
+        hNames[hInd] <- paste0("deheatmap_",gsub("\\.","__",cnt),"_asis")
+        hList[[hInd]] <- heatmaply(nat2log(mat),trace="none",colors=bluered(64),
+            labRow=rep(NA,nrow(mat)),
+            main=paste("DEG heatmap",cnt,"log2 reads")) %>% 
+            layout(width=720,height=840)
+        # z-scores
+        M <- t(scale(t(nat2log(mat))))
+        hInd <- hInd + 1
+        hNames[hInd] <- paste0("deheatmap_",gsub("\\.","__",cnt),"_zscore")
+        hList[[hInd]] <- heatmaply(M,trace="none",colors=bluered(64),
+            labRow=rep(NA,nrow(mat)),
+            main=paste("DEG heatmap",cnt,"z-scores")) %>% 
+            layout(width=720,height=840)
+    }
+    setNames(hList,NULL)
+    
+    # Dirty hack
+    toEval <- "htmltools::tagList("
+    hItems <- character(length(hList))
+    for (i in 1:length(hList))
+        hItems[i] <- paste0("tags$div(id='",hNames[i],
+            "', class='deheatmap-container',hList[[",i,"]])")
+    toEval <- paste0(toEval,paste(hItems,collapse=","),")")
+    eval(parse(text=toEval))
+    
+    #htmltools::tagList(
+    #   tags$div(id=paste("deheatmap",gsub("\\.","__",names(contrastList)[1]),
+    #       sep="_"),class="deheatmap-container",hList[[1]]),
+    #   tags$div(id=paste("deheatmap",gsub("\\.","__",names(contrastList)[2]),
+    #       sep="_"),class="deheatmap-container",hList[[2]])
+    #)
 }
 ```
 
 ```{js deheatmap_render}
 // Chunk to initialize the display of the DE heatmaps
 var hids = $('.deheatmap-container').map(function(index) {
-	return(this.id);
+    return(this.id);
 });
 $('.deheatmap-container').hide(0);
 $('#'+hids[0]).show();
@@ -2225,140 +2225,140 @@ $('#'+hids[0]).show();
 
 ```{r analysis_figures_biodist}
 if ("biodist" %in% qcPlots) {
-	pandoc.header("Biodist",level=3)
-	
-	cat("<h4><strong>Chromosome and biotype distributions of differentially ",
-		"expressed ",transLevel,"s</strong></h4>",sep="")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$biodist,
-	    "<br/><br/></div>",sep="")
-	
-	nn <- names(contrastList)
-	
-	# Create a selector for each contrast
-	items <- paste("<option value=",paste("biodist",nn,sep="_"),">",
-		gsub("_vs_"," vs ",nn),"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
-		"for </div>",sep="")
-	cat("<select id=\"biodist_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	# Containers   
-	cat("<h4>Chromosome distribution of differentially expressed ",transLevel,
-		"s</h4>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"biodist_chromosome_container\"></div>",
-		sep="")
-	cat("<h4>Biotype distribution of differentially expressed ",transLevel,
-		"s</h4>",sep="")
-	cat("<div class=\"hc-rect-sm\" id=\"biodist_biotype_container\"></div>",
-		sep="")
+    pandoc.header("Biodist",level=3)
+    
+    cat("<h4><strong>Chromosome and biotype distributions of differentially ",
+        "expressed ",transLevel,"s</strong></h4>",sep="")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$biodist,
+        "<br/><br/></div>",sep="")
+    
+    nn <- names(contrastList)
+    
+    # Create a selector for each contrast
+    items <- paste("<option value=",paste("biodist",nn,sep="_"),">",
+        gsub("_vs_"," vs ",nn),"</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a contrast to display plot ",
+        "for </div>",sep="")
+    cat("<select id=\"biodist_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    # Containers   
+    cat("<h4>Chromosome distribution of differentially expressed ",transLevel,
+        "s</h4>",sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"biodist_chromosome_container\"></div>",
+        sep="")
+    cat("<h4>Biotype distribution of differentially expressed ",transLevel,
+        "s</h4>",sep="")
+    cat("<div class=\"hc-rect-sm\" id=\"biodist_biotype_container\"></div>",
+        sep="")
 }
 ```
 
 ```{r analysis_figures_deregulogram}
 if ("deregulogram" %in% qcPlots) {
-	pandoc.header("Deregulogram",level=3)
-	
-	cat("<h4><strong>Deregulograms</strong></h4>")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$deregulogram,
-	    "<br/><br/></div>",sep="")
-	
-	cntPairs <- combn(names(contrastList),2)
-	namc <- character(ncol(cntPairs))
-	counter <- 0
-	for (i in 1:ncol(cntPairs)) {
-		counter <- counter + 1
-		namc[counter] <- paste0(cntPairs[1,i],"__",cntPairs[2,i])
-	}
-	
-	# Create a selector for each pair of contrasts
-	items <- paste("<option value=",paste("deregulogram",namc,sep="_"),">",
-		gsub("__"," against ",namc),"</option>",sep="")
-	cat("<div>")
-	cat("<div class=\"hc-selector-label\">Select a pair of contrasts to ",
-		"display plot for </div>",sep="")
-	cat("<select id=\"deregulo_selector\">",items,"</select>",sep="")
-	cat("</div>")
-	
-	# Container div
-	cat("<div class=\"hc-rect-sm\" id=\"deregulo_container\"></div>",sep="")
+    pandoc.header("Deregulogram",level=3)
+    
+    cat("<h4><strong>Deregulograms</strong></h4>")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$deregulogram,
+        "<br/><br/></div>",sep="")
+    
+    cntPairs <- combn(names(contrastList),2)
+    namc <- character(ncol(cntPairs))
+    counter <- 0
+    for (i in 1:ncol(cntPairs)) {
+        counter <- counter + 1
+        namc[counter] <- paste0(cntPairs[1,i],"__",cntPairs[2,i])
+    }
+    
+    # Create a selector for each pair of contrasts
+    items <- paste("<option value=",paste("deregulogram",namc,sep="_"),">",
+        gsub("__"," against ",namc),"</option>",sep="")
+    cat("<div>")
+    cat("<div class=\"hc-selector-label\">Select a pair of contrasts to ",
+        "display plot for </div>",sep="")
+    cat("<select id=\"deregulo_selector\">",items,"</select>",sep="")
+    cat("</div>")
+    
+    # Container div
+    cat("<div class=\"hc-rect-sm\" id=\"deregulo_container\"></div>",sep="")
 }
 ```
 
 ```{r analysis_figures_statvenn}
 if ("statvenn" %in% qcPlots) {
-	pandoc.header("StatVenn",level=3)
-	
-	cat("<h4><strong>Venn diagram of differentially expressed ",transLevel,
-		"s</strong></h4>",sep="")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$statvenn,
-	    "<br/><br/></div>",sep="")
-	    
-	# Create a selector for each contrast
-	nn <- names(contrastList)
-	items <- paste("<option value=",paste("statvenn",nn,sep="_"),">",
-		gsub("_vs_"," vs ",nn),"</option>",sep="")
-	deupdo <- paste("<option value=",c("dereg","up","down"),">",
-		c("Deregulated","Up regulated","Down downregulated"),"</option>",sep="")
-	cat("<div class=\"row\"><div class=\"col-sm-8\">")
-	cat("<div class=\"row\"><div class=\"col-sm-6\">")
-	cat("<div class=\"hc-selector-label\">Select a contrast to display Venn ",
-		"diagram for </div>",sep="")
-	cat("<select id=\"statvenn_contrast_selector\">",items,"</select>",sep="")
-	cat("</div><div class=\"col-sm-6\">")
-	cat("<div class=\"hc-selector-label\">Select a direction to display Venn ",
-		"diagram for </div>",sep="")
-	cat("<select id=\"statvenn_direction_selector\">",deupdo,"</select>",sep="")
-	cat("</div></div></div></div>")
-	
-	cat("<div class=\"row\">")
-	cat("<div class=\"col-sm-8\"><div id=\"jvenn_stat_container\"></div></div>")
-	cat("<div class=\"col-sm-4\">")
-	cat("<div class=\"hc-selector-label\">Click on a number on Venn diagrams ",
-		"to display the respective genes</div>",sep="")
-	cat("<textarea id=\"jvenn_stat_list\" class=\"jvenn_list\" readonly>",
-		"</textarea></div>",sep="")
-	cat("</div>")
+    pandoc.header("StatVenn",level=3)
+    
+    cat("<h4><strong>Venn diagram of differentially expressed ",transLevel,
+        "s</strong></h4>",sep="")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$statvenn,
+        "<br/><br/></div>",sep="")
+        
+    # Create a selector for each contrast
+    nn <- names(contrastList)
+    items <- paste("<option value=",paste("statvenn",nn,sep="_"),">",
+        gsub("_vs_"," vs ",nn),"</option>",sep="")
+    deupdo <- paste("<option value=",c("dereg","up","down"),">",
+        c("Deregulated","Up regulated","Down downregulated"),"</option>",sep="")
+    cat("<div class=\"row\"><div class=\"col-sm-8\">")
+    cat("<div class=\"row\"><div class=\"col-sm-6\">")
+    cat("<div class=\"hc-selector-label\">Select a contrast to display Venn ",
+        "diagram for </div>",sep="")
+    cat("<select id=\"statvenn_contrast_selector\">",items,"</select>",sep="")
+    cat("</div><div class=\"col-sm-6\">")
+    cat("<div class=\"hc-selector-label\">Select a direction to display Venn ",
+        "diagram for </div>",sep="")
+    cat("<select id=\"statvenn_direction_selector\">",deupdo,"</select>",sep="")
+    cat("</div></div></div></div>")
+    
+    cat("<div class=\"row\">")
+    cat("<div class=\"col-sm-8\"><div id=\"jvenn_stat_container\"></div></div>")
+    cat("<div class=\"col-sm-4\">")
+    cat("<div class=\"hc-selector-label\">Click on a number on Venn diagrams ",
+        "to display the respective genes</div>",sep="")
+    cat("<textarea id=\"jvenn_stat_list\" class=\"jvenn_list\" readonly>",
+        "</textarea></div>",sep="")
+    cat("</div>")
 }
 
 ```{r analysis_figures_foldvenn}
 if ("foldvenn" %in% qcPlots) {
-	pandoc.header("FoldVenn",level=3)
-	
-	cat("<h4><strong>Venn diagram of differentially expressed ",transLevel,
-		"s</strong></h4>",sep="")
-	cat("<div class=\"figure-hint\">",reportMessages$explain$foldvenn,
-	    "<br/><br/></div>",sep="")
-	    
-	# Create a selector for each contrast
-	if (length(statistics) > 1)
-		nn <- c(statistics,metaP)
-	else
-		nn <- statistics
-	
-	items <- paste("<option value=",paste("foldvenn",nn,sep="_"),">",nn,
-		"</option>",sep="")
-	deupdo <- paste("<option value=",c("dereg","up","down"),">",
-		c("Deregulated","Up regulated","Down downregulated"),"</option>",sep="")
-	cat("<div class=\"row\"><div class=\"col-sm-8\">")
-	cat("<div class=\"row\"><div class=\"col-sm-6\">")
-	cat("<div class=\"hc-selector-label\">Select an algorithm to display Venn ",
-		"diagram for </div>",sep="")
-	cat("<select id=\"foldvenn_algo_selector\">",items,"</select>",sep="")
-	cat("</div><div class=\"col-sm-6\">")
-	cat("<div class=\"hc-selector-label\">Select a direction to display Venn ",
-		"diagram for </div>",sep="")
-	cat("<select id=\"foldvenn_direction_selector\">",deupdo,"</select>",sep="")
-	cat("</div></div></div></div>")
-	
-	cat("<div class=\"row\">")
-	cat("<div class=\"col-sm-8\"><div id=\"jvenn_fold_container\"></div></div>")
-	cat("<div class=\"col-sm-4\">")
-	cat("<div class=\"hc-selector-label\">Click on a number on Venn diagrams ",
-		"to display the respective genes</div>",sep="")
-	cat("<textarea id=\"jvenn_fold_list\" class=\"jvenn_list\" readonly>",
-		"</textarea></div>",sep="")
-	cat("</div>")
+    pandoc.header("FoldVenn",level=3)
+    
+    cat("<h4><strong>Venn diagram of differentially expressed ",transLevel,
+        "s</strong></h4>",sep="")
+    cat("<div class=\"figure-hint\">",reportMessages$explain$foldvenn,
+        "<br/><br/></div>",sep="")
+        
+    # Create a selector for each contrast
+    if (length(statistics) > 1)
+        nn <- c(statistics,metaP)
+    else
+        nn <- statistics
+    
+    items <- paste("<option value=",paste("foldvenn",nn,sep="_"),">",nn,
+        "</option>",sep="")
+    deupdo <- paste("<option value=",c("dereg","up","down"),">",
+        c("Deregulated","Up regulated","Down downregulated"),"</option>",sep="")
+    cat("<div class=\"row\"><div class=\"col-sm-8\">")
+    cat("<div class=\"row\"><div class=\"col-sm-6\">")
+    cat("<div class=\"hc-selector-label\">Select an algorithm to display Venn ",
+        "diagram for </div>",sep="")
+    cat("<select id=\"foldvenn_algo_selector\">",items,"</select>",sep="")
+    cat("</div><div class=\"col-sm-6\">")
+    cat("<div class=\"hc-selector-label\">Select a direction to display Venn ",
+        "diagram for </div>",sep="")
+    cat("<select id=\"foldvenn_direction_selector\">",deupdo,"</select>",sep="")
+    cat("</div></div></div></div>")
+    
+    cat("<div class=\"row\">")
+    cat("<div class=\"col-sm-8\"><div id=\"jvenn_fold_container\"></div></div>")
+    cat("<div class=\"col-sm-4\">")
+    cat("<div class=\"hc-selector-label\">Click on a number on Venn diagrams ",
+        "to display the respective genes</div>",sep="")
+    cat("<textarea id=\"jvenn_fold_list\" class=\"jvenn_list\" readonly>",
+        "</textarea></div>",sep="")
+    cat("</div>")
 }
 ```
 
@@ -2371,37 +2371,37 @@ statistical analysis performed by the ```metaseqr2``` pipeline.
 
 ```{r results_tables_header}
 if (is.null(reportTop)) {
-	topText <- paste("all the statistically significant ",	transLevel,"s",
-		sep="")
+    topText <- paste("all the statistically significant ",  transLevel,"s",
+        sep="")
 } else {
-	topText <- paste("the top ",round(100*reportTop),"% statistically ",
-		"significant ",transLevel,"s",sep="")
+    topText <- paste("the top ",round(100*reportTop),"% statistically ",
+        "significant ",transLevel,"s",sep="")
 }
 restText <- paste("Use the download links below each table to retrieve the ",
-	"total list of differentially expressed ",transLevel,"s or the whole ",
-	transLevel," list of the selected genome irrespective of differential ",
-	"expression.",sep="")
+    "total list of differentially expressed ",transLevel,"s or the whole ",
+    transLevel," list of the selected genome irrespective of differential ",
+    "expression.",sep="")
 cat("Each table presents ",topText,restText,sep="")
 cat("Furthermore each table can be searched using the search field on the ",
-	"top right and you can also find the following information:<br/><br/>",
-	sep="")
+    "top right and you can also find the following information:<br/><br/>",
+    sep="")
 
 cat("<ul>")
 cat("<li>The <em>chromosome</em> column is linked to the genomic location of ",
-	"the ",transLevel," and opens a new tab/window to the UCSC Genome Browser",
-	"</li>",sep="")
+    "the ",transLevel," and opens a new tab/window to the UCSC Genome Browser",
+    "</li>",sep="")
 cat("<li>The *gene_id* column opens a link to the respective full annotation ",
-	"source (only for Ensembl and RefSeq)</li>",sep="")
+    "source (only for Ensembl and RefSeq)</li>",sep="")
 cat("<li>The background of the *p_value* and *FDR* columns displays a bar ",
-	"with length proportional to the significance of each ",transLevel,"</li>",
-	sep="")
+    "with length proportional to the significance of each ",transLevel,"</li>",
+    sep="")
 cat("<li>The background color of the *fold change (_vs_)* columns displays ",
-	"shows the deregulation of each ",transLevel," and is proportional to ",
-	"the deregulation strength (red for up- green for down-regulation</li>",
-	sep="")
+    "shows the deregulation of each ",transLevel," and is proportional to ",
+    "the deregulation strength (red for up- green for down-regulation</li>",
+    sep="")
 cat("<li>The background of the rest columns (condition average expression) ",
-	"displays a bar with length proportional to the expression strength ",
-	"of each condition</li>",sep="")
+    "displays a bar with length proportional to the expression strength ",
+    "of each condition</li>",sep="")
 cat("</ul>")
 ```
 
@@ -2412,223 +2412,223 @@ DT::datatable(NULL,extensions="Buttons")
 ```{r results_tables}
 # Create a selector for each contrast
 items <- paste("<option value=",paste("detable",gsub("\\.","__",
-	names(contrastList)),sep="_"),">",gsub("_vs_"," vs ",
-	names(contrastList)),"</option>",sep="")
+    names(contrastList)),sep="_"),">",gsub("_vs_"," vs ",
+    names(contrastList)),"</option>",sep="")
 cat("<hr><div>")
 cat("<div class=\"hc-selector-label\">Select a contrast to display ",
-	"DEG table for </div>",sep="")
+    "DEG table for </div>",sep="")
 cat("<select id=\"detable_selector\">",items,"</select>",sep="")
 cat("</div><br/>")
 
 for (cnt in contrast) {
-	cntn <- gsub("_vs_"," vs ",cnt)
-	#pandoc.header(cntn,level=3)
-	
-	cat("<div class='detable-helper-wrapper' id='detable_",gsub("\\.","__",cnt),
-		"'>",sep="")
-	
-	cat("<h4>DEG table for the contrast <strong>",cntn,"</strong></h4>",sep="")
-	cat("<div class=\"figure-hint\">The following table presents ",topText,
-		" for the contrast <strong>",cntn,"</strong>.</div>",sep="")
-	
-	# 15 colors should be enough for most situations...
-	sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9","#EDEEC9",
-		"#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2","#B2F7EF","#EFF7F6",
-		"#F7D6E0","#F2B5D4")
-		
-	# We do not need GC content really...
-	gci <- grep("gc_content",colnames(reportTables[[cnt]]))
-	if (length(gci) > 0)
-		reportTables[[cnt]] <- reportTables[[cnt]][,-gci]
-		
-	# Fold change and condition means should always exist in this table defined 
-	# by us...
-	pi <- grep("p-value",colnames(reportTables[[cnt]]))
-	di <- grep("FDR",colnames(reportTables[[cnt]]))
-	fi <- grep("_vs_",colnames(reportTables[[cnt]]))
-	# If more than one statistics applied, the 1st two from fi are meta p-value
-	# and meta FDR
-	if (length(statistics) > 1)
-		fi <- fi[-c(1,2)]
-	#ci <- numeric(length(sampleList))
-	#N <- names(sampleList)
-	ci <- numeric(length(contrastList[[cnt]]))
-	N <- unique(unlist(contrastList[[cnt]],use.names=FALSE))
-	
-	if (length(grep("rpgm_normalized_mean_counts_",
-		colnames(reportTables[[cnt]]))) > 0) {
-		for (i in 1:length(N))
-			ci[i] <- grep(paste0("rpgm_normalized_mean_counts_",N[i]),
-				colnames(reportTables[[cnt]]))
-	}
-	else {
-		for (i in 1:length(N))
-			ci[i] <- grep(N[i],colnames(reportTables[[cnt]]),fixed=TRUE)
-	}
-	
-	# Get values before rounding for styling
-	brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
-		na.rm=TRUE)
-	preClrs <- col2rgb(rev(redgreen(length(brks)+1)))
-	clrs <- paste("rgb(",apply(preClrs,2,paste0,collapse=","),")",sep="")
-	pRangeForColor <- 1-as.numeric(reportTables[[cnt]][,pi])
-	fRangeForColor <- 1-as.numeric(reportTables[[cnt]][,di])
-	styleBars <- character(length(ci))
-	for (i in 1:length(ci))
-		styleBars[i] <- styleColorBar(range(reportTables[[cnt]][,ci[i]]),
-			sColors[i])
-	
-	# After setting colors, format the table for the report
-	if (!is.numeric(version)) # Not defined in call
-		version <- NULL
-	reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]],o=org,r=refdb,
-		v=version)
-	# Hack to prevent the header name taking 2 rows because of hyphenation(?)
-	names(reportTables[[cnt]])[pi] <- "p_value"
-	
-	# Dirty hack
-	# https://stackoverflow.com/questions/32018521/
-	# shiny-use-stylecolorbar-with-data-from-two-data-frames
-	reportTables[[cnt]] <- 
-		cbind(pRangeForColor,fRangeForColor,reportTables[[cnt]])
-	jspf <- paste0("function(row,data) {",
-		"var value = data[0];",
-		"var backgroundValueP =",styleColorBar(pRangeForColor,"lightblue")[1],
-			";",
-		"var value = data[1];",
-		"var backgroundValueF =",styleColorBar(fRangeForColor,"lightsalmon")[1],
-			";",
-		"$('td',row).eq(",pi-1,").css({",
-			"'background': backgroundValueP,",
-			"'background-repeat': 'no-repeat',",
-			"'background-position': 'center',",
-			"'background-size': '98% 88%'",
-		"});",
-		"$('td',row).eq(",di-1,").css({",
-			"'background': backgroundValueF,",
-			"'background-repeat': 'no-repeat',",
-			"'background-position': 'center',",
-			"'background-size': '98% 88%'",
-		"});",
-		"for (var i=",fi[1],";i<=",fi[length(fi)],";i++) {",
-			"var value = data[i+1];",
-			"$('td',row).eq(i-1).css({",
-				"'color': '#FFFFFF',",
-				"'font-weight': 'bold',",
-				"'background-color': ",styleInterval(brks,clrs),
-			"});",
-		"}")
-	
-	for (i in 1:length(ci)) {
-		jsa <- paste0("var value = data[",ci[i]+1,"];",
-			"$('td',row).eq(",ci[i]-1,").css({",
-				"'background': ",styleBars[i],",",
-				"'background-repeat': 'no-repeat',",
-				"'background-position': 'center',",
-				"'background-size': '98% 88%'",
-			"});")
-		jspf <- paste0(jspf,jsa)
-	}
-	jspf <- paste0(jspf,"}")
-	
-	theTable <- DT::datatable(
-		reportTables[[cnt]],
-		rownames=FALSE,
-		width="95%",
-		height=460,
-		style="bootstrap",
-		class="table-condensed table-striped table-responsive",
-		escape=FALSE,
-		elementId=paste("detable_",gsub("\\.","__",cnt),"_",sep=""),
-		extensions="Buttons",
-		options=list(
-			scrollX=TRUE,
-			order=list(list(pi+1,"asc")),
-			columnDefs=list(
-				list(
-					targets=0:1,
-					visible=FALSE
-				)
-			),
-			dom='Bfrtip',
-			#buttons=I('colvis'),
-			buttons=list(
-				list(
-					extend='colvis',
-					#exclude=0:1,
-					text="Show/Hide columns"
-				)
-			),
-			rowCallback=JS(jspf)
-		)
-	) #%>% formatStyle(
-		#names(reportTables[[cnt]])[fi+2],
-		#backgroundColor=styleInterval(brks,clrs),
-		#fontWeight="bold",
-		#color="#FFFFFF"
-	#) #%>% formatStyle(
-		#names(reportTables[[cnt]])[pi+2],
-		#background=styleColorBar(pRangeForColor,"lightblue"),
-		#fontWeight="bold",
-		#backgroundSize="98% 88%",
-		#backgroundRepeat="no-repeat",
-		#backgroundPosition="center"
-	#)
-	print(htmltools::tagList(tags$div(class="detable-container",theTable)))
-	
-	cat("<br/><br/><div class=\"figure-hint link-box\">")
-	cat("<strong><a href=\"lists/metaseqr_sig_out_",cnt,".txt.gz\"",
-		" download>Download</a> the DEG result list for ",cnt,".</strong><br/>",
-		sep="")
-	if (!is.null(geneCountsZero) || !is.null(geneCountsDead))
-		cat("<strong><a href=\"lists/metaseqr_all_out_",cnt,".txt.gz\"",
-		" download>Download</a> the whole result list for ",cnt,
-		".</strong><br/>",sep="")
-	cat("</div><br/><br/>")
-	
-	cat("</div>")                  
+    cntn <- gsub("_vs_"," vs ",cnt)
+    #pandoc.header(cntn,level=3)
+    
+    cat("<div class='detable-helper-wrapper' id='detable_",gsub("\\.","__",cnt),
+        "'>",sep="")
+    
+    cat("<h4>DEG table for the contrast <strong>",cntn,"</strong></h4>",sep="")
+    cat("<div class=\"figure-hint\">The following table presents ",topText,
+        " for the contrast <strong>",cntn,"</strong>.</div>",sep="")
+    
+    # 15 colors should be enough for most situations...
+    sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9","#EDEEC9",
+        "#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2","#B2F7EF","#EFF7F6",
+        "#F7D6E0","#F2B5D4")
+        
+    # We do not need GC content really...
+    gci <- grep("gc_content",colnames(reportTables[[cnt]]))
+    if (length(gci) > 0)
+        reportTables[[cnt]] <- reportTables[[cnt]][,-gci]
+        
+    # Fold change and condition means should always exist in this table defined 
+    # by us...
+    pi <- grep("p-value",colnames(reportTables[[cnt]]))
+    di <- grep("FDR",colnames(reportTables[[cnt]]))
+    fi <- grep("_vs_",colnames(reportTables[[cnt]]))
+    # If more than one statistics applied, the 1st two from fi are meta p-value
+    # and meta FDR
+    if (length(statistics) > 1)
+        fi <- fi[-c(1,2)]
+    #ci <- numeric(length(sampleList))
+    #N <- names(sampleList)
+    ci <- numeric(length(contrastList[[cnt]]))
+    N <- unique(unlist(contrastList[[cnt]],use.names=FALSE))
+    
+    if (length(grep("rpgm_normalized_mean_counts_",
+        colnames(reportTables[[cnt]]))) > 0) {
+        for (i in 1:length(N))
+            ci[i] <- grep(paste0("rpgm_normalized_mean_counts_",N[i]),
+                colnames(reportTables[[cnt]]))
+    }
+    else {
+        for (i in 1:length(N))
+            ci[i] <- grep(N[i],colnames(reportTables[[cnt]]),fixed=TRUE)
+    }
+    
+    # Get values before rounding for styling
+    brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
+        na.rm=TRUE)
+    preClrs <- col2rgb(rev(redgreen(length(brks)+1)))
+    clrs <- paste("rgb(",apply(preClrs,2,paste0,collapse=","),")",sep="")
+    pRangeForColor <- 1-as.numeric(reportTables[[cnt]][,pi])
+    fRangeForColor <- 1-as.numeric(reportTables[[cnt]][,di])
+    styleBars <- character(length(ci))
+    for (i in 1:length(ci))
+        styleBars[i] <- styleColorBar(range(reportTables[[cnt]][,ci[i]]),
+            sColors[i])
+    
+    # After setting colors, format the table for the report
+    if (!is.numeric(version)) # Not defined in call
+        version <- NULL
+    reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]],o=org,r=refdb,
+        v=version)
+    # Hack to prevent the header name taking 2 rows because of hyphenation(?)
+    names(reportTables[[cnt]])[pi] <- "p_value"
+    
+    # Dirty hack
+    # https://stackoverflow.com/questions/32018521/
+    # shiny-use-stylecolorbar-with-data-from-two-data-frames
+    reportTables[[cnt]] <- 
+        cbind(pRangeForColor,fRangeForColor,reportTables[[cnt]])
+    jspf <- paste0("function(row,data) {",
+        "var value = data[0];",
+        "var backgroundValueP =",styleColorBar(pRangeForColor,"lightblue")[1],
+            ";",
+        "var value = data[1];",
+        "var backgroundValueF =",styleColorBar(fRangeForColor,"lightsalmon")[1],
+            ";",
+        "$('td',row).eq(",pi-1,").css({",
+            "'background': backgroundValueP,",
+            "'background-repeat': 'no-repeat',",
+            "'background-position': 'center',",
+            "'background-size': '98% 88%'",
+        "});",
+        "$('td',row).eq(",di-1,").css({",
+            "'background': backgroundValueF,",
+            "'background-repeat': 'no-repeat',",
+            "'background-position': 'center',",
+            "'background-size': '98% 88%'",
+        "});",
+        "for (var i=",fi[1],";i<=",fi[length(fi)],";i++) {",
+            "var value = data[i+1];",
+            "$('td',row).eq(i-1).css({",
+                "'color': '#FFFFFF',",
+                "'font-weight': 'bold',",
+                "'background-color': ",styleInterval(brks,clrs),
+            "});",
+        "}")
+    
+    for (i in 1:length(ci)) {
+        jsa <- paste0("var value = data[",ci[i]+1,"];",
+            "$('td',row).eq(",ci[i]-1,").css({",
+                "'background': ",styleBars[i],",",
+                "'background-repeat': 'no-repeat',",
+                "'background-position': 'center',",
+                "'background-size': '98% 88%'",
+            "});")
+        jspf <- paste0(jspf,jsa)
+    }
+    jspf <- paste0(jspf,"}")
+    
+    theTable <- DT::datatable(
+        reportTables[[cnt]],
+        rownames=FALSE,
+        width="95%",
+        height=460,
+        style="bootstrap",
+        class="table-condensed table-striped table-responsive",
+        escape=FALSE,
+        elementId=paste("detable_",gsub("\\.","__",cnt),"_",sep=""),
+        extensions="Buttons",
+        options=list(
+            scrollX=TRUE,
+            order=list(list(pi+1,"asc")),
+            columnDefs=list(
+                list(
+                    targets=0:1,
+                    visible=FALSE
+                )
+            ),
+            dom='Bfrtip',
+            #buttons=I('colvis'),
+            buttons=list(
+                list(
+                    extend='colvis',
+                    #exclude=0:1,
+                    text="Show/Hide columns"
+                )
+            ),
+            rowCallback=JS(jspf)
+        )
+    ) #%>% formatStyle(
+        #names(reportTables[[cnt]])[fi+2],
+        #backgroundColor=styleInterval(brks,clrs),
+        #fontWeight="bold",
+        #color="#FFFFFF"
+    #) #%>% formatStyle(
+        #names(reportTables[[cnt]])[pi+2],
+        #background=styleColorBar(pRangeForColor,"lightblue"),
+        #fontWeight="bold",
+        #backgroundSize="98% 88%",
+        #backgroundRepeat="no-repeat",
+        #backgroundPosition="center"
+    #)
+    print(htmltools::tagList(tags$div(class="detable-container",theTable)))
+    
+    cat("<br/><br/><div class=\"figure-hint link-box\">")
+    cat("<strong><a href=\"lists/metaseqr_sig_out_",cnt,".txt.gz\"",
+        " download>Download</a> the DEG result list for ",cnt,".</strong><br/>",
+        sep="")
+    if (!is.null(geneCountsZero) || !is.null(geneCountsDead))
+        cat("<strong><a href=\"lists/metaseqr_all_out_",cnt,".txt.gz\"",
+        " download>Download</a> the whole result list for ",cnt,
+        ".</strong><br/>",sep="")
+    cat("</div><br/><br/>")
+    
+    cat("</div>")                  
 }
 ```
 
 ```{js detable_render}
 var tids = $('.detable-helper-wrapper').map(function(index) {
-	return(this.id);
+    return(this.id);
 });
 $('.detable-helper-wrapper').hide(0);
 $('#'+tids[0]).show();
 
 // The only way to align columns...
 var timer = setInterval(function() {
-	if ($('#'+tids[0]+"_").find("table").length > 0) {
-		if ($('#'+tids[0]+"_").find("table")[1].id !== undefined) {
-			var id = $('#'+tids[0]+"_").find("table")[1].id;
-			$('#'+id).DataTable().columns.adjust();
-			clearInterval(timer);
-		}
-	}
+    if ($('#'+tids[0]+"_").find("table").length > 0) {
+        if ($('#'+tids[0]+"_").find("table")[1].id !== undefined) {
+            var id = $('#'+tids[0]+"_").find("table")[1].id;
+            $('#'+id).DataTable().columns.adjust();
+            clearInterval(timer);
+        }
+    }
 },100);
 ```
 
 ```{r export_links}
 if (exportCountsTable) {
-	cat("<br/><div class=\"figure-hint link-box\">")
-	if (file.exists(file.path(PROJECT_PATH[["lists"]],
-		"raw_counts_table.txt.gz")))
-		cat("<strong><a href=\"lists/raw_counts_table.txt.gz\" download>",
-			"Download</a> the raw read counts table for the experiment.",
-			"</strong><br/>",sep="")
-	cat("<strong><a href=\"lists/normalized_counts_table.txt.gz\"",
-		" download>Download</a> the normalized read counts table for the ",
-		"experiment.</strong><br/>",sep="")
-	cat("</div>")
+    cat("<br/><div class=\"figure-hint link-box\">")
+    if (file.exists(file.path(PROJECT_PATH[["lists"]],
+        "raw_counts_table.txt.gz")))
+        cat("<strong><a href=\"lists/raw_counts_table.txt.gz\" download>",
+            "Download</a> the raw read counts table for the experiment.",
+            "</strong><br/>",sep="")
+    cat("<strong><a href=\"lists/normalized_counts_table.txt.gz\"",
+        " download>Download</a> the normalized read counts table for the ",
+        "experiment.</strong><br/>",sep="")
+    cat("</div>")
 }
 
 if (length(qcPlots) > 0) {
-	ltxt <- paste(paste("<a href=\"plots/metaseqr_figures_",figFormat,
-		".zip\" download>",figFormat,"</a>",sep=""),collapse=", ")
-	cat("<div class=\"figure-hint link-box\">")
-	cat("<strong>Get all the figures in ",ltxt," format.</strong>")
-	cat("</div>")
+    ltxt <- paste(paste("<a href=\"plots/metaseqr_figures_",figFormat,
+        ".zip\" download>",figFormat,"</a>",sep=""),collapse=", ")
+    cat("<div class=\"figure-hint link-box\">")
+    cat("<strong>Get all the figures in ",ltxt," format.</strong>")
+    cat("</div>")
 }
 ```
 
@@ -2636,200 +2636,200 @@ if (length(qcPlots) > 0) {
 
 ```{r references}
 refs <- unique(c(
-	reportMessages$references$main,
-	reportMessages$references$filein[[fileType]],
-	reportMessages$references$norm[[normalization]],
-	unlist(reportMessages$references$stat[statistics],use.names=FALSE),
-	unlist(reportMessages$references$figure[qcPlots],use.names=FALSE),
-	reportMessages$references$multiple[[adjustMethod]],
-	reportMessages$references$meta[[metaP]]
+    reportMessages$references$main,
+    reportMessages$references$filein[[fileType]],
+    reportMessages$references$norm[[normalization]],
+    unlist(reportMessages$references$stat[statistics],use.names=FALSE),
+    unlist(reportMessages$references$figure[qcPlots],use.names=FALSE),
+    reportMessages$references$multiple[[adjustMethod]],
+    reportMessages$references$meta[[metaP]]
 ))
 cat("<div class=\"figure-hint\" style=\"margin-left:25px;\"><ol>")
 for (r in refs)
-	cat("<li>",r,"</li>",sep="")
+    cat("<li>",r,"</li>",sep="")
 cat("</ol></div>")
 ```
 
 ```{js bind_event_changes}
 $("#biodetection_selector").on('change',function() {
-	var name = this.value;
-	getPlotFromDb({name: name,type: "biodetection",subtype: "generic"},
-		"biodetection_container");
+    var name = this.value;
+    getPlotFromDb({name: name,type: "biodetection",subtype: "generic"},
+        "biodetection_container");
 });
 
 $("#countsbio_sample_selector").on('change',function() {
-	var name = this.value;
-	getPlotWithFunFromDb({name: name,type: "countsbio",subtype: "sample"},
-		"countsbio_sample_container");
+    var name = this.value;
+    getPlotWithFunFromDb({name: name,type: "countsbio",subtype: "sample"},
+        "countsbio_sample_container");
 });
 
 $("#countsbio_biotype_selector").on('change',function() {
-	var name = this.value;
-	getPlotWithFunFromDb({name: name,type: "countsbio",subtype: "biotype"},
-		"countsbio_biotype_container");
+    var name = this.value;
+    getPlotWithFunFromDb({name: name,type: "countsbio",subtype: "biotype"},
+        "countsbio_biotype_container");
 });
 
 $("#saturation_sample_selector").on('change',function() {
-	var name = this.value;
-	getPlotWithFunFromDb({name: name,type: "saturation",subtype: "sample"},
-		"saturation_sample_container");
+    var name = this.value;
+    getPlotWithFunFromDb({name: name,type: "saturation",subtype: "sample"},
+        "saturation_sample_container");
 });
 
 $("#saturation_biotype_selector").on('change',function() {
-	var name = this.value;
-	getPlotWithFunFromDb({name: name,type: "saturation",subtype: "biotype"},
-		"saturation_biotype_container");
+    var name = this.value;
+    getPlotWithFunFromDb({name: name,type: "saturation",subtype: "biotype"},
+        "saturation_biotype_container");
 });
 
 $("#pairwise_selector").on('change',function() {
-	var name = this.value;
-	getPlotFromDb({name: name,type: "pairwise",subtype: "xy"},
-		"pairwise_xy_container");
-	getPlotFromDb({name: name,type: "pairwise",subtype: "md"},
-		"pairwise_md_container");
+    var name = this.value;
+    getPlotFromDb({name: name,type: "pairwise",subtype: "xy"},
+        "pairwise_xy_container");
+    getPlotFromDb({name: name,type: "pairwise",subtype: "md"},
+        "pairwise_md_container");
 });
 
 $("#meandiff_selector").on('change',function() {
-	var name = this.value;
-	getPlotFromDb({name: name,type: "meandiff",subtype: "unorm"},
-		"meandiff_unorm_container");
-	getPlotFromDb({name: name,type: "meandiff",subtype: "norm"},
-		"meandiff_norm_container");
+    var name = this.value;
+    getPlotFromDb({name: name,type: "meandiff",subtype: "unorm"},
+        "meandiff_unorm_container");
+    getPlotFromDb({name: name,type: "meandiff",subtype: "norm"},
+        "meandiff_norm_container");
 });
 
 $("#volcano_selector").on('change',function() {
-	var name = this.value;
-	getPlotFromDb({name: name,type: "volcano",subtype: "generic"},
-		"volcano_container");
+    var name = this.value;
+    getPlotFromDb({name: name,type: "volcano",subtype: "generic"},
+        "volcano_container");
 });
 
 $("#mastat_selector").on('change',function() {
-	var name = this.value;
-	getPlotFromDb({name: name,type: "mastat",subtype: "generic"},
-		"mastat_container");
+    var name = this.value;
+    getPlotFromDb({name: name,type: "mastat",subtype: "generic"},
+        "mastat_container");
 });
 
 $("#deregulo_selector").on('change',function() {
-	var name = this.value;
-	getPlotFromDb({name: name,type: "deregulogram",subtype: "generic"},
-		"deregulo_container");
+    var name = this.value;
+    getPlotFromDb({name: name,type: "deregulogram",subtype: "generic"},
+        "deregulo_container");
 });
 
 $("#heatmap_contrast_selector").on('change',function() {
-	var name = this.value;
-	var suffix = $("#heatmap_scale_selector").val();
-	var newName = name + "_" + suffix;
-	$(".deheatmap-container").hide(0);
-	$("#"+newName).show();
+    var name = this.value;
+    var suffix = $("#heatmap_scale_selector").val();
+    var newName = name + "_" + suffix;
+    $(".deheatmap-container").hide(0);
+    $("#"+newName).show();
 });
 
 $("#heatmap_scale_selector").on('change',function() {
-	var name = this.value;
-	var prefix = $("#heatmap_contrast_selector").val();
-	var newName = prefix + "_" + name;
-	$(".deheatmap-container").hide(0);
-	$("#"+newName).show();
+    var name = this.value;
+    var prefix = $("#heatmap_contrast_selector").val();
+    var newName = prefix + "_" + name;
+    $(".deheatmap-container").hide(0);
+    $("#"+newName).show();
 });
 
 $("#biodist_selector").on('change',function() {
-	var name = this.value;
-	getPlotFromDb({name: name,type: "biodist",subtype: "chromosome"},
-		"biodist_chromosome_container");
-	getPlotFromDb({name: name,type: "biodist",subtype: "biotype"},
-		"biodist_biotype_container");
+    var name = this.value;
+    getPlotFromDb({name: name,type: "biodist",subtype: "chromosome"},
+        "biodist_chromosome_container");
+    getPlotFromDb({name: name,type: "biodist",subtype: "biotype"},
+        "biodist_biotype_container");
 });
 
 $("#statvenn_contrast_selector").on('change',function() {
-	var name = this.value;
-	var suffix = $("#statvenn_direction_selector").val();
-	var newName = name + "_" + suffix;
-	var newSubtype = "stat_" + suffix;
-	getVennFromDb({name: newName,type: "statvenn",subtype: newSubtype},
-		"jvenn_stat_container");
+    var name = this.value;
+    var suffix = $("#statvenn_direction_selector").val();
+    var newName = name + "_" + suffix;
+    var newSubtype = "stat_" + suffix;
+    getVennFromDb({name: newName,type: "statvenn",subtype: newSubtype},
+        "jvenn_stat_container");
 });
 
 $("#statvenn_direction_selector").on('change',function() {
-	var name = this.value;
-	var prefix = $("#statvenn_contrast_selector").val();
-	var newName = prefix + "_" + name;
-	var newSubtype = "stat_" + name;
-	getVennFromDb({name: newName,type: "statvenn",subtype: newSubtype},
-		"jvenn_stat_container");
+    var name = this.value;
+    var prefix = $("#statvenn_contrast_selector").val();
+    var newName = prefix + "_" + name;
+    var newSubtype = "stat_" + name;
+    getVennFromDb({name: newName,type: "statvenn",subtype: newSubtype},
+        "jvenn_stat_container");
 });
 
 $("#foldvenn_algo_selector").on('change',function() {
-	var name = this.value;
-	var suffix = $("#foldvenn_direction_selector").val();
-	var newName = name + "_" + suffix;
-	var newSubtype = "fold_" + suffix;
-	getVennFromDb({name: newName,type: "foldvenn",subtype: newSubtype},
-		"jvenn_fold_container");
+    var name = this.value;
+    var suffix = $("#foldvenn_direction_selector").val();
+    var newName = name + "_" + suffix;
+    var newSubtype = "fold_" + suffix;
+    getVennFromDb({name: newName,type: "foldvenn",subtype: newSubtype},
+        "jvenn_fold_container");
 });
 
 $("#foldvenn_direction_selector").on('change',function() {
-	var name = this.value;
-	var prefix = $("#foldvenn_algo_selector").val();
-	var newName = prefix + "_" + name;
-	var newSubtype = "fold_" + name;
-	getVennFromDb({name: newName,type: "foldvenn",subtype: newSubtype},
-		"jvenn_fold_container");
+    var name = this.value;
+    var prefix = $("#foldvenn_algo_selector").val();
+    var newName = prefix + "_" + name;
+    var newSubtype = "fold_" + name;
+    getVennFromDb({name: newName,type: "foldvenn",subtype: newSubtype},
+        "jvenn_fold_container");
 });
 
 $("#detable_selector").on('change',function() {
-	var name = this.value;
-	$(".detable-helper-wrapper").hide(0);
-	$("#"+name).show();
-	
-	// Hack to make the table visible (htmlwidget known issue)
-	window.dispatchEvent(new Event('resize'));
-	// Hack to align the column headers
-	var id = $('#'+name+"_").find("table")[1].id;
-	$('#'+id).DataTable().columns.adjust();
+    var name = this.value;
+    $(".detable-helper-wrapper").hide(0);
+    $("#"+name).show();
+    
+    // Hack to make the table visible (htmlwidget known issue)
+    window.dispatchEvent(new Event('resize'));
+    // Hack to align the column headers
+    var id = $('#'+name+"_").find("table")[1].id;
+    $('#'+id).DataTable().columns.adjust();
 });
 
 // Hidden buttons
 $("#_mds_trigger").on('click',function() {
-	getPlotFromDb({name: "MDS",type: "mds",subtype: "generic"},"mds_container");
+    getPlotFromDb({name: "MDS",type: "mds",subtype: "generic"},"mds_container");
 });
 $("#_readnoise_trigger").on('click',function() {
-	getPlotFromDb({name: "ReadNoise",type: "readnoise",subtype: "generic"},
-		"readsnoise_container");
+    getPlotFromDb({name: "ReadNoise",type: "readnoise",subtype: "generic"},
+        "readsnoise_container");
 });
 $("#_filtered_trigger").on('click',function() {
-	getPlotFromDb({name: "filtered_chromosome",type: "filtered",
-		subtype: "chromosome"},"chromosome_distr_container");
-	getPlotFromDb({name: "filtered_biotype",type: "filtered",
-		subtype: "biotype"},"biotype_distr_container");
+    getPlotFromDb({name: "filtered_chromosome",type: "filtered",
+        subtype: "chromosome"},"chromosome_distr_container");
+    getPlotFromDb({name: "filtered_biotype",type: "filtered",
+        subtype: "biotype"},"biotype_distr_container");
 });
 $("#_boxplot_trigger").on('click',function() {
-	getPlotFromDb({name: "Boxplot",type: "boxplot",subtype: "unorm"},
-		"boxplot_unorm_container");
-	getPlotFromDb({name: "Boxplot",type: "boxplot",subtype: "norm"},
-		"boxplot_norm_container");
+    getPlotFromDb({name: "Boxplot",type: "boxplot",subtype: "unorm"},
+        "boxplot_unorm_container");
+    getPlotFromDb({name: "Boxplot",type: "boxplot",subtype: "norm"},
+        "boxplot_norm_container");
 });
 $("#_gcbias_trigger").on('click',function() {
-	getPlotFromDb({name: "GCBias",type: "gcbias",subtype: "unorm"},
-		"gcbias_unorm_container");
-	getPlotFromDb({name: "GCBias",type: "gcbias",subtype: "norm"},
-		"gcbias_norm_container");
+    getPlotFromDb({name: "GCBias",type: "gcbias",subtype: "unorm"},
+        "gcbias_unorm_container");
+    getPlotFromDb({name: "GCBias",type: "gcbias",subtype: "norm"},
+        "gcbias_norm_container");
 });
 $("#_lengthbias_trigger").on('click',function() {
-	getPlotFromDb({name: "LengthBias",type: "lengthbias",subtype: "unorm"},
-		"lengthbias_unorm_container");
-	getPlotFromDb({name: "LengthBias",type: "lengthbias",subtype: "norm"},
-		"lengthbias_norm_container");
+    getPlotFromDb({name: "LengthBias",type: "lengthbias",subtype: "unorm"},
+        "lengthbias_unorm_container");
+    getPlotFromDb({name: "LengthBias",type: "lengthbias",subtype: "norm"},
+        "lengthbias_norm_container");
 });
 $("#_meanvar_trigger").on('click',function() {
-	getPlotFromDb({name: "MeanVar",type: "meanvar",subtype: "unorm"},
-		"meanvar_unorm_container");
-	getPlotFromDb({name: "MeanVar",type: "meanvar",subtype: "norm"},
-		"meanvar_norm_container");
+    getPlotFromDb({name: "MeanVar",type: "meanvar",subtype: "unorm"},
+        "meanvar_unorm_container");
+    getPlotFromDb({name: "MeanVar",type: "meanvar",subtype: "norm"},
+        "meanvar_norm_container");
 });
 $("#_rnacomp_trigger").on('click',function() {
-	getPlotFromDb({name: "RnaComp",type: "rnacomp",subtype: "unorm"},
-		"rnacomp_unorm_container");
-	getPlotFromDb({name: "RnaComp",type: "rnacomp",subtype: "norm"},
-		"rnacomp_norm_container");
+    getPlotFromDb({name: "RnaComp",type: "rnacomp",subtype: "unorm"},
+        "rnacomp_unorm_container");
+    getPlotFromDb({name: "RnaComp",type: "rnacomp",subtype: "norm"},
+        "rnacomp_norm_container");
 });
 
 // Initialize some by changing plots (harmless for dexie, required for sqlite)
@@ -2854,9 +2854,9 @@ $("#mastat_selector").trigger('change');
 $("#deregulo_selector").trigger('change');
 $("#biodist_selector").trigger('change');
 if ($("#statvenn_contrast_selector").length > 0) {
-	$("#statvenn_contrast_selector").trigger('change');
+    $("#statvenn_contrast_selector").trigger('change');
 }
 if ($("#foldvenn_algo_selector").length > 0) {
-	$("#foldvenn_algo_selector").trigger('change');
+    $("#foldvenn_algo_selector").trigger('change');
 }
 ```
