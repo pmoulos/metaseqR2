@@ -26,3 +26,67 @@ R CMD INSTALL metaseqR2_0.0.1.tar.gz
 ```
 
 Please report any issues [here](https://github.com/pmoulos/metaseqR2-local/issues). 
+
+## List of required packages
+
+metaseqR2 would benefit from the existence of all the following packages:
+
+ * ABSSeq
+ * baySeq
+ * Biobase
+ * BiocGenerics
+ * BiocManager
+ * BiocParallel
+ * BiocStyle
+ * biomaRt
+ * Biostrings
+ * BSgenome
+ * corrplot
+ * DESeq
+ * DESeq2
+ * DSS
+ * DT
+ * EDASeq
+ * edgeR
+ * GenomeInfoDb
+ * GenomicAlignments
+ * GenomicFeatures
+ * GenomicRanges
+ * gplots
+ * graphics
+ * grDevices
+ * heatmaply
+ * htmltools
+ * httr
+ * IRanges
+ * jsonlite
+ * knitr
+ * limma
+ * log4r
+ * magrittr
+ * methods
+ * NBPSeq
+ * NOISeq
+ * pander
+ * parallel
+ * qvalue
+ * rmarkdown
+ * rmdformats
+ * RMySQL
+ * Rsamtools
+ * RSQLite
+ * rtracklayer
+ * RUnit
+ * S4Vectors
+ * stats
+ * stringr
+ * SummarizedExperiment
+ * survcomp
+ * TCC
+ * utils
+ * VennDiagram
+ * vsn
+ * zoo
+
+A recent version of [Pandoc](https://pandoc.org/) is also required, ideally
+above 2.0.

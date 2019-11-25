@@ -616,3 +616,69 @@ allows the display of different contrasts.
 The References section contains bibliographical references regading the
 algorihtms used by the metaseqr2 pipeline and is adjusted according to the
 algorithms selected.
+
+# List of required packages
+
+Although this is not usually the content of a vignette, the complex nature of
+the package requires this list to be populated also here. Therefore, metaseqR2
+would benefit from the existence of all the following packages:
+
+ * ABSSeq
+ * baySeq
+ * Biobase
+ * BiocGenerics
+ * BiocManager
+ * BiocParallel
+ * BiocStyle
+ * biomaRt
+ * Biostrings
+ * BSgenome
+ * corrplot
+ * DESeq
+ * DESeq2
+ * DSS
+ * DT
+ * EDASeq
+ * edgeR
+ * GenomeInfoDb
+ * GenomicAlignments
+ * GenomicFeatures
+ * GenomicRanges
+ * gplots
+ * graphics
+ * grDevices
+ * heatmaply
+ * htmltools
+ * httr
+ * IRanges
+ * jsonlite
+ * knitr
+ * limma
+ * log4r
+ * magrittr
+ * methods
+ * NBPSeq
+ * NOISeq
+ * pander
+ * parallel
+ * qvalue
+ * rmarkdown
+ * rmdformats
+ * RMySQL
+ * Rsamtools
+ * RSQLite
+ * rtracklayer
+ * RUnit
+ * S4Vectors
+ * stats
+ * stringr
+ * SummarizedExperiment
+ * survcomp
+ * TCC
+ * utils
+ * VennDiagram
+ * vsn
+ * zoo
+
+A recent version of [Pandoc](https://pandoc.org/) is also required, ideally
+above 2.0.

@@ -528,12 +528,13 @@ p {
 </style>
 
 ```{r report_init}
-library(pander)
-library(magrittr)
-library(heatmaply)
 library(DT)
-library(htmltools)
+library(GenomicRanges)
 library(gplots)
+library(heatmaply)
+library(htmltools)
+library(magrittr)
+library(pander)
 
 makeFoldChange <- metaseqR2:::makeFoldChange
 nat2log <- metaseqR2:::nat2log

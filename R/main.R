@@ -158,6 +158,8 @@ metaseqr2 <- function(
         }
         if ("venn" %in% qcPlots)
             qcPlots[which(qcPlots == "venn")] <- "statvenn"
+        if (annotation == "download")
+            annotation <- NULL
     }
     else
         # Check if there are any mispelled or invalid parameters and throw a
