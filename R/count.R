@@ -15,6 +15,9 @@ read2count <- function(targets,annotation,fileType=targets$type,
         if (!requireNamespace("Rsamtools"))
             stopwrap("The Bioconductor package Rsamtools is required to ",
                 "process BAM files!")
+        if (!requireNamespace("GenomeInfoDb"))
+            stopwrap("The Bioconductor package GenomeInfoDb is required to ",
+                "continue with BAM files!")
     }
     if (!is.list(targets) && file.exists(targets))
         targets <- readTargets(targets)
@@ -76,14 +79,16 @@ read2count <- function(targets,annotation,fileType=targets$type,
     else
         stranded <- NULL
         
-    # Initialize counts
-    counts <- matrix(0,nrow=length(annotationGr),ncol=length(sampleNames))
-    rownames(counts) <- names(annotationGr)
-    colnames(counts) <- sampleNames
+    # Initialize libsize
     libsize <- vector("list",length(sampleNames))
     names(libsize) <- sampleNames
     
     if (fileType=="bed") {
+        # Initialize counts
+        counts <- matrix(0,nrow=length(annotationGr),ncol=length(sampleNames))
+        rownames(counts) <- names(annotationGr)
+        colnames(counts) <- sampleNames
+        
         retVal <- cmclapply(sampleNames,function(n,sampleFiles) {
             disp("Reading bed file ",basename(sampleFiles[n]),
                 " for sample with name ",n,". This might take some time...")
@@ -107,6 +112,18 @@ read2count <- function(targets,annotation,fileType=targets$type,
     else if (fileType %in% c("sam","bam")) {
         if (fileType=="sam")
             sampleFiles <- .convertSam(sampleFiles)
+            
+        # We must now compare the Seqinfos of annotation and a BAM file to check
+        # whether they match. If they do not match, then for now, we drop the
+        # Seqinfo of annotation. In a future release, it will be converted to
+        # the BAMs Seqinfo derived from the header.
+        annotationGr <- .adjustOrDropSeqlevels(annotationGr,sampleFiles[1])
+        
+        # Initialize counts, after fixing annotationGr
+        counts <- matrix(0,nrow=length(annotationGr),ncol=length(sampleNames))
+        rownames(counts) <- names(annotationGr)
+        colnames(counts) <- sampleNames
+        
         retVal <- cmclapply(sampleNames,function(n,sampleFiles,paired,
             stranded) {
             disp("Reading bam file ",basename(sampleFiles[n])," for sample ",
@@ -353,6 +370,25 @@ readTargets <- function(input,path=NULL) {
         sampleFiles[n] <- paste(dest,"bam",sep=".")
     }
     return(sampleFiles)
+}
+
+.adjustOrDropSeqlevels <- function(gr,f) {
+    ciAnn <- .chromInfoFromSeqinfo(seqinfo(gr))
+    ciBam <- .chromInfoFromBAM(f)
+    rows <- intersect(rownames(ciAnn),rownames(ciBam))
+    norows <- setdiff(rownames(ciAnn),rownames(ciBam))
+    
+    if (length(norows) > 0)
+        gr <- dropSeqlevels(gr,value=norows,pruning.mode="coarse")
+    
+    if (length(rows) > 0) {
+        ciAnn <- ciAnn[rows,,drop=FALSE]
+        ciBam <- ciBam[rows,,drop=FALSE]
+        if (!identical(ciAnn,ciBam)) # Different lengths, drop from annotation
+            seqlengths(gr) <- rep(NA,length(seqlengths(gr)))
+    }
+    
+    return(gr)
 }
 
 .backPreprocessAnnotation <- function(annotation,annotationGr,transLevel,

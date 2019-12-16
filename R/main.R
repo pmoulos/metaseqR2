@@ -849,6 +849,7 @@ metaseqr2 <- function(
             # Get the exon counts per gene model
             disp("Checking chromosomes in exon counts and gene annotation...")
             geneData <- .reduceGeneData(exonData[rownames(exonCounts)],geneData)
+            exonData <- .reduceGeneData(exonData[rownames(exonCounts)],exonData)
             disp("Processing exons...")
             theCounts <- constructGeneModel(exonCounts,exonData,type="exon",
                 rc=restrictCores)
@@ -984,6 +985,9 @@ metaseqr2 <- function(
             geneData <- 
                 .reduceGeneData(transcriptData[rownames(transcriptCounts)],
                     geneData)
+            transcriptData <- 
+                .reduceGeneData(transcriptData[rownames(transcriptCounts)],
+                    transcriptData)
             disp("Processing transcripts...")
             theCounts <- constructGeneModel(transcriptCounts,transcriptData,
                 type="utr",rc=restrictCores)
@@ -2509,7 +2513,7 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
     exonChrs <- unique(as.character(seqnames(exonData)))
     geneChrs <- unique(as.character(seqnames(geneData)))
     if (length(exonChrs) != length(geneChrs)) {
-        m <- match(seqnames(geneData),exonChrs)
+        m <- as.integer(match(seqnames(geneData),exonChrs))
         geneData <- geneData[which(!is.na(m))]
     }
     return(geneData)

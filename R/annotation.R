@@ -645,7 +645,16 @@ buildCustomAnnotation <- function(gtfFile,metadata,
 .chromInfoFromBAM <- function(bam) {
     # Danger of including non-canonical chromosomes
     b <- scanBamHeader(bam)
-    return(as.data.frame(b[[bam]]$targets))
+    ci <- as.data.frame(b[[bam]]$targets)
+    names(ci) <- "length"
+    return(ci)
+}
+
+.chromInfoFromSeqinfo <- function(sf) {
+    sf <- as.data.frame(sf)
+    sf <- sf[,1,drop=FALSE]
+    names(sf) <- "length"
+    return(sf)
 }
 
 # Load annotation must be capable of reading custom annotation files if imported
