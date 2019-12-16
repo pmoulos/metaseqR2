@@ -590,63 +590,63 @@ if ("biodist" %in% qcPlots) {
 
 # Instructions {.tabset .tabset-pills}
 
-Welcome to **metaseqR2** report! If you are familiar with metaseqR report, then 
-you will find out that there are not so many differences with respect to the 
-presented information. Some diagnostic and exploration plots were added. The 
+Welcome to the **metaseqR2** report! If you are familiar with the metaseqR 
+report, then you will find that there are not many differences with respect to 
+the presented information. Some diagnostic and exploration plots were added. The 
 most notable difference is that __*all*__ plots are interactive. This helps a 
-lot with exploration and interpretation but also add a lot of computational
+lot with exploration and interpretation but also adda a lot of computational
 burden. However, relatively modern systems with recent browser versions should
-be enough to render all the graphics. metaseqR2 report has been tested with
-Google Chrome, Mozilla Firefox and Microsoft Edge. It has **not** been tested
-with Internet Explorer and Opera most probably will not be. Other Chromium 
-browsers (e.g. Brave) should be also fine.
+be capable of rendering all the graphics. The metaseqR2 report has been tested 
+with Google Chrome, Mozilla Firefox and Microsoft Edge. It has **not** been 
+tested with Internet Explorer, Opera and Safari and most probably will not be. 
+Other Chromium browsers (e.g. Brave) should also be fine.
 
 One particular characteristic of the metaseqR2 report is that all plots are
 interactive. This is achieved by using the standard graphics underlying data
 with libraries including [Highcharts](https://www.highcharts.com/),
 [Plotly](https://plot.ly/) and 
 [jvenn](http://jvenn.toulouse.inra.fr/app/index.html) to create more 
-user-friendly and directly explorable plots. Some instructions on the usage of
-these plots follow:
+user-friendly and directly explorable plots. Instructions on the usage of these 
+plots follow:
 
 * All plots are interactively **explorable**. This means that if you move your 
-mouse **inside** the plot area (a move called *mouse-over*), you can find 
+mouse **inside** the plot area (a move called *mouse-over*), you can retrieve 
 information on each single data point. This applies to all plots. More 
 specifically:
   + In **scatterplots**, if you mouse-over each point, information about this 
   point is presented, depending on the type of the plot. The data series from 
-  which the point comes from is also presented. For example, in a Volcano plot, 
-  fold change and significance, as well as the name of the gene and the data 
-  category (e.g. up-regulated) will be presented.
+  which the point comes is also presented. For example, in a Volcano plot, fold 
+  change and significance, as well as the name of the gene and the data category
+  (e.g. up-regulated) will be presented.
   + In **barplots**, if you mouse-over each bar, information about this bar is 
-  presented, like the value it represents and the data series from which it
-  comes from. If the barplot contains groups of bars, then information about
-  each group is displayed. For example, in a Biodetection plot, each bar group
+  presented, such as the value it represents and the data series from which it
+  comes. If the barplot contains groups of bars, then information about each 
+  group is displayed. For example, in a Biodetection plot, each bar group
   presents the percentage of a biotype in the examined genome, the percentage
-  in the sample and the detected percentage according to the read counts.
+  in the sample and the detected percentage according to read counts.
   + In **boxplots**, if you mouse-over the boxes, the information about the 
-  underlying distribution are displayed (maximum, upper quartile, median, lower
+  underlying distribution is displayed (maximum, upper quartile, median, lower
   quartile and minimum) as well as the data series. If you mouse-over an 
   outlier, then information on this single point is presented (e.g. value).
-  + Some **barplots** have a **two** y-axis system corresponding to 
-  **different** measurements or scales. For example in the Biodetection 
-  barplots, the left y-axis presents abundant features while the right y-axis 
-  presents non-abundant features. In the Filtered barplot, y-axes present 
-  different values (numbers and fractions).
-  + **Line plots** can be mouse-overed too. Depending on the plot type, exact 
+  + Some **barplots** have a **double** y-axis system corresponding to 
+  **different** measurements or scales. For example in Biodetection barplots,
+  the left y-axis presents abundant features while the right y-axis presents
+  non-abundant features. In the Filtered barplot, y-axes present different 
+  values (numbers and fractions).
+  + **Line plots** can be moused-over too. Depending on the plot type, exact 
   values may or may not be shown, depending on how important it is to display 
-  them, and to avoid over-crowding the plots. For example in the Reads noise 
-  plot, we are interested in the trend and not so much in exact values.
-  + **Heatmaps** can be mouse-overed too. Information on each heatmap cell will be
-  displayed.
+  them, and to avoid over-crowding the plots. For example in Reads noise plot,
+  we are interested in the trend and not so much in exact values.
+  + **Heatmaps** can be moused-over too. Information on each heatmap cell will 
+  be displayed.
 * All scatterplots and heatmaps are **zoomable**. You need to press the left 
 mouse button inside a plot area and draw a square area to zoom-in. If you wish 
 to reset the zoom, there is a **button** appearing for this when zooming-in.
 * Data series in scatterplots, barplots and boxplots can be **toggled** on or 
 off by **clicking** on the **legend** name of each data series which is placed 
-**below** each plot. For example, in the Volcano plot, if you click on the 
-name "Unregulated", then the respective data series will stop appearing in the 
-plot. You can bring it **back** by clicking the legend again.
+**below** each plot. For example, in Volcano plots, if you click on the name 
+"Unregulated", then the respective data series will stop appearing in the plot. 
+You can bring it **back** by clicking the legend again.
 * All plots are **exportable**. On the **top right** corner of each scatterplot, 
 barplot and boxplot, there is a menu button with several functionalities, 
 including **exporting** in various formats and presenting the plot in 
@@ -658,10 +658,10 @@ diagram.
 * All plots can be **downloaded** in static formats (in formats according to 
 ```metaseqr2``` call) from the Results section.
 
-metaseqR2 report has the following sections, depending also on which diagnostic
-and exploration plots have been asked from the run command. As plots are 
-categorized, if no plot from a specific category is asked, then this category
-will not appear. Below, the categories:
+The metaseqR2 report contains the sections described below, depending on which 
+diagnostic and exploration plots have been asked for from the run command. As 
+plots are categorized, if no plot from a specific category is asked for, then 
+this category will not appear. Below, are the categories:
 
 ## Summary
 
@@ -671,7 +671,7 @@ Specifically:
 * **Analysis summary:** This section contains an auto-generated text that 
 analytically describes the computational process followed and summarized the
 results of each step. This text can be used as is or with slight modifications
-in a <u>Methods</u> section of an article.
+in the <u>Methods</u> section of an article.
 * **Input options:** This section provides a list of the input arguments to the
 pipeline in a more human-readable format.
 * **Filtering:** This section reports in detail the number of filtered genes
@@ -679,7 +679,7 @@ decomposed according to the number of genes removed by each applied filter.
 * **Differential expression:** This section reports in detail the number of
 differentially expressed genes for each contrast, both when using only a p-value
 cutoff as well as an FDR cutoff (numbers in parentheses), that is, genes passing
-the multiple testing correction procedure selected. These numbers also are 
+the multiple testing correction procedure selected. These numbers are also
 calculated based on a simple fold change cutoff in log<sub>2</sub> scale. 
 Finally, when multiple algorithms are used with p-value combination, this
 section reports all the findings analytically per algorithm.
@@ -728,7 +728,7 @@ statistics plots are the *Volcano plot* (**Volcano**), the
 *Venn diagram across statistical tests* (**StatVenn**), the 
 *Venn diagram across contrasts* (**FoldVenn**) and the *Deregulogram*. Each plot 
 is accompanied by a detailed description of what it depicts. Please note that 
-the heatmap plots show only the top percentage of differentially expressed genes 
+the heatmap plots only show the top percentage of differentially expressed genes 
 as this is controlled by the ```reportTop``` parameter of the ```metaseqr2``` 
 pipeline. When multiple plots are available (e.g. one for each contrast), a 
 selection list on the top of the respective section allows the selection of the 
@@ -736,21 +736,21 @@ sample to be displayed.
 
 ## Results
 
-The **Results** section contains a snapshot of the differentially expressed 
-genes in table format with basic information about each gene and some links to
-external resources. Certain columns of the table are colored according to
-significance. Larger bars and more intense colors indicate higher significance.
-For example, bar in the *p_value* column is larger if the genes has higher
-statistical significance and the fold change cell background is bright red if
-the gene is highly up-regulated. From the **Results** section, full gene lists
-can be downloaded in text tab-delimited format and viewed with a spreadsheet
-application like MS Excel. A selector on the top of the section above the table
-allows the display of different contrasts.
+The **Results** section contains a snapshot of differentially expressed genes in 
+table format with basic information about each gene and links to external 
+resources. Certain columns of the table are colored according to significance. 
+Larger bars and more intense colors indicate higher significance. For example, 
+the bar in the *p_value* column is larger if the genes has higher statistical 
+significance and the fold change cell background is bright red if the gene is 
+highly up-regulated. From the **Results** section, full gene lists can be 
+downloaded in text tab-delimited format and viewed with a spreadsheet
+application such as MS Excel. A selector on the top of the section above the 
+table allows the display of different contrasts.
 
 ## References
 
 The **References** section contains bibliographical references regading the
-algorihtms used by the ```metaseqr2``` pipeline and is adjusted according to the
+algorithms used by the ```metaseqr2``` pipeline and is adjusted according to the
 algorithms selected.
  
 # Summary {.tabset .tabset-pills}
@@ -841,7 +841,7 @@ cat("was a table with normalized counts, which can be used for differential",
     
 if (!is.null(geneFilters)) {
     cat("Prior to the statistical testing procedure, the ",transLevel," read ",
-    "counts were filtered for possible artifacts that could affect the ",
+    "counts were filtered for possible artifacts that may affect the ",
     "subsequent statistical testing procedures. Genes/transcripts presenting ",
     "any of the following were excluded from further analysis: ")
     
@@ -856,17 +856,18 @@ if (!is.null(geneFilters)) {
     if (!is.null(geneFilters$length)) {
         counter <- counter + 1
         msgGeneFiltersLength <- paste(
-            latinNumbered[counter]," ",transLevel,"s with length less than ", geneFilters$length$length," (",length(geneFilterResult$length),
+            latinNumbered[counter]," ",transLevel,"s with length less than ", 
+            geneFilters$length$length,"bp (",length(geneFilterResult$length),
             " genes)",sep=""
         )
     }
     if (!is.null(geneFilters$avgReads)) {
         counter <- counter + 1
         msgGeneFiltersAvgReads <- paste(
-            latinNumbered[counter]," ",transLevel,"s whose average reads per ",
-            geneFilters$avgReads$averagePerBp," bp was less than the ",
-            100*geneFilters$avgReads$quantile,"<sup>th</sup> quantile of the ",
-            "total normalized distribution of average reads per ",
+            latinNumbered[counter]," ",transLevel,"s whose average numbers of ",
+            "reads per ",geneFilters$avgReads$averagePerBp," bp was less than ",
+            "the ",100*geneFilters$avgReads$quantile,"<sup>th</sup> quantile ",
+            "of the total normalized distribution of average reads per ",
             geneFilters$avgReads$averagePerBp,"bp (",
             length(geneFilterResult$averagePerBp)," ",transLevel,"s with ",
             "cutoff value ",round(geneFilterCutoff$avgReads,digits=5)," ",
@@ -951,8 +952,8 @@ if (!is.null(geneFilters)) {
     if (!is.null(geneFilters$presence)) {
         counter <- counter + 1
         msgGeneFiltersPresence <- paste(
-            latinNumbered[counter]," ",transLevel,"s where ",
-            geneFilters$presence$frac*100,"% of samples were not above ",
+            latinNumbered[counter]," ",transLevel,"s which in ",
+            geneFilters$presence$frac*100,"% of samples did not exceed ",
             geneFilters$presence$minCount," counts (",
             length(geneFilterResult$presence)," ",transLevel,"s)",sep=""
         )
@@ -1927,8 +1928,8 @@ if (any(qcPlots %in% normPlots)) {
     cat("The following figures allow for the assessment of the ",
         "normalization procedures performed by the ```metaseqr2``` pipeline. ",
         "Each figure category is accompanied by an explanatory text. All ",
-        "figures are interactive wih additional controls on the top right of ",
-        "the figure.",sep="")
+        "figures are interactive wih additional controls on the top right ",
+        "corner of the figure.",sep="")
 }
 ```
 
@@ -2072,8 +2073,8 @@ if (any(qcPlots %in% statPlots)) {
     cat("The following figures allow for the assessment of the statistical ",
         "testing procedures performed by the ```metaseqr2``` pipeline. Each ",
         "figure category is accompanied by an explanatory text. All figures ",
-        "are interactive wih additional controls on the top right of the ",
-        "figure.",sep="")
+        "are interactive wih additional controls on the top right corner of ",
+        "the figure.",sep="")
 }
 ```
 
@@ -2396,9 +2397,9 @@ cat("<li>The *gene_id* column opens a link to the respective full annotation ",
 cat("<li>The background of the *p_value* and *FDR* columns displays a bar ",
     "with length proportional to the significance of each ",transLevel,"</li>",
     sep="")
-cat("<li>The background color of the *fold change (_vs_)* columns displays ",
+cat("<li>The background color of the *fold change (_vs_)* column(s) displays ",
     "shows the deregulation of each ",transLevel," and is proportional to ",
-    "the deregulation strength (red for up- green for down-regulation</li>",
+    "the deregulation strength (red for up- green for down-regulation)</li>",
     sep="")
 cat("<li>The background of the rest columns (condition average expression) ",
     "displays a bar with length proportional to the expression strength ",
