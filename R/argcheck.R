@@ -263,7 +263,8 @@ checkPackages <- function(m,p) {
         "figFormat","outList","exportWhere","exportWhat","exportScale",
         "exportValues","exportStats","exportCountsTable","restrictCores",
         "report","refdb","reportTop","reportTemplate","verbose","runLog",
-        "reportDb","saveGeneModel","version","localDb","offlineReport"
+        "reportDb","saveGeneModel","version","localDb","offlineReport",
+        "createTracks"
     ))
 }
 

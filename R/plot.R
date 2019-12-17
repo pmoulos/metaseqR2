@@ -1671,8 +1671,12 @@ diagplotDeHeatmap <- function(x,scale=c("asis","zscore"),con=NULL,output="x11",
         con <- paste("for ",con)
     }
     y <- nat2log(x,2,1)
-    if (scale == "zscore")
+    if (scale == "zscore") {
         y <- t(scale(t(y)))
+        if (any(is.infinite(y)))
+            y[which(is.infinte(y))] <- min(y)
+    }
+        
     # First plot the normal image
     fil <- file.path(path,paste("de_heatmap_",conn,"_",scale,".",output,sep=""))
     if (output %in% c("pdf","ps","x11"))

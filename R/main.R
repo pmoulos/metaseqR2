@@ -96,6 +96,7 @@ metaseqr2 <- function(
     localDb=file.path(system.file(package="metaseqR2"),"annotation.sqlite"),
     progressFun=NULL,
     offlineReport=TRUE,
+    createTracks=FALSE,
     ...
 ) {
     # Save function call for report
@@ -523,23 +524,37 @@ metaseqr2 <- function(
     # Check if drawing a Venn diagram among tests is possible
     if ("statvenn" %in% qcPlots && length(statistics)==1) {
         warnwrap("The creation of a Venn diagram among different statistical ",
-            "tests is possible only when more than one statistical algorithms ",
-            "are used! Removing from figures list...")
+            "tests is possible only when more than\none statistical ",
+            "algorithms are used! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "statvenn")]
     }
     # Check if drawing a Venn diagram among contrasts is possible
     if ("foldvenn" %in% qcPlots && length(contrast)==1) {
         warnwrap("The creation of a Venn diagram among different statistical ",
-            "comparisons is possible only when more than one contrast defined!",
-            " Removing from figures list...")
+            "comparisons is possible only when more than\none contrast ",
+            "defined! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "foldvenn")]
     }
     # Check if drawing a deregulogram for contrast pairs
     if ("deregulogram" %in% qcPlots && length(contrast)==1) {
         warnwrap("The creation of a deregulogram for pairwise statistical ",
-            "comparisons is possible only when more than one contrast defined!",
-            " Removing from figures list...")
+            "comparisons is possible only when more than\none contrast ",
+            "defined! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "deregulogram")]
+    }
+    # Remove meandiff if there are single-replicate conditions
+    if ("meandiff" %in% qcPlots && any(lengths(sampleList) < 2)) {
+        warnwrap("The creation of a meandiff plots is not possible for single ",
+            "replicate conditions!\nRemoving from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "meandiff")]
+    }
+    # Check if we have single-replicate conditions and presence$perCondition is
+    # enabled
+    if (any(lengths(sampleList) < 2) && geneFilters$presence$perCondition) {
+        warnwrap("geneFilters$presence$perCondition cannot be TRUE when there ",
+            "are single-replicate conditions are present\nas this will cause ",
+            "sample drops! Setting to FALSE...")
+        geneFilters$presence$perCondition <- FALSE
     }
     
     # Check additional input arguments for normalization and statistics

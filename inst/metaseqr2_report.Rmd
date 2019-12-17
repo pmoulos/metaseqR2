@@ -1147,9 +1147,9 @@ cat(countType)
 
 ```{r summary_input_options_10}
 if (countType=="utr" && !is.null(utrOpts)) {
-    cat("<strong>3' UTR fraction:</strong> ",utrOpts$frac)
-    cat("<strong>3' UTR minimum length:</strong> ",utrOpts$minLength,"bps")
-    cat("<strong>3' UTR downstream:</strong> ",utrOpts$downstream,"bps")
+    cat("<strong>3' UTR fraction:</strong> ",utrOpts$frac,"<br/>")
+    cat("<strong>3' UTR minimum length:</strong> ",utrOpts$minLength,"bps<br/>")
+    cat("<strong>3' UTR downstream:</strong> ",utrOpts$downstream,"bps<br/>")
 }
 ```
 
@@ -1328,7 +1328,7 @@ cat(logOffset)
 
 **Analysis preset:** 
 ```{r summary_input_options_23}
-if (!is.null(preset)) cat(preset) else ("not available")
+if (!is.null(preset)) cat(preset) else cat("not available")
 ```
 
 **Quality control plots:**
@@ -1822,48 +1822,6 @@ if ("correl" %in% qcPlots) {
 ```{r analysis_figures_pairwise}
 if ("pairwise" %in% qcPlots) {
     pandoc.header("Pairwise",level=3)
-    
-    #cat("<h4><strong>Pairwise sample correlations</strong></h4>")
-    #cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,
-    #    "<br/><br/></div>",sep="")
-    #cat("<div style=\"text-align:center\">")
-    #
-    #x <- nat2log(as.matrix(geneCounts))
-    #n <- ncol(x)
-    #if (!is.null(colnames(x)))
-    #    nams <- colnames(x)
-    #else
-    #    nams <- paste("Sample_",1:ncol(x),sep="")
-    #
-    #par(mfrow=c(n,n),mar=c(1,1,1,1),oma=c(1,1,0,0),mgp=c(2,0.5,0),cex.axis=0.6,
-    #    cex.lab=0.6)
-    #
-    #for (i in 1:n) {
-    #    for (j in 1:n) {
-    #        if (i==j) { # Diagonal
-    #            plot(0:10,0:10,type="n",xaxt="n",yaxt="n",xlab="",ylab="")
-    #            text(c(3,5,3),c(9.5,5,1),c("X-Y plots",nams[i],"M-D plots"),
-    #                cex=c(0.8,1,0.8))
-    #            arrows(6,9.5,9.5,9.5,angle=20,length=0.1,lwd=0.8,cex=0.8)
-    #            arrows(0.2,3.2,0.2,0.2,angle=20,length=0.1,lwd=0.8,cex=0.8)
-    #        }
-    #        else if (i<j) { # XY plot
-    #            plot(x[,i],x[,j],pch=20,col="blue",cex=0.4,xlab=nams[i],
-    #                ylab=nams[j],...)
-    #            lines(lowess(x[,i],x[,j]),col="red")
-    #            cc <- paste("cor:",formatC(cor(x[,i],x[,j]),digits=3))
-    #            text(3,max(x[,j]-1),labels=cc,cex=0.7,)
-    #            #grid()
-    #        }
-    #        else if (i>j) { # MD plot
-    #            plot((x[,i]+x[,j])/2,x[,j]-x[,i],pch=20,col="blue",cex=0.4,...)
-    #            lines(lowess((x[,i]+x[,j])/2,x[,j]-x[,i]),col="red")
-    #            #grid()
-    #        }
-    #    }
-    #}
-    #
-    #cat("</div>")
     
     cat("<h4><strong>Pairwise sample correlations</strong></h4>")
     cat("<div class=\"figure-hint\">",reportMessages$explain$pairwise,

@@ -1381,6 +1381,8 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
             getBM(attributes=getGeneAttributes(org),mart=mart),
             error=function(e) {
                 message("Caught error: ",e)
+                message("This error is most probably related to httr package ",
+                    "internals! Using fallback solution...")
                 .myGetBM(attributes=getGeneAttributes(org),mart=mart)
             },
             finally=""
@@ -1405,6 +1407,8 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
             getBM(attributes=getTranscriptAttributes(org),mart=mart),
             error=function(e) {
                 message("Caught error: ",e)
+                message("This error is most probably related to httr package ",
+                    "internals! Using fallback solution...")
                 .myGetBM(attributes=getTranscriptAttributes(org),mart=mart)
             },
             finally=""
@@ -1427,6 +1431,8 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
             getBM(attributes=getTranscriptUtrAttributes(org),mart=mart),
             error=function(e) {
                 message("Caught error: ",e)
+                message("This error is most probably related to httr package ",
+                    "internals! Using fallback solution...")
                 .myGetBM(attributes=getTranscriptUtrAttributes(org),mart=mart)
             },
             finally=""
@@ -1453,6 +1459,8 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
             getBM(attributes=getExonAttributes(org),mart=mart),
             error=function(e) {
                 message("Caught error: ",e)
+                message("This error is most probably related to httr package ",
+                    "internals! Using fallback solution...")
                 .myGetBM(attributes=getExonAttributes(org),mart=mart)
             },
             finally=""

@@ -101,6 +101,8 @@ importFrom("GenomeInfoDb",fetchExtendedChromInfoFromUCSC)
 importFrom("GenomeInfoDb",seqinfo)
 importFrom("GenomeInfoDb",Seqinfo)
 importFrom("GenomeInfoDb",seqlevels)
+importFrom("GenomeInfoDb",seqlengths)
+importFrom("GenomeInfoDb",dropSeqlevels)
 
 importFrom("GenomicAlignments",readGAlignments)
 importFrom("GenomicAlignments",summarizeOverlaps)
