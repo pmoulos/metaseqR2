@@ -1900,6 +1900,7 @@ makePathStruct <- function(mainPath) {
         data=file.path(mainPath,"data"),
         logs=file.path(mainPath,"logs"),
         lists=file.path(mainPath,"lists"),
+        tracks=file.path(mainPath,"tracks"),
         plots=file.path(mainPath,"plots"),
         qc=file.path(mainPath,"plots","qc"),
         normalization=file.path(mainPath,"plots","normalization"),

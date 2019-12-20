@@ -127,6 +127,7 @@ importFrom("httr",config)
 importFrom("httr",set_config)
 
 importFrom("IRanges",IRanges)
+importFrom("IRanges",slice)
 
 importFrom("jsonlite",fromJSON)
 importFrom("jsonlite",toJSON)
@@ -161,6 +162,7 @@ importFrom("rmdformats",material)
 
 importFrom("rtracklayer",import)
 importFrom("rtracklayer",import.bed)
+importFrom("rtracklayer",export.bw)
 
 importFrom(S4Vectors,"DataFrame")
 importFrom(S4Vectors,"Rle")
@@ -211,6 +213,7 @@ importFrom("zoo",rollmean)
 
 export(buildAnnotationDatabase)
 export(buildCustomAnnotation)
+export(createSignalTracks)
 export(combineBonferroni)
 export(combineMaxp)
 export(combineMinp)

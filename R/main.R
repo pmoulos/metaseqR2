@@ -97,6 +97,19 @@ metaseqr2 <- function(
     progressFun=NULL,
     offlineReport=TRUE,
     createTracks=FALSE,
+    overwriteTracks=FALSE,
+    trackExportPath=file.path(exportWhere,"tracks"),
+    trackInfo=list(
+        stranded=FALSE,
+        normTo=1e+9,
+        urlBase="http://www.trackserver.me",
+        hubInfo=list(
+            name="MyHub",
+            shortLabel="My hub",
+            longLabel="My hub long",
+            email="someone@example.com"
+        )
+    ),
     ...
 ) {
     # Save function call for report
@@ -216,6 +229,8 @@ metaseqr2 <- function(
                 "Please specify (BAM or BED)..."))
         fromRaw <- TRUE
     }
+    else
+        theList <- NULL
     
     # If report requested with SQLite RSQLite must be present,also pander
     if (report) {
@@ -555,6 +570,18 @@ metaseqr2 <- function(
             "are single-replicate conditions are present\nas this will cause ",
             "sample drops! Setting to FALSE...")
         geneFilters$presence$perCondition <- FALSE
+    }
+    # Check if tracks asked but we are in Windows...
+    if (createTracks && .Platform$OS.type == "windows") {
+        warnwrap("Signal tracks asked but Windows OS detected! Track ",
+            "generation is not possible in Windows. Ignoring...")
+        createTracks = FALSE
+    }
+    # Check if tracks asked but not starting with a targets file
+    if (createTracks && is.null(theList)) {
+        warnwrap("Signal tracks asked but no targets file with BAM file paths ",
+            "provided! Ignoring...")
+        createTracks <- FALSE
     }
     
     # Check additional input arguments for normalization and statistics
@@ -2147,6 +2174,16 @@ metaseqr2 <- function(
                     output=fig,path=PROJECT_PATH$statistics)
         }
         
+        # Create also tracks if asked, all controls have been performed in the
+        # beginning, so targets exist
+        if (createTracks)
+            tLink <- createSignalTracks(theList,org,stranded=trackInfo$stranded,
+                normTo=trackInfo$normTo,urlBase=trackInfo$urlBase,
+                exportPath=trackExportPath,hubInfo=trackInfo$hubInfo,
+                overwrite=overwriteTracks,rc=restrictCores)
+        else
+            tLink <- NULL
+        
         ########################################################################
         #assign("sampleList",sampleList,envir=parent.frame())
         #assign("geneCounts",geneCounts,envir=parent.frame())
@@ -2163,7 +2200,7 @@ metaseqr2 <- function(
     ############################################################################
     # END PLOTTING SECTION
     ############################################################################
-
+    
     ############################################################################
     # BEGIN REPORTING SECTION
     ############################################################################
@@ -2439,7 +2476,11 @@ metaseqr2 <- function(
                 reportTemplate=reportTemplate,
                 saveGeneModel=saveGeneModel,
                 verbose=verbose,
-                runLog=runLog
+                runLog=runLog,
+                offlineReport=offlineReport,
+                createTracks=createTracks,
+                exportTrackPath=exportTrackPath,
+                trackInfo=trackInfo
             ),
             filterCutoffs=list(
                 exonFilter=list(

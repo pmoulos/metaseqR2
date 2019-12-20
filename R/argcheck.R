@@ -264,7 +264,7 @@ checkPackages <- function(m,p) {
         "exportValues","exportStats","exportCountsTable","restrictCores",
         "report","refdb","reportTop","reportTemplate","verbose","runLog",
         "reportDb","saveGeneModel","version","localDb","offlineReport",
-        "createTracks"
+        "createTracks","overwriteTracks","trackExportPath","trackInfo"
     ))
 }
 

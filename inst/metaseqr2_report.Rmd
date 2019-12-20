@@ -684,9 +684,14 @@ calculated based on a simple fold change cutoff in log<sub>2</sub> scale.
 Finally, when multiple algorithms are used with p-value combination, this
 section reports all the findings analytically per algorithm.
 * **Command:** This section contains the command used to run the ```metaseqr2```
-pipeline for users that want to experiment.
-* **Run log:** This section contains critical messages displayed within the
-```R``` session running ```metaseqr2``` displayed as a log.
+pipeline for users that want to experiment as well as a critical messages
+displayed within the ```R``` session running ```metaseqr2``` displayed as a log.
+* **Tracks:** This section contains a link which opens a new window to the UCSC
+Genome Browser where normalized tracks based on the input BAM files are 
+displayed. If stranded tracks have been requested (according to the
+sequencing protocol or technology), the a track hub is created to display the
+stranded tracks. From this tab, you can also download bigWig files as well as 
+copy track lines for manual input to the UCSC Genome Browser.
 
 ## Quality control 
 
@@ -1088,7 +1093,7 @@ cat(". Literature references for all the algorithms used can be found at the ",
 
 ### Input options
 
-**Read counts file:** 
+**Read counts file: **
 ```{r summary_input_options_1}
 cat(countsName)
 ```
@@ -1346,7 +1351,7 @@ cat(paste(unlist(reportMessages$plots[qcPlots],use.names=FALSE),collapse=", "))
 if (!is.na(exportWhere)) cat(exportWhere) else cat("default")
 ```
 
-**Output data:** 
+**Output data: **
 ```{r summary_input_options_27}
 cat(paste(unlist(reportMessages$export[exportWhat],use.names=FALSE),
     collapse=", "))
@@ -1587,19 +1592,73 @@ cat(paste(FUN_CALL,collapse="<br/>"))
 cat("</code></pre>")
 ```
 
-## `r if (runLog) 'Run log'`
-
 ```{r summary_run_log}
 if (runLog) {
-    cat("<h3>Run log</h3>")
+    cat("<br/>The above command generated the following log output:<br/><br/>")
     cat("<div id=\"summary_log_container\">")
     logString <- paste(readLines(file.path(PROJECT_PATH$logs,
         "metaseqr_run.log")),collapse="---EOL---")
     logString <- gsub("\\$","->",logString)
     cat(gsub("---EOL---","<br/>",logString))
-    cat("</div>")
+    cat("</div><br/>")
 } else {
     cat("<h4>No logging requested</h4>")
+}
+```
+
+## `r if (createTracks) 'Tracks'`
+
+```{r tracks_1}
+if (createTracks) {
+    o <- metaseqR2:::getUcscOrganism(org)
+    cat("You can use this ")
+    if (trackInfo$stranded) {
+        cat("<a href='https://genome.ucsc.edu/cgi-bin/hgTracks?genome=",o,
+            "&hubUrl=",tLink,"' target='_blank'><strong>link</strong>",
+            "</a>",sep="")
+    } else {
+        cat("<a href='https://genome.ucsc.edu/cgi-bin/hgTracks?db=",o,
+            "&hgct_customText=",tLink,"' target='_blank'><strong>link</strong>",
+            "</a>",sep="")
+    }
+    cat(" to load a UCSC Genome Browser session with the tracks derived from ",
+        "this analysis. If stranded mode was chosen, a trackhub will be ",
+        "loaded, otherwise, simple tracks will be loaded.",sep="")
+    cat("<br/>")
+}
+```
+
+```{r tracks_2}
+if (trackInfo$stranded) {
+    o <- metaseqR2:::getUcscOrganism(org)
+    plusLinks <- paste0(trackInfo$urlBase,"/",o,"/",samples,"_plus.bigWig")
+    minusLinks <- paste0(trackInfo$urlBase,"/",o,"/",samples,"_plus.bigWig")
+    cat("You can download individual bigWig files, one for each sample,",
+        "using the following list:<br/><br/>")
+    cat("<strong>Plus (+) strand</strong><br/>")
+    for (i in 1:length(plusLinks))
+        cat("<a href='",plusLinks[i],"'>",samples[i],"</a><br/>",sep="")
+    cat("<br/><strong>Minus (-) strand</strong><br/>")
+    for (i in 1:length(minusLinks))
+        cat("<a href='",minusLinks[i],"'>",samples[i],"</a><br/>",sep="")
+    cat("<br/>")
+} else {
+    tLines <- readLines(file.path(trackExportPath,"tracks.txt"))
+    tmp <- strsplit(tLines," ")
+    tNames <- sapply(tmp,function(x) {
+        return(strsplit(x[6],"=")[[1]][2])
+    })
+    tLinks <- paste0(trackInfo$urlBase,"/",tNames,".bigWig")
+    cat("You can download individual bigWig files, one for each sample,",
+        "using the following list:<br/>")
+    for (i in 1:length(tNames))
+        cat("<a href='",tLinks[i],"'>",tNames[i],"</a><br/>",sep="")
+    cat("<br/>")
+    cat("You can manually load bigWig files in UCSC Genome Browser using the ",
+        "following track lines:<br/><br/>")
+    cat("<pre><code>")
+    cat(paste(tLines,collapse="<br/>"))
+    cat("</code></pre><br/>")
 }
 ```
 

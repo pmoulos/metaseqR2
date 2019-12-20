@@ -84,8 +84,8 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
 VignetteBuilder: knitr
 Authors@R: c(person(given="Panagiotis", family="Moulos",
     email="moulos@fleming.gr", role=c("aut", "cre")))
-Version: 0.0.13
-Date: 2019-12-16
+Version: 0.0.15
+Date: 2019-12-20
 Collate:
     'annotation.R'
     'argcheck.R'
@@ -103,5 +103,6 @@ Collate:
     'reportdb.R'
     'sim.R'
     'stat.R'
+    'tracks.R'
     'util.R'
     'zzz.R'

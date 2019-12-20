@@ -617,6 +617,12 @@ The References section contains bibliographical references regading the
 algorihtms used by the metaseqr2 pipeline and is adjusted according to the
 algorithms selected.
 
+# Genome browser tracks
+
+metaseqR2 utilizes Bioconductor facilities to create normalized bigWig files.
+Just make sure that their output directory is served by a web server like
+Apache. See main documentation for more details.
+
 # List of required packages
 
 Although this is not usually the content of a vignette, the complex nature of

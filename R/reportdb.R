@@ -1,6 +1,10 @@
 .makeReportEnv <- function(e) {
     re <- new.env(parent=globalenv())
     
+    re$tLink <- e$tLink
+    re$createTracks <- e$createTracks
+    re$trackExportPath <- e$trackExportPath
+    re$trackInfo <- e$trackInfo
     re$offlineReport <- e$offlineReport
     re$reportDb <- e$reportDb
     re$org <- e$org
@@ -427,7 +431,7 @@
                 cntPairs[2,i])])
             colnames(pmat) <- colnames(fmat)
             json <- diagplotDeregulogram(fmat,pmat,pcut=pcut,fcut=1,
-                output="json")
+                output="json",altNames=geneDataExpr$gene_name)
             .dbImportPlot(con,paste("deregulogram",namc,sep="_"),"deregulogram",
                 "generic",json)
         }
@@ -1007,7 +1011,7 @@
                 cntPairs[2,i])])
             colnames(pmat) <- colnames(fmat)
             json[[counter]] <- diagplotDeregulogram(fmat,pmat,fcut=0.3,
-                pcut=pcut,output="json")
+                pcut=pcut,output="json",altNames=geneDataExpr$gene_name)
         }
         for (i in 1:length(json)) {
             listIndex <- listIndex + 1

@@ -61,7 +61,14 @@
         reportDb = c("dexie", "sqlite"), 
         localDb = file.path(system.file(package = "metaseqR2"),
             "annotation.sqlite"),
-        progressFun = NULL, offlineReport = TRUE, ...)
+        progressFun = NULL, offlineReport = TRUE, 
+        createTracks = FALSE, overwriteTracks = FALSE, 
+        trackExportPath = file.path(exportWhere, "tracks"),
+        trackInfo = list(stranded = FALSE, normTo = 1e+9, 
+            urlBase = "http://www.trackserver.me",
+            hubInfo = list(name = "MyHub", shortLabel = "My hub",
+            longLabel = "My hub long", 
+            email = "someone@example.com")), ...)
 }
 \arguments{
     \item{counts}{a text tab-delimited file containing gene,
@@ -388,6 +395,20 @@
     and include the required JavaScript libraries to
     properly view the report offline. Ignored if
     \code{report=FALSE}}.
+    
+    \item{createTracks}{option to create normalized bigWig 
+    files to display in a genome browser (e.g. UCSC). Defaults
+    to \code{FALSE}.}
+    
+    \item{overwriteTracks}{overwrite tracks if they already
+    exist? Defaults to \code{FALSE}.}
+    
+    \item{exportPath}{where to export the bigWig files, 
+    defaults to \code{file.path(exportWhere,"tracks")}.}
+    
+    \item{trackInfo}{if \code{createTracks=TRUE}, a list with
+    additional required information to create the tracks. See
+    Details for further explanation.}
 
     \item{...}{further arguments that may be passed to
     plotting functions, related to \code{\link{par}}.}
@@ -754,6 +775,33 @@
     of security policies regarding local file access. **Note**
     also that \code{sql.js} is a rather large JavaScript library
     (around 2.5MB).
+    
+    Regarding \code{trackInfo}, it is a helper list to guide the
+    bigWig track creation and has the following members:
+    \itemize{
+        \item \code{stranded}, which can be \code{TRUE} or
+        \code{FALSE} depending on whether you wish to create
+        stranded tracks by separating + and - strand reads.
+        In the case of stranded tracks, a UCSC Genome Brower
+        trackhub is created. Individual tracks can be retrieved
+        from the trackhub.
+        \item \code{normTo}, which is a large integer, denoting
+        the total sum of signal to be used as the normalization
+        target. It defaults to \code{1e+9}. This means that if 
+        for a particular sample the sum of signal is 1.5e+9
+        (\code{sum(sapply(coverage(x),sum)) == 1.5e+9}) then
+        this is linearly scaled to 1e+9.
+        \item \code{urlBase}, which is a base url appended to
+        the bigWig files produced (the base path of the 
+        \code{bigDataUrl} in UCSC Genome Browser track lines).
+        \item \code{hubInfo}, a list with the track hub 
+        description in case of stranded tracks. Please see the
+        track hub specifications at the UCSC Genome Browser site.
+    }
+    All files (bigWig files, track/trackhub info) are written in 
+    the \code{tracks} subdirectory of the main path where the
+    report and the outputs are written.
+    
 }
 \note{
     Currently only gene and exon annotation from Ensembl
