@@ -1632,7 +1632,7 @@ if (createTracks) {
 if (trackInfo$stranded) {
     o <- metaseqR2:::getUcscOrganism(org)
     plusLinks <- paste0(trackInfo$urlBase,"/",o,"/",samples,"_plus.bigWig")
-    minusLinks <- paste0(trackInfo$urlBase,"/",o,"/",samples,"_plus.bigWig")
+    minusLinks <- paste0(trackInfo$urlBase,"/",o,"/",samples,"_minus.bigWig")
     cat("You can download individual bigWig files, one for each sample,",
         "using the following list:<br/><br/>")
     cat("<strong>Plus (+) strand</strong><br/>")

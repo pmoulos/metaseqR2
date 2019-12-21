@@ -85,7 +85,7 @@ VignetteBuilder: knitr
 Authors@R: c(person(given="Panagiotis", family="Moulos",
     email="moulos@fleming.gr", role=c("aut", "cre")))
 Version: 0.0.15
-Date: 2019-12-20
+Date: 2019-12-21
 Collate:
     'annotation.R'
     'argcheck.R'

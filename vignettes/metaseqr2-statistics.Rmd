@@ -620,8 +620,10 @@ algorithms selected.
 # Genome browser tracks
 
 metaseqR2 utilizes Bioconductor facilities to create normalized bigWig files.
-Just make sure that their output directory is served by a web server like
-Apache. See main documentation for more details.
+It also creates a link to open single stranded tracks in the genome browser and
+a track hub to display stranded tracks, in case where a stranded RNA-Seq 
+protocol has been applied. Just make sure that their output directory is served 
+by a web server like Apache. See main documentation for more details.
 
 # List of required packages
 
