@@ -134,7 +134,8 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
     status <- obj$status
     altnames <- obj$altnames
     counts <- round(2^obj$user$counts - 1)
-    counts[counts==0] <- 0.001
+    #counts[counts==0] <- 0.001
+    counts <- counts + 1 # Offset for log
     #counts <- obj$user$counts
     
     covars <- obj$user$covars

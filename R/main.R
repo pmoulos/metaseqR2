@@ -2479,7 +2479,7 @@ metaseqr2 <- function(
                 runLog=runLog,
                 offlineReport=offlineReport,
                 createTracks=createTracks,
-                exportTrackPath=exportTrackPath,
+                trackExportPath=trackExportPath,
                 trackInfo=trackInfo
             ),
             filterCutoffs=list(

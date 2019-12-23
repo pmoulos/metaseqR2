@@ -686,6 +686,11 @@ section reports all the findings analytically per algorithm.
 * **Command:** This section contains the command used to run the ```metaseqr2```
 pipeline for users that want to experiment as well as a critical messages
 displayed within the ```R``` session running ```metaseqr2``` displayed as a log.
+Finally, if a targets file has been used to perform the analysis, a table
+depicting the parameters in the targets files is created and a link to download
+the actual targets file, but any relative paths to BAM files are stripped and
+the user is responsible to prepend them if the targets file has to be reused in
+another location, e.g. locally.
 * **Tracks:** This section contains a link which opens a new window to the UCSC
 Genome Browser where normalized tracks based on the input BAM files are 
 displayed. If stranded tracks have been requested (according to the
@@ -1592,6 +1597,28 @@ cat(paste(FUN_CALL,collapse="<br/>"))
 cat("</code></pre>")
 ```
 
+```{r display_targets}
+if (!is.null(theList)) {
+    # First write targets
+    tarDf <- metaseqR2:::.writeTargets(theList,outfile=file.path(exportWhere,
+        "tracks","targets.txt"))
+    tarDf$filename <- basename(as.character(tarDf$filename))
+    
+    # Download link
+    cat("<br/>")
+    cat("You can download the targets file from",
+      "<strong><a href=\"tracks/targets.txt\" download>here</a></strong><br/>")
+
+    # Then render a table with targets
+    cat("<br/>")
+    cat("The following table summarizes the targets file used for the",
+        "analysis. Do not forget to prepend the path to your BAM files in the",
+        "<srong>filename</strong> column (also in the file that can be",
+        "downloaded above).<br/>")
+    print(kable(tarDf))
+}
+```
+
 ```{r summary_run_log}
 if (runLog) {
     cat("<br/>The above command generated the following log output:<br/><br/>")
@@ -1629,36 +1656,39 @@ if (createTracks) {
 ```
 
 ```{r tracks_2}
-if (trackInfo$stranded) {
-    o <- metaseqR2:::getUcscOrganism(org)
-    plusLinks <- paste0(trackInfo$urlBase,"/",o,"/",samples,"_plus.bigWig")
-    minusLinks <- paste0(trackInfo$urlBase,"/",o,"/",samples,"_minus.bigWig")
-    cat("You can download individual bigWig files, one for each sample,",
-        "using the following list:<br/><br/>")
-    cat("<strong>Plus (+) strand</strong><br/>")
-    for (i in 1:length(plusLinks))
-        cat("<a href='",plusLinks[i],"'>",samples[i],"</a><br/>",sep="")
-    cat("<br/><strong>Minus (-) strand</strong><br/>")
-    for (i in 1:length(minusLinks))
-        cat("<a href='",minusLinks[i],"'>",samples[i],"</a><br/>",sep="")
-    cat("<br/>")
-} else {
-    tLines <- readLines(file.path(trackExportPath,"tracks.txt"))
-    tmp <- strsplit(tLines," ")
-    tNames <- sapply(tmp,function(x) {
-        return(strsplit(x[6],"=")[[1]][2])
-    })
-    tLinks <- paste0(trackInfo$urlBase,"/",tNames,".bigWig")
-    cat("You can download individual bigWig files, one for each sample,",
-        "using the following list:<br/>")
-    for (i in 1:length(tNames))
-        cat("<a href='",tLinks[i],"'>",tNames[i],"</a><br/>",sep="")
-    cat("<br/>")
-    cat("You can manually load bigWig files in UCSC Genome Browser using the ",
-        "following track lines:<br/><br/>")
-    cat("<pre><code>")
-    cat(paste(tLines,collapse="<br/>"))
-    cat("</code></pre><br/>")
+if (createTracks) {
+    if (trackInfo$stranded) {
+        o <- metaseqR2:::getUcscOrganism(org)
+        plusLinks <- paste0(trackInfo$urlBase,"/",o,"/",samples,"_plus.bigWig")
+        minusLinks <- paste0(trackInfo$urlBase,"/",o,"/",samples,
+            "_minus.bigWig")
+        cat("You can download individual bigWig files, one for each sample,",
+            "using the following list:<br/><br/>")
+        cat("<strong>Plus (+) strand</strong><br/>")
+        for (i in 1:length(plusLinks))
+            cat("<a href='",plusLinks[i],"'>",samples[i],"</a><br/>",sep="")
+        cat("<br/><strong>Minus (-) strand</strong><br/>")
+        for (i in 1:length(minusLinks))
+            cat("<a href='",minusLinks[i],"'>",samples[i],"</a><br/>",sep="")
+        cat("<br/>")
+    } else {
+        tLines <- readLines(file.path(trackExportPath,"tracks.txt"))
+        tmp <- strsplit(tLines," ")
+        tNames <- sapply(tmp,function(x) {
+            return(strsplit(x[6],"=")[[1]][2])
+        })
+        tLinks <- paste0(trackInfo$urlBase,"/",tNames,".bigWig")
+        cat("You can download individual bigWig files, one for each sample,",
+            "using the following list:<br/>")
+        for (i in 1:length(tNames))
+            cat("<a href='",tLinks[i],"'>",tNames[i],"</a><br/>",sep="")
+        cat("<br/>")
+        cat("You can manually load bigWig files in UCSC Genome Browser using ",
+            "the following track lines:<br/><br/>")
+        cat("<pre><code>")
+        cat(paste(tLines,collapse="<br/>"))
+        cat("</code></pre><br/>")
+    }
 }
 ```
 

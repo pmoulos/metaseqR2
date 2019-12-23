@@ -1,6 +1,7 @@
 .makeReportEnv <- function(e) {
     re <- new.env(parent=globalenv())
     
+    re$theList <- e$theList
     re$tLink <- e$tLink
     re$createTracks <- e$createTracks
     re$trackExportPath <- e$trackExportPath
