@@ -362,15 +362,16 @@ readTargets <- function(input,path=NULL) {
 }
 
 .writeTargets <- function(targets,outfile) {
+    assign("theList",targets,envir=.GlobalEnv)
     out <- data.frame(
         samplename=unlist(targets$samples,use.names=FALSE),
         filename=unlist(targets$files,use.names=FALSE),
         condition=rep(names(targets$samples),lengths(targets$samples))
     )
-    if (!is.null(targets$pairedList))
-        out$paired <- unlist(targets$pairedList,use.names=FALSE)
-    if (!is.null(targets$strandedList))
-        out$stranded <- unlist(targets$strandedList,use.names=FALSE)
+    if (!is.null(targets$paired))
+        out$paired <- unlist(targets$paired,use.names=FALSE)
+    if (!is.null(targets$stranded))
+        out$stranded <- unlist(targets$stranded,use.names=FALSE)
     write.table(out,file=outfile,sep="\t",row.names=FALSE,quote=FALSE)
     return(out)
 }

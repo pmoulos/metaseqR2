@@ -625,6 +625,21 @@ a track hub to display stranded tracks, in case where a stranded RNA-Seq
 protocol has been applied. Just make sure that their output directory is served 
 by a web server like Apache. See main documentation for more details.
 
+Please note that if requested, metaseqR2 will try to create tracks even with a
+custom organism. This is somewhat risky as
+
+* the track generation may fail
+* for heavily customized cases, you will manually have to crate aso .2bit files
+for visualization in e.g. the UCSC Genome Browser
+
+Nevertheless, we have chosen to allow the track generation as, many times a user
+just uses slight modifications of e.g. the human genome annotation, where some
+elements may be manually curated, of elements are added (e.g. non-annotated
+non-coding RNAs). Therefore, in case of custom organisms, a warning is thrown
+but the functionality is not turned off. Please turn off manually if you are
+sure you do not want tracks. You may also use the ```createSignalTracks```
+function directly.
+
 # List of required packages
 
 Although this is not usually the content of a vignette, the complex nature of

@@ -558,18 +558,20 @@ metaseqr2 <- function(
         qcPlots <- qcPlots[-which(qcPlots == "deregulogram")]
     }
     # Remove meandiff if there are single-replicate conditions
-    if ("meandiff" %in% qcPlots && any(lengths(sampleList) < 2)) {
+    if ("meandiff" %in% qcPlots & any(lengths(sampleList) < 2)) {
         warnwrap("The creation of a meandiff plots is not possible for single ",
             "replicate conditions!\nRemoving from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "meandiff")]
     }
     # Check if we have single-replicate conditions and presence$perCondition is
     # enabled
-    if (any(lengths(sampleList) < 2) && geneFilters$presence$perCondition) {
-        warnwrap("geneFilters$presence$perCondition cannot be TRUE when there ",
-            "are single-replicate conditions are present\nas this will cause ",
-            "sample drops! Setting to FALSE...")
-        geneFilters$presence$perCondition <- FALSE
+    if (any(lengths(sampleList) < 2) & !is.null(geneFilters$presence)) {
+        if (geneFilters$presence$perCondition) {
+            warnwrap("geneFilters$presence$perCondition cannot be TRUE when ",
+                "there are single-replicate conditions are present\nas this ",
+                "will cause sample drops! Setting to FALSE...")
+            geneFilters$presence$perCondition <- FALSE
+        }        
     }
     # Check if tracks asked but we are in Windows...
     if (createTracks && .Platform$OS.type == "windows") {
@@ -583,6 +585,11 @@ metaseqr2 <- function(
             "provided! Ignoring...")
         createTracks <- FALSE
     }
+    # Check if tracks asked but organism is not directly supported
+    if (createTracks && !(org %in% getSupportedOrganisms()))
+        warnwrap("Organism ",org," is not in the list of directly supported ",
+            "organisms! If the pipeline fails, please use the\n",
+            "createSignalTracks function directly.")
     
     # Check additional input arguments for normalization and statistics
     algArgs <- validateAlgArgs(normalization,statistics,normArgs,statArgs)

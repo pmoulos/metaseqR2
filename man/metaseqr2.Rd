@@ -403,7 +403,7 @@
     \item{overwriteTracks}{overwrite tracks if they already
     exist? Defaults to \code{FALSE}.}
     
-    \item{exportPath}{where to export the bigWig files, 
+    \item{trackExportPath}{where to export the bigWig files, 
     defaults to \code{file.path(exportWhere,"tracks")}.}
     
     \item{trackInfo}{if \code{createTracks=TRUE}, a list with

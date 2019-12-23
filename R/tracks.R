@@ -58,7 +58,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     # Get seqinfo form first BAM
     preSf <- metaseqR2:::.chromInfoFromBAM(bams[1])
     vchrs <- metaseqR2:::getValidChrs(org)
-    preSf <- preSf[vchrs,,drop=FALSE]
+    preSf <- preSf[intersect(vchrs,rownames(preSf)),,drop=FALSE]
     sf <- metaseqR2:::.chromInfoToSeqInfoDf(preSf,o=org,asSeqinfo=TRUE)
     
     # Get coverage and assign seqinfo for bigwig
@@ -68,7 +68,9 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
         reads <- trim(unlist(grglist(readGAlignments(file=b,
             param=ScanBamParam(scanBamFlag(isMinusStrand=FALSE))))))
         cov <- coverage(reads)
-        cov <- cov[v]
+        seqs <- as.character(seqlevels(reads))
+        vv <- intersect(v,seqs)
+        cov <- cov[vv]
         gr <- as(slice(cov,1),"GRanges")
         seqinfo(gr) <- s
         return(gr)
@@ -81,7 +83,9 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
         reads <- trim(unlist(grglist(readGAlignments(file=b,
             param=ScanBamParam(scanBamFlag(isMinusStrand=TRUE))))))
         cov <- coverage(reads)
-        cov <- cov[v]
+        seqs <- as.character(seqlevels(reads))
+        vv <- intersect(v,seqs)
+        cov <- cov[vv]
         gr <- as(slice(cov,1),"GRanges")
         # Inverse the coverage
         gr$score <- -gr$score
@@ -196,7 +200,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     # Get seqinfo form first BAM
     preSf <- metaseqR2:::.chromInfoFromBAM(bams[1])
     vchrs <- metaseqR2:::getValidChrs(org)
-    preSf <- preSf[vchrs,,drop=FALSE]
+    preSf <- preSf[intersect(vchrs,rownames(preSf)),,drop=FALSE]
     sf <- metaseqR2:::.chromInfoToSeqInfoDf(preSf,o=org,asSeqinfo=TRUE)
     
     # Get standed coverage and assign seqinfo for bigwig
@@ -205,7 +209,9 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
         message("  reading ",b)
         reads <- trim(unlist(grglist(readGAlignments(file=b))))
         cov <- coverage(reads)
-        cov <- cov[v]
+        seqs <- as.character(seqlevels(reads))
+        vv <- intersect(v,seqs)
+        cov <- cov[vv]
         gr <- as(slice(cov,1),"GRanges")
         seqinfo(gr) <- s
         return(gr)

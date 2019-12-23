@@ -594,7 +594,7 @@ Welcome to the **metaseqR2** report! If you are familiar with the metaseqR
 report, then you will find that there are not many differences with respect to 
 the presented information. Some diagnostic and exploration plots were added. The 
 most notable difference is that __*all*__ plots are interactive. This helps a 
-lot with exploration and interpretation but also adda a lot of computational
+lot with exploration and interpretation but also adds a lot of computational
 burden. However, relatively modern systems with recent browser versions should
 be capable of rendering all the graphics. The metaseqR2 report has been tested 
 with Google Chrome, Mozilla Firefox and Microsoft Edge. It has **not** been 
@@ -1606,8 +1606,9 @@ if (!is.null(theList)) {
     
     # Download link
     cat("<br/>")
-    cat("You can download the targets file from",
-      "<strong><a href=\"tracks/targets.txt\" download>here</a></strong><br/>")
+    cat("You can download the targets file from <strong>",
+      "<a href='tracks/targets.txt' download target='_blank'>here</a>",
+      "</strong><br/>",sep="")
 
     # Then render a table with targets
     cat("<br/>")

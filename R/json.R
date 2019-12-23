@@ -456,7 +456,10 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
                 else
                     series[[s]]$color=cols$fill[1]
                 m <- match(samples[[s]],colnames(d))
-                series[[s]]$data <- unname(as.list(d[,m]))
+                if (length(m) > 1)
+                    series[[s]]$data <- unname(as.list(d[,m]))
+                else
+                    series[[s]]$data <- list(unname(as.list(d[,m])))
             }
             
             # Outlier series (if any)
@@ -1274,7 +1277,10 @@ boxplotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         else
             series[[n]]$color=cols$fill[1]
         m <- match(name[[n]],colnames(d))
-        series[[n]]$data <- unname(as.list(d[,m]))
+        if (length(m) > 1)
+            series[[n]]$data <- unname(as.list(d[,m]))
+        else
+            series[[n]]$data <- list(unname(as.list(d[,m])))
     }
     # Outlier series (if any)
     counter <- 0

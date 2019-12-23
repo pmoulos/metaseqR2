@@ -6,7 +6,7 @@
         stranded = FALSE, normTo = 1e+9, exportPath = ".",
         hubInfo = list(name = "MyHub", shortLabel = "My hub",
         longLabel = "My hub", email = "someone@example.com"),
-        overwrite = FALSE)
+        overwrite = FALSE, rc = NULL)
 }
 \arguments{
     \item{targets}{a tab-delimited file with the experimental 
@@ -35,6 +35,8 @@
     
     \item{overwrite}{overwrite tracks if they exist? Defaults to
     \code{FALSE}.}
+    
+    \item{rc}{Fraction of cores to use.}
 }
 \value{
     A string with the link(s) to the created tracks.
