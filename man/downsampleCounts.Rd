@@ -2,14 +2,11 @@
 \alias{downsampleCounts}
 \title{Downsample read counts}
 \usage{
-    downsampleCounts(counts,seed=42)
+    downsampleCounts(counts)
 }
 \arguments{
     \item{counts}{the read counts table 
     which is subjected to downsampling.}
-
-    \item{seed}{random seed for reproducible 
-    downsampling.}
 }
 \value{
     The downsampled counts matrix.
@@ -20,6 +17,13 @@
     size, according to the methdology used in 
     (Soneson and Delorenzi, BMC Bioinformatics, 
     2013).
+}
+\details{
+    The downsampling process involves random sampling. 
+    For guaranteed reproducibility, be sure to use 
+    \code{set.seed} before downsampling. By default, 
+    when the metaseqR2 package is loaded, the seed is 
+    set to \code{42}.
 }
 \examples{
 require(DESeq)

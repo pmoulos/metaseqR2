@@ -1,27 +1,14 @@
 estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
     N=10000,samples=c(3,3),ndeg=c(500,500),top=500,modelOrg="mm9",fcBasis=1.5,
-    seed=NULL,drawFpc=FALSE,rc=NULL,...) {
+    drawFpc=FALSE,rc=NULL,...) {
     if (!requireNamespace("zoo"))
         stopwrap("R pacakage zoo is required in order to estimate AUFC ",
             "weights!")
 
-    if (is.null(seed)) {
-        seedStart <- round(100*runif(1))
-        seedEnd <- seedStart + nsim - 1
-        seed <- as.list(seedStart:seedEnd)
-    }
-    else {
-        set.seed(seed)
-        seedStart <- round(100*runif(1))
-        seedEnd <- seedStart + nsim - 1
-        seed <- as.list(seedStart:seedEnd)
-    }
-    
     if (ncol(counts)<4)
         stopwrap("Cannot estimate AUFC weights with an initial dataset with ",
             "less than 4 samples!")
     else if (ncol(counts)>=4 && ncol(counts)<10) {
-        set.seed(seedStart)
         reind <- sample(1:ncol(counts),20,replace=TRUE)
         counts <- counts[,reind]
     }
@@ -29,10 +16,10 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
 
     disp("Running simulations... This procedure requires time... Please ",
         "wait...")
-    simResults <- cmclapply(seed,function(x,normalization,statistics,N,
+    simResults <- cmclapply(1:nsim,function(x,normalization,statistics,N,
         parList,samples,ndeg,fcBasis,modelOrg) {
         D <- makeSimDataSd(N=N,param=parList,samples=samples,ndeg=ndeg,
-            fcBasis=fcBasis,modelOrg=modelOrg,seed=x)
+            fcBasis=fcBasis,modelOrg=modelOrg)
         dd <- D$simdata
         
         if (!is.null(modelOrg)) {
@@ -150,7 +137,7 @@ makeSimDataTcc <- function(...) {
 
 makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     fcBasis=1.5,libsizeRange=c(0.7,1.4),libsizeMag=1e+7,modelOrg=NULL,
-    simLengthBias=FALSE,seed=NULL) {
+    simLengthBias=FALSE) {
     if (!is.null(modelOrg)) {
         modelOrg <- tolower(modelOrg)
         checkTextArgs("modelOrg",modelOrg,c("hg18","hg19","mm9","mm10",
@@ -165,8 +152,6 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     muHat <- param$muHat
     phiHat <- param$phiHat
 
-    if (!is.null(seed)) 
-        set.seed(seed)
     if (simLengthBias) {
         sind <- sort(muHat,index.return=TRUE)$ix
         muHat <- muHat[sind]
@@ -185,29 +170,22 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
 
     s1 <- samples[1]
     s2 <- samples[2]
-    if (!is.null(seed))
-        set.seed(seed)
     L1 <- round(libsizeMag*runif(s1,min=libsizeRange[1],
         max=libsizeRange[2]))
-    if (!is.null(seed)) set.seed(2*seed)
     L2 <- round(libsizeMag*runif(s2,min=libsizeRange[1],
         max=libsizeRange[2]))
 
     lambda1 <- do.call("cbind",rep(list(muHat[ii]),s1))
     mu1 <- sweep(lambda1,2,L1/sum(lambda1[,1]),"*")
     sim1 <- matrix(0,N,s1)
-    for (j in 1:s1) {
-        if (!is.null(seed)) set.seed(seed+j)
+    for (j in 1:s1)
         sim1[,j] <- rnbinom(N,size=1/phiHat[ii],mu=mu1[,j])
-    }
 
     v <- numeric(N)
     if (sum(ndeg)>0) {
-        if (!is.null(seed)) set.seed(seed)
         iUpdown <- sample(1:length(v),sum(ndeg))
         regDir <- rep(c(1,-1),c(ndeg[1],ndeg[2]))
         v[iUpdown] <- regDir
-        if (!is.null(seed)) set.seed(seed+19051980)
         lambda2 <- ((fcBasis + rexp(N))^v)*lambda1
         mu2 <- sweep(lambda2,2,L2/sum(lambda2[,1]),"*")
         sim2 <- matrix(0,N,s2)
@@ -215,7 +193,6 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
             sim2[,j] <- rnbinom(N,size=1/phiHat[ii],mu=mu2[,j])
     }
     else {
-        if (!is.null(seed)) set.seed(seed+19051980)
         lambda2 <- lambda1
         mu2 <- sweep(lambda2,2,L2/sum(lambda2[,1]),"*")
         sim2 <- matrix(0,N,s2)
@@ -224,12 +201,9 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     }
 
     # Now we have to simulate annotation
-    if (!is.null(seed))
-        set.seed(seed)
     chromosome <- paste("chr",1+round(20*runif(N)),sep="")
     gene_id <- gene_name <- paste("gene",1:N,sep="_")
     if (!is.null(modelOrg)) {
-        if (!is.null(seed)) set.seed(seed)
         if (length(realGc)>=N)
             sampleInd <- sample(1:length(realGc),N)            
         else
@@ -247,17 +221,9 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
         }
     }
     else {
-        if (!is.null(seed))
-            set.seed(seed)
         gc_content <- runif(N)
-        if (!is.null(seed))
-            set.seed(seed)
         start <- 1 + round(1e+6*runif(N))
-        if (!is.null(seed))
-            set.seed(seed)
         end <- start + 250 + round(1e+6*runif(N))
-        if (!is.null(seed))
-            set.seed(seed)
         strand <- sample(c("+","-"),N,replace=TRUE)
         if (simLengthBias) {
             lenix <- sort(end-start,index.return=TRUE)$ix
@@ -267,8 +233,6 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
             strand <- strand[lenix]
         }
     }
-    if (!is.null(seed))
-        set.seed(seed)
     biotype <- sample(paste("biotype",1:10),N,replace=TRUE)
     simData <- data.frame(
         chromosome=chromosome,
@@ -288,7 +252,7 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
 }
 
 estimateSimParams <- function(realCounts,libsizeGt=3e+6,rowmeansGt=5,
-    eps=1e-11,rc=NULL,seed=42,draw=FALSE) {
+    eps=1e-11,rc=NULL,draw=FALSE) {
     if (is.data.frame(realCounts))
         mat <- as.matrix(realCounts)
     else if (is.matrix(realCounts))
@@ -309,7 +273,7 @@ estimateSimParams <- function(realCounts,libsizeGt=3e+6,rowmeansGt=5,
     if (length(lowLib)>0)
         mat <- mat[,-lowLib]
     disp("Downsampling counts...")
-    dmat <- downsampleCounts(mat,seed)
+    dmat <- downsampleCounts(mat)
     lowCo <- which(apply(dmat,1,
         function(x) if (mean(x)<5) TRUE else FALSE))
     if (length(lowCo)>0)
@@ -342,7 +306,7 @@ estimateSimParams <- function(realCounts,libsizeGt=3e+6,rowmeansGt=5,
     return(list(muHat=muHat[phiInd],phiHat=phiHat))
 }
 
-downsampleCounts <- function(counts,seed=42) {
+downsampleCounts <- function(counts) {
     libSizes <- apply(counts,2,sum)
     targetSize <- min(libSizes)
     toRemove <- libSizes-targetSize

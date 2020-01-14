@@ -284,7 +284,8 @@ normalizeDss <- function(geneCounts,sampleList,normArgs=NULL,
         geneCountsTmp <- geneCounts
     
     seqD <- newSeqCountSet(geneCountsTmp,design) # create the class
-    seqD <- estNormFactors(seqD,method=normArgs$method) # estimate normalization factors
+    # estimate normalization factors
+    seqD <- estNormFactors(seqD,method=normArgs$method)
     
     if (output=="native")
         return(seqD) # Class: SeqCountSet

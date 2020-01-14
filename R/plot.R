@@ -1136,7 +1136,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                     graphicsOpen(output,fil,width=10,height=6)
                 else
                     graphicsOpen(output,fil,width=1024,height=640)
-                tryCatch( # A lot of times, there is a problem with this function
+                tryCatch( # Many times, there is a problem with this function
                     DE.plot(dummy,chromosomes=NULL,q=biodistOpts$pcut,
                         graphic="distr"),
                     error=function(e) {
@@ -2664,7 +2664,8 @@ diagplotRoc <- function(truth,p,sig=0.05,x="fpr",y="tpr",output="x11",
         size <- seq(1,length(gg))
         cuts <- seq(-log10(sig),max(psample),length.out=length(gg))
         #cuts <- seq(min(psample),sig,length.out=length(gg))
-        local.truth <- truth[gg] #these are the true deg values of the ercc spike-ins reported by each tool
+        local.truth <- truth[gg] #these are the true deg values of the ercc 
+        #spike-ins reported by each tool
         S <- length(size)
                 
         TP <- FP <- FN <- TN <- FPR <- FNR <- TPR <- TNR <- SENS <- SPEC <-

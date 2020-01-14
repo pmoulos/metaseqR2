@@ -1105,8 +1105,7 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
     }
 }
 
-readNoiseToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),
-    seed=42) {
+readNoiseToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     jl <- tolower(jl[1])
     out <- tolower(out[1])
     
@@ -1115,7 +1114,6 @@ readNoiseToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),
     
     # Too many points for a lot of curves of interactive data
     if (nrow(d)>1000) {
-        set.seed(seed)
         ii <- sort(sample(1:nrow(d),998))
         ii <- c(1,ii,nrow(d))
         d <- cbind(d[ii,1],d[ii,2:ncol(d)])
@@ -1475,8 +1473,7 @@ boxplotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         return(json)
 }
 
-biasPlotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),
-    seed=42) {
+biasPlotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     jl <- tolower(jl[1])
     out <- tolower(out[1])
     
@@ -1488,7 +1485,7 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),
     
     # Too many points for a lot of curves of interactive data
     if (nrow(counts)>2000) {
-        set.seed(seed)
+        #set.seed(seed)
         ii <- sample(1:nrow(counts),2000)
         counts <- counts[ii,]
         covar <- covar[ii]
@@ -2010,7 +2007,7 @@ volcanoToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         return(json)
 }
 
-scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
+scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     jl <- tolower(jl[1])
     out <- tolower(out[1])
     
@@ -2036,7 +2033,6 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
     
     # Too many points for mostly static, QC plots
     if (length(x)>10000) {
-        set.seed(seed)
         ii <- sample(1:length(x),10000)
         x <- x[ii]
         y <- y[ii]
@@ -2168,7 +2164,7 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
         return(json)
 }
 
-rnacompToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
+rnacompToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     jl <- tolower(jl[1])
     out <- tolower(out[1])
     
@@ -2179,7 +2175,6 @@ rnacompToJSON <- function(obj,jl=c("highcharts"),out=c("json","list"),seed=42) {
     
     # Too many points for a lot of curves of interactive data
     if (nrow(dat)>1000) {
-        set.seed(seed)
         ii <- sort(sample(1:nrow(dat),998))
         ii <- c(1,ii,nrow(dat))
         dat <- cbind(dat[ii,1],dat[ii,2:ncol(dat)])

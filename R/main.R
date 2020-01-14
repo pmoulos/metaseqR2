@@ -66,7 +66,6 @@ metaseqr2 <- function(
         "weight","pandora","none") else "none",
     weight=rep(1/length(statistics),length(statistics)),
     nperm=10000,
-    reprod=TRUE,
     pcut=NA,
     logOffset=1,
     preset=NULL, # An analysis strictness preset
@@ -1769,7 +1768,7 @@ metaseqr2 <- function(
         close(gzfh)
     }
 
-    # Calculate meta-statistics, if more than one statistical algorithm has been 
+    # Calculate meta-statistics, if more than one statistical algorithm has been
     # used
     if (length(statistics)>1) {
         sumpList <- metaTest(
@@ -1782,7 +1781,6 @@ metaseqr2 <- function(
             libsizeList=libsizeList,
             nperm=nperm,
             weight=weight,
-            reprod=reprod,
             rc=restrictCores
         )
     }
@@ -1797,7 +1795,7 @@ metaseqr2 <- function(
     else
         adjSumpList <- NULL
 
-    ############################################################################ 
+    ############################################################################
     #                            EXPORT SECTION
     ############################################################################
 
@@ -2024,7 +2022,7 @@ metaseqr2 <- function(
                 report=FALSE
             )
 
-            # Now we should be having theExport and theExportFiltered. We do not 
+            # Now we should be having theExport and theExportFiltered. We do not
             # generate html output for filtered or total results just a 
             # compressed text file. We thus have to append theExport$textTable
             # and theExportFiltered$htmlTable before writing the final output...
@@ -2464,7 +2462,6 @@ metaseqr2 <- function(
                 metaP=metaP,
                 weight=weight,
                 nperm=nperm,
-                reprod=reprod,
                 pcut=pcut,
                 logOffset=logOffset,
                 preset=preset,

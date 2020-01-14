@@ -6,7 +6,7 @@
         statistics, nsim = 10, N = 10000, 
         samples = c(3, 3), ndeg = c(500, 500),
         top = 500, modelOrg = "mm9", fcBasis = 1.5,
-        seed = NULL, drawFpc = FALSE, rc = NULL,
+        drawFpc = FALSE, rc = NULL,
         ...)
 }
 \arguments{
@@ -50,9 +50,6 @@
     data are derived. It must be one of 
     \code{\link{metaseqr2}} supported organisms.}
 
-    \item{seed}{a list of seed for reproducible 
-    simulations. Defaults to \code{NULL}.}
-
     \item{drawFpc}{draw the averaged false 
     discovery curves? Default to \code{FALSE}.}
 
@@ -80,6 +77,13 @@
     according to its performance when using simulated 
     data.
 }
+\details{
+    The weight estimation process involves a lot of 
+    random sampling. For guaranteed reproducibility,
+    be sure to use \code{set.seed} prior to any
+    calculations. By default, when the metaseqR2 package
+    is loaded, the seed is set to \code{42}.
+}
 \examples{
 require(zoo)
 data("mm9GeneData",package="metaseqR2")
@@ -88,7 +92,7 @@ weights <- estimateAufcWeights(
   normalization="edaseq",
   statistics=c("edger","limma"),
   nsim=3,N=100,ndeg=c(10,10),top=10,modelOrg="mm9",
-  seed=10,rc=0.25,libsizeGt=1e+5
+  rc=0.25,libsizeGt=1e+5
 )
 }
 \author{

@@ -2,3 +2,4 @@
 metaEnv <- new.env(parent=emptyenv())
 assign("VERBOSE",NULL,envir=metaEnv)
 assign("LOGGER",NULL,envir=metaEnv)
+set.seed(42)

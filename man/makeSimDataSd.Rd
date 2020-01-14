@@ -6,8 +6,7 @@
     makeSimDataSd(N, param, samples = c(5, 5),
         ndeg = rep(round(0.1*N), 2), fcBasis = 1.5,
         libsizeRange = c(0.7, 1.4), libsizeMag = 1e+7,
-        modelOrg = NULL, simLengthBias = FALSE, 
-        seed = NULL)
+        modelOrg = NULL, simLengthBias = FALSE)
 }
 \arguments{
     \item{N}{the number of genes to produce.}
@@ -58,9 +57,6 @@
     The sampled lengths are also sorted so that in the 
     final gene list, shorter genes have less counts as 
     compared to the longer ones. The default is FALSE.}
-
-    \item{seed}{a seed to use with random number 
-    generation for reproducibility.}
 }
 \value{
     A named list with two members. The first 
@@ -73,6 +69,13 @@
     in (Soneson and Delorenzi, BMC Bioinformatics, 
     2013). For the time being, it creates only 
     simulated datasets with two conditions.
+}
+\details{
+    The simulated data generation involves a lot of 
+    random sampling. For guaranteed reproducibility,
+    be sure to use \code{set.seed} prior to any
+    calculations. By default, when the metaseqR2 package
+    is loaded, the seed is set to \code{42}.
 }
 \examples{
 require(DESeq)

@@ -2,7 +2,7 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
     "dperm_min","dperm_max","dperm_weight","fperm","whitlock","minp","maxp",
     "weight","pandora","none"),counts,sampleList,statistics,statArgs,
     libsizeList,nperm=10000,weight=rep(1/length(statistics),
-    length(statistics)),reprod=TRUE,rc=NULL) {
+    length(statistics)),rc=NULL) {
     checkTextArgs("metaP",metaP,c("simes","bonferroni","fisher","dperm_min",
         "dperm_max","dperm_weight","fperm","whitlock","minp","maxp","weight",
         "pandora","none"))
@@ -70,8 +70,7 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
                 statistics=statistics,statArgs=statArgs,
                 libsizeList=libsizeList,
                 nperm=nperm,weight=weight,
-                select="min",reprod=reprod,
-                rc=rc)
+                select="min",rc=rc)
             originalPList <- cmclapply(cpList,function(x,m,w=NULL) {
                 x[which(is.na(x))] <- 1
                 switch(m,
@@ -105,8 +104,7 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
                 statistics=statistics,statArgs=statArgs,
                 libsizeList=libsizeList,
                 nperm=nperm,weight=weight,
-                select="max",reprod=reprod,
-                rc=rc)
+                select="max",rc=rc)
             originalPList <- cmclapply(cpList,function(x,m,w=NULL) {
                 switch(m,
                     min = {
@@ -140,8 +138,7 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
                 statistics=statistics,statArgs=statArgs,
                 libsizeList=libsizeList,
                 nperm=nperm,weight=weight,
-                select="weight",reprod=reprod,
-                rc=rc)
+                select="weight",rc=rc)
             originalPList <- cmclapply(cpList,function(x,m,w=NULL) {
                 switch(m,
                     min = {
@@ -174,7 +171,7 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
 
 metaPerm <- function(contrast,counts,sampleList,statistics,statArgs,
     libsizeList,nperm=10000,weight=rep(1/ncol(counts),ncol(counts)),
-    select=c("min","max","weight"),replace="auto",reprod=TRUE,rc=NULL) {
+    select=c("min","max","weight"),replace="auto",rc=NULL) {
     checkTextArgs("select",select,c("min","max","weight"))
     if (replace=="auto") {
         if (ncol(counts)<=6)
@@ -184,28 +181,10 @@ metaPerm <- function(contrast,counts,sampleList,statistics,statArgs,
     }
     # We will construct relist in a way so that we can assign seeds for random
     # number generation and track progress at the same time
-    if (is.logical(reprod)) {
-        relist <- vector("list",nperm)
-        if (reprod) {
-            relist <- cmclapply(seq_along(relist),function(i) {
-                return(list(seed=i,prog=i))
-            },rc=rc)
-        }
-        else
-            relist <- cmclapply(seq_along(relist),function(i) {
-                return(list(seed=round(1e+6*runif(1)),prog=i))
-            },rc=rc)
-    }
-    else if (is.numeric(reprod)) {
-        if (length(reprod) != nperm)
-            stopwrap("When reprod is numeric, it must have the same length as ",
-                "nperm!")
-        relist <- cmclapply(seq_along(reprod),function(i) {
-            return(list(seed=reprod[i],prog=i))
-        },rc=rc)
-    }
-    else
-        stopwrap("reprod must be either a logical or a numeric vector!")
+    relist <- vector("list",nperm)
+    relist <- cmclapply(seq_along(relist),function(i) {
+        return(list(seed=round(1e+6*runif(1)),prog=i))
+    },rc=rc)
     disp("  Resampling procedure started...")
     # In this case, we must not use cmclapply as we want to be able to track 
     # progress through mc.preschedule...
@@ -221,7 +200,6 @@ metaPerm <- function(contrast,counts,sampleList,statistics,statArgs,
 }
 
 metaWorker <- function(x,co,sl,cnt,s,r,sa,ll,el,w) {
-    set.seed(x$seed)
     disp("    running permutation #",x$prog)
     pl <- makePermutation(co,sl,cnt,r)
     ppmat <- matrix(NA,nrow(co),length(s))

@@ -8,7 +8,7 @@
         "minp", "maxp", "weight", "pandora", "none"), counts, 
         sampleList, statistics, statArgs, libsizeList, 
         nperm = 10000, weight = rep(1/length(statistics), 
-        length(statistics)), reprod = TRUE, rc = NULL)
+        length(statistics)), rc = NULL)
 }
 \arguments{
     \item{cpList}{a named list whose names are the contrasts
@@ -44,10 +44,6 @@
     \item{weight}{a numeric vector of weights for each
     statistical algorithm.}
 
-    \item{reprod}{create reproducible permutations when 
-    \code{metaP="dperm_min"}, \code{metaP="dperm_max"} 
-    or \code{metaP="dperm_weight"}. See also Details.}
-
     \item{rc}{the fraction of the available cores to use
     in a multicore system.}
 }
@@ -63,17 +59,11 @@
     arguments so it should not be used individually
 }
 \details{
-    Regarding the \code{reprod} argument, ideally one would 
-    want to create the same set of indices for a given 
-    dataset so as to create reproducible p-values. If
-    \code{reprod=TRUE}, a fixed seed is used by \code{meta_perm}
-    for all the datasets analyzed with \code{metaseqr2}. If 
-    \code{reprod=FALSE}, then the p-values will not be 
-    reproducible, although statistical significance is not 
-    expected to change for a large number of resambling. 
-    Finally, \code{reprod} can be a numeric vector of seeds 
-    with the same length as \code{nperm} so that the user can 
-    supply his/her own seeds.
+    Ideally one would want to create the same set of indices 
+    for a given dataset so as to create reproducible p-values. 
+    To achieve this, use the \code{set.seed} function prior 
+    to any calculations. When metaseqR2 is loaded, the random
+    seed is set to \code{42}.
 }
 \examples{
 # Not yet available

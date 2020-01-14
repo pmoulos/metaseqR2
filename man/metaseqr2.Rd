@@ -36,8 +36,7 @@
             "dperm_weight", "fperm", "whitlock", "minp", "maxp",
              "weight", "pandora", "none") else "none",
         weight = rep(1/length(statistics), length(statistics)),
-        nperm = 10000, reprod=TRUE, pcut = NA, logOffset = 1,
-        preset = NULL,
+        nperm = 10000, pcut = NA, logOffset = 1, preset = NULL,
         qcPlots = c("mds", "biodetection", "countsbio", 
             "saturation", "readnoise","filtered", "correl", 
             "pairwise", "boxplot", "gcbias", "lengthbias", 
@@ -249,10 +248,6 @@
     \item{nperm}{the number of permutations performed to
     derive the meta p-value when \code{metaP="fperm"} or
     \code{metaP="dperm"}. It defaults to 10000.}
-
-    \item{reprod}{create reproducible permutations when 
-    \code{metaP="dperm_min"}, \code{metaP="dperm_max"} 
-    or \code{metaP="dperm_weight"}. See also Details.}
 
     \item{pcut}{a p-value cutoff for exporting differentially
     genes, default is to export all the non-filtered genes.}
@@ -678,19 +673,6 @@
     \code{"pandora"} is the same as \code{"weight"} and is
     added to be in accordance with the main algorithm name.
     
-    Regarding \code{reprod}, ideally one would want to
-    create the same set of indices for a given dataset so 
-    as to create reproducible p-values. If 
-    \code{reprod=TRUE}, a fixed seed is used by 
-    \code{"meta_perm"} for all the datasets analyzed with 
-    \code{metaseqr2}. If \code{reprod=FALSE}, then the 
-    p-values will not be reproducible, although statistical 
-    significance is not expected to change for a large 
-    number of resamplings. Finally, \code{reprod} can be 
-    a numeric vector of seeds with the same length as 
-    \code{nperm} so that the user can supply his/her 
-    own seeds.
-    
     Regarding \code{qcPlots} The \code{"mds"} stands
     for Mutlti-Dimensional Scaling and it creates a PCA-like
     plot but using the MDS dimensionality reduction instead.
@@ -860,6 +842,13 @@
     "Simes, R. J. (1986). "An improved Bonferroni procedure
     for multiple tests of significance". Biometrika 73 (3):
     751–754."
+    
+    Also, if \code{weight="meta_perm"} ideally one would 
+    want to create the same set of indices for a given 
+    dataset so as to create reproducible p-values. To 
+    achieve this, use the \code{set.seed} function prior to
+    any calculations. When metaseqR2 is loaded, the random
+    seed is set to \code{42}.
 }
 \section{Exon filters}{
     The exon filters are a set of filters which are applied

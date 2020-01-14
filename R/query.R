@@ -2793,17 +2793,6 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
     )
 }
 
-#' Return host, username and password for UCSC Genome Browser database
-#'
-#' Returns a character vector with a hostname, username and password to connect
-#' to the UCSC Genome Browser database to retrieve annotation. Internal use.
-#'
-#' @return A named character vector.
-#' @author Panagiotis Moulos
-#' @examples
-#' \dontrun{
-#' db.creds <- get.ucsc.credentials()
-#'}
 .getUcscCredentials <- function() {
     return(c(
         host="genome-mysql.cse.ucsc.edu",

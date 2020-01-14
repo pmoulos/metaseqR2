@@ -623,12 +623,17 @@ validateAlgArgs <- function(normalization,statistics,normArgs,statArgs) {
                                 normArgs[[s]] <- setArg(normArgs[[s]],tmp)
                         },
                         absseq = {
-                            tmp <- normArgs[[s]] #the arguments' list passed by the user
-                            tmp <- validateListArgs("statistics",s,tmp) #it validates the arguments given
+                            #the arguments' list passed by the user
+                            tmp <- normArgs[[s]]
+                            #it validates the arguments given
+                            tmp <- validateListArgs("statistics",s,tmp) 
+                            #it gets defaults and thus ignores everything else
                             normArgs[[s]] <- getDefaults("normalization", 
-                                s) #it gets defaults and thus ignores everything else
+                                s) 
                             if (length(tmp)>0)
-                                normArgs[[s]] <- setArg(normArgs[[s]],tmp) # it changes default values of valid arguments to user-specified 
+                                # it changes default values of valid arguments 
+                                # to user-specified 
+                                normArgs[[s]] <- setArg(normArgs[[s]],tmp) 
                         },
                         dss = {
                             tmp <- normArgs[[s]]
@@ -806,9 +811,9 @@ validateListArgs <- function(what,method=NULL,argList) {
                     not.valid <- which(!valid)
                 },
                 deseq2 = {
-                    valid <- names(argList) %in% c("tidy","fitType","maxit","quiet",
-                        "modelMatrix","minmu","betaPrior",
-                        #"betaPriorVar","modelMatrixType", #removed because they 
+                    valid <- names(argList) %in% c("tidy","fitType","maxit",
+                        "quiet","modelMatrix","minmu","betaPrior",
+                        #"betaPriorVar","modelMatrixType", #removed because they
                         # are also removed in get defaults
                         "betaTol","useOptim","useT","df","useQR","lfcThreshold",
                         "altHypothesis","independentFiltering","alpha",
@@ -999,9 +1004,9 @@ validateListArgs <- function(what,method=NULL,argList) {
                     not.valid <- which(!valid)
                 },
                 rn6 = {
-                    valid <- names(argList) %in% c("antisense","lincRNA","miRNA",
-                        "misc_RNA","Mt_rRNA","Mt_tRNA","processed_pseudogene",
-                        "processed_transcript",
+                    valid <- names(argList) %in% c("antisense","lincRNA",
+                        "miRNA","misc_RNA","Mt_rRNA","Mt_tRNA",
+                        "processed_pseudogene","processed_transcript",
                         "protein_coding","pseudogene","ribozyme","rRNA",
                         "scaRNA","sense_intronic","snoRNA","snRNA","sRNA",
                         "TEC","transcribed_processed_pseudogene",
