@@ -1803,14 +1803,14 @@ getUcscOrganism <- function(org) {
         rn5 = { return("rn5") },
         rn6 = { return("rn6") },
         dm3 = { return("dm3") },
-        dm6 = { return("dm3") },
+        dm6 = { return("dm6") },
         danrer7 = { return("danRer7") },
         danrer10 = { return("danRer10") },
         danrer11 = { return("danRer11") },
         pantro4 = { return("panTro4") },
         pantro5 = { return("panTro5") },
         susscr3 = { return("susScr3") },
-        susscr11 = { return("susScr3") },
+        susscr11 = { return("susScr11") },
         equcab2 = { return("equCab2") },
         tair10 = { return("TAIR10") }
     )
