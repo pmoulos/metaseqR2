@@ -1369,41 +1369,28 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
         else{ # DE analysis of >2 levels in conditions factor
             warnwrap(paste("DSS differential expression algorithm does not ",
                 "support multi-level designs (with more than two levels in a ",
-                "factor to be compared)! Switching to DESeq2. ",
+                "factor to be compared)! Switching to DESeq. ",
                 "Comparison: ",conName))
+            statArgs <- getDefaults("statistics","deseq")
             colData <- DataFrame(design)
             colnames(colData) <- "conditions"
             designTmp <- as.formula(c("~",names(colData[1])))
-            # In the line below we use exprs(seqData)=(raw or normalized counts)
-            # and in the next line we give 
-            # sizeFactors=(normalizationFactor(seqData)=(sizeFactors or 1) 
-            # respectively -> all ok 
-            dds <- DESeqDataSetFromMatrix(counts(seqData),colData,
-                design=designTmp,tidy=statArgs$tidy) 
-            # exprs accessor is used both from EDAseq and DSS. I cannot specify 
-            # DSS::exprs(), but exprs() functions OK for seqDataSet of DSS
-            DESeq2::sizeFactors(dds) <- normalizationFactor(seqData)
-            # without DSS::
-            dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType,
-                maxit=statArgs$maxit,quiet=statArgs$quiet, 
-                modelMatrix=statArgs$modelMatrix)
+            
+            # The same chunck with the norm.R script to get a cds file
+            theDesign <- data.frame(condition=classes,row.names=colnames(seqData)) 
+            cds <- newCountDataSet(as.matrix(round(assayData(seqData)$exprs)),
+                conditions=theDesign$condition)
+            DESeq::sizeFactors(cds) <- normalizationFactor(seqData)     # retrieve DSS-calculated normalizationFactors
+            cds <- DESeq::estimateDispersions(cds,method=statArgs$method,
+                    sharingMode=statArgs$sharingMode)
+
             cc <- names(unlist(con))
-            # This assignment, except from keeping only the samples we want to 
-            # compare, it also keeps only the respective levels under 
-            # conditions!
-            ddsTmp <- dds[,cc]
-            ddsTmp <- nbinomLRT(ddsTmp,full=designTmp,reduced=~1,
-                betaTol=statArgs$betaTol,maxit=statArgs$maxit,
-                useOptim=statArgs$useOptim,quiet=statArgs$quiet, 
-                useQR=statArgs$useQR) 
-            # Using the LRT to compare all the levels inside a factor 
-            # (like an ANOVA)
-            res <- DESeq2::results(ddsTmp)
-            p[[conName]] <- res$pvalue
+            cdsTmp <- cds[,cc]
+            fit0 <- fitNbinomGLMs(cdsTmp,count~1)
+            fit1 <- fitNbinomGLMs(cdsTmp,count~condition)
+            p[[conName]] <- nbinomGLMTest(fit1,fit0)
         }
         names(p[[conName]]) <- rownames(object)
-        # It replaces all NA pvalues with 1
-        names(p[[conName]]) <- rownames(res)
         p[[conName]][which(is.na(p[[conName]]))] <- 1
     }
     return(p)
