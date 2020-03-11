@@ -63,6 +63,7 @@ automatic database builds:
 * Chimpanzee (*Pan troglodytes*) genome version **panTro5**
 * Pig (*Sus scrofa*) genome version **susScr3**
 * Pig (*Sus scrofa*) genome version **susScr11**
+* Horse (*Equus cabalus*) genome version **equCab2**
 * Arabidopsis (*Arabidobsis thaliana*) genome version **TAIR10**
 
 # Using the local database

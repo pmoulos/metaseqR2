@@ -156,12 +156,12 @@ getDefaults <- function(what,method=NULL) {
                         betaPrior= FALSE,
                         #betaPriorVar, modelMatrixType, 
                         betaTol=1e-08,useOptim=TRUE,
-                        useT=FALSE,df,useQR=TRUE,
+                        useT=FALSE,useQR=TRUE,
                         #results default args
                         lfcThreshold=0,altHypothesis="greaterAbs",
                         independentFiltering=TRUE, alpha=0.1,pAdjustMethod="BH",
-                        format= "DataFrame",addMLE= FALSE,parallel=FALSE,
-                        BPPARAM=bpparam()
+                        format= "DataFrame",addMLE= FALSE,parallel=FALSE#,
+                        #BPPARAM=bpparam()
                         #nbinomLRT default args are all passed above
                     ))
                 },  
