@@ -23,7 +23,7 @@ statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
         sharingModeDisp <- statArgs$sharingMode
         fitTypeDisp <- statArgs$fitType
     }
-    switch(class(object),
+    switch(class(object)[1],
         CountDataSet = { # Has been normalized with DESeq
             cds <- object
             cds <- DESeq::estimateDispersions(cds,method=methodDisp,
@@ -126,7 +126,7 @@ statDeseq2 <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
 
-    switch(class(object),
+    switch(class(object)[1],
         DESeqDataSet = { # Has been normalized with DESeq2
             dds <- object
             dds <- DESeq2::estimateDispersions(dds,fitType=statArgs$fitType, 
@@ -269,7 +269,7 @@ statEdger <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     classes <- asClassVector(sampleList)
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
-    switch(class(object),
+    switch(class(object)[1],
         CountDataSet = { # Has been normalized with DESeq
             dge <- DGEList(counts=DESeq::counts(object,normalized=TRUE),
                 group=classes)
@@ -441,7 +441,7 @@ statLimma <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     classes <- asClassVector(sampleList)
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
-    switch(class(object),
+    switch(class(object)[1],
         CountDataSet = { # Has been normalized with DESeq
             dge <- DGEList(DESeq::counts(object,normalized=TRUE),group=classes)
         },
@@ -547,7 +547,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     classes <- asClassVector(sampleList)
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
-    switch(class(object),
+    switch(class(object)[1],
         CountDataSet = { # Has been normalized with DESeq
             nsObj <- NOISeq::readData(
                 data=DESeq::counts(object,normalized=TRUE),
@@ -703,7 +703,7 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     classes <- asClassVector(sampleList)
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
-    switch(class(object),
+    switch(class(object)[1],
         CountDataSet = { # Has been normalized with DESeq
             bayesData <- DESeq::counts(object,normalized=TRUE)
         },
@@ -785,7 +785,7 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     classes <- asClassVector(sampleList)
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
-    switch(class(object),
+    switch(class(object)[1],
         CountDataSet = { # Has been normalized with DESeq
             counts <- round(DESeq::counts(object,normalized=TRUE))
             if (is.null(libsizeList)) {
@@ -1007,7 +1007,7 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             # All the above are automatically done by ABSSeq()
             # However, ABSSeqlm() cannot run without providing replicates (see
             # further down for another comment)
-            switch(class(object),
+            switch(class(object)[1],
                 ABSDataSet = {
                     abs <- ABSDataSet(excounts(object)[,names(unlist(con))],
                         groupsTmp,normMethod="user",
@@ -1146,7 +1146,7 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             groupsTmp <- as.factor(classes)
             design <- model.matrix(~0+groupsTmp)
                               
-            switch(class(object),
+            switch(class(object)[1],
                 ABSDataSet = {
                     abs <- ABSDataSet(excounts(object)[,names(unlist(con))],
                         normMethod="user", 
@@ -1293,7 +1293,7 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
     
-    switch(class(object),
+    switch(class(object)[1],
         CountDataSet = { # Has been normalized with DESeq
             countData <- round(DESeq::counts(object, normalized=TRUE))
             seqData <- newSeqCountSet(countData,design,

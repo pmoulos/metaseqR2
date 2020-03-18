@@ -235,7 +235,7 @@ metaseqr2 <- function(
     if (report) {
         if (!requireNamespace("pander"))
             stop("R package pander is required to build metaseqR2 reports!")
-        if (reportDb == "sqlite" && !requireNamespace("RSQLite"))
+        if ("sqlite" %in% reportDb && !requireNamespace("RSQLite"))
             stop("R package RSQLite is required to build metaseqR reports!")
     }
     
@@ -1391,7 +1391,7 @@ metaseqr2 <- function(
             }
         )
         
-        switch(class(normGenes), 
+        switch(class(normGenes)[1], 
             CountDataSet = { # Has been normalized with DESeq
                 tempMatrix <- round(DESeq::counts(normGenes,normalized=TRUE))
             },
@@ -1470,7 +1470,7 @@ metaseqr2 <- function(
                 "geneLength")[theDead]
             # Now filter
             theDeadInd <- match(theDead,rownames(tempMatrix))  
-            switch(class(normGenes),                           
+            switch(class(normGenes)[1],                           
                 CountDataSet = { # Has been normalized with DESeq
                     normGenesExpr <- normGenes[-theDeadInd,]
                 },
@@ -1695,7 +1695,7 @@ metaseqr2 <- function(
 
     # At this point, all method-specific objects must become matrices for  
     # exporting and plotting
-    switch(class(normGenesExpr),
+    switch(class(normGenesExpr)[1],
         CountDataSet = { # Has been processed with DESeq
             normGenes <- round(DESeq::counts(normGenes,normalized=TRUE))
             normGenesExpr <- round(DESeq::counts(normGenesExpr,normalized=TRUE))

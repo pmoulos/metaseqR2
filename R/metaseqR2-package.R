@@ -4,12 +4,9 @@
 #' \tabular{ll}{
 #' Package: \tab metaseqR2\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.0.1\cr
-#' Date: \tab 2019-11-15\cr
-#' Depends: \tab R (>= 3.0.0), Biobase, BiocGenerics, rjson, biomaRt, utils,
-#' knitr, EDASeq, DESeq, edgeR, limma, NOISeq, baySeq, NBPSeq, survcomp,
-#' rmarkdown, gplots, corrplot, GenomicRanges, Rsamtools, rtracklayer,
-#' qvalue, vsn, VennDiagram, log4r\cr
+#' Version: \tab 0.0.20\cr
+#' Date: \tab 2020-03-13\cr
+#' Depends: \tab R (>= 4.0.0), limma, qvalue\cr
 #' Encoding: \tab UTF-8\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr

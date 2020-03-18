@@ -161,6 +161,11 @@ result <- metaseqr2(
     normalization="edger",
     statistics="edger",
     pcut=0.05,
+    qcPlots=c(
+        "mds","filtered","correl","pairwise","boxplot","gcbias",
+        "lengthbias","meandiff","meanvar","deheatmap","volcano",
+        "mastat","statvenn","foldvenn","deregulogram"
+    ),
     figFormat=c("png","pdf"),
     exportWhat=c("annotation","p_value","adj_p_value","fold_change"),
     exportScale=c("natural","log2"),
@@ -225,10 +230,15 @@ result <- metaseqr2(
     normalization="edaseq",
     statistics=c("deseq","edger"),
     metaP="fisher",
+    #qcPlots=c(
+    #    "mds","biodetection","countsbio","saturation","readnoise","filtered",
+    #    "correl","pairwise","boxplot","gcbias","lengthbias","meandiff",
+    #    "meanvar","rnacomp","deheatmap","volcano","mastat","biodist","statvenn"
+    #),
     qcPlots=c(
-        "mds","biodetection","countsbio","saturation","readnoise","filtered",
-        "correl","pairwise","boxplot","gcbias","lengthbias","meandiff",
-        "meanvar","rnacomp","deheatmap","volcano","mastat","biodist","statvenn"
+        "mds","filtered","correl","pairwise","boxplot","gcbias",
+        "lengthbias","meandiff","meanvar","deheatmap","volcano",
+        "mastat","statvenn","foldvenn","deregulogram"
     ),
     figFormat=c("png","pdf"),
     preset="medium_normal",
@@ -261,6 +271,11 @@ result <- metaseqr2(
     normalization="edaseq",
     statistics=c("deseq","edger"),
     metaP="fisher",
+    qcPlots=c(
+        "mds","filtered","correl","pairwise","boxplot","gcbias",
+        "lengthbias","meandiff","meanvar","deheatmap","volcano",
+        "mastat","statvenn","foldvenn","deregulogram"
+    ),
     figFormat=c("png","pdf"),
     preset="medium_normal",
     outList=TRUE,

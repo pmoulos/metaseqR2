@@ -1670,6 +1670,7 @@ diagplotDeHeatmap <- function(x,scale=c("asis","zscore"),con=NULL,output="x11",
         conn <- con
         con <- paste("for ",con)
     }
+    scale <- scale[1]
     y <- nat2log(x,2,1)
     if (scale == "zscore") {
         y <- t(scale(t(y)))
