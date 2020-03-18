@@ -156,6 +156,12 @@ result <- metaseqr2(
     contrast=c("adult_8_weeks_vs_e14.5"),
     libsizeList=libsizeListMm9,
     annotation="embedded",
+    embedCols=list(
+        idCol=4,
+        gcCol=5,
+        nameCol=8,
+        btCol=7
+    ),
     org="mm9",
     countType="gene",
     normalization="edger",
@@ -164,7 +170,7 @@ result <- metaseqr2(
     qcPlots=c(
         "mds","filtered","correl","pairwise","boxplot","gcbias",
         "lengthbias","meandiff","meanvar","deheatmap","volcano",
-        "mastat","statvenn","foldvenn","deregulogram"
+        "mastat"
     ),
     figFormat=c("png","pdf"),
     exportWhat=c("annotation","p_value","adj_p_value","fold_change"),
@@ -238,7 +244,7 @@ result <- metaseqr2(
     qcPlots=c(
         "mds","filtered","correl","pairwise","boxplot","gcbias",
         "lengthbias","meandiff","meanvar","deheatmap","volcano",
-        "mastat","statvenn","foldvenn","deregulogram"
+        "mastat"
     ),
     figFormat=c("png","pdf"),
     preset="medium_normal",
@@ -274,7 +280,7 @@ result <- metaseqr2(
     qcPlots=c(
         "mds","filtered","correl","pairwise","boxplot","gcbias",
         "lengthbias","meandiff","meanvar","deheatmap","volcano",
-        "mastat","statvenn","foldvenn","deregulogram"
+        "mastat"
     ),
     figFormat=c("png","pdf"),
     preset="medium_normal",
