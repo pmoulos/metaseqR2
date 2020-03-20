@@ -415,7 +415,7 @@ buildCustomAnnotation <- function(gtfFile,metadata,
         dir.create(dirname(db),recursive=TRUE,mode="0755")
     
     # Initialize or open the annotation SQLite datatabase
-    message("Opening metaseqR SQLite database ",db)
+    message("Opening metaseqR2 SQLite database ",db)
     con <- initDatabase(db)
     
     parsed <- parseCustomGtf(gtfFile)
@@ -782,16 +782,18 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
     sf <- Seqinfo(seqnames=preSf[,1],seqlengths=preSf[,2],
         isCircular=rep(FALSE,nrow(preSf)),genome=sfg)
     
-    if (length(seqlevels(ann)) != length(seqlevels(sf)))
-        # If a subset, this is enough
-        seqinfo(ann) <- sf[intersect(seqlevels(ann),seqlevels(sf))]
-    else if (!all(seqlevels(ann) == seqlevels(sf))) {
-        # Must also be sorted in the same way
-        seqlevels(ann) <- seqlevels(sf)
-        seqinfo(ann) <- sf
+    if (length(sf) > 0) {
+        if (length(seqlevels(ann)) != length(seqlevels(sf)))
+            # If a subset, this is enough
+            seqinfo(ann) <- sf[intersect(seqlevels(ann),seqlevels(sf))]
+        else if (!all(seqlevels(ann) == seqlevels(sf))) {
+            # Must also be sorted in the same way
+            seqlevels(ann) <- seqlevels(sf)
+            seqinfo(ann) <- sf
+        }
+        else
+            seqinfo(ann) <- sf
     }
-    else
-        seqinfo(ann) <- sf
     
     ann <- .nameAnnotationFromMetaType(ann,metaType)
     
