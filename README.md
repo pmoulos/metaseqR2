@@ -102,6 +102,7 @@ metaseqR2 would benefit from the existence of all the following packages:
 * rtracklayer
 * RUnit
 * S4Vectors
+* splines
 * stats
 * stringr
 * SummarizedExperiment

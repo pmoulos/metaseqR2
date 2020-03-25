@@ -48,6 +48,7 @@ Imports:
     RSQLite,
     rtracklayer,
     S4Vectors,
+    splines,
     stats,
     stringr,
     SummarizedExperiment,
@@ -85,7 +86,7 @@ VignetteBuilder: knitr
 Authors@R: c(person(given="Panagiotis", family="Moulos",
     email="moulos@fleming.gr", role=c("aut", "cre")))
 Version: 0.0.21
-Date: 2020-03-20
+Date: 2020-03-25
 Collate:
     'annotation.R'
     'argcheck.R'
