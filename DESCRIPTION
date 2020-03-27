@@ -3,8 +3,8 @@ Type: Package
 Title: An R package for the analysis and result reporting
     of RNA-Seq data by combining multiple statistical
     algorithms
-Author: Panagiotis Moulos <moulos@fleming.gr>
-Maintainer: Panagiotis Moulos <moulos@fleming.gr>
+Authors@R: c(person(given="Panagiotis", family="Moulos",
+    email="moulos@fleming.gr", role=c("aut", "cre")))
 Depends:
     R (>= 4.0.0),
     DESeq,
@@ -83,10 +83,8 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     ImmunoOncology, AlternativeSplicing, DifferentialSplicing, 
     MultipleComparison, TimeCourse, DataImport
 VignetteBuilder: knitr
-Authors@R: c(person(given="Panagiotis", family="Moulos",
-    email="moulos@fleming.gr", role=c("aut", "cre")))
-Version: 0.99.0
-Date: 2020-03-26
+Version: 0.99.1
+Date: 2020-03-27
 Collate:
     'annotation.R'
     'argcheck.R'
