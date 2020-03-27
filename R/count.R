@@ -362,7 +362,6 @@ readTargets <- function(input,path=NULL) {
 }
 
 .writeTargets <- function(targets,outfile) {
-    assign("theList",targets,envir=.GlobalEnv)
     out <- data.frame(
         samplename=unlist(targets$samples,use.names=FALSE),
         filename=unlist(targets$files,use.names=FALSE),

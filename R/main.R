@@ -2317,7 +2317,6 @@ metaseqr2 <- function(
         if (hasTemplate) {
             execTime <- elap2human(TB)
             REPORT_ENV <- .makeReportEnv(environment())
-            assign("REPORT_ENV",REPORT_ENV,envir=.GlobalEnv)
             
             file.copy(file.path(TEMPLATE,"metaseqr2_report.Rmd"),
                 file.path(PROJECT_PATH$main,"metaseqr2_report.Rmd"),

@@ -83,7 +83,7 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     ImmunoOncology, AlternativeSplicing, DifferentialSplicing, 
     MultipleComparison, TimeCourse, DataImport
 VignetteBuilder: knitr
-Version: 0.99.1
+Version: 0.99.11
 Date: 2020-03-27
 Collate:
     'annotation.R'
