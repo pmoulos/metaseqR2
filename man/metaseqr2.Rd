@@ -1243,7 +1243,7 @@ result <- metaseqr2(
   exportValues="normalized",
   exportStats=c("mean","sd","cv"),
   exportWhere=file.path(tempdir(),"test1"),
-  restrictCores=0.8,
+  restrictCores=0.1,
   geneFilters=list(
     length=list(
       length=500

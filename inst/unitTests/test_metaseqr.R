@@ -17,7 +17,8 @@ test_metaseqr <- function() {
         qcPlots="mds",
         figFormat="png",
         exportWhere=exDir,
-        outList=TRUE
+        outList=TRUE,
+        restrictCores=0.05
     )
     checkTrue(file.exists(file.path(exDir,"index.html")))
     checkTrue(file.exists(file.path(exDir,"plots","qc","mds.png")))
