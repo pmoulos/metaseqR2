@@ -644,7 +644,7 @@ metaseqr2 <- function(
     TB <- Sys.time()
     disp(strftime(Sys.time()),": Data processing started...\n")
     ############################################################################
-    if ("dss" %in% statistics && any(lengths(sampleList)) < 2) {
+    if ("dss" %in% statistics && any(lengths(sampleList) < 2)) {
         message=c(
             "\n=================================================\n", 
             "DSS will be run without replicates.\n",
