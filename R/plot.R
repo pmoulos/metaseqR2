@@ -1676,6 +1676,8 @@ diagplotDeHeatmap <- function(x,scale=c("asis","zscore"),con=NULL,output="x11",
         y <- t(scale(t(y)))
         if (any(is.infinite(y)))
             y[which(is.infinite(y))] <- min(y)
+        if (any(is.na(y)))
+            y[which(is.na(y))] <- 0
     }
         
     # First plot the normal image

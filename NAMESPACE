@@ -166,10 +166,10 @@ importFrom("rtracklayer",import)
 importFrom("rtracklayer",import.bed)
 importFrom("rtracklayer",export.bw)
 
-importFrom(S4Vectors,"DataFrame")
-importFrom(S4Vectors,"Rle")
+importFrom("S4Vectors",DataFrame)
+importFrom("S4Vectors",Rle)
 
-importFrom(splines,"ns")
+importFrom("splines",ns)
 
 importFrom("stats",as.dist)
 importFrom("stats",as.formula)
