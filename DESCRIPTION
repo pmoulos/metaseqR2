@@ -6,7 +6,6 @@ Title: An R package for the analysis and result reporting
 Authors@R: c(person(given="Panagiotis", family="Moulos",
     email="moulos@fleming.gr", role=c("aut", "cre")))
 Depends:
-    R (>= 4.0.0),
     DESeq,
     limma,
     qvalue
@@ -83,8 +82,8 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     ImmunoOncology, AlternativeSplicing, DifferentialSplicing, 
     MultipleComparison, TimeCourse, DataImport
 VignetteBuilder: knitr
-Version: 0.99.13
-Date: 2020-04-01
+Version: 0.99.14
+Date: 2020-04-02
 Collate:
     'annotation.R'
     'argcheck.R'

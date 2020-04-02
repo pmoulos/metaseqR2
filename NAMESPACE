@@ -11,6 +11,7 @@ import(parallel)
 import(qvalue)
 import(Rsamtools)
 import(RSQLite)
+import(splines)
 import(VennDiagram)
 
 import(grDevices,except=windows)
@@ -168,8 +169,6 @@ importFrom("rtracklayer",export.bw)
 
 importFrom("S4Vectors",DataFrame)
 importFrom("S4Vectors",Rle)
-
-importFrom("splines",ns)
 
 importFrom("stats",as.dist)
 importFrom("stats",as.formula)
