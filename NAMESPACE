@@ -8,10 +8,8 @@ import(methods)
 import(magrittr)
 import(NBPSeq)
 import(parallel)
-import(qvalue)
 import(Rsamtools)
 import(RSQLite)
-import(splines)
 import(VennDiagram)
 
 import(grDevices,except=windows)
@@ -158,6 +156,8 @@ importFrom("NOISeq",tmm)
 importFrom("NOISeq",uqua)
 
 importFrom("pander",pandoc.header)
+
+importFrom("qvalue",qvalue)
 
 importFrom("rmarkdown",render)
 

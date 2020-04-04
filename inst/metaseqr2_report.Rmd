@@ -2237,6 +2237,10 @@ if ("deheatmap" %in% qcPlots) {
             layout(width=720,height=840)
         # z-scores
         M <- t(scale(t(nat2log(mat))))
+        if (any(is.infinite(M)))
+            M[which(is.infinite(M))] <- min(M)
+        if (any(is.na(M)))
+            M[which(is.na(M))] <- 0
         hInd <- hInd + 1
         hNames[hInd] <- paste0("deheatmap_",gsub("\\.","__",cnt),"_zscore")
         hList[[hInd]] <- heatmaply(M,trace="none",colors=bluered(64),

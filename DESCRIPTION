@@ -6,9 +6,11 @@ Title: An R package for the analysis and result reporting
 Authors@R: c(person(given="Panagiotis", family="Moulos",
     email="moulos@fleming.gr", role=c("aut", "cre")))
 Depends:
-    DESeq,
+    R (>= 4.0.0),
+    DESeq2,
     limma,
-    qvalue
+    locfit,
+    splines
 Imports:
     ABSSeq,
     baySeq,
@@ -17,7 +19,7 @@ Imports:
     biomaRt,
     Biostrings,
     corrplot,
-    DESeq2,
+    DESeq,
     DSS,
     DT,
     EDASeq,
@@ -41,13 +43,13 @@ Imports:
     NBPSeq,
     pander,
     parallel,
+    qvalue,
     rmarkdown,
     rmdformats,
     Rsamtools,
     RSQLite,
     rtracklayer,
     S4Vectors,
-    splines,
     stats,
     stringr,
     SummarizedExperiment,
@@ -82,8 +84,8 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     ImmunoOncology, AlternativeSplicing, DifferentialSplicing, 
     MultipleComparison, TimeCourse, DataImport
 VignetteBuilder: knitr
-Version: 0.99.14
-Date: 2020-04-02
+Version: 0.99.15
+Date: 2020-04-03
 Collate:
     'annotation.R'
     'argcheck.R'
