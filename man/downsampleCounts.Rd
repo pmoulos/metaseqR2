@@ -26,8 +26,7 @@
     set to \code{42}.
 }
 \examples{
-require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+dataMatrix <- metaseqR2:::exampleCountData(5000)
 D <- downsampleCounts(dataMatrix)
 }
 \author{

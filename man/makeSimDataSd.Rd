@@ -78,15 +78,14 @@
     is loaded, the seed is set to \code{42}.
 }
 \examples{
-require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+dataMatrix <- metaseqR2:::exampleCountData(2000)
 ## File "bottomly_read_counts.txt" from the ReCount database
 #download.file(paste("http://bowtie-bio.sourceforge.net/recount/",
 #    "countTables/bottomly_count_table.txt",sep=""),
 #    destfile="~/bottomly_count_table.txt")
-N <- 10000
+N <- 2000
 #parList <- estimateSimParams("~/bottomly_read_counts.txt")
-parList <- estimateSimParams(dataMatrix)
+parList <- estimateSimParams(dataMatrix,libsizeGt=3e+4)
 sim <- makeSimDataSd(N,parList)
 synthData <- sim$simdata
 trueDeg <- which(sim$truedeg!=0)

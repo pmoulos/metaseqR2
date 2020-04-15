@@ -41,8 +41,7 @@
     on the whole dataset.
 }
 \examples{
-require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+dataMatrix <- metaseqR2:::exampleCountData(5000)
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 diagplotMds(dataMatrix,sampleList)
 }

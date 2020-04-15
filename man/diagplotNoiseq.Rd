@@ -80,8 +80,7 @@
     but it's still possible that you might run onto an error.
 }
 \examples{
-require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+dataMatrix <- metaseqR2:::exampleCountData(5000)
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 lengths <- round(1000*runif(nrow(dataMatrix)))
 starts <- round(1000*runif(nrow(dataMatrix)))

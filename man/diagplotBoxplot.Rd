@@ -65,17 +65,16 @@
 }
 \examples{
 # Non-normalized boxplot
-require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+require(DESeq2)
+dataMatrix <- metaseqR2:::exampleCountData(2000)
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 diagplotBoxplot(dataMatrix,sampleList)
 
 # Normalized boxplot
-normArgs <- getDefaults("normalization","deseq")
-object <- normalizeDeseq(dataMatrix,sampleList,normArgs)
+normArgs <- getDefaults("normalization","deseq2")
+object <- normalizeDeseq2(dataMatrix,sampleList,normArgs)
 diagplotBoxplot(object,sampleList)
 }
 \author{
     Panagiotis Moulos
 }
-

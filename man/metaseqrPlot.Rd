@@ -128,18 +128,17 @@
     functions of the whole package.
 }
 \examples{
-require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+dataMatrix <- metaseqR2:::exampleCountData(2000)
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
 metaseqrPlot(dataMatrix,sampleList,plotType=c("mds","boxplot"))
 
-normArgs <- getDefaults("normalization","deseq")
-object <- normalizeDeseq(dataMatrix,sampleList,normArgs)
+normArgs <- getDefaults("normalization","deseq2")
+object <- normalizeDeseq2(dataMatrix,sampleList,normArgs)
 metaseqrPlot(object,sampleList,plotType="boxplot")
 
 ## More
-#p <- statDeseq(object,sampleList)
+#p <- statDeseq2(object,sampleList)
 #metaseqrPlot(object,sampleList,contrastList=contrast,pList=p,
 #    plotType="volcano")
 }

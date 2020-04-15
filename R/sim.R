@@ -73,7 +73,8 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
                 qcPlots=NULL,
                 report=FALSE,
                 runLog=FALSE,
-                outList=TRUE
+                outList=TRUE,
+                restrictCores=rc
             )
         }
 

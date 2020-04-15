@@ -29,8 +29,7 @@
     heatmap or correlogram correlation plots.
 }
 \examples{
-require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+dataMatrix <- metaseqR2:::exampleCountData(2000)
 diagplotCor(dataMatrix,type="heatmap")
 diagplotCor(dataMatrix,type="correlogram")
 }

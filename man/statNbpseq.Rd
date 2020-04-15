@@ -62,9 +62,8 @@
     NBPSeq package.
 }
 \examples{
-require(DESeq)
 require(NBPSeq)
-dataMatrix <- DESeq::counts(makeExampleCountDataSet())
+dataMatrix <- metaseqR2:::exampleCountData(2000)
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
 normDataMatrix <- normalizeNbpseq(dataMatrix,sampleList)

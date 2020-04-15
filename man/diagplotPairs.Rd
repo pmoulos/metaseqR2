@@ -35,8 +35,7 @@
     interpretable for more than 10 samples.
 }
 \examples{
-require(DESeq)
-dataMatrix <- counts(makeExampleCountDataSet())
+dataMatrix <- metaseqR2:::exampleCountData(2000)
 diagplotPairs(dataMatrix)
 }
 \author{

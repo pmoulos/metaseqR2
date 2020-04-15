@@ -1239,9 +1239,9 @@ result <- metaseqr2(
   figFormat="png",
   qcPlots="mds",
   exportWhat=c("annotation","p_value","adj_p_value","fold_change"),
-  exportScale=c("natural","log2"),
+  exportScale="natural",
   exportValues="normalized",
-  exportStats=c("mean","sd","cv"),
+  exportStats="mean",
   exportWhere=file.path(tempdir(),"test1"),
   restrictCores=0.1,
   geneFilters=list(
@@ -1261,7 +1261,6 @@ result <- metaseqr2(
     ),
     biotype=getDefaults("biotypeFilter","mm9")
   ),
-  preset="medium_basic",
   outList=TRUE
 )
 head(result$data[["adult_8_weeks_vs_e14.5"]])

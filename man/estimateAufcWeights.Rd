@@ -88,10 +88,10 @@
 require(zoo)
 data("mm9GeneData",package="metaseqR2")
 weights <- estimateAufcWeights(
-  counts=as.matrix(mm9GeneCounts[,9:12]),
+  counts=as.matrix(mm9GeneCounts[sample(nrow(mm9GeneCounts),1000),9:12]),
   normalization="edaseq",
   statistics=c("edger","limma"),
-  nsim=3,N=100,ndeg=c(10,10),top=10,modelOrg="mm9",
+  nsim=1,N=100,ndeg=c(10,10),top=10,modelOrg=NULL,
   rc=0.1,libsizeGt=1e+5
 )
 }

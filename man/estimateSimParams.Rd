@@ -68,13 +68,8 @@
     is loaded, the seed is set to \code{42}.
 }
 \examples{
-# Dowload locally the file "bottomly_read_counts.txt" from
-# the ReCount database
-download.file(paste("http://bowtie-bio.sourceforge.net/",
-    "recount/countTables/bottomly_count_table.txt",sep=""),
-    destfile=file.path(tempdir(),"bottomly_count_table.txt"))
-# Estimate simulation parameters
-parList <- estimateSimParams(file.path(tempdir(),"bottomly_count_table.txt"))
+dataMatrix <- metaseqR2:::exampleCountData(2000)
+parList <- estimateSimParams(dataMatrix,libsizeGt=3e+4)
 }
 \author{
     Panagiotis Moulos
