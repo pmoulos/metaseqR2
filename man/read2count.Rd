@@ -59,10 +59,12 @@ write.table(targets,file=file.path(path,"targets.txt"),
   sep="\t",row.names=FALSE,quote=FALSE)
 geneData <- loadAnnotation("mm9","ensembl","gene")
 myTargets <- readTargets(file.path(path,"targets.txt"))
-r2c <- read2count(targets=myTargets,
-  fileType=myTargets$type,annotation=geneData)
-geneCounts <- r2c$counts
-libsizeList <- r2c$libsize
+if (.Platform$OS.type == "unix") {
+  r2c <- read2count(targets=myTargets,
+    fileType=myTargets$type,annotation=geneData)
+  geneCounts <- r2c$counts
+  libsizeList <- r2c$libsize
+}
 }
 \author{
     Panagiotis Moulos

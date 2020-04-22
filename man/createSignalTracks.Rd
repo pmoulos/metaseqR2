@@ -57,7 +57,8 @@ targets <- data.frame(samplename=c("C","T"),
 path <- tempdir()
 write.table(targets,file=file.path(path,"targets.txt"),
   sep="\t",row.names=FALSE,quote=FALSE)
-link <- createSignalTracks(file.path(path,"targets.txt"),"mm9")
+if (.Platform$OS.type == "unix")
+    link <- createSignalTracks(file.path(path,"targets.txt"),"mm9")
 }
 \author{
     Panagiotis Moulos
