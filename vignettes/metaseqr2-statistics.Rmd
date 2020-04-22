@@ -3,7 +3,9 @@ title: "Usage of the metaseqR2 package"
 author: "Panagiotis Moulos"
 date: "`r BiocStyle::doc_date()`"
 output: 
-  BiocStyle::html_document
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true 
 vignette: >
   %\VignetteIndexEntry{RNA-Seq data analysis with metaseqR2}
   %\VignetteEngine{knitr::knitr}
