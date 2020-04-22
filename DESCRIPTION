@@ -74,24 +74,27 @@ Description: Provides an interface to several normalization and
     tests and reports the results in an interactive way.
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyLoad: yes
-LazyData: yes
+LazyData: false
 URL: http://www.fleming.gr
 biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     Preprocessing, QualityControl, Normalization, ReportWriting, RNASeq,
     Transcription, Sequencing, Transcriptomics, Bayesian, Clustering,
     CellBiology, BiomedicalInformatics, FunctionalGenomics, SystemsBiology,
     ImmunoOncology, AlternativeSplicing, DifferentialSplicing, 
-    MultipleComparison, TimeCourse, DataImport
+    MultipleComparison, TimeCourse, DataImport, ATACSeq, Epigenetics,
+    Regression, ProprietaryPlatforms, GeneSetEnrichment, BatchEffect,
+    ChIPSeq
 VignetteBuilder: knitr
-Version: 0.99.17
-Date: 2020-04-15
+BugReports: https://github.com/pmoulos/metaseqR2/issues
+Version: 0.99.2
+Date: 2020-04-22
 Collate:
     'annotation.R'
     'argcheck.R'
     'count.R'
     'metaseqr2-data.R'
     'export.R'
+    'external.R'
     'filter.R'
     'json.R'
     'main.R'

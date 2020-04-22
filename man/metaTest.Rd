@@ -66,7 +66,8 @@
     seed is set to \code{42}.
 }
 \examples{
-# Not yet available
+cpList <- list(a=matrix(runif(100),50,2))
+metaP <- metaTest(cpList,"simes")
 }
 \author{
     Panagiotis Moulos

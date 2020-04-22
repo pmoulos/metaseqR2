@@ -79,7 +79,6 @@
     on-the-fly.
 }
 \examples{
-\donttest{
 # Build a test database with one genome
 myDb <- file.path(tempdir(),"testann.sqlite")
 
@@ -87,7 +86,7 @@ organisms <- list(mm9=67)
 sources <- "ensembl"
 
 # If the example is not running in a multicore system, rc is ignored
-buildAnnotationDatabase(organisms,sources,db=myDb,rc=0.5)
+#buildAnnotationDatabase(organisms,sources,db=myDb,rc=0.5)
 
 # A more complete case, don't run as example
 # Since we are using Ensembl, we can also ask for a version
@@ -106,7 +105,6 @@ buildAnnotationDatabase(organisms,sources,db=myDb,rc=0.5)
 ## Build on an alternative location
 #myDb <- file.path(path.expand("~"),"my_ann.sqlite")
 #buildAnnotationDatabase(organisms,sources,db=myDb)
-}
 }
 \author{
     Panagiotis Moulos

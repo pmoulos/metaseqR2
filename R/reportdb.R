@@ -419,7 +419,7 @@
     if ("deregulogram" %in% qcPlots) {
         disp("  Importing deregulogram")
         cntPairs <- combn(names(contrastList),2)
-        for (i in 1:ncol(cntPairs)) {
+        for (i in seq_len(ncol(cntPairs))) {
             disp("    ",cntPairs[1,i]," and ",cntPairs[2,i])
             namc <- paste0(cntPairs[1,i],"__",cntPairs[2,i])
             fmat <- cbind(
@@ -433,8 +433,8 @@
             colnames(pmat) <- colnames(fmat)
             json <- diagplotDeregulogram(fmat,pmat,pcut=pcut,fcut=1,
                 output="json",altNames=geneDataExpr$gene_name)
-            .dbImportPlot(con,paste("deregulogram",namc,sep="_"),"deregulogram",
-                "generic",json)
+            .dbImportPlot(con,paste("deregulogram",namc,sep="_"),
+                "deregulogram","generic",json)
         }
     }
 
@@ -518,7 +518,7 @@
             json <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
                 whichPlot="biodetection",output="json")
         })
-        for (i in 1:length(json)) {
+        for (i in seq_along(json)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("biodetection",samples[i],sep="_"),
@@ -535,7 +535,7 @@
             jsonList <- diagplotNoiseq(geneCounts,sampleList,covars=covarsRaw,
                 whichPlot="countsbio",output="json")
         })
-        for (i in 1:length(jsonList$sample)) {
+        for (i in seq_along(jsonList$sample)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("countsbio",samples[i],sep="_"),
@@ -545,7 +545,7 @@
             )
         }   
         biotypes <- names(jsonList$biotype)
-        for (i in 1:length(jsonList$biotype)) {
+        for (i in seq_along(jsonList$biotype)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("countsbio",biotypes[i],sep="_"),
@@ -560,7 +560,7 @@
         disp("  Importing saturation...")
         jsonList <- diagplotNoiseq(geneCounts,sampleList,
             covars=covarsRaw,whichPlot="saturation",output="json")
-        for (i in 1:length(jsonList$sample)) {
+        for (i in seq_along(jsonList$sample)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("saturation",samples[i],sep="_"),
@@ -570,7 +570,7 @@
             )
         }
         biotypes <- names(jsonList$biotype)
-        for (i in 1:length(jsonList$biotype)) {
+        for (i in seq_along(jsonList$biotype)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("saturation",biotypes[i],sep="_"),
@@ -598,7 +598,7 @@
         disp("  Importing pairwise...")
         jsonList <- diagplotPairs(geneCounts,output="json")
         nams <- names(jsonList$xy)
-        for (i in 1:length(jsonList$xy)) {
+        for (i in seq_along(jsonList$xy)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=nams[i],
@@ -607,7 +607,7 @@
                 json=fromJSON(jsonList$xy[[nams[i]]])
             )
         }
-        for (i in 1:length(jsonList$md)) {
+        for (i in seq_along(jsonList$md)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=nams[i],
@@ -717,8 +717,8 @@
         jsonNorm <- diagplotEdaseq(normGenes,sampleList,isNorm=TRUE,
             whichPlot="meandiff",output="json")
         np <- sum(lengths(jsonUnorm))
-        for (i in 1:length(jsonUnorm)) {
-            for (j in 1:length(jsonUnorm[[i]])) {
+        for (i in seq_along(jsonUnorm)) {
+            for (j in seq_along(jsonUnorm[[i]])) {
                 listIndex <- listIndex + 1
                 plots[[listIndex]] <- list(
                     name=names(jsonUnorm[[i]])[j],
@@ -728,8 +728,8 @@
                 )
             }
         }
-        for (i in 1:length(jsonNorm)) {
-            for (j in 1:length(jsonNorm[[i]])) {
+        for (i in seq_along(jsonNorm)) {
+            for (j in seq_along(jsonNorm[[i]])) {
                 listIndex <- listIndex + 1
                 plots[[listIndex]] <- list(
                     name=names(jsonNorm[[i]])[j],
@@ -807,7 +807,7 @@
             }
         }
         names(json) <- namc
-        for (i in 1:length(json)) {
+        for (i in seq_along(json)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("volcano",namc[i],sep="_"),
@@ -836,7 +836,7 @@
             }
         }
         names(json) <- namc
-        for (i in 1:length(json)) {
+        for (i in seq_along(json)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("mastat",namc[i],sep="_"),
@@ -861,7 +861,7 @@
                     output="json")
             })
         }
-        for (i in 1:length(jsonList)) {
+        for (i in seq_along(jsonList)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("biodist",nn[i],sep="_"),
@@ -870,7 +870,7 @@
                 json=fromJSON(jsonList[[i]]$chromosome)
             )
         }
-        for (i in 1:length(jsonList)) {
+        for (i in seq_along(jsonList)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("biodist",nn[i],sep="_"),
@@ -909,7 +909,7 @@
                 pcut=pcut,direction="down",
                 altNames=geneNames[rownames(cpList[[n]])])
         }
-        for (i in 1:length(jsonList)) {
+        for (i in seq_along(jsonList)) {
             for (d in names(jsonList[[i]])) {
                 listIndex <- listIndex + 1
                 plots[[listIndex]] <- list(
@@ -998,7 +998,7 @@
         json <- vector("list",ncol(cntPairs))
         namc <- character(ncol(cntPairs))
         counter <- 0
-        for (i in 1:ncol(cntPairs)) {
+        for (i in seq_len(ncol(cntPairs))) {
             counter <- counter + 1
             disp("    ",cntPairs[1,i]," and ",cntPairs[2,i])
             namc[counter] <- paste0(cntPairs[1,i],"__",cntPairs[2,i])
@@ -1014,7 +1014,7 @@
             json[[counter]] <- diagplotDeregulogram(fmat,pmat,fcut=0.3,
                 pcut=pcut,output="json",altNames=geneDataExpr$gene_name)
         }
-        for (i in 1:length(json)) {
+        for (i in seq_along(json)) {
             listIndex <- listIndex + 1
             plots[[listIndex]] <- list(
                 name=paste("deregulogram",namc[i],sep="_"),
@@ -1025,7 +1025,8 @@
         }
     }
     
-    disp("Writing plot database in ",file.path(PROJECT_PATH$data,"reportdb.js"))
+    disp("Writing plot database in ",file.path(PROJECT_PATH$data,
+        "reportdb.js"))
     jsonPlots <- toJSON(plots,auto_unbox=TRUE,null="null",pretty=TRUE)
     code <- paste0("var plotData = ",jsonPlots)
     cat(code,file=file.path(PROJECT_PATH$data,"reportdb.js"),sep="\n")
@@ -1138,7 +1139,8 @@
             if ("gene_id" %in% names(x)) # transLevel = "gene"
                 x$gene_id <- paste('<a href="',h,'/Gene/Summary?g=',x$gene_id,
                     '" target="_blank">',x$gene_id,'</a>',sep="")
-            else if ("transcript_id" %in% names(x)) {# transLevel = "transcript"
+            # transLevel = "transcript"
+            else if ("transcript_id" %in% names(x)) {
                 # Stub
             }
             else if ("exon_id" %in% names(x)) { # transLevel = "exon"

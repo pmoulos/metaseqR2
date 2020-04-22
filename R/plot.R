@@ -6,7 +6,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     output="x11",path=NULL,...) {
     if (is(object,"GenomicRanges")) {
         object <- as.data.frame(object)
-        object <- object[,c(1:3,6,7,5,8,9)]
+        object <- object[,c(1,2,3,6,7,5,8,9)]
         colnames(object)[1] <- "chromosome"
     }
     if (!is.matrix(object) && !is.data.frame(object))
@@ -44,7 +44,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     
     if (is(annotation,"GenomicRanges")) {
         annotation <- as.data.frame(annotation)
-        annotation <- annotation[,c(1:3,6,7,5,8,9)]
+        annotation <- annotation[,c(1,2,3,6,7,5,8,9)]
         colnames(annotation)[1] <- "chromosome"
     }
     
@@ -54,7 +54,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
             data=object,
             length=annotation$end - annotation$start,
             gc=annotation$gc_content,
-            chromosome=annotation[,1:3],
+            chromosome=annotation[,c(1,2,3)],
             factors=data.frame(class=asClassVector(sampleList)),
             biotype=annotation$biotype,
             gene_name=as.character(annotation$gene_name)
@@ -189,7 +189,7 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
             if ("deregulogram" %in% plotType) {
                 cntPairs <- combn(names(contrastList),2)
                 files$deregulogram <- character(ncol(cntPairs))
-                for (i in 1:ncol(cntPairs)) {
+                for (i in seq_len(ncol(cntPairs))) {
                     fmat <- cbind(
                         log2(makeFoldChange(cntPairs[1,i],sampleList,
                             object,1))[,1,drop=FALSE],
@@ -263,7 +263,7 @@ diagplotBoxplot <- function(mat,name=NULL,logIt="auto",yLim="default",
     grouped <- FALSE
     if (is.null(name)) {
         if (is.null(colnames(mat)))
-            nams <- paste("Sample",1:ncol(mat),sep=" ")
+            nams <- paste("Sample",seq_len(ncol(mat)),sep=" ")
         else
             nams <- colnames(mat)
     }
@@ -282,7 +282,7 @@ diagplotBoxplot <- function(mat,name=NULL,logIt="auto",yLim="default",
     }
     else bCols <- cols
     matList <- list()
-    for (i in 1:ncol(mat))
+    for (i in seq_len(ncol(mat)))
         matList[[i]] <- mat[,i]
     names(matList) <- nams
     if (output != "json") {
@@ -362,8 +362,8 @@ diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
         else
             graphicsOpen(output,fil,width=1024,height=768)     
         plot(mdsObj$points[,1],mdsObj$points[,2],
-             col=colspace[1:length(levels(classes))][design],
-             pch=pchspace[1:length(levels(classes))][design],
+             col=colspace[seq_len(length(levels(classes)))][design],
+             pch=pchspace[seq_len(length(levels(classes)))][design],
              xlim=xlim,ylim=ylim,
              main="MDS plot",xlab="MDS 1",ylab="MDS 2",
              cex=0.9,cex.lab=0.9,cex.axis=0.9,cex.main=0.9)
@@ -458,7 +458,7 @@ diagplotPairs <- function(x,output="x11",altNames=NULL,path=NULL,...) {
     if (!is.null(colnames(x)))
         nams <- colnames(x)
     else
-        nams <- paste("Sample_",1:ncol(x),sep="")
+        nams <- paste("Sample_",seq_len(ncol(x)),sep="")
 
     if (!is.null(path))
         fil <- file.path(path,paste("correlation_pairs",output,sep="."))
@@ -480,8 +480,8 @@ diagplotPairs <- function(x,output="x11",altNames=NULL,path=NULL,...) {
             cex.axis=0.6,cex.lab=0.6)
 
         # Plot
-        for (i in 1:n) {
-            for (j in 1:n) {
+        for (i in seq_len(n)) {
+            for (j in seq_len(n)) {
                 if (i==j) { # Diagonal
                     plot(0:10,0:10,type="n",xaxt="n",yaxt="n",xlab="",ylab="")
                     text(c(3,5,3),c(9.5,5,1),c("X-Y plots",nams[i],"M-D plots"),
@@ -519,7 +519,7 @@ diagplotPairs <- function(x,output="x11",altNames=NULL,path=NULL,...) {
         nams <- colnames(x)
         plotNames <- character(n*(n-1)/2)
         counter <- 0
-        for (i in 1:(ncol(x)-1)) {
+        for (i in seq_len((ncol(x)-1))) {
             for (j in (i+1):ncol(x)) {
                 counter <- counter + 1
                 plotNames[counter] <- paste(nams[i],nams[j],sep="_vs_")
@@ -590,8 +590,8 @@ diagplotCor <- function(mat,type=c("heatmap","correlogram"),output="x11",
     else if (type=="heatmap") {
         n <- dim(corMat)[1]
         labs <- matrix(NA,n,n)
-        for (i in 1:n)
-            for (j in 1:n)
+        for (i in seq_len(n))
+            for (j in seq_len(n))
                 labs[i,j] <- sprintf("%.2f",corMat[i,j])
         if (n <= 5)
             notecex <- 1.2
@@ -644,9 +644,9 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
                             "one sample per condition! Skipping...")
                         next
                     }
-                    pairMatrix <- combn(1:length(sampleList[[n]]),2)
+                    pairMatrix <- combn(seq_len(length(sampleList[[n]])),2)
                     fil[[n]] <- vector("list",ncol(pairMatrix))
-                    for (i in 1:ncol(pairMatrix)) {
+                    for (i in seq_len(ncol(pairMatrix))) {
                         s1 <- sampleList[[n]][pairMatrix[1,i]]
                         s2 <- sampleList[[n]][pairMatrix[2,i]]
                         fil[[n]][[i]] <- file.path(path,paste(whichPlot,"_",
@@ -670,9 +670,9 @@ diagplotEdaseq <- function(x,sampleList,covar=NULL,isNorm=FALSE,
                             "one sample per condition! Skipping...")
                         next
                     }
-                    pairMatrix <- combn(1:length(sampleList[[n]]),2)
+                    pairMatrix <- combn(seq_len(length(sampleList[[n]])),2)
                     json[[n]] <- vector("list",ncol(pairMatrix))
-                    for (i in 1:ncol(pairMatrix)) {
+                    for (i in seq_len(ncol(pairMatrix))) {
                         s1 <- sampleList[[n]][pairMatrix[1,i]]
                         s2 <- sampleList[[n]][pairMatrix[2,i]]
                         xx <- rowMeans(log(x[,pairMatrix[,i]] + 0.1))
@@ -852,7 +852,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
             if (output!="json") {
                 fil <- character(length(samples))
                 names(fil) <- samples
-                for (i in 1:length(samples)) {
+                for (i in seq_len(length(samples))) {
                     fil[samples[i]] <- file.path(path,paste(whichPlot,"_",
                         samples[i],".",output,sep=""))
                     if (output %in% c("pdf","ps","x11"))
@@ -885,7 +885,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 #names(json) <- samples
                 #fil <- character(length(samples))
                 #names(fil) <- samples
-                #for (i in 1:length(samples)) {
+                #for (i in seq_len(length(samples))) {
                 #    fil[samples[i]] <- file.path(path,
                 #        paste(whichPlot,"_",samples[i],".json",sep=""))
                 #    disp("Writing ",fil[samples[i]])
@@ -901,7 +901,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                     factor=NULL)
                 fil <- character(length(samples))
                 names(fil) <- samples
-                for (i in 1:length(samples)) {
+                for (i in seq_len(length(samples))) {
                     fil[samples[i]] <- file.path(path,paste(whichPlot,"_",
                         samples[i],".",output,sep=""))
                     if (output %in% c("pdf","ps","x11"))
@@ -946,7 +946,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 jsonList[["sample"]] <- 
                     #countsBioToJSON(obj,by="sample",out="list")
                     countsBioToJSON(obj,by="sample")
-                #for (i in 1:length(samples)) {
+                #for (i in seq_len(length(samples))) {
                 #    fil[["sample"]][samples[i]] <- file.path(path,
                 #        paste(whichPlot,"_",samples[i],".json",sep=""))
                 #    disp("Writing ",fil[["sample"]][samples[i]])
@@ -958,7 +958,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                     countsBioToJSON(obj,by="biotype")
                 names(jsonList[["biotype"]]) <- bts
                 #names(json) <- samples
-                #for (i in 1:length(bts)) {
+                #for (i in seq_len(length(bts))) {
                 #    fil[["biotype"]][bts[i]] <- file.path(path,
                 #        paste(whichPlot,"_",bts[i],".json",sep=""))
                 #    disp("Writing ",fil[["biotype"]][bts[i]])
@@ -1003,7 +1003,7 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                     #bioSaturationToJSON(obj,by="sample",out="list")
                     bioSaturationToJSON(obj,by="sample")
                 names(jsonList[["sample"]]) <- samples
-                #for (i in 1:length(samples)) {
+                #for (i in seq_len(length(samples))) {
                 #    fil[["sample"]][samples[i]] <- file.path(path,
                 #        paste(whichPlot,"_",samples[i],".json",sep=""))
                 #    disp("Writing ",fil[["sample"]][samples[i]])
@@ -1254,7 +1254,8 @@ diagplotNoiseqSaturation <- function(x,o,tb,path=NULL) {
         graphics::legend(
             x="topleft",legend=colnames(ynab)[2:ncol(ynab)],xjust=1,yjust=0,
             box.lty=0,x.intersp=0.5,cex=0.6,text.font=2,
-            col=colspace[1:(ncol(ynab)-1)],pch=pchspace[1:(ncol(ynab)-1)]
+            col=colspace[seq_len(ncol(ynab)-1)],
+                pch=pchspace[seq_len(ncol(ynab)-1)]
         )
         plot.new()
         plot.window(xlim,ylimAb)
@@ -1272,7 +1273,7 @@ diagplotNoiseqSaturation <- function(x,o,tb,path=NULL) {
         graphics::legend(
             x="topleft",legend=c("global","protein_coding"),xjust=1,yjust=0,
             box.lty=0,lty=2,x.intersp=0.5,cex=0.7,text.font=2,
-            col=colspace[1:2],pch=pchspace[1:2]
+            col=colspace[1,2],pch=pchspace[1,2]
         )
         mtext(n,side=3,line=-1.5,outer=TRUE,font=2,cex=1.3)
         graphicsClose(o)
@@ -1314,8 +1315,8 @@ diagplotNoiseqSaturation <- function(x,o,tb,path=NULL) {
         graphics::legend(
             x="bottomright",legend=colnames(y),xjust=1,yjust=0,
             box.lty=0,x.intersp=0.5,
-            col=colspace[1:length(colnames(y))],
-            pch=pchspace[1:length(colnames(y))]
+            col=colspace[seq_len(length(colnames(y)))],
+            pch=pchspace[seq_len(length(colnames(y)))]
         )
     }
     graphicsClose(o)
@@ -1454,7 +1455,7 @@ diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
     up <- which(m>=fcut & p>=pcut)
     down <- which(m<=-fcut & p>=pcut)
     poor <- which(p<pcut & abs(m)<fcut)
-    neutral <- setdiff(1:length(a),
+    neutral <- setdiff(seq_len(length(a)),
         Reduce("union",list(upstat,downstat,up,down,poor)))
     
     if (output!="json") {
@@ -1579,7 +1580,7 @@ diagplotDeregulogram <- function(fmat,pmat,fcut=0.5,pcut=0.05,altNames=NULL,
         nones <- which(apply(pmat,1,function(x) any(x >= pcut)) &
             apply(fmat,1,function(x) all(abs(x) < fcut)))
         # gray40
-        neutral <- setdiff(1:nrow(fmat),
+        neutral <- setdiff(seq_len(nrow(fmat)),
             Reduce("union",list(upupstat,downdownstat,upup,downdown,updownstat,
                 downupstat,updown,downup,poor,nones)))
         
@@ -1802,12 +1803,12 @@ diagplotFiltered <- function(x,y,output="x11",path=NULL,...) {
     else {
         if (is(x,"GenomicRanges")) {
             x <- as.data.frame(x)
-            x <- x[,c(1:3,6,7,5,8,9)]
+            x <- x[,c(1,2,3,6,7,5,8,9)]
             colnames(x)[1] <- "chromosome"
         }
         if (is(y,"GenomicRanges")) {
             y <- as.data.frame(y)
-            y <- y[,c(1:3,6,7,5,8,9)]
+            y <- y[,c(1,2,3,6,7,5,8,9)]
             colnames(y)[1] <- "chromosome"
         }
         obj <- list(
@@ -1857,12 +1858,12 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     if(nalg>5) {
         warnwrap(paste("Cannot create a Venn diagram for more than 5 result ",
             "sets! ",nalg,"found, only the first 5 will be used..."))
-        algs <- algs[1:5]
+        algs <- algs[seq_len(5)]
         nalg <- 5
     }
     
     lenalias <- c("two","three","four","five")
-    aliases <- toupper(letters[1:nalg])
+    aliases <- toupper(letters[seq_len(nalg)])
     names(algs) <- aliases
     genes <- rownames(pmat)
     pairs <- makeVennPairs(algs)
@@ -1872,7 +1873,7 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     # Initially populate the results and counts lists so they can be used to 
     # create the rest of the intersections
     results <- vector("list",nalg+length(pairs)+length(morePairs))
-    names(results)[1:nalg] <- aliases
+    names(results)[seq_len(nalg)] <- aliases
     names(results)[(nalg+1):length(results)] <- c(names(pairs),names(morePairs))
     if (is.null(fcmat)) {
         for (a in aliases) {
@@ -2054,7 +2055,7 @@ diagplotVenn <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
             for (n in names(results))
                 resultsEx[[n]] <- results[[n]]
         }
-        maxLen <- max(sapply(resultsEx,length))
+        maxLen <- max(vapply(resultsEx,length,numeric(1)))
         for (n in names(resultsEx)) {
             if (length(resultsEx[[n]])<maxLen) {
                 dif <- maxLen - length(resultsEx[[n]])
@@ -2090,7 +2091,7 @@ makeJVennStatData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     if(nalg>6) {
         warnwrap(paste("Cannot create a JVenn diagram for more than 6 result ",
             "sets! ",nalg,"found, only the first 6 will be used..."))
-        algs <- algs[1:6]
+        algs <- algs[seq_len(6)]
         nalg <- 6
     }
     
@@ -2155,7 +2156,7 @@ makeJVennFoldData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     if(ncon>6) {
         warnwrap(paste("Cannot create a JVenn diagram for more than 6 result ",
             "sets! ",ncon,"found, only the first 6 will be used..."))
-        conts <- conts[1:6]
+        conts <- conts[seq_len(6)]
         ncon <- 6
     }
     
@@ -2203,7 +2204,7 @@ makeJVennFoldData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
 
 makeHighchartsVennSets <- function(algs,results) {
     lenalias <- c("two","three","four","five")
-    aliases <- toupper(letters[1:length(algs)])
+    aliases <- toupper(letters[seq_len(length(algs))])
     names(algs) <- aliases
     switch(lenalias[length(algs)-1],
         two = {
@@ -2228,7 +2229,7 @@ makeHighchartsVennSets <- function(algs,results) {
     sets <- lapply(preSets,function(x,a) {
         return(a[x])
     },algs)
-    return(lapply(1:length(sets),function(i,s,v) {
+    return(lapply(seq_len(length(sets)),function(i,s,v) {
         return(list(
             sets=unname(s[[i]]),
             value=unbox(unname(values[i]))
@@ -2636,7 +2637,7 @@ diagplotRoc <- function(truth,p,sig=0.05,x="fpr",y="tpr",output="x11",
     else if (is.matrix(p))
         pmat <- p
     if (is.null(colnames(pmat)))
-        colnames(pmat) <- paste("p",1:ncol(pmat),sep="_")
+        colnames(pmat) <- paste("p",seq_len(ncol(pmat)),sep="_")
 
     axName <- list(
         tpr="True Positive Rate",
@@ -2655,7 +2656,7 @@ diagplotRoc <- function(truth,p,sig=0.05,x="fpr",y="tpr",output="x11",
     colspaceUniverse <- c("red","blue","green","orange","darkgrey","green4",
         "black","pink","brown","magenta","yellowgreen","pink4","seagreen4",
         "darkcyan")
-    colspace <- colspaceUniverse[1:ncol(pmat)]
+    colspace <- colspaceUniverse[seq_len(ncol(pmat))]
     names(colspace) <- colnames(pmat)
 
     eps <- min(pmat[!is.na(pmat) & pmat>0])
@@ -2674,7 +2675,7 @@ diagplotRoc <- function(truth,p,sig=0.05,x="fpr",y="tpr",output="x11",
         TP <- FP <- FN <- TN <- FPR <- FNR <- TPR <- TNR <- SENS <- SPEC <-
             SCRX <- SCRY <- numeric(S)
         
-        for (i in 1:S) {
+        for (i in seq_len(S)) {
             TP[i] <- length(which(psample>cuts[i] & local.truth!=0))
             FP[i] <- length(which(psample>cuts[i] & local.truth==0))
             FN[i] <- length(which(psample<cuts[i] & local.truth!=0))
@@ -2763,8 +2764,8 @@ diagplotRoc <- function(truth,p,sig=0.05,x="fpr",y="tpr",output="x11",
                 col=colspace[n],...)
         grid()
         title(xlab=axName[[x]],ylab=axName[[y]])
-        aucText <- as.character(sapply(ROC,function(x)
-            round(x$AUC,digits=3)))
+        aucText <- as.character(vapply(ROC,function(x)
+            round(x$AUC,digits=3),numeric(1)))
         graphics::legend(x="bottomright",col=colspace,lty=1,cex=0.9,
             legend=paste(names(ROC)," (AUC = ",aucText,")",sep=""))
 
@@ -2788,7 +2789,7 @@ diagplotFtd <- function(truth,p,type="fpc",N=2000,output="x11",path=NULL,
     else if (is.numeric(p))
         pmat <- as.matrix(p)
     if (is.null(colnames(pmat)))
-        colnames(pmat) <- paste("p",1:ncol(pmat),sep="_")
+        colnames(pmat) <- paste("p",seq_len(ncol(pmat)),sep="_")
 
     yName <- list(
         tpc="Number of True Positives",
@@ -2803,7 +2804,7 @@ diagplotFtd <- function(truth,p,type="fpc",N=2000,output="x11",path=NULL,
     colspaceUniverse <- c("red","blue","green","orange","darkgrey","green4",
         "black","pink","brown","magenta","yellowgreen","pink4","seagreen4",
         "darkcyan")
-    colspace <- colspaceUniverse[1:ncol(pmat)]
+    colspace <- colspaceUniverse[seq_len(ncol(pmat))]
     names(colspace) <- colnames(pmat)
 
     switch(type,
@@ -2811,8 +2812,8 @@ diagplotFtd <- function(truth,p,type="fpc",N=2000,output="x11",path=NULL,
             for (n in colnames(pmat)) {
                 disp("Processing ",n)
                 z <- sort(pmat[,n])
-                for (i in 1:N) {
-                    nn <- length(intersect(names(z[1:i]),
+                for (i in seq_len(N)) {
+                    nn <- length(intersect(names(z[seq_len(i)]),
                         names(which(truth==0))))
                     if (nn==0)
                         ftdr.list[[n]][i] <- 1
@@ -2825,8 +2826,8 @@ diagplotFtd <- function(truth,p,type="fpc",N=2000,output="x11",path=NULL,
             for (n in colnames(pmat)) {
                 disp("Processing ",n)
                 z <- sort(pmat[,n])
-                for (i in 1:N)
-                    ftdr.list[[n]][i] <- length(intersect(names(z[1:i]),
+                for (i in seq_len(N))
+                    ftdr.list[[n]][i] <- length(intersect(names(z[seq_len(i)]),
                         names(which(truth!=0))))
             }
         },
@@ -2834,8 +2835,8 @@ diagplotFtd <- function(truth,p,type="fpc",N=2000,output="x11",path=NULL,
             for (n in colnames(pmat)) {
                 disp("Processing ",n)
                 z <- sort(pmat[,n],decreasing=TRUE)
-                for (i in 1:N) {
-                    nn <- length(intersect(names(z[1:i]),
+                for (i in seq_len(N)) {
+                    nn <- length(intersect(names(z[seq_len(i)]),
                         names(which(truth!=0))))
                     if (nn==0)
                         ftdr.list[[n]][i] <- 1
@@ -2848,8 +2849,8 @@ diagplotFtd <- function(truth,p,type="fpc",N=2000,output="x11",path=NULL,
             for (n in colnames(pmat)) {
                 disp("Processing ",n)
                 z <- sort(pmat[,n],decreasing=TRUE)
-                for (i in 1:N)
-                    ftdr.list[[n]][i] <- length(intersect(names(z[1:i]),
+                for (i in seq_len(N))
+                    ftdr.list[[n]][i] <- length(intersect(names(z[seq_len(i)]),
                         names(which(truth==0))))
             }
         }    
@@ -2949,7 +2950,7 @@ diagplotAvgFtd <- function(ftdrObj,output="x11",path=NULL,draw=TRUE,...) {
     colspaceUniverse <- c("red","blue","green","orange","darkgrey","green4",
         "black","pink","brown","magenta","yellowgreen","pink4","seagreen4",
         "darkcyan")
-    colspace <- colspaceUniverse[1:length(stats)]
+    colspace <- colspaceUniverse[seq_len(length(stats))]
     names(colspace) <- stats
     
     for (s in stats) {
@@ -3113,9 +3114,9 @@ cddat <- function (input) {
     }
     datos <- datos[which(rowSums(datos) > 0),]
     nu <- nrow(datos) # number of detected features
-    qq <- 1:nu
+    qq <- seq_len(nu)
     data2plot = data.frame("%features" = 100*qq/nu)
-    for (i in 1:ncol(datos)) {
+    for (i in seq_len(ncol(datos))) {
         acumu <- 100*cumsum(sort(datos[,i],decreasing=TRUE))/sum(datos[,i])
         data2plot = cbind(data2plot, acumu)   
     }
@@ -3123,7 +3124,7 @@ cddat <- function (input) {
   
     # Diagnostic test
     KSpval = mostres = NULL
-    for (i in 1:(ncol(datos)-1)) {
+    for (i in seq_len(ncol(datos)-1)) {
         for (j in (i+1):ncol(datos)) {      
             mostres = c(mostres, paste(colnames(datos)[c(i,j)], collapse="_"))
             KSpval = c(KSpval, suppressWarnings(ks.test(datos[,i], datos[,j],
@@ -3140,7 +3141,7 @@ cddat <- function (input) {
 
 cdplot <- function (dat,samples=NULL,...) {
     dat = dat$data2plot
-    if (is.null(samples)) samples <- 1:(ncol(dat)-1)
+    if (is.null(samples)) samples <- seq_len(ncol(dat)-1)
     if (is.numeric(samples)) samples = colnames(dat)[samples+1]
     colspace <- c("red","blue","yellowgreen","orange","aquamarine2","pink2",
         "seagreen4","brown","purple","chocolate","gray10","gray30","darkblue",
@@ -3156,8 +3157,8 @@ cdplot <- function (dat,samples=NULL,...) {
         lines(dat[,1],dat[,samples[i]],col=miscolores[i])
 
     graphics::legend("bottom",legend=samples,
-        text.col=miscolores[1:length(samples)],bty="n",lty=1,lwd=2,
-        col=miscolores[1:length(samples)])
+        text.col=miscolores[seq_len(length(samples))],bty="n",lty=1,lwd=2,
+        col=miscolores[seq_len(length(samples))])
 }
 
 deplot <- function (output,q=NULL,logScale=TRUE,join=FALSE,...) { 

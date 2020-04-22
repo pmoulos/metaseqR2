@@ -30,7 +30,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
 .createStrandedSignalTracks <- function(targets,org,normTo,urlBase,
     exportPath,hubInfo,overwrite,rc=NULL) {
     # First check if bigWig files already exist
-    trackDbPath <- file.path(exportPath,metaseqR2:::getUcscOrganism(org))
+    trackDbPath <- file.path(exportPath,getUcscOrganism(org))
     posCheck <- file.path(trackDbPath,
         paste0(unlist(targets$samples,use.names=FALSE),"_plus.bigWig"))
     negCheck <- file.path(trackDbPath,
@@ -56,14 +56,14 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     bams <- unlist(targets$files,use.names=FALSE)
     
     # Get seqinfo form first BAM
-    preSf <- metaseqR2:::.chromInfoFromBAM(bams[1])
-    vchrs <- metaseqR2:::getValidChrs(org)
+    preSf <- .chromInfoFromBAM(bams[1])
+    vchrs <- getValidChrs(org)
     preSf <- preSf[intersect(vchrs,rownames(preSf)),,drop=FALSE]
-    sf <- metaseqR2:::.chromInfoToSeqInfoDf(preSf,o=org,asSeqinfo=TRUE)
+    sf <- .chromInfoToSeqInfoDf(preSf,o=org,asSeqinfo=TRUE)
     
     # Get coverage and assign seqinfo for bigwig
     message("Reading positive strand reads from BAM files to Rle...")
-    pbg <- metaseqR2:::cmclapply(bams,function(b,v,s) {
+    pbg <- cmclapply(bams,function(b,v,s) {
         message("  reading ",b)
         reads <- trim(unlist(grglist(readGAlignments(file=b,
             param=ScanBamParam(scanBamFlag(isMinusStrand=FALSE))))))
@@ -78,7 +78,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     names(pbg) <- names(posCol)
     
     message("Reading negative strand reads from BAM files to Rle...")
-    nbg <- metaseqR2:::cmclapply(bams,function(b,v,s) {
+    nbg <- cmclapply(bams,function(b,v,s) {
         message("  reading ",b)
         reads <- trim(unlist(grglist(readGAlignments(file=b,
             param=ScanBamParam(scanBamFlag(isMinusStrand=TRUE))))))
@@ -95,8 +95,8 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     names(nbg) <- names(negCol)
     
     # Calculate normalization factors
-    rawPosSums <- sapply(pbg,function(x) sum(x$score))
-    rawNegSums <- sapply(nbg,function(x) sum(x$score))
+    rawPosSums <- vapply(pbg,function(x) sum(x$score),numeric(1))
+    rawNegSums <- vapply(nbg,function(x) sum(x$score),numeric(1))
     
     rat <- rawPosSums/-rawNegSums
     posNormTo <- rat*0.5*normTo
@@ -110,14 +110,14 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     
     # Normalize (should be quick)
     message("Normalizing positive strand...")
-    npbg <- metaseqR2:::cmclapply(names(pbg),function(n,B,N) {
+    npbg <- cmclapply(names(pbg),function(n,B,N) {
         B[[n]]$score <- B[[n]]$score*N[n]
         return(B[[n]])
     },pbg,posNormFacs)
     names(npbg) <- names(pbg)
     
     message("Normalizing negative strand...")
-    nnbg <- metaseqR2:::cmclapply(names(nbg),function(n,B,N) {
+    nnbg <- cmclapply(names(nbg),function(n,B,N) {
         B[[n]]$score <- B[[n]]$score*N[n]
         return(B[[n]])
     },nbg,negNormFacs)
@@ -125,7 +125,6 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     
     # Start creating the hub
     # First the dir structure
-    #trackDbPath <- file.path(exportPath,metaseqR2:::getUcscOrganism(org))
     if (!dir.exists(trackDbPath))
         dir.create(trackDbPath,recursive=TRUE)
     
@@ -198,14 +197,14 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     bams <- unlist(targets$files,use.names=FALSE)
     
     # Get seqinfo form first BAM
-    preSf <- metaseqR2:::.chromInfoFromBAM(bams[1])
-    vchrs <- metaseqR2:::getValidChrs(org)
+    preSf <- .chromInfoFromBAM(bams[1])
+    vchrs <- getValidChrs(org)
     preSf <- preSf[intersect(vchrs,rownames(preSf)),,drop=FALSE]
-    sf <- metaseqR2:::.chromInfoToSeqInfoDf(preSf,o=org,asSeqinfo=TRUE)
+    sf <- .chromInfoToSeqInfoDf(preSf,o=org,asSeqinfo=TRUE)
     
     # Get standed coverage and assign seqinfo for bigwig
     message("Reading BAM files to Rle...")
-    bg <- metaseqR2:::cmclapply(bams,function(b,v,s) {
+    bg <- cmclapply(bams,function(b,v,s) {
         message("  reading ",b)
         reads <- trim(unlist(grglist(readGAlignments(file=b))))
         cov <- coverage(reads)
@@ -219,13 +218,13 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     names(bg) <- names(posCol)
     
     # Calculate normalization factors
-    rawSums <- sapply(bg,function(x) sum(x$score))
+    rawSums <- vapply(bg,function(x) sum(x$score),numeric(1))
     normFacs <- normTo/rawSums
     names(normFacs) <- names(bg)
     
     # Normalize (should be quick)
     message("Normalizing...")
-    nbg <- metaseqR2:::cmclapply(names(bg),function(n,B,N) {
+    nbg <- cmclapply(names(bg),function(n,B,N) {
         B[[n]]$score <- B[[n]]$score*N[n]
         return(B[[n]])
     },bg,normFacs)
@@ -242,7 +241,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     message("Creating track lines...")
     opts <- .makeUnstrandedTrackOpts(posCol)
     trackLines <- character(length(bwFiles))
-    for (i in 1:length(bwFiles)) {
+    for (i in seq_along(bwFiles)) {
         opts[[i]]$name <- sub("^([^.]*).*","\\1",basename(bwFiles[i]))
         opts[[i]]$name <- gsub(" ","_",opts[[i]]$name)
         opts[[i]]$bigDataUrl <- paste0(urlBase,"/",basename(bwFiles[i]))
@@ -259,7 +258,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
 
 .makeUnstrandedTrackOpts <- function(cols) {
     opts <- vector("list",length(cols))
-    for (i in 1:length(cols)) {
+    for (i in seq_len(length(cols))) {
         opts[[i]]$type <- "bigWig"
         opts[[i]]$color <- paste(t(col2rgb(cols[i])),collapse=",")
         opts[[i]]$visibility <- "full"
@@ -271,7 +270,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
 .makeTrackhubMultiwig <- function(tnames,pfiles,nfiles,pcols,ncols,
     url,org) {
     opts <- vector("list",length(pcols))
-    for (i in 1:length(pfiles)) {
+    for (i in seq_along(pfiles)) {
         opts[[i]]$track <- paste0(tnames[i],"_stranded")
         opts[[i]]$type <- "bigWig"
         opts[[i]]$container <- "multiWig"
@@ -289,7 +288,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
                 parent=paste0(tnames[i],"_stranded"),
                 type="bigWig",
                 color=paste(t(col2rgb(pcols[i])),collapse=","),
-                bigDataUrl=paste0(url,"/",metaseqR2:::getUcscOrganism(org),"/",
+                bigDataUrl=paste0(url,"/",getUcscOrganism(org),"/",
                     paste0(tnames[i],"_plus.bigWig"))
             ),
             negative=list(
@@ -297,7 +296,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
                 parent=paste0(tnames[i],"_stranded"),
                 type="bigWig",
                 color=paste(t(col2rgb(ncols[i])),collapse=","),
-                bigDataUrl=paste0(url,"/",metaseqR2:::getUcscOrganism(org),"/",
+                bigDataUrl=paste0(url,"/",getUcscOrganism(org),"/",
                     paste0(tnames[i],"_minus.bigWig"))
             )
         )
@@ -307,7 +306,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
 
 .makeTrackhubGenomesFile <- function(org) {
     return(list(
-        genome=metaseqR2:::getUcscOrganism(org),
+        genome=getUcscOrganism(org),
         trackDb=paste0(org,"/trackDb.txt")
     ))
 }

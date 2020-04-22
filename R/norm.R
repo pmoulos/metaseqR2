@@ -9,7 +9,7 @@ normalizeEdaseq <- function(geneCounts,sampleList,normArgs=NULL,
         if (!is.null(attr(geneData,"geneLength")))
             gl <- attr(geneData,"geneLength")
         geneData <- as.data.frame(geneData)
-        geneData <- geneData[,c(1:3,6,7,5,8,9)]
+        geneData <- geneData[,c(1,2,3,6,7,5,8,9)]
         if (!is.null(gl))
             attr(geneData,"geneLength") <- gl
     }
@@ -136,7 +136,7 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
             else
                 gl <- width(geneData)
             geneData <- as.data.frame(geneData)
-            geneData <- geneData[,c(1:3,6,7,5,8,9)]
+            geneData <- geneData[,c(1,2,3,6,7,5,8,9)]
             if (!is.null(gl))
                 attr(geneData,"geneLength") <- gl
         }
@@ -163,7 +163,7 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
             data=geneCounts,
             length=geneLength,
             gc=gcContent,
-            chromosome=geneData[,1:3],
+            chromosome=geneData[,c(1,2,3)],
             factors=data.frame(class=classes),
             biotype=biotype
         )
@@ -197,7 +197,7 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
                 data=M,
                 length=geneLength,
                 gc=gcContent,
-                chromosome=geneData[,1:3],
+                chromosome=geneData[,c(1,2,3)],
                 factors=data.frame(class=classes),
                 biotype=biotype
             )) # Class: CD
@@ -233,7 +233,7 @@ normalizeNbpseq <- function(geneCounts,sampleList,normArgs=NULL,
     else if (output=="matrix") {
         #if (normArgs$main.method=="nbpseq") {
         #    normCounts <- matrix(0,nrow(geneCounts),ncol(geneCounts))
-        #    for (i in 1:ncol(geneCounts))
+        #    for (i in seq_len(ncol(geneCounts)))
         #        normCounts[,i] <- norm.factors[i]*geneCounts[,i]
         #}
         #else if (normArgs$main.method=="nbsmyth") 
@@ -274,11 +274,9 @@ normalizeDss <- function(geneCounts,sampleList,normArgs=NULL,
     # newSeqCountSet takes only matrices as gene.counts
     if (is(geneCounts,"data.frame")) {
         geneCountsTmp <- geneCounts
-        allCols <- 1:ncol(geneCountsTmp)
         samCols <- match(unlist(sampleList),colnames(geneCountsTmp))
         samCols <- samCols[which(!is.na(samCols))]
-        geneCountsTmp <- geneCounts[,samCols]
-        geneCountsTmp= as.matrix(geneCountsTmp)
+        geneCountsTmp <- as.matrix(geneCounts[,samCols,drop=FALSE])
     }
     if (is(geneCounts,"matrix"))
         geneCountsTmp <- geneCounts

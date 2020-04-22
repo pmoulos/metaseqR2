@@ -215,7 +215,7 @@ read2count <- function(targets,annotation,fileType=targets$type,
         },sampleFiles,paired,stranded,rc=rc)
         disp("  Finished counting!")
     }
-    for (i in 1:length(retVal)) {
+    for (i in seq_along(retVal)) {
         counts[,i] <- retVal[[i]]$counts
         libsize[[i]] <- retVal[[i]]$libsize
     }
@@ -512,7 +512,7 @@ readTargets <- function(input,path=NULL) {
         merged <- reduce(tmp)
         n <- length(merged)
         meta <- DataFrame(
-            exon_id=paste(x,"MEX",1:n,sep="_"),
+            exon_id=paste(x,"MEX",seq_len(n),sep="_"),
             gene_id=rep(x,n)
         )
         if (!is.null(g))
@@ -548,7 +548,7 @@ readTargets <- function(input,path=NULL) {
         merged <- reduce(tmp)
         n <- length(merged)
         meta <- DataFrame(
-            transcript_id=paste(x,"MET",1:n,sep="_"),
+            transcript_id=paste(x,"MET",seq_len(n),sep="_"),
             gene_id=rep(x,n)
         )
         if (!is.null(g))
@@ -580,7 +580,7 @@ readTargets <- function(input,path=NULL) {
         merged <- reduce(tmp)
         n <- length(merged)
         meta <- DataFrame(
-            transcript_id=paste(x,"MEU",1:n,sep="_"),
+            transcript_id=paste(x,"MEU",seq_len(n),sep="_"),
             gene_id=rep(x,n)
         )
         if (!is.null(g))
@@ -863,7 +863,7 @@ readTargets <- function(input,path=NULL) {
 #            return(list(counts=counts,libsize=libsize))
 #        },sampleFiles,paired,stranded,rc=rc)
 #    }
-#    for (i in 1:length(retVal)) {
+#    for (i in seq_along(retVal)) {
 #        counts[,i] <- retVal[[i]]$counts
 #        libsize[[i]] <- retVal[[i]]$libsize
 #    }

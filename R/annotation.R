@@ -151,7 +151,7 @@ buildAnnotationDatabase <- function(organisms,sources,
                     #ann <- as.data.frame(annGr)
                     annList <- reduceTranscripts(annGr)
                     ann <- as.data.frame(annList$model)
-                    ann <- ann[,c(1:3,6,7,5,8,9)]
+                    ann <- ann[,c(1,2,3,6,7,5,8,9)]
                     names(ann)[1] <- "chromosome"
                     ann$chromosome <- as.character(ann$chromosome)
                     ann <- ann[order(ann$chromosome,ann$start),]
@@ -212,7 +212,7 @@ buildAnnotationDatabase <- function(organisms,sources,
                     #ann <- as.data.frame(annGr)
                     annList <- reduceTranscripts(annGr)
                     ann <- as.data.frame(annList$model)
-                    ann <- ann[,c(1:3,6,7,5,8,9)]
+                    ann <- ann[,c(1,2,3,6,7,5,8,9)]
                     names(ann)[1] <- "chromosome"
                     ann$chromosome <- as.character(ann$chromosome)
                     ann <- ann[order(ann$chromosome,ann$start),]
@@ -265,7 +265,7 @@ buildAnnotationDatabase <- function(organisms,sources,
                     #ann <- as.data.frame(annGr)
                     annList <- reduceTranscriptsUtr(annGr)
                     ann <- as.data.frame(annList$model)
-                    ann <- ann[,c(1:3,6,7,5,8,9)]
+                    ann <- ann[,c(1,2,3,6,7,5,8,9)]
                     names(ann)[1] <- "chromosome"
                     ann$chromosome <- as.character(ann$chromosome)
                     ann <- ann[order(ann$chromosome,ann$start),]
@@ -338,7 +338,7 @@ buildAnnotationDatabase <- function(organisms,sources,
                     message("Merging exons for ",o," from ",s," version ",v)
                     annList <- reduceExons(annGr)
                     ann <- as.data.frame(annList$model)
-                    ann <- ann[,c(1:3,6,7,5,8,9)]
+                    ann <- ann[,c(1,2,3,6,7,5,8,9)]
                     names(ann)[1] <- "chromosome"
                     ann$chromosome <- as.character(ann$chromosome)
                     ann <- ann[order(ann$chromosome,ann$start),]
@@ -713,7 +713,7 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
             if (asdf) {
                 a <- attr(ann,"activeLength")
                 ann <- as.data.frame(unname(ann))
-                ann <- ann[,c(1:3,6,7,5,8,9)]
+                ann <- ann[,c(1,2,3,6,7,5,8,9)]
                 names(ann)[1] <- "chromosome"
                 if (!is.null(a))
                     attr(ann,"activeLength") <- a
@@ -735,7 +735,7 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
             if (asdf) {
                 a <- attr(ann,"activeLength")
                 ann <- as.data.frame(unname(ann))
-                ann <- ann[,c(1:3,6,7,5,8,9)]
+                ann <- ann[,c(1,2,3,6,7,5,8,9)]
                 names(ann)[1] <- "chromosome"
                 if (!is.null(a))
                     attr(ann,"activeLength") <- a
@@ -1159,7 +1159,7 @@ getUserAnnotations <- function(obj=NULL) {
 }
 
 correctTranscripts <- function(ann) {
-    rownames(ann) <- paste("T",1:nrow(ann),sep="_")
+    rownames(ann) <- paste("T",seq_len(nrow(ann)),sep="_")
     len <- ann[,3] - ann[,2]
     len <- len[-which(is.na(len))]
     len[len==0] <- 1
@@ -1219,7 +1219,7 @@ reduceTranscripts <- function(gr) {
     
     # Start the reconstruction by getting new lengths and create names
     lens <- lengths(grList)
-    inds <- unlist(lapply(lens,function(j) return(1:j)),use.names=FALSE)
+    inds <- unlist(lapply(lens,function(j) return(seq_len(j))),use.names=FALSE)
     grNew <- unname(unlist(grList))
     gene_id <- rep(gene,lens)
     transcript_id <- paste(gene_id,"MET",inds,sep="_")
@@ -1237,7 +1237,7 @@ reduceTranscripts <- function(gr) {
     # again per gene_id in a temp variable
     tmp <- split(grNew,grNew$gene_id)
     tmp <- tmp[gene]
-    len <- sapply(width(tmp),sum)
+    len <- vapply(width(tmp),sum,integer(1))
     
     #return(grNew)
     return(list(model=grNew,length=len))
@@ -1276,7 +1276,7 @@ reduceTranscriptsUtr <- function(gr) {
     
     # Start the reconstruction by getting new lengths and create names
     lens <- lengths(grList)
-    inds <- unlist(lapply(lens,function(j) return(1:j)),use.names=FALSE)
+    inds <- unlist(lapply(lens,function(j) return(seq_len(j))),use.names=FALSE)
     grNew <- unname(unlist(grList))
     transcript_id <- paste(rep(trans,lens),"MEU",inds,sep="_")
     gene_id <- rep(gi,lens)
@@ -1295,7 +1295,7 @@ reduceTranscriptsUtr <- function(gr) {
     # again per gene_id in a temp variable
     tmp <- split(grNew,grNew$gene_id)
     tmp <- tmp[trans]
-    len <- sapply(width(tmp),sum)
+    len <- vapply(width(tmp),sum,integer(1))
     
     #return(grNew)
     return(list(model=grNew,length=len))
@@ -1336,7 +1336,7 @@ reduceExons <- function(gr) {
     
     # Start the reconstruction by getting new lengths and create names
     lens <- lengths(grList)
-    inds <- unlist(lapply(lens,function(j) return(1:j)),use.names=FALSE)
+    inds <- unlist(lapply(lens,function(j) return(seq_len(j))),use.names=FALSE)
     grNew <- unname(unlist(grList))
     gene_id <- rep(gene,lens)
     exon_id <- paste(gene_id,"MEX",inds,sep="_")
@@ -1354,7 +1354,7 @@ reduceExons <- function(gr) {
     # again per gene_id in a temp variable
     tmp <- split(grNew,grNew$gene_id)
     tmp <- tmp[gene]
-    len <- sapply(width(tmp),sum)
+    len <- vapply(width(tmp),sum,integer(1))
     
     return(list(model=grNew,length=len))
 }
@@ -1580,11 +1580,11 @@ getUcscAnnotation <- function(org,type,refdb="ucsc",chunkSize=500,rc=NULL) {
             d <- which(duplicated(ann$transcript_id))
         }
         rownames(ann) <- ann$transcript_id
-        ann <- ann[,c(1:4,8,5:7)]
+        ann <- ann[,c(1,2,3,4,8,5:7)]
     }
     else if (type=="exon") {
         rawAnn <- rawAnn[grep(chrsExp,rawAnn$chromosome,perl=TRUE),]
-        exList <- cmclapply(as.list(1:nrow(rawAnn)),function(x,d) {
+        exList <- cmclapply(as.list(seq_len(nrow(rawAnn))),function(x,d) {
             r <- d[x,,drop=FALSE]
             starts <- as.numeric(strsplit(r[,"start"],",")[[1]])
             ends <- as.numeric(strsplit(r[,"end"],",")[[1]])
@@ -1592,7 +1592,7 @@ getUcscAnnotation <- function(org,type,refdb="ucsc",chunkSize=500,rc=NULL) {
             ret <- data.frame(
                 rep(r[,"chromosome"],nexons),
                 starts,ends,
-                paste(r[,"exon_id"],"_e",1:nexons,sep=""),
+                paste(r[,"exon_id"],"_e",seq_len(nexons),sep=""),
                 rep(r[,"strand"],nexons),
                 rep(r[,"gene_id"],nexons),
                 rep(r[,"gene_name"],nexons),
@@ -1609,11 +1609,11 @@ getUcscAnnotation <- function(org,type,refdb="ucsc",chunkSize=500,rc=NULL) {
         mo <- N%%chunkSize
         if (mo == 0) {
             fl <- N/chunkSize
-            fac <- factor(rep(1:fl,each=chunkSize))
+            fac <- factor(rep(seq_len(fl),each=chunkSize))
         }
         else {
             fl <- (N-mo)/chunkSize
-            fac <- factor(c(rep(1:fl,each=chunkSize),rep(fl,mo)))
+            fac <- factor(c(rep(seq_len(fl),each=chunkSize),rep(fl,mo)))
         }
         exChunkedList <- split(exList,fac)
         # Merge the chunks
@@ -1653,12 +1653,12 @@ getUcscAnnotation <- function(org,type,refdb="ucsc",chunkSize=500,rc=NULL) {
         
         preAnn <- getUcscUtr(org,refdb)
         preAnn <- as.data.frame(preAnn)
-        preAnn <- preAnn[,c(1:3,6,7,5,8,9)]
+        preAnn <- preAnn[,c(1,2,3,6,7,5,8,9)]
         preAnn <- preAnn[grep(chrsExp,preAnn$seqnames,perl=TRUE),]
         names(preAnn) <- c("chromosome","start","end","transcript_id","gene_id",
             "strand","gene_name","biotype")
         # preAnn now has exon names as rownames... OK...
-        #rownames(preAnn) <- paste("T",1:nrow(preAnn),sep="_")
+        #rownames(preAnn) <- paste("T",seq_len(nrow(preAnn)),sep="_")
         ann <- preAnn
     }
     
@@ -1777,10 +1777,10 @@ getGcContent <- function(ann,org) {
 }
 
 getSeqInfo <- function(org,asSeqinfo=FALSE) {
-    sf <- tryCatch(GenomeInfoDb::fetchExtendedChromInfoFromUCSC(
-        getUcscOrganism(org)),error=function(e) {
-            message("GenomeInfoDb::fetchExtendedChromInfoFromUCSC ",
-                "failed with the following error: ")
+    sf <- tryCatch(.chromInfoWrapperGID(getUcscOrganism(org)),
+        error=function(e) {
+            message("GenomeInfoDb chrom info fetch mechanism failed with the ",
+                "following error: ")
             message(e)
             message("")
             message("Trying a direct download...")
@@ -1919,7 +1919,7 @@ getChromInfo <- function(org,
         file.path(tempdir(),"chromInfo.txt.gz"),quiet=TRUE)
     chromInfo <- read.delim(file.path(tempdir(),"chromInfo.txt.gz"),
         header=FALSE)
-    chromInfo <- chromInfo[,1:2]
+    chromInfo <- chromInfo[,1,2]
     chromInfo[,1] <- as.character(chromInfo[,1])
     chromInfo$V3 <- rep(FALSE,nrow(chromInfo))
     m <- grep("M",chromInfo[,1])
@@ -2613,7 +2613,7 @@ importCustomGtf <- function(gtfFile,level=c("gene","transcript","exon"),
     desiredColumns <- c("type","gene_id","transcript_id","exon_id",
         "gene_name","gene_biotype")
     gr <- import(gtfFile,format="gtf",colnames=desiredColumns,
-        feature.type=GenomicFeatures:::GFF_FEATURE_TYPES)
+        feature.type=.GFF_FEATURE_TYPES)
     grdf <- as.data.frame(gr)
     grdf <- grdf[grdf$type=="exon",]
 
@@ -2672,7 +2672,7 @@ parseCustomGtf <- function(gtfFile) {
     desiredColumns <- c("type","gene_id","transcript_id","exon_id",
         "gene_name","gene_biotype")
     gr <- import(gtfFile,format="gtf",colnames=desiredColumns,
-        feature.type=GenomicFeatures:::GFF_FEATURE_TYPES)
+        feature.type=.GFF_FEATURE_TYPES)
     grdf <- as.data.frame(gr)
     grdf <- grdf[grdf$type=="exon",]
 
@@ -2770,7 +2770,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     gr$biotype <- smap$biotype
     gr$gc_content = rep(50,length(gr))
     ann <- as.data.frame(gr)
-    ann <- ann[,c(1:3,6,9,5,7,8)]
+    ann <- ann[,c(1,2,3,6,9,5,7,8)]
     names(ann)[1] <- "chromosome"
     ann$chromosome <- as.character(ann$chromosome)
     ann <- ann[order(ann$chromosome,ann$start),]
@@ -2802,7 +2802,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     gr$gene_name <- smap$gene_name
     gr$biotype <- smap$biotype
     ann <- as.data.frame(unname(gr))
-    ann <- ann[,c(1:3,6,8,5,7,9)]
+    ann <- ann[,c(1,2,3,6,8,5,7,9)]
     names(ann)[c(1,4)] <- c("chromosome","exon_id")
     ann$chromosome <- as.character(ann$chromosome)
     ann <- ann[order(ann$chromosome,ann$start),]
@@ -2834,7 +2834,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     gr$gene_name <- smap$gene_name
     gr$biotype <- smap$biotype
     ann <- as.data.frame(unname(gr))
-    ann <- ann[,c(1:3,6,8,5,7,9)]
+    ann <- ann[,c(1,2,3,6,8,5,7,9)]
     names(ann)[c(1,4)] <- c("chromosome","exon_id")
     ann$chromosome <- as.character(ann$chromosome)
     ann <- ann[order(ann$chromosome,ann$start),]
@@ -2849,7 +2849,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     
     if (asdf) {
         eann <- as.data.frame(sexon)
-        eann <- eann[,c(1:3,6,8,5,7,9)]
+        eann <- eann[,c(1,2,3,6,8,5,7,9)]
         names(eann)[c(1,4)] <- c("chromosome","exon_id")
         attr(eann,"activeLength") <- activeLength
         return(eann)
@@ -2899,7 +2899,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     utr$gene_id <- smap$gene_id
     utr$gene_name <- smap$gene_name
     utr$biotype <- smap$biotype
-    ann <- utr[,c(1:4,8,6,9,10)]
+    ann <- utr[,c(1,2,3,4,8,6,9,10)]
     names(ann)[1] <- "chromosome"
     ann$chromosome <- as.character(ann$chromosome)
     ann <- ann[order(ann$chromosome,ann$start),]
@@ -2950,7 +2950,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     utr$gene_id <- smap$gene_id
     utr$gene_name <- smap$gene_name
     utr$biotype <- smap$biotype
-    ann <- utr[,c(1:4,8,6,9,10)]
+    ann <- utr[,c(1,2,3,4,8,6,9,10)]
     names(ann)[1] <- "chromosome"
     ann$chromosome <- as.character(ann$chromosome)
     ann <- ann[order(ann$chromosome,ann$start),]
@@ -2965,7 +2965,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     
     if (asdf) {
         sann <- as.data.frame(s3utr)
-        sann <- sann[,c(1:3,6,8,5,7,9)]
+        sann <- sann[,c(1,2,3,6,8,5,7,9)]
         names(sann)[c(1,4)] <- c("chromosome","gene_id")
         attr(sann,"activeLength") <- activeLength
         return(sann)
@@ -2995,7 +2995,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     gr$gene_name <- smap$gene_name
     gr$biotype <- smap$biotype
     ann <- as.data.frame(gr)
-    ann <- ann[,c(1:3,6,7,5,8,9)]
+    ann <- ann[,c(1,2,3,6,7,5,8,9)]
     names(ann)[c(1,4)] <- c("chromosome","transcript_id")
     ann$chromosome <- as.character(ann$chromosome)
     ann <- ann[order(ann$chromosome,ann$start),]
@@ -3027,7 +3027,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     gr$gene_name <- smap$gene_name
     gr$biotype <- smap$biotype
     ann <- as.data.frame(gr)
-    ann <- ann[,c(1:3,6,7,5,8,9)]
+    ann <- ann[,c(1,2,3,6,7,5,8,9)]
     names(ann)[c(1,4)] <- c("chromosome","transcript_id")
     ann$chromosome <- as.character(ann$chromosome)
     ann <- ann[order(ann$chromosome,ann$start),]
@@ -3042,7 +3042,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     
     if (asdf) {
         sann <- as.data.frame(stranscript)
-        sann <- sann[,c(1:3,6,8,5,7,9)]
+        sann <- sann[,c(1,2,3,6,8,5,7,9)]
         names(sann)[c(1,4)] <- c("chromosome","transcript_id")
         attr(sann,"activeLength") <- activeLength
         return(sann)
@@ -3098,8 +3098,8 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     utr$gene_id <- smap$gene_id
     utr$gene_name <- smap$gene_name
     utr$biotype <- smap$biotype
-    #ann <- utr[,c(1:4,7,6,8,9)]
-    ann <- utr[,c(1:4,8,6,9,10)]
+    #ann <- utr[,c(1,2,3,4,7,6,8,9)]
+    ann <- utr[,c(1,2,3,4,8,6,9,10)]
     names(ann)[1] <- "chromosome"
     ann$chromosome <- as.character(ann$chromosome)
     ann <- ann[order(ann$chromosome,ann$start),]
@@ -3150,8 +3150,8 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     utr$gene_id <- smap$gene_id
     utr$gene_name <- smap$gene_name
     utr$biotype <- smap$biotype
-    #ann <- utr[,c(1:4,7,6,8,9)]
-    ann <- utr[,c(1:4,8,6,9,10)]
+    #ann <- utr[,c(1,2,3,4,7,6,8,9)]
+    ann <- utr[,c(1,2,3,4,8,6,9,10)]
     names(ann)[1] <- "chromosome"
     ann$chromosome <- as.character(ann$chromosome)
     ann <- ann[order(ann$chromosome,ann$start),]
@@ -3169,7 +3169,7 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     
     if (asdf) {
         sann <- as.data.frame(s3utrTranscript)
-        sann <- sann[,c(1:3,6,8,5,7,9)]
+        sann <- sann[,c(1,2,3,6,8,5,7,9)]
         names(sann)[c(1,4)] <- c("chromosome","transcript_id")
         attr(sann,"activeLength") <- activeLength
         return(sann)
@@ -3199,8 +3199,8 @@ annotationFromCustomGtf <- function(parsed,level=c("gene","transcript","exon"),
     gr$gene_name <- smap$gene_name
     gr$biotype <- smap$biotype
     ann <- as.data.frame(unname(gr))
-    #ann <- ann[,c(1:3,6,8,5,7,9)]
-    ann <- ann[,c(1:3,6,7,5,8,9)]
+    #ann <- ann[,c(1,2,3,6,8,5,7,9)]
+    ann <- ann[,c(1,2,3,6,7,5,8,9)]
     names(ann)[c(1,4)] <- c("chromosome","exon_id")
     ann$chromosome <- as.character(ann$chromosome)
     ord <- order(ann$chromosome,ann$start)
@@ -3288,141 +3288,9 @@ initDatabase <- function(db) {
         return(data.frame(chromosome=rownames(ci),length=as.integer(ci[,1])))
 }
 
-.myGetBM <- function(attributes,filters="",values="",mart,curl=NULL,
-    checkFilters=TRUE,verbose=FALSE,uniqueRows=TRUE,bmHeader=FALSE,quote="\"") {
-    biomaRt:::martCheck(mart)
-    if(missing(attributes))
-        stop("Argument 'attributes' must be specified.")
-    
-    if (is.list(filters) && !missing(values))
-        warning("Argument 'values' should not be used when argument 'filters'",
-            "is a list and will be ignored.")
-    if (is.list(filters) && is.null(names(filters)))
-        stop("Argument 'filters' must be a named list when sent as a list.")
-    if (!is.list(filters) && all(filters != "") && missing(values))
-        stop("Argument 'values' must be specified.")
-    if (length(filters) > 0 && length(values) == 0)
-        stop("Values argument contains no data.")
-    
-    if (is.list(filters)) {
-        values <- filters
-        filters <- names(filters)
-    }
-    
-    if (!is(uniqueRows,"logical"))
-        stop("Argument 'uniqueRows' must be a logical value, so either TRUE ",
-            "or FALSE")
-    
-    # force the query to return the 'english text' header names with the result
-    # we use these later to match and order attribute/column names    
-    callHeader <- TRUE
-    xmlQuery <- paste0("<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE Query>",
-        "<Query  virtualSchemaName = '",biomaRt:::martVSchema(mart),
-        "' uniqueRows = '",as.numeric(uniqueRows),
-        "' count = '0' datasetConfigVersion = '0.6' header='",
-        as.numeric(callHeader),"' requestid= 'biomaRt'> <Dataset name = '",
-        biomaRt:::martDataset(mart),"'>")
-    
-    # checking the Attributes
-    invalid <- !(attributes %in% listAttributes(mart, what="name"))
-    if(any(invalid))
-        stop(paste("Invalid attribute(s):", paste(attributes[invalid],
-            collapse=", "),"\nPlease use the function 'listAttributes' to get ",
-            "valid attribute names"))
-    
-    # attribute are ok lets add them to the query
-    attributeXML = paste("<Attribute name = '",attributes, "'/>",collapse="",
-        sep="")
-    
-    #checking the filters
-    if(filters[1] != "" && checkFilters) {
-        invalid <- !(filters %in% listFilters(mart, what="name"))
-        if(any(invalid))
-            stop(paste("Invalid filters(s):", paste(filters[invalid],
-                collapse=", "),"\nPlease use the function 'listFilters' to ",
-                "get valid filter names"))
-    }
-    
-    # filterXML is a list containing filters with reduced numbers of values
-    # to meet the 500 value limit in BioMart queries
-    filterXmlList <- biomaRt:::.generateFilterXML(filters,values,mart)
-    
-    resultList <- list()
-    
-    # we submit a query for each chunk of the filter list
-    for (i in seq_along(filterXmlList)) {
-        filterXML <- filterXmlList[[i]]
-        fullXmlQuery <- paste(xmlQuery,attributeXML,filterXML,
-            "</Dataset></Query>",sep="")
-        
-        if(verbose)
-            message(fullXmlQuery)
-        
-        # we choose a separator based on whether '?redirect=no' is present
-        sep <- ifelse(grepl(x=biomaRt:::martHost(mart),
-            pattern=".+\\?.+"), "&", "?")
-        
-        postRes <- .mySubmitQueryXML(host=paste0(biomaRt:::martHost(mart),sep),
-            query=fullXmlQuery)
-        
-        if (verbose) {
-            writeLines("#################\nResults from server:")
-            print(postRes)
-        }
-        
-        if (!(is.character(postRes) && (length(postRes)==1L)))
-            stop("The query to the BioMart webservice returned an invalid ",
-                "result: biomaRt expected a character string of length 1.\n",
-                "Please report this on the support site at", 
-                "http://support.bioconductor.org")
-        
-        if (gsub("\n","",postRes,fixed=TRUE,useBytes=TRUE)== "") { 
-            # meaning an empty result
-            result <- as.data.frame(matrix("",ncol=length(attributes),nrow=0),
-                stringsAsFactors=FALSE)
-        } else {
-            if (length(grep("^Query ERROR",postRes)) > 0L)
-                stop(postRes)
-            
-            # convert the serialized table into a dataframe
-            con <- textConnection(postRes)
-            result <- read.table(con,sep="\t",header=callHeader,quote=quote,
-                comment.char="",check.names=FALSE,stringsAsFactors=FALSE)
-            if(verbose) {
-                writeLines("#################\nParsed results:")
-                print(result)
-            }
-            close(con)
-            
-            if (!(is(result,"data.frame") 
-                && (ncol(result)==length(attributes)))) {
-                print(head(result))
-                stop("The query to the BioMart webservice returned an invalid ",
-                    "result: the number of columns in the result table does ",
-                    "not equal the number of attributes in the query.\n",
-                    "Please report this on the support site at",
-                    "http://support.bioconductor.org")
-            }
-        }
-        
-        resultList[[i]] <- biomaRt:::.setResultColNames(result,mart=mart,
-            attributes=attributes,bmHeader=bmHeader)
-    }
-    
-    # collate results
-    result <- do.call('rbind',resultList)
-    return(result)
-}
-
-.mySubmitQueryXML <- function (host, query) {
-    httr::set_config(httr::config(http_version = 1L))
-    res <- httr::POST(url = host, body = list(query = query),
-        httr::timeout(1000))
-    if (httr::status_code(res) == 302) {
-        host <- stringr::str_match(string=res$all_headers[[1]]$headers$location,
-            pattern = "//([a-zA-Z./]+)\\??;?redirectsrc")[, 2]
-        res <- httr::POST(url = host, body = list(query = query),
-            config = list(httr::timeout(1000)))
-    }
-    return(suppressMessages(httr::content(res)))
+.chromInfoWrapperGID <- function(o) {
+    if (packageVersion("GenomeInfoDb")>=1.23)
+        return(GenomeInfoDb::getChromInfoFromUCSC(o))
+    else
+        return(GenomeInfoDb::fetchExtendedChromInfoFromUCSC(o))
 }

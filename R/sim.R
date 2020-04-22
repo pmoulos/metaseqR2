@@ -9,14 +9,14 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
         stopwrap("Cannot estimate AUFC weights with an initial dataset with ",
             "less than 4 samples!")
     else if (ncol(counts)>=4 && ncol(counts)<10) {
-        reind <- sample(1:ncol(counts),20,replace=TRUE)
+        reind <- sample(seq_len(ncol(counts)),20,replace=TRUE)
         counts <- counts[,reind]
     }
     parList <- estimateSimParams(counts,...)
 
     disp("Running simulations... This procedure requires time... Please ",
         "wait...")
-    simResults <- cmclapply(1:nsim,function(x,normalization,statistics,N,
+    simResults <- cmclapply(seq_len(nsim),function(x,normalization,statistics,N,
         parList,samples,ndeg,fcBasis,modelOrg) {
         D <- makeSimDataSd(N=N,param=parList,samples=samples,ndeg=ndeg,
             fcBasis=fcBasis,modelOrg=modelOrg)
@@ -25,8 +25,8 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
         if (!is.null(modelOrg)) {
             tmp <- metaseqr2(
                 counts=dd,
-                sampleList=list(G1=paste("G1_rep",1:samples[1],sep=""),
-                    G2=paste("G2_rep",1:samples[2],sep="")),
+                sampleList=list(G1=paste("G1_rep",seq_len(samples[1]),sep=""),
+                    G2=paste("G2_rep",seq_len(samples[2]),sep="")),
                 contrast=c("G1_vs_G2"),
                 annotation="embedded",
                 embedCols=list(
@@ -53,8 +53,8 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
         else {
             tmp <- metaseqr2(
                 counts=dd,
-                sampleList=list(G1=paste("G1_rep",1:samples[1],sep=""),
-                    G2=paste("G2_rep",1:samples[2],sep="")),
+                sampleList=list(G1=paste("G1_rep",seq_len(samples[1]),sep=""),
+                    G2=paste("G2_rep",seq_len(samples[2]),sep="")),
                 contrast=c("G1_vs_G2"),
                 annotation="embedded",
                 embedCols=list(
@@ -99,8 +99,8 @@ estimateAufcWeights <- function(counts,normalization,statistics,nsim=10,
     },rc=rc)
     avgFpc <- diagplotAvgFtd(fpcObj,draw=drawFpc)
 
-    x <- 1:top
-    aufc <- apply(avgFpc$avgFtdr$means[1:top,],2,function(x,i) {
+    x <- seq_len(top)
+    aufc <- apply(avgFpc$avgFtdr$means[seq_len(top),],2,function(x,i) {
         return(sum(diff(i)*rollmean(x,2)))
     },x)
     weightAufc <- (sum(aufc)/aufc)/sum(sum(aufc)/aufc)
@@ -122,7 +122,7 @@ makeSimDataTcc <- function(...) {
     gene_id <- gene_name <- rownames(tcc$count)
     gc_content <- runif(n)
     strand <- sample(c("+","-"),n,replace=TRUE)
-    biotype <- sample(paste("biotype",1:10),n,replace=TRUE)
+    biotype <- sample(paste("biotype",seq_len(10)),n,replace=TRUE)
     simData <- data.frame(
         chromosome=chromosome,
         start=start,
@@ -159,15 +159,15 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
         muHat <- muHat[sind]
         phiHat <- phiHat[sind]
         if (length(muHat)>=N)
-            ii <- sort(sample(1:length(muHat),N))
+            ii <- sort(sample(seq_len(length(muHat)),N))
         else
-            ii <- sort(sample(1:length(muHat),N,replace=TRUE))
+            ii <- sort(sample(seq_len(length(muHat)),N,replace=TRUE))
     }
     else {
         if (length(muHat)>=N)
-            ii <- sample(1:length(muHat),N)
+            ii <- sample(seq_len(length(muHat)),N)
         else
-            ii <- sample(1:length(muHat),N,replace=TRUE)
+            ii <- sample(seq_len(length(muHat)),N,replace=TRUE)
     }
 
     s1 <- samples[1]
@@ -180,36 +180,36 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     lambda1 <- do.call("cbind",rep(list(muHat[ii]),s1))
     mu1 <- sweep(lambda1,2,L1/sum(lambda1[,1]),"*")
     sim1 <- matrix(0,N,s1)
-    for (j in 1:s1)
+    for (j in seq_len(s1))
         sim1[,j] <- rnbinom(N,size=1/phiHat[ii],mu=mu1[,j])
 
     v <- numeric(N)
     if (sum(ndeg)>0) {
-        iUpdown <- sample(1:length(v),sum(ndeg))
+        iUpdown <- sample(seq_len(length(v)),sum(ndeg))
         regDir <- rep(c(1,-1),c(ndeg[1],ndeg[2]))
         v[iUpdown] <- regDir
         lambda2 <- ((fcBasis + rexp(N))^v)*lambda1
         mu2 <- sweep(lambda2,2,L2/sum(lambda2[,1]),"*")
         sim2 <- matrix(0,N,s2)
-        for (j in 1:s2)
+        for (j in seq_len(s2))
             sim2[,j] <- rnbinom(N,size=1/phiHat[ii],mu=mu2[,j])
     }
     else {
         lambda2 <- lambda1
         mu2 <- sweep(lambda2,2,L2/sum(lambda2[,1]),"*")
         sim2 <- matrix(0,N,s2)
-        for (j in 1:s2)
+        for (j in seq_len(s2))
             sim2[,j] <- rnbinom(N,size=1/phiHat[ii],mu=mu2[,j])
     }
 
     # Now we have to simulate annotation
     chromosome <- paste("chr",1+round(20*runif(N)),sep="")
-    gene_id <- gene_name <- paste("gene",1:N,sep="_")
+    gene_id <- gene_name <- paste("gene",seq_len(N),sep="_")
     if (!is.null(modelOrg)) {
         if (length(realGc)>=N)
-            sampleInd <- sample(1:length(realGc),N)            
+            sampleInd <- sample(seq_len(length(realGc)),N)
         else
-            sampleInd <- sample(1:length(realGc),N,replace=TRUE)
+            sampleInd <- sample(seq_len(length(realGc)),N,replace=TRUE)
         gc_content <- realGc[sampleInd]
         start <- realStart[sampleInd]
         end <- realEnd[sampleInd]
@@ -235,7 +235,7 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
             strand <- strand[lenix]
         }
     }
-    biotype <- sample(paste("biotype",1:10),N,replace=TRUE)
+    biotype <- sample(paste("biotype",seq_len(10)),N,replace=TRUE)
     simData <- data.frame(
         chromosome=chromosome,
         start=start,
@@ -246,8 +246,8 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
         gene_name=gene_name,
         biotype=biotype
     )
-    colnames(sim1) <- paste("G1_rep",1:s1,sep="")
-    colnames(sim2) <- paste("G2_rep",1:s2,sep="")
+    colnames(sim1) <- paste("G1_rep",seq_len(s1),sep="")
+    colnames(sim2) <- paste("G2_rep",seq_len(s2),sep="")
     rownames(sim1) <- rownames(sim2) <- names(v) <- gene_id
 
     return(list(simdata=cbind(simData,sim1,sim2),truedeg=v))
@@ -292,7 +292,7 @@ estimateSimParams <- function(realCounts,libsizeGt=3e+6,rowmeansGt=5,
     phiEst <- phiEst[phiInd]
     dmat <- dmat[phiInd,]
     disp("Estimating dispersions using log-likelihood...\n")
-    init <- cmclapply(seq_along(1:nrow(dmat)),function(i,d,p) {
+    init <- cmclapply(seq_along(seq_len(nrow(dmat))),function(i,d,p) {
         list(y=d[i,],h=p[i])
     },dmat,phiEst,rc=rc)
     phiHat <- unlist(cmclapply(init,function(x,eps) {
@@ -319,14 +319,16 @@ downsampleCounts <- function(counts) {
         victimSize <- sum(tmp)
         if (victimSize>toRemove[i]) {
             dif <- victimSize - toRemove[i]
-            #victims <- sample(1:length(tmp),dif)
-            victims <- sort(tmp,decreasing=TRUE,index.return=TRUE)$ix[1:dif]
+            #victims <- sample(seq_len(length(tmp)),dif)
+            victims <- sort(tmp,decreasing=TRUE,
+                index.return=TRUE)$ix[seq_len(dif)]
             tmp[victims] <- tmp[victims] - 1
         }
         else if (victimSize<toRemove[i]) {
             dif <- toRemove[i] - victimSize
-            #victims <- sample(1:length(tmp),dif)
-            victims <- sort(tmp,decreasing=TRUE,index.return=TRUE)$ix[1:dif]
+            #victims <- sample(seq_len(length(tmp)),dif)
+            victims <- sort(tmp,decreasing=TRUE,
+                index.return=TRUE)$ix[seq_len(dif)]
             tmp[victims] <- tmp[victims] + 1
         }
         dcounts[,i] <- dcounts[,i] - tmp
@@ -343,23 +345,23 @@ mlfo <- function(phi,y) {
 
 makePermutation <- function(counts,sampleList,contrast,repl=FALSE) {
     cnts <- strsplit(contrast,"_vs_")[[1]]
-    virtualContrast <- paste(paste("VirtCond",1:length(cnts),sep=""),
+    virtualContrast <- paste(paste("VirtCond",seq_len(length(cnts)),sep=""),
         collapse="_vs_")
     vitualSampleList <- vector("list",length(sampleList))
-    names(vitualSampleList) <- paste("VirtCond",1:length(sampleList),sep="")
+    names(vitualSampleList) <- paste("VirtCond",seq_along(sampleList),sep="")
     # Avoid the extreme case of returning a vector with all samples the same
     if (repl) {
         resample <- rep(1,ncol(counts))
         while(length(unique(resample))==1)
-            resample <- sample(1:ncol(counts),ncol(counts),replace=repl)
+            resample <- sample(seq_len(ncol(counts)),ncol(counts),replace=repl)
     }
     else
-        resample <- sample(1:ncol(counts),ncol(counts),replace=repl)
+        resample <- sample(seq_len(ncol(counts)),ncol(counts),replace=repl)
     virtualCounts <- counts[,resample]
-    samples <- paste("VirtSamp",1:ncol(counts),sep="")
+    samples <- paste("VirtSamp",seq_len(ncol(counts)),sep="")
     colnames(virtualCounts) <- samples
-    nsample <- sapply(sampleList,length)
-    virtualSamples <- split(samples,rep(1:length(nsample),nsample))
+    nsample <- vapply(sampleList,length,numeric(1))
+    virtualSamples <- split(samples,rep(seq_len(length(nsample)),nsample))
     names(virtualSamples) <- names(vitualSampleList)
     for (n in names(vitualSampleList))
         vitualSampleList[[n]] <- virtualSamples[[n]]
@@ -375,7 +377,7 @@ calcOtr <- function(truth,p,sig=0.05) {
     else if (is.matrix(p))
         pmat <- p
     if (is.null(colnames(pmat)))
-        colnames(pmat) <- paste("p",1:ncol(pmat),sep="_")
+        colnames(pmat) <- paste("p",seq_len(ncol(pmat)),sep="_")
 
     sigGenes <- trueIsects <- missed <- vector("list",ncol(pmat))
     names(sigGenes) <- names(trueIsects) <- names(missed) <- colnames(pmat)
@@ -385,9 +387,9 @@ calcOtr <- function(truth,p,sig=0.05) {
         missed[[n]] <- setdiff(names(which(truth!=0)),trueIsects[[n]])
     }
     result <- data.frame(
-        P=sapply(sigGenes,length),
-        TP=sapply(trueIsects,length),
-        FN=sapply(missed,length)
+        P=vapply(sigGenes,length,numeric(1)),
+        TP=vapply(trueIsects,length,numeric(1)),
+        FN=vapply(missed,length,numeric(1))
     )
     result$FP <- result$P - result$TP
     otr <- result$TP/(result$FP+result$FN)
@@ -403,7 +405,7 @@ calcF1Score <- function(truth,p,sig=0.05) {
     else if (is.matrix(p))
         pmat <- p
     if (is.null(colnames(pmat)))
-        colnames(pmat) <- paste("p",1:ncol(pmat),sep="_")
+        colnames(pmat) <- paste("p",seq_len(ncol(pmat)),sep="_")
 
     sigGenes <- trueIsects <- missed <- vector("list",ncol(pmat))
     names(sigGenes) <- names(trueIsects) <- names(missed) <- colnames(pmat)
@@ -413,9 +415,9 @@ calcF1Score <- function(truth,p,sig=0.05) {
         missed[[n]] <- setdiff(names(which(truth!=0)),trueIsects[[n]])
     }
     result <- data.frame(
-        P=sapply(sigGenes,length),
-        TP=sapply(trueIsects,length),
-        FN=sapply(missed,length)
+        P=vapply(sigGenes,length,numeric(1)),
+        TP=vapply(trueIsects,length,numeric(1)),
+        FN=vapply(missed,length,numeric(1))
     )
     result$FP <- result$P - result$TP
     f1 <- 2*result$TP/(2*result$TP+result$FP+result$FN)

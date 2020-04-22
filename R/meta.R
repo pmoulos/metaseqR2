@@ -86,12 +86,11 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
                     }
                 )
             },"min",rc=rc)
-            for (cc in names(originalPList))
-            {
+            for (cc in names(originalPList)) {
                 pc <- cbind(tempPList[[cc]],originalPList[[cc]])
                 ly <- ncol(pc)
                 sumpList[[cc]] <- apply(pc,1,function(y,m) 
-                    return(length(which(y[1:(m-1)]<y[m]))/(m-1)),ly)
+                    return(length(which(y[seq_len(m-1)]<y[m]))/(m-1)),ly)
             }
         },
         dperm_max = {
@@ -123,7 +122,7 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
                 pc <- cbind(tempPList[[cc]],originalPList[[cc]])
                 ly <- ncol(pc)
                 sumpList[[cc]] <- apply(pc,1,function(y,m) 
-                    return(length(which(y[1:(m-1)]<y[m]))/(m-1)),ly)
+                    return(length(which(y[seq_len(m-1)]<y[m]))/(m-1)),ly)
             }
             #assign("perm.list",tempPList,envir=.GlobalEnv)
             #assign("oList",originalPList,envir=.GlobalEnv)
@@ -157,7 +156,7 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
                 pc <- cbind(tempPList[[cc]],originalPList[[cc]])
                 ly <- ncol(pc)
                 sumpList[[cc]] <- apply(pc,1,function(y,m) 
-                    return(length(which(y[1:(m-1)]<y[m]))/(m-1)),ly)
+                    return(length(which(y[seq_len(m-1)]<y[m]))/(m-1)),ly)
             }
         },
         none = {
@@ -268,7 +267,7 @@ combineSimes <- function(p) {
         p[ze] <- 0.1*min(p[-ze])
     m <- length(p)
     y <- sort(p)
-    s <- min(m*(y/(1:m)))
+    s <- min(m*(y/(seq_len(m))))
     return(min(c(s,1)))
 }
 
@@ -309,7 +308,7 @@ fisherMethod <- function(pvals,method=c("fisher"),p.corr=c("bonferroni","BH",
             zeroSub=zeroSub,na.rm=na.rm)))
     } 
     else {
-        fisher.sums <- parallel::mclapply(1:nrow(pvals), function(i) {
+        fisher.sums <- parallel::mclapply(seq_len(nrow(pvals)), function(i) {
             fisherSum(pvals[i,],zeroSub=zeroSub,na.rm=na.rm)
         }, mc.cores=mc.cores)
         fisher.sums <- data.frame(do.call(rbind,fisher.sums))
@@ -338,42 +337,42 @@ fisherMethodPerm <- function(pvals,p.corr=c("bonferroni","BH","none"),
     p.corr <- ifelse(length(p.corr)!=1,"BH",p.corr)
     pvals[pvals==0] <- zeroSub
   
-    res.perm <- lapply(1:nrow(pvals),function(i) {
+    resPerm <- lapply(seq_len(nrow(pvals)),function(i) {
         if(!is.na(blinker) & i%%blinker==0)
         message("=", appendLF=FALSE)
         ##which studies contribute to S (don't have a NA in row i)
         good.p <- which(!is.na(pvals[i,]))
         S.obs= fisherSum(pvals[i,good.p], na.rm=FALSE)
         if(is.null(mc.cores)) {
-            S.rand <- unlist(lapply(1:B, function(b) {
+            Srand <- unlist(lapply(seq_len(B), function(b) {
             ##get non NA p-values from studies contributing to S
-            myp <- sapply(good.p, function(pc){
+            myp <- vapply(good.p, function(pc){
                 sample(na.exclude(pvals[,pc]),1)
-            })
+            },numeric(1))
             fisherSum(myp)$S
         }))
         } else {
-        S.rand <- unlist(parallel::mclapply(1:B, function(b) {
+        Srand <- unlist(parallel::mclapply(seq_len(B), function(b) {
             ##get non NA p-values from studies contributing to S
-            myp <- sapply(good.p, function(pc) {
+            myp <- vapply(good.p, function(pc) {
                 sample(na.exclude(pvals[,pc]),1)
-            })
+            },numeric(1))
             fisherSum(myp)$S
             }, mc.cores=mc.cores))
         }
-        p.value <- sum(S.rand>=S.obs$S)/B
+        p.value <- sum(Srand>=S.obs$S)/B
         data.frame(S=S.obs$S, num.p=S.obs$num.p, p.value=p.value)
     })
-    res.perm <- data.frame(do.call(rbind, res.perm))
+    resPerm <- data.frame(do.call(rbind, resPerm))
   
     if(!is.na(blinker) && blinker>0)
         message()
-    ## rownames(res.perm) <- rownames(pvals)
-    res.perm$p.adj <- switch(p.corr,
-      bonferroni = p.adjust(res.perm$p.value,"bonferroni"),
-      BH = p.adjust(res.perm$p.value,"BH"),
-      none = res.perm$p.value)
-    return(res.perm)
+    ## rownames(resPerm) <- rownames(pvals)
+    resPerm$p.adj <- switch(p.corr,
+      bonferroni = p.adjust(resPerm$p.value,"bonferroni"),
+      BH = p.adjust(resPerm$p.value,"BH"),
+      none = resPerm$p.value)
+    return(resPerm)
 }
 
 # Copied from ex-CRAN package MADAM and exported. The man pages are copied from

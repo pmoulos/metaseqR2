@@ -785,7 +785,7 @@ metaseqr2 <- function(
         else
             geneCounts <- counts
         rownames(geneCounts) <- as.character(geneCounts[,embedCols$idCol])
-        allCols <- 1:ncol(geneCounts)
+        allCols <- seq_len(ncol(geneCounts))
         samCols <- match(unlist(sampleList),colnames(geneCounts))
         samCols <- samCols[which(!is.na(samCols))]
         annCols <- allCols[-samCols]
@@ -876,7 +876,7 @@ metaseqr2 <- function(
                         libsizeList <- r2c$libsize
                     if (exportCountsTable) {
                         exonDataExp <- as.data.frame(exonData)
-                        exonDataExp <- exonDataExp[,c(1:3,6,7,5,8,9)]
+                        exonDataExp <- exonDataExp[,c(1,2,3,6,7,5,8,9)]
                         names(exonDataExp)[1] <- "chromosome"
                         disp("Exporting raw read counts table to ",
                             file.path(PROJECT_PATH[["lists"]],
@@ -943,11 +943,11 @@ metaseqr2 <- function(
             length(unlist(sampleList)))
         names(theGeneCounts) <- names(theExonLengths) <- names(theCounts)
         for (n in names(theGeneCounts))
-            theGeneCounts[[n]] <- sapply(theCounts[[n]],sum)
+            theGeneCounts[[n]] <- vapply(theCounts[[n]],sum,numeric(1))
         geneCounts <- do.call("cbind",theGeneCounts)
         # Based on the sum of their exon lengths
         lengthList <- attr(theCounts,"lengthList")
-        geneLength <- sapply(lengthList,sum)
+        geneLength <- vapply(lengthList,sum,numeric(1))
         # Could also be
         # geneLength <- attr(exonData,"activeLength")
         
@@ -1008,7 +1008,7 @@ metaseqr2 <- function(
                     if (exportCountsTable) {
                         transcriptDataExp <- as.data.frame(transcriptData)
                         transcriptDataExp <- 
-                            transcriptDataExp[,c(1:3,6,7,5,8,9)]
+                            transcriptDataExp[,c(1,2,3,6,7,5,8,9)]
                         names(transcriptDataExp)[1] <- "chromosome"
                         disp("Exporting raw read counts table to ",
                             file.path(PROJECT_PATH[["lists"]],
@@ -1072,11 +1072,11 @@ metaseqr2 <- function(
         names(theGeneCounts) <- names(theTranscriptLengths) <- 
             names(theCounts)
         for (n in names(theGeneCounts))
-            theGeneCounts[[n]] <- sapply(theCounts[[n]],sum)
+            theGeneCounts[[n]] <- vapply(theCounts[[n]],sum,numeric(1))
         geneCounts <- do.call("cbind",theGeneCounts)
         # Based on the sum of their transcript lengths
         lengthList <- attr(theCounts,"lengthList")
-        geneLength <- sapply(lengthList,sum)
+        geneLength <- vapply(lengthList,sum,numeric(1))
         # Could also be
         # geneLength <- attr(transcriptData,"activeLength")
         
@@ -1121,7 +1121,7 @@ metaseqr2 <- function(
                         libsizeList <- r2c$libsize
                     if (exportCountsTable) {
                         geneDataExp <- as.data.frame(geneData)
-                        geneDataExp <- geneDataExp[,c(1:3,6,7,5,8,9)]
+                        geneDataExp <- geneDataExp[,c(1,2,3,6,7,5,8,9)]
                         names(geneDataExp)[1] <- "chromosome"
                         disp("Exporting raw read counts table to ",
                             file.path(PROJECT_PATH[["lists"]],
@@ -1415,10 +1415,10 @@ metaseqr2 <- function(
                     normGenes$norm.factors,"*")))
             },
             nbp = { # Has been normalized with NBPSeq and main was "nbsmyth"
-                 tempMatrix <- as.matrix(round(normGenes$pseudo.counts))
+                tempMatrix <- as.matrix(round(normGenes$pseudo.counts))
             },
             ABSDataSet = { # Has been normalized with ABSSeq
-                 tempMatrix <- as.matrix(round(excounts(normGenes)))
+                tempMatrix <- as.matrix(round(excounts(normGenes)))
             },
             SeqCountSet = { # Has been normalized with DSS
                 # Dribble for taking a mtx out of SeqCountSet class
@@ -1734,10 +1734,10 @@ metaseqr2 <- function(
             theDesign <- data.frame(condition=classes,
                 row.names=colnames(normGenes)) 
             cds <- newCountDataSet(as.matrix(round(assayData(normGenes)$exprs)),
-                 theDesign$condition)
+                theDesign$condition)
             DESeq::sizeFactors(cds) <- normalizationFactor(normGenes)
             normGenes <- as.matrix(round(DESeq::counts(cds,normalized=TRUE)))
-           
+
             cdsExpr <- newCountDataSet(as.matrix(round(assayData(
                 normGenesExpr)$exprs)),theDesign$condition)
             DESeq::sizeFactors(cdsExpr) <- normalizationFactor(normGenesExpr)
@@ -1750,10 +1750,10 @@ metaseqr2 <- function(
     # Now that everything is a matrix, export the normalized counts if asked
     if (exportCountsTable) {
         geneDataExprExp <- as.data.frame(geneDataExpr)
-        geneDataExprExp <- geneDataExprExp[,c(1:3,6,7,5,8,9)]
+        geneDataExprExp <- geneDataExprExp[,c(1,2,3,6,7,5,8,9)]
         colnames(geneDataExprExp)[1] <- "chromosome"
         geneDataFilteredExp <- as.data.frame(geneDataFiltered)
-        geneDataFilteredExp <- geneDataFilteredExp[,c(1:3,6,7,5,8,9)]
+        geneDataFilteredExp <- geneDataFilteredExp[,c(1,2,3,6,7,5,8,9)]
         colnames(geneDataFilteredExp)[1] <- "chromosome"
         disp("Exporting and compressing normalized read counts table to ",
             file.path(PROJECT_PATH[["lists"]],"normalized_counts_table.txt"))
@@ -2092,7 +2092,8 @@ metaseqr2 <- function(
             
             if (!is.null(reportTop)) {
                 topi <- ceiling(reportTop*nrow(reportTables[[cnt]]))
-                reportTables[[cnt]] <- reportTables[[cnt]][1:topi,,drop=FALSE]
+                reportTables[[cnt]] <- 
+                    reportTables[[cnt]][seq_len(topi),,drop=FALSE]
             }
         }
     }
@@ -2361,7 +2362,7 @@ metaseqr2 <- function(
     disp("\n",strftime(Sys.time()),": Data processing finished!\n")
     execTime <- elap2human(TB)
     disp("\n","Total processing time: ",execTime,"\n\n")
-                             
+
     if (outList) {
         tmp <- c(geneDataExpr,geneDataFiltered)
         a <- c(attr(geneDataExpr,"geneLength"),
@@ -2374,11 +2375,12 @@ metaseqr2 <- function(
                 rownames(filler) <- names(geneDataFiltered)
                 colnames(filler) <- colnames(cpList[[n]])
             }
-            else
+            else {
                 filler <- NULL
-            cpList[[n]] <- rbind(cpList[[n]],filler)
-            cpList[[n]] <- cpList[[n]][rownames(tmp),,drop=FALSE]
-           }
+                cpList[[n]] <- rbind(cpList[[n]],filler)
+                cpList[[n]] <- cpList[[n]][rownames(tmp),,drop=FALSE]
+            }
+        }
         if (!is.null(adjCpList)) {
             for (n in names(adjCpList)) {
                 if (!is.null(geneDataFiltered)) {
@@ -2424,16 +2426,16 @@ metaseqr2 <- function(
             }
         }
         if (!is.null(adjSumpList)) {
-           for (n in names(adjSumpList)) {
-               if (!is.null(geneDataFiltered)) {
-                   filler <- rep(NA,length(geneDataFiltered))
-                   names(filler) <- names(geneDataFiltered)
-               }
-               else
-                   filler <- NULL
-               adjSumpList[[n]] <- c(adjSumpList[[n]],filler)
-               adjSumpList[[n]] <- adjSumpList[[n]][rownames(tmp)]
-           }
+            for (n in names(adjSumpList)) {
+                if (!is.null(geneDataFiltered)) {
+                    filler <- rep(NA,length(geneDataFiltered))
+                    names(filler) <- names(geneDataFiltered)
+                }
+                else
+                    filler <- NULL
+                adjSumpList[[n]] <- c(adjSumpList[[n]],filler)
+                adjSumpList[[n]] <- adjSumpList[[n]][rownames(tmp)]
+            }
         }
 
         complete <- list(

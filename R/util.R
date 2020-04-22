@@ -1585,7 +1585,7 @@ getPresetOpts <- function(preset,org) {
 makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
     foldMat <- matrix(0,nrow(dataMatrix),length(conds)-1)
-    for (i in 1:(length(conds)-1)) { # Last condition is ALWAYS reference
+    for (i in seq_len(length(conds)-1)) { # Last condition is ALWAYS reference
     #for (i in 2:length(conds)) { # First condition is ALWAYS reference
         samplesNom <- sampleList[[conds[i]]]
         samplesDenom <- sampleList[[conds[length(conds)]]]
@@ -1610,7 +1610,7 @@ makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     }
     rownames(foldMat) <- rownames(dataMatrix)
     #colnames(foldMat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
-    colnames(foldMat) <- paste(conds[1:(length(conds)-1)],"_vs_",
+    colnames(foldMat) <- paste(conds[seq_len(length(conds)-1)],"_vs_",
         conds[length(conds)],sep="")
     return(foldMat)
 }
@@ -1618,7 +1618,7 @@ makeFoldChange <- function(contrast,sampleList,dataMatrix,logOffset=1) {
 makeA <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
     aMat <- matrix(0,nrow(dataMatrix),length(conds)-1)
-    for (i in 1:(length(conds)-1)) { # Last condition is ALWAYS reference
+    for (i in seq_len(length(conds)-1)) { # Last condition is ALWAYS reference
     #for (i in 2:length(conds)) { # First condition is ALWAYS reference
         samplesTrt <- sampleList[[conds[i]]]
         samplesCnt <- sampleList[[conds[length(conds)]]]
@@ -1635,7 +1635,7 @@ makeA <- function(contrast,sampleList,dataMatrix,logOffset=1) {
         #aMat[,i-1] <- 0.5*(log2(meanTrt)+log2(meanCnt))
     }
     rownames(aMat) <- rownames(dataMatrix)
-    colnames(aMat) <- paste(conds[1:(length(conds)-1)],"_vs_",
+    colnames(aMat) <- paste(conds[seq_len(length(conds)-1)],"_vs_",
         conds[length(conds)],sep="")
     #colnames(aMat) <- paste(conds[2:length(conds)],"_vs_",conds[1],sep="")
     return(aMat)
@@ -1644,7 +1644,7 @@ makeA <- function(contrast,sampleList,dataMatrix,logOffset=1) {
 makeAvgExpression <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     conds <- strsplit(contrast,"_vs_")[[1]]
     aMat <- matrix(0,nrow(dataMatrix),length(conds)-1)
-    for (i in 1:(length(conds)-1)) { # Last condition is ALWAYS reference
+    for (i in seq_len(length(conds)-1)) { # Last condition is ALWAYS reference
     #for (i in 2:length(conds)) { # First condition is ALWAYS reference
         samplesNom <- sampleList[[conds[i]]]
         #samplesDenom <- sampleList[[conds[1]]]
@@ -1667,7 +1667,7 @@ makeAvgExpression <- function(contrast,sampleList,dataMatrix,logOffset=1) {
     }
     rownames(aMat) <- rownames(dataMatrix)
     #colnames(aMat) <- paste(conds[1],"_vs_",conds[2:length(conds)],sep="")
-    colnames(aMat) <- paste(conds[1:(length(conds)-1)],"_vs_",
+    colnames(aMat) <- paste(conds[seq_len(length(conds)-1)],"_vs_",
         conds[length(conds)],sep="")
     return(aMat)
 }
@@ -1735,7 +1735,7 @@ makeTransformation <- function(dataMatrix,exportScale,
             },
             rpgm = {
                 mat[[scl]] <- dataMatrix
-                for (i in 1:ncol(dataMatrix))
+                for (i in seq_len(ncol(dataMatrix)))
                     mat[[scl]][,i] <- dataMatrix[,i]/scf
             }
         )
@@ -1829,7 +1829,7 @@ makeContrastList <- function(contrast,sampleList) {
     # Create list members
     for (n in names(contrastList)) {
         contrastList[[n]] <- vector("list",length(cnts[[n]]))
-        for (i in 1:length(cnts[[n]])) {
+        for (i in seq_len(length(cnts[[n]]))) {
             contrastList[[n]][[i]] <- rep(cnts[[n]][i],
                 length(sampleList[[cnts[[n]][i]]]))
             names(contrastList[[n]][[i]]) <- sampleList[[cnts[[n]][[i]]]]
@@ -2769,7 +2769,7 @@ makeReportMessages <- function(lang) {
 #        y <- unname(y)
 #        stru <- vector("list",length(x))
 #        if (is.null(a)) {
-#            for (i in 1:length(x))
+#            for (i in seq_len(length(x)))
 #                stru[[i]] <- list(
 #                    x=round(x[i],digits=3),
 #                    y=round(y[i],digits=3),
@@ -2777,7 +2777,7 @@ makeReportMessages <- function(lang) {
 #                )
 #        }
 #        else {
-#            for (i in 1:length(x))
+#            for (i in seq_len(length(x)))
 #                stru[[i]] <- list(
 #                    x=round(x[i],digits=3),
 #                    y=round(y[i],digits=3),
@@ -2802,12 +2802,12 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
             p <- unname(p)
         #stru <- vector("list",length(x))
         if (simple) {
-            return(lapply(1:length(x),function(i,x,y) {
+            return(lapply(seq_along(x),function(i,x,y) {
                 return(c(x[i],y[i]))
            },x,y))
         }
         if (is.null(a) && is.null(p)) {
-            stru <- lapply(1:length(x),function(i,x,y,n) {
+            stru <- lapply(seq_along(x),function(i,x,y,n) {
                 return(list(
                     x=round(x[i],digits=3),
                     y=round(y[i],digits=3),
@@ -2816,7 +2816,7 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
            },x,y,n)
         }
         else if (!is.null(a) && is.null(p)) {
-            stru <- lapply(1:length(x),function(i,x,y,n,a) {
+            stru <- lapply(seq_along(x),function(i,x,y,n,a) {
                 return(list(
                     x=round(x[i],digits=3),
                     y=round(y[i],digits=3),
@@ -2826,7 +2826,7 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
            },x,y,n,a)
         }
         else if (is.null(a) && !is.null(p)) {
-            stru <- lapply(1:length(x),function(i,x,y,n,p) {
+            stru <- lapply(seq_along(x),function(i,x,y,n,p) {
                 return(list(
                     x=round(x[i],digits=3),
                     y=round(y[i],digits=3),
@@ -2836,7 +2836,7 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
            },x,y,n,p)
         }
         else if (!is.null(a) && !is.null(p)) {
-            stru <- lapply(1:length(x),function(i,x,y,n,a,p) {
+            stru <- lapply(seq_along(x),function(i,x,y,n,a,p) {
                 return(list(
                     x=round(x[i],digits=3),
                     y=round(y[i],digits=3),
@@ -2965,13 +2965,13 @@ exampleCountData <- function(ngenes) {
     q0B <- ifelse(is_DE,q0*2^(-lfc/2),q0)
     true_sf <- c(1.0, 1.3,0.7,0.9,1.6)
     conds <- c("A","A","B","B","B")
-    m <- t(sapply(seq_len(ngenes),function(i)
-        sapply(1:5,function(j)
+    m <- t(vapply(seq_len(ngenes),function(i)
+        vapply(seq_len(5),function(j)
             rnbinom(1,mu=true_sf[j]*ifelse(conds[j]=="A",q0A[i],q0B[i] ),
-                size=1/0.2))))
+                size=1/0.2),numeric(1)),numeric(5)))
     colnames(m) <- c("A1","A2","B1","B2","B3")
     rownames(m) <- paste("gene",seq_len(ngenes),
-        ifelse(is_DE,"T","F"),sp="_")
+        ifelse(is_DE,"T","F"),sep="_")
     return(m)
 }
 

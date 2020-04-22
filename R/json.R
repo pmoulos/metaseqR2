@@ -146,7 +146,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
     grouped <- FALSE
     if (is.null(samples)) {
         if (is.null(colnames(counts)))
-            samplenames <- paste("Sample",1:ncol(counts),sep=" ")
+            samplenames <- paste("Sample",seq_len(ncol(counts)),sep=" ")
         else
             samplenames <- colnames(counts)
         samples <- list(Samples=samplenames)
@@ -229,7 +229,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
             # Data series
             BB <- matrix(0,nrow(B),ncol(B)) # Workaround of strange problem...
             colnames(BB) <- colnames(B)
-            for (jj in 1:ncol(B))
+            for (jj in seq_len(ncol(B)))
                 BB[,jj] <- round(B[,jj],3)
             d <- as.data.frame(BB)
             ids <- 0:(ncol(d)-1)
@@ -404,7 +404,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
             )
         }
         if (out=="json") {
-            for (i in 1:length(json))
+            for (i in seq_along(json))
                 #json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
                 #   auto_unbox=TRUE,null="null"))
                 json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
@@ -438,7 +438,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
             # Data series
             BB <- matrix(0,nrow(B),ncol(B)) # Workaround of strange problem...
             colnames(BB) <- colnames(B)
-            for (jj in 1:ncol(B))
+            for (jj in seq_len(ncol(B)))
                 BB[,jj] <- round(B[,jj],3)
             d <- as.data.frame(BB)
             ids <- 0:(ncol(d)-1)
@@ -626,7 +626,7 @@ countsBioToJSON <- function(obj,by=c("sample","biotype"),jl=c("highcharts"),
             )
         }
         if (out=="json") {
-            for (i in 1:length(json))
+            for (i in seq_along(json))
                 #json[[i]] <- .unquote_js_fun(toJSON(json[[i]],
                 #   auto_unbox=TRUE,null="null"))
                 json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
@@ -832,7 +832,7 @@ bioDetectionToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     }
     
     if (out=="json") {
-        for (i in 1:length(json))
+        for (i in seq_along(json))
             json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
         return(json)
     }
@@ -864,8 +864,8 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
             
             # To determine the separation
             ord <- sort(M[nrow(M),],decreasing=TRUE,index.return=TRUE)
-            abu <- ord$ix[1:2]
-            names(abu) <- names(ord$x[1:2])
+            abu <- ord$ix[1,2]
+            names(abu) <- names(ord$x[1,2])
             nabu <- ord$ix[3:length(ord$ix)]
             names(nabu) <- names(ord$x[3:length(ord$x)])
     
@@ -986,7 +986,7 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
         }
         
         if (out=="json") {
-            for (i in 1:length(json))
+            for (i in seq_along(json))
                 json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
             return(json)
         }
@@ -1094,7 +1094,7 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
             )
         }
         if (out=="json") {
-            for (i in 1:length(json))
+            for (i in seq_along(json))
                 json[[i]] <- toJSON(json[[i]],auto_unbox=TRUE,null="null")
             return(json)
         }
@@ -1114,13 +1114,13 @@ readNoiseToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     
     # Too many points for a lot of curves of interactive data
     if (nrow(d)>1000) {
-        ii <- sort(sample(1:nrow(d),998))
+        ii <- sort(sample(seq_len(nrow(d)),998))
         ii <- c(1,ii,nrow(d))
         d <- cbind(d[ii,1],d[ii,2:ncol(d)])
     }
 
     if (is.null(samples)) 
-        samples <- 1:(ncol(d)-1)
+        samples <- seq_len((ncol(d)-1))
     if (is.numeric(samples)) 
         samplenames = colnames(dat)[samples+1]
     if (is.list(samples))
@@ -1242,7 +1242,7 @@ boxplotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     grouped <- FALSE
     if (is.null(name)) {
         if (is.null(colnames(b$stats)))
-            nams <- paste("Sample",1:ncol(b$stats),sep=" ")
+            nams <- paste("Sample",seq_len(ncol(b$stats)),sep=" ")
         else
             nams <- colnames(b$stats)
         name <- list(Samples=nams)
@@ -1486,7 +1486,7 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     # Too many points for a lot of curves of interactive data
     if (nrow(counts)>2000) {
         #set.seed(seed)
-        ii <- sample(1:nrow(counts),2000)
+        ii <- sample(seq_len(nrow(counts)),2000)
         counts <- counts[ii,]
         covar <- covar[ii]
     }
@@ -1499,7 +1499,7 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
 
     if (is.null(samples)) {
         if (is.null(colnames(x)))
-            samplenames <- paste("Sample",1:ncol(counts),sep=" ")
+            samplenames <- paste("Sample",seq_len(ncol(counts)),sep=" ")
         else
             samplenames <- colnames(counts)
         samples <- list(Samples=samplenames)
@@ -1523,7 +1523,7 @@ biasPlotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         series[[n]] <- list()
         series[[n]]$name <- n
         series[[n]]$color <- cols$fill[counter]
-        series[[n]]$data <- lapply(1:length(x),function(i,x,y) {
+        series[[n]]$data <- lapply(seq_len(length(x)),function(i,x,y) {
             return(c(x[i],y[i])) },round(fit$x,3),round(fit$y,3))
     }
     
@@ -2033,7 +2033,7 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     
     # Too many points for mostly static, QC plots
     if (length(x)>10000) {
-        ii <- sample(1:length(x),10000)
+        ii <- sample(seq_len(length(x)),10000)
         x <- x[ii]
         y <- y[ii]
     }
@@ -2149,7 +2149,7 @@ scatterToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                             enabled=FALSE
                         ),
                         color="#E40000",
-                        data=lapply(1:length(x),function(i,x,y) {
+                        data=lapply(seq_len(length(x)),function(i,x,y) {
                             return(c(x[i],y[i])) 
                         },round(fit$x,3),round(fit$y,3))
                     )
@@ -2175,7 +2175,7 @@ rnacompToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     
     # Too many points for a lot of curves of interactive data
     if (nrow(dat)>1000) {
-        ii <- sort(sample(1:nrow(dat),998))
+        ii <- sort(sample(seq_len(nrow(dat)),998))
         ii <- c(1,ii,nrow(dat))
         dat <- cbind(dat[ii,1],dat[ii,2:ncol(dat)])
     }
@@ -2186,8 +2186,8 @@ rnacompToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     samplenames <- setdiff(samplenames,refColumn)
     dat <- as.matrix(dat[,samplenames])
     datDens <- apply(dat,2,density,adjust=1.5)
-    limY <- c(0,max(sapply(datDens,function (x) max(x$y,na.rm=TRUE))))
-  
+    limY <- c(0,max(vapply(datDens,function (x) max(x$y,na.rm=TRUE),
+        numeric(1))))  
     cols <- .getColorScheme(length(samplenames))
     
     # Construct series
@@ -2620,13 +2620,13 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     #conlab <- paste(conlab[[1]][2],"against",conlab[[1]][1])
     #statMap <- .getStatMap()
     #statlab <- statMap[[stat]]
-   
+
     upstat <- which(f>=fcut & p<pcut)
     downstat <- which(f<=-fcut & p<pcut)
     up <- which(f>=fcut & p>=pcut)
     down <- which(f<=-fcut & p>=pcut)
     poor <- which(p<pcut & abs(f)<fcut)
-    neutral <- setdiff(1:length(a),
+    neutral <- setdiff(seq_len(length(a)),
         Reduce("union",list(upstat,downstat,up,down,poor)))
     
     switch(jl,
@@ -2885,7 +2885,7 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     nones <- which(apply(pmat,1,function(x) any(x >= pcut)) &
         apply(fmat,1,function(x) all(abs(x) < fcut)))
     # gray40
-    neutral <- setdiff(1:nrow(fmat),
+    neutral <- setdiff(seq_len(nrow(fmat)),
         Reduce("union",list(upupstat,downdownstat,upup,downdown,updownstat,
             downupstat,updown,downup,poor,nones)))
     
@@ -3239,10 +3239,10 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         cl <- gregexpr(pattern="}\\\"",js)
         if (length(op)>0) {
             starts <- as.numeric(op[[1]])
-            for (i in 1:length(starts))
+            for (i in seq_len(length(starts)))
                 substr(js,starts[i]-1,starts[i]-1) <- " "
             ends <- as.numeric(cl[[1]])
-            for (i in 1:length(starts))
+            for (i in seq_len(length(starts)))
                 substr(js,ends[i]+1,ends[i]+1) <- " "
         }
     }
@@ -3254,7 +3254,7 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     classes <- as.factor(asClassVector(group))
     design <- as.numeric(classes)
     return(lapply(cols,function(x,classes,design) {
-        return(x[1:length(levels(classes))][design])
+        return(x[seq_len(length(levels(classes)))][design])
     },classes,design))
 }
 

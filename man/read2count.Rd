@@ -49,14 +49,20 @@
     very easily in an autonomous manner.
 }
 \examples{
-\dontrun{
-myTargets <- readTargets("my_mm9_study_bam_files.txt")
-geneData <- getAnnotation("mm9","gene")
+dataPath <- system.file("extdata",package="metaseqR2")
+targets <- data.frame(samplename=c("C","T"),
+  filename=file.path(dataPath,c("C.bam","T.bam")),  
+  condition=c("Control","Treatment"),
+  paired=c("single","single"),stranded=c("forward","forward"))
+path <- tempdir()
+write.table(targets,file=file.path(path,"targets.txt"),
+  sep="\t",row.names=FALSE,quote=FALSE)
+geneData <- loadAnnotation("mm9","ensembl","gene")
+myTargets <- readTargets(file.path(path,"targets.txt"))
 r2c <- read2count(targets=myTargets,
   fileType=myTargets$type,annotation=geneData)
 geneCounts <- r2c$counts
-libsizeList <- r2s$libsize
-}
+libsizeList <- r2c$libsize
 }
 \author{
     Panagiotis Moulos

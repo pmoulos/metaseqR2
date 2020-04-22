@@ -3,7 +3,7 @@ checkMainArgs <- function(mainArgs) {
     validArgs <- .getValidArgs()
     invalid <- setdiff(inArgs,validArgs)
     if (length(invalid) > 0) {
-        for (i in 1:length(invalid))
+        for (i in seq_len(length(invalid)))
             warnwrap("Unknown input argument to metaseqr pipeline: ",invalid[i],
                 " ...Ignoring...",now=TRUE)
     }

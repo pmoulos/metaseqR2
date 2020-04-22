@@ -2,7 +2,7 @@ statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs) && !is(object,"CountDataSet"))
         statArgs <- getDefaults("statistics","deseq")
     if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[1:2],
+        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
             collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
@@ -11,7 +11,8 @@ statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
      # Check if there is no replication anywhere
-    if (all(sapply(sampleList,function(x) ifelse(length(x)==1,TRUE,FALSE)))) {
+    if (all(vapply(sampleList,function(x) ifelse(length(x)==1,TRUE,FALSE),
+        logical(1)))) {
         warnwrap("No replication detected! There is a possibility that ",
             "DESeq will fail to estimate dispersions...")
         methodDisp <- "blind"
@@ -110,7 +111,7 @@ statDeseq2 <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","deseq2")
     if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[1:2],
+        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
         collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
@@ -262,7 +263,7 @@ statEdger <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","edger")
     if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[1:2],
+        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
             collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
@@ -304,7 +305,8 @@ statEdger <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     # Dispersion estimate step
     # Check if there is no replication anywhere
     repli = TRUE
-    if (all(sapply(sampleList,function(x) ifelse(length(x)==1,TRUE,FALSE)))) {
+    if (all(vapply(sampleList,function(x) ifelse(length(x)==1,TRUE,FALSE),
+        logical(1)))) {
         warnwrap("No replication when testing with edgeR! Consider using ",
             "another statistical test or just performing empirical analysis. ",
             "Setting bcv to 0.2...")
@@ -434,7 +436,7 @@ statLimma <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","limma")
     if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[1:2],
+        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
             collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
@@ -512,7 +514,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","noiseq")
     if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[1:2],
+        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
             collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
@@ -521,7 +523,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
         if (!is.null(attr(geneData,"geneLength")))
             gl <- attr(geneData,"geneLength")
         geneData <- as.data.frame(geneData)
-        geneData <- geneData[,c(1:3,6,7,5,8,9)]
+        geneData <- geneData[,c(1,2,3,6,7,5,8,9)]
         if (!is.null(gl))
             attr(geneData,"geneLength") <- gl
     }
@@ -553,7 +555,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 data=DESeq::counts(object,normalized=TRUE),
                 length=geneLength,
                 gc=gcContent,
-                chromosome=geneData[,1:3],
+                chromosome=geneData[,c(1,2,3)],
                 factors=data.frame(class=classes),
                 biotype=biotype
             )
@@ -563,7 +565,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 data=DESeq2::counts(object,normalized=TRUE),
                 length=geneLength,
                 gc=gcContent,
-                chromosome=geneData[,1:3],
+                chromosome=geneData[,c(1,2,3)],
                 factors=data.frame(class=classes),
                 biotype=biotype
             )
@@ -576,7 +578,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 data=dm,
                 length=geneLength,
                 gc=gcContent,
-                chromosome=geneData[,1:3],
+                chromosome=geneData[,c(1,2,3)],
                 factors=data.frame(class=classes),
                 biotype=biotype
             )
@@ -589,7 +591,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 data=object,
                 length=geneLength,
                 gc=gcContent,
-                chromosome=geneData[,1:3],
+                chromosome=geneData[,c(1,2,3)],
                 factors=data.frame(class=classes),
                 biotype=biotype
             )
@@ -600,7 +602,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                     object$norm.factors,"*"))),
                 length=geneLength,
                 gc=gcContent,
-                chromosome=geneData[,1:3],
+                chromosome=geneData[,c(1,2,3)],
                 factors=data.frame(class=classes),
                 biotype=biotype
             )
@@ -610,7 +612,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 data=as.matrix(round(object$pseudo.counts)),
                 length=geneLength,
                 gc=gcContent,
-                chromosome=geneData[,1:3],
+                chromosome=geneData[,c(1,2,3)],
                 factors=data.frame(class=classes),
                 biotype=biotype
             )
@@ -620,7 +622,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 data=as.matrix(round(excounts(object))),
                 length=geneLength,
                 gc=gcContent,
-                chromosome=geneData[,1:3],
+                chromosome=geneData[,c(1,2,3)],
                 factors=data.frame(class=classes),
                 biotype=biotype
             )
@@ -639,7 +641,7 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 data=DESeq::counts(cds,normalized=TRUE),
                 length=geneLength,
                 gc=gcContent,
-                chromosome=geneData[,1:3],
+                chromosome=geneData[,c(1,2,3)],
                 factors=data.frame(class=classes),
                 biotype=biotype
             )
@@ -650,8 +652,8 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
         con <- contrastList[[conName]]
         if (length(con)==2) {
             statArgs$conditions=unique(unlist(con))
-            if (any(sapply(sampleList,function(x) ifelse(length(x)==1,
-                TRUE,FALSE))))
+            if (any(vapply(sampleList,function(x) ifelse(length(x)==1,
+                TRUE,FALSE),logical(1))))
                 # At least one condition does not have replicates
                 statArgs$replicates <- "no" 
             if (statArgs$replicates %in% c("technical","no"))
@@ -696,7 +698,7 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","bayseq")
     if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[1:2],
+        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
             collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
@@ -737,6 +739,7 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
         }
     )
     CD <- new("countData",data=bayesData,replicates=classes)
+    CD@annotation <- data.frame(name=rownames(bayesData))
     if (is.null(libsizeList))
         baySeq::libsizes(CD) <- baySeq::getLibsizes(CD)
     else
@@ -765,8 +768,9 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             returnAll=statArgs$returnAll,returnPD=statArgs$returnPD,
             discardSampling=statArgs$discardSampling,cl=statArgs$cl)
         tmp <- baySeq::topCounts(cd,group="DE",number=nrow(cd))
-        p[[conName]] <- 1 - as.numeric(tmp[,"Likelihood"])
-        names(p[[conName]]) <- rownames(tmp)
+        #p[[conName]] <- 1 - as.numeric(tmp[,"Likelihood"])
+        p[[conName]] <- 1 - as.numeric(tmp[,"likes"])
+        names(p[[conName]]) <- as.character(tmp$name)
         p[[conName]] <- p[[conName]][rownames(CD@data)]
         p[[conName]][which(is.na(p[[conName]]))] <- 1
     }
@@ -778,7 +782,7 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     if (is.null(statArgs) && !is(object,"list"))
         statArgs <- getDefaults("statistics","nbpseq")
     if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[1:2],
+        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
             collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
@@ -965,7 +969,7 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","absseq")
     if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[1:2],
+        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
         collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
@@ -1108,7 +1112,7 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
                         # they are the normalized ones for the lib.size
                 },
                 SeqCountSet = {
-                    # isolate normalization factors so as to give them names and 
+                    # isolate normalization factors so as to give them names and
                     # be able to subset them at will
                     nF <- normalizationFactor(object) 
                     names(nF) <- names(unlist(sampleList))
@@ -1133,12 +1137,12 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             p[[conName]] <- res[,"pvalue"]
             names(p[[conName]]) <- rownames(res) 
             # ATTENTION: p[[con.names]] had to be named by the subsetted count 
-            # table of each contrast and not at the end. If not thus there was a 
+            # table of each contrast and not at the end. If not thus there was a
             # problem with line 2975 of main.R
         }
         else { 
             # Here we build the ABSDataSet object WITHOUT the groups argument so
-            # as to perform ANOVA. Otherwise, if I try to build a groups 
+            # as to perform ANOVA. Otherwise, if I try to build a groups
             # argument with more than 2 levels to run the ANOVA, it will through
             # an ERROR 
             sampleListTmp <- sampleList[cons]
@@ -1246,7 +1250,7 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
                             # they are the normalized ones for the lib.size
                 },
                 SeqCountSet = {
-                    # isolate normalization factors so as to give them names and 
+                    # isolate normalization factors so as to give them names and
                     # be able to subset them at will
                     nF <- normalizationFactor(object) 
                     names(nF) <- names(unlist(sampleList))
@@ -1281,7 +1285,7 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     if (is.null(statArgs))
         statArgs <- getDefaults("statistics","dss")
     if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[1:2],
+        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
             collapse="_vs_"),sampleList)
     if (!is.list(contrastList))
         contrastList <- makeContrastList(contrastList,sampleList)
@@ -1377,10 +1381,12 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             designTmp <- as.formula(c("~",names(colData[1])))
             
             # The same chunck with the norm.R script to get a cds file
-            theDesign <- data.frame(condition=classes,row.names=colnames(seqData)) 
+            theDesign <- data.frame(condition=classes,
+                row.names=colnames(seqData)) 
             cds <- newCountDataSet(as.matrix(round(assayData(seqData)$exprs)),
                 conditions=theDesign$condition)
-            DESeq::sizeFactors(cds) <- normalizationFactor(seqData)     # retrieve DSS-calculated normalizationFactors
+            # retrieve DSS-calculated normalizationFactors
+            DESeq::sizeFactors(cds) <- normalizationFactor(seqData)     
             cds <- DESeq::estimateDispersions(cds,method=statArgs$method,
                     sharingMode=statArgs$sharingMode)
 

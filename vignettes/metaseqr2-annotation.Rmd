@@ -26,7 +26,7 @@ calls, so the whole pipeline may stall until the servers are back.
 Another main issue with the annotation used by metaseqR was that there was no 
 straightforward way, provided by metaseqR, to archive and version the annotation
 used by a specific analysis and was up to the user to take care of 
-reproducibility at this level. Furthermore, there was no straightforward way for 
+reproducibility at this level. Furthermore, there was no straightforward way for
 a user to plugin own annotation elements (e.g. in the form of a GTF file) and 
 use it in the same manner as standard annotations supported by metaseqR, e.g. 
 when analyzing data from not-so-often studied organisms such as insects. 
@@ -34,10 +34,10 @@ Plugging-in own annotation was possible but usually a painful procedure, which
 has become now very easy.
 
 The annotation database builder for metaseqR2 remedies the above situations. The
-```buildAnnotationDatabase``` function should be run once with the organisms one
+`buildAnnotationDatabase` function should be run once with the organisms one
 requires to have locally to work with and then that's it! Of course you can
 manage your database by adding and removing specific annotations (and you even
-can play with an SQLite browser, although not advised, as the database structure 
+can play with an SQLite browser, although not advised, as the database structure
 is rather simple). Furthermore, you can use the metaseqR2 annotation database
 and management mechanism for any other type of analysis where you require to 
 have a simple tab-delimited annotation file, acquired with very little effort.
@@ -68,18 +68,28 @@ automatic database builds:
 
 # Using the local database
 
+## Installation of metaseqR2
+
+To install the metaseqR2 package, start R and enter:
+
+```{r install-0, eval=FALSE, echo=TRUE}
+if(!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("metaseqR2")
+```
+
 ## Setup the database
 
 By default, the database file will be written in the
-```system.file(package="metaseqR2")``` directory. You can specify another
-prefered destination for it using the ```db``` argument in the function call, 
-but if you do that, you will have to supply the ```localDb``` argument pointing
-to the SQLite database file you created to every metaseqr2 call you perform, 
-otherwise, the pipeline will download and use annotations on-the-fly.
+`system.file(package="metaseqR2")` directory. You can specify another prefered
+destination for it using the `db` argument in the function call, but if you do 
+that, you will have to supply the `localDb` argument pointing to the SQLite 
+database file you created to every metaseqr2 call you perform, otherwise, the
+pipeline will download and use annotations on-the-fly.
 
 In this vignette, we will build a minimal database comprising only the mouse
 *mm9* genome version from Ensembl. The database will be build in a temporary
-directory inside session ```tempdir()```.
+directory inside session `tempdir()`.
 
 **Important note**: As the annotation build function makes use of 
 [Kent](http://hgdownload.soe.ucsc.edu/admin/exe/) utilities for creating 3'UTR
@@ -113,7 +123,7 @@ buildAnnotationDatabase(organisms,sources,forceDownload=FALSE,db=myDb,rc=0.5)
 Now, that a small database is in place, let's retrieve some data. Remember that
 since the built database is not in the default location, we need to pass the
 database file in each data retrieval function. The annotation is retrieved as
-a ```GRanges``` object by default.
+a `GRanges` object by default.
 
 ```{r example-2, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 # Load standard annotation based on gene body coordinates
@@ -139,9 +149,8 @@ if (.Platform$OS.type=="unix") {
 }
 ```
 
-Or as a data frame if you prefer using ```asdf=TRUE```. The data frame however 
-does not contain metadata like ```Seqinfo``` to be used for any susequent 
-validations:
+Or as a data frame if you prefer using `asdf=TRUE`. The data frame however does 
+not contain metadata like `Seqinfo` to be used for any susequent validations:
 
 ```{r example-3, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 # Load standard annotation based on gene body coordinates
@@ -165,13 +174,12 @@ This can be achieved through the usage of
 [GTF](https://www.ensembl.org/info/website/upload/gff.html) files, along with
 some simple metadata that you have to provide for proper import to the
 annotation database. This can be achieved through the usage of the
-```buildCustomAnnotation``` function. Details on required metadata can be found
+`buildCustomAnnotation` function. Details on required metadata can be found
 in the function's help page.
 
 **Important note:** Please note that importing a custom genome annotation 
 directly from UCSC (UCSC SQL database dumps) is not supported in Windows as the
-process involves using the ```genePredToGtf``` which is not available for
-Windows.
+process involves using the `genePredToGtf` which is not available for Windows.
 
 Let's try a couple of exammples. The first one is a custom annotation for the
 Ebola virus from UCSC:
@@ -361,7 +369,7 @@ buildAnnotationDatabase(organisms,sources,forceDownload=FALSE,rc=0.5)
 ```
 
 The aforementioned complete built can be found
-[here](https://drive.google.com/drive/folders/15lOY9PBggCcaoohO_0rQTvExXenqah55?usp=sharing)
+[here](https://tinyurl.com/ybycpr6b)
 Complete builts will become available from time to time (e.g. with every new
 Ensembl relrase) for users who do not wish to create annotation databases on
 their own. Root access may be required (depending on the metaseqR2 library
@@ -372,15 +380,15 @@ automatically.
 
 If for some reason you do not want to build and use an annotation database for
 metaseqR2 analyses (not recommended) or you wish to perform an analysis with an
-organism that does not yet exist in the database, the ```loadAnnotation```
-function will perform all required actions (download and create a ```GRanges```
-object) on-the-fly as long as there is an internet connection. 
+organism that does not yet exist in the database, the `loadAnnotation` function
+will perform all required actions (download and create a `GRanges` object) 
+on-the-fly as long as there is an internet connection.
 
 However, the above function does not handle custom annotations in GTF files.
 In a scenario where you want to use a custom annotation only once, you should
-supply the ```annotation``` argument to the ```metaseqr2``` function, which is
-almost the same as the ```metadata``` argument used in 
-```buildCustomAnnotation```, actually augmented by a list member for the GTF
+supply the `annotation` argument to the `metaseqr2` function, which is almost
+the same as the `metadata` argument used in `buildCustomAnnotation`, actually 
+augmented by a list member for the GTF
 file, that is:
 
 ```{r pseudo-1, eval=TRUE, echo=TRUE, message=TRUE, warning=FALSE}
@@ -396,4 +404,10 @@ The above argument can be passed to the metaseqr2 call in the respective
 position.
 
 For further details about custom annotations on the fly, please check
-```buildCustomAnnotation``` and ```importCustomAnnotation``` functions.
+`buildCustomAnnotation` and `importCustomAnnotation` functions.
+
+# Session Info
+
+```{r si-1, eval=TRUE, echo=TRUE}
+sessionInfo()
+```

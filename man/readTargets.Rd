@@ -59,19 +59,17 @@
     will be assumed.
 }
 \examples{
-\dontrun{
-# Will fail as BAM files do not exist
-targets <- data.frame(samplename=c("C1","C2","T1","T2"),
-  filename=c("C1_raw.bam","C2_raw.bam","T1_raw.bam","T2_raw.bam"),
-  condition=c("Control","Control","Treatment","Treatment"),
-  paired=rep("single",4),stranded=rep("forward",4))
+dataPath <- system.file("extdata",package="metaseqR2")
+targets <- data.frame(samplename=c("C","T"),
+  filename=file.path(dataPath,c("C.bam","T.bam")),  
+  condition=c("Control","Treatment"),
+  paired=c("single","single"),stranded=c("forward","forward"))
 path <- tempdir()
 write.table(targets,file=file.path(path,"targets.txt"),
   sep="\t",row.names=FALSE,quote=FALSE)
 theList <- readTargets(file.path(path,"targets.txt"),path=path)
 sampleList <- theList$samples
 bamfileList <- theList$files
-}
 }
 \author{
     Panagiotis Moulos
