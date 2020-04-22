@@ -8,7 +8,7 @@ output:
     toc_float: true 
 vignette: >
   %\VignetteIndexEntry{RNA-Seq data analysis with metaseqR2}
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
