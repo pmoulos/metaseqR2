@@ -192,7 +192,7 @@ customDir <- file.path(tempdir(),"test_custom")
 dir.create(customDir)
 
 # Convert from GenePred to GTF - Unix/Linux only!
-if (.Platform$OS.type == "unix") {
+if (.Platform$OS.type == "unix" && !grepl("^darwin",R.version$os)) {
     # Download data from UCSC
     goldenPath="http://hgdownload.cse.ucsc.edu/goldenPath/"
     # Gene annotation dump
