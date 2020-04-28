@@ -1273,7 +1273,7 @@ diagplotNoiseqSaturation <- function(x,o,tb,path=NULL) {
         graphics::legend(
             x="topleft",legend=c("global","protein_coding"),xjust=1,yjust=0,
             box.lty=0,lty=2,x.intersp=0.5,cex=0.7,text.font=2,
-            col=colspace[1,2],pch=pchspace[1,2]
+            col=colspace[c(1,2)],pch=pchspace[c(1,2)]
         )
         mtext(n,side=3,line=-1.5,outer=TRUE,font=2,cex=1.3)
         graphicsClose(o)
