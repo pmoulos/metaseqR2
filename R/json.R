@@ -864,8 +864,8 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
             
             # To determine the separation
             ord <- sort(M[nrow(M),],decreasing=TRUE,index.return=TRUE)
-            abu <- ord$ix[1,2]
-            names(abu) <- names(ord$x[1,2])
+            abu <- ord$ix[c(1,2)]
+            names(abu) <- names(ord$x[c(1,2)])
             nabu <- ord$ix[3:length(ord$ix)]
             names(nabu) <- names(ord$x[3:length(ord$x)])
     
