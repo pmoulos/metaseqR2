@@ -2147,8 +2147,20 @@ makeJVennFoldData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     if (is.null(conts))
         stopwrap("The p-value matrices must have the colnames attribute ",
             "(names of contrasts)!")
-    if (!is.null(fcmat) && (is.null(colnames(fcmat)) ||
-        length(intersect(colnames(pmat),colnames(fcmat)))!=length(conts)))
+    
+    # The p-value matrix may contain names from non pairwise contrasts so we
+    # have to adjust both matrices if and only if fcmat is provided
+    if (!is.null(fcmat)) {
+        long <- which(lengths(strsplit(colnames(pmat),"_vs_"))>2)
+        if (length(long) > 0) {
+            pmat <- pmat[,-long]
+            fcmat <- fcmat[,-long]
+            conts <- conts[-long]
+        }
+    }
+    
+    if ((!is.null(fcmat) && is.null(colnames(fcmat))) ||
+        length(intersect(colnames(pmat),colnames(fcmat)))!=length(conts))
         stopwrap("The fold change matrices must have the colnames attribute ",
             "(names of contrasts) and must be the same as in the p-value ",
             "matrices!")
@@ -2159,7 +2171,7 @@ makeJVennFoldData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
         conts <- conts[seq_len(6)]
         ncon <- 6
     }
-    
+
     genes <- rownames(pmat)
     # Initially populate the results and counts lists so they can be used to 
     # create the rest of the intersections

@@ -558,9 +558,15 @@ metaseqr2 <- function(
     }
     # Remove meandiff if there are single-replicate conditions
     if ("meandiff" %in% qcPlots & any(lengths(sampleList) < 2)) {
-        warnwrap("The creation of a meandiff plots is not possible for single ",
+        warnwrap("The creation of meandiff plots is not possible for single ",
             "replicate conditions!\nRemoving from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "meandiff")]
+    }
+    # Remove rnacomp if more than 12 samples
+    if ("rnacomp" %in% qcPlots & sum(lengths(sampleList)) > 12) {
+        warnwrap("The creation of an rnacomp plot is not possible for more ",
+            "than 12 samples!\nRemoving from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "rnacomp")]
     }
     # Check if we have single-replicate conditions and presence$perCondition is
     # enabled
