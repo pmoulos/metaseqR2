@@ -34,9 +34,10 @@ expressed genes by reducing false hits while maintaining true positives. To our
 knowledge, PANDORA remains the only fully functional method proposing this 
 combinatorial approach for the analysis of RNA-Seq data.
 
-metaseqR2, is the continuation of metaseqR. While it has been (at times)
-heavily refactored, it still offers the same functionalities with as much
-backwards compatibility as possible. Like metaseqR, metaseqR2, incoporates 
+metaseqR2, is the continuation of
+[metaseqR](https://pubmed.ncbi.nlm.nih.gov/25452340/). While it has been 
+(at times) heavily refactored, it still offers the same functionalities with as 
+much backwards compatibility as possible. Like metaseqR, metaseqR2, incoporates 
 several algorithms for normalization and statistical analysis. In particular, we
 extended the offered algorithms with *DESeq2*, *ABSSeq* and *DSS*. metaseqR2, 
 like metaseqR also builds a full report with several interactive and 
@@ -50,7 +51,7 @@ figure is accompanied by a small explanatory text, and a list of references
 according to the algorithms used in the pipeline. metaseqR2 continues to provide
 an interface for RNA-Seq data meta-analysis by providing the ability to use 
 different algorithms for the statistical testing part and combining the p-values
-using popular published methods (e.g. Fisher's method, Whitlock's method) and 
+using popular published methods (e.g. Fisher's method, Whitlock's method), 
 two package-specific methods (intersection, union of statistically significant 
 results) and of course PANDORA.
 
@@ -97,7 +98,7 @@ the main documentation of the metaseqR2 package.
 
 Briefly, to run metaseqr2 you need:
 
-1. Input RNA-Seq data. These can come in two forms:
+1. Input RNA-Seq data. These can come in three forms:
   * A text tab delimited file in a spreadsheet-like format containing at least
     unique gene identifiers (corresponding to one of metaseqR2 supported 
     annotation sources, that is Ensembl, UCSC, RefSeq) *or* if you are using
@@ -123,9 +124,70 @@ Briefly, to run metaseqr2 you need:
    package. This is required only once as the report is then self-contained.
 
 For demonstration purposes, a very small dataset (with embedded annotation) is
-included with the package:
+included with the package.
 
-Some example data are included in the package. See the related help pages.
+## Types of analyses performed with metaseqR2
+
+Several types of differential analysis of gene expression can be performed and
+reported with metaseqR2 depending on the biological question asked and the type
+of data generated. For example, an investigator may be interested in gene- or
+transcript-level differential expression analysis when a 3'UTR sequencing kit
+has been used or interested for differential exon usage when a classical
+polyA RNA-Seq protocol has been applied.
+
+These analysis types are being defined essentially by two arguments:
+* `countType` which can be `gene`, `exon`, `utr` corresponding to total RNA
+sequencing, polyA RNA sequencing or 3' UTR sequencing respectively.
+* `transLevel` which can be `gene`, `transcript`, `exon` corresponding to
+differetial expression analysis using gene models (or essentially the dominant
+transcripts), individual transcripts or exons respectively.
+
+Therefore, the selection of `countType="exon"` and `transLevel="gene"` assumes
+that we have a dataset where polyA RNA sequencing has been applied followed by
+splicing-aware alignment while `countType="utr"` and `transLevel="transcript"`
+assumes that we have a dataset where 3'UTR sequencing (e.g. Lexogen Quant-Seq) 
+has been applied to look for differential expression based on read occupancy on
+the 3' UTR regions.
+
+The following combinations are available:
+* `countType="gene"`, `transLevel="gene"` for differential expression analysis
+using a pre-calculated counts table or BAM files from total RNA sequencing.
+* `countType="gene"`, `transLevel="transcript"` for differential expression 
+analysis using a pre-calculated counts table or BAM files from total RNA 
+sequencing and for each transcript.
+* `countType="gene"`, `transLevel="exon"` for differential expression analysis
+of exons using BAM files from polyA RNA sequencing.
+* `countType="exon"`, `transLevel="gene"` for differential expression analysis
+using BAM files from polyA RNA sequencing.
+* `countType="exon"`, `transLevel="transcript"` for differential expression 
+analysis of transcripts using BAM files from total RNA sequencing.
+* `countType="utr"`, `transLevel="gene"` for differential expression analysis
+of genes using BAM files from 3' UTR RNA sequencing.
+* `countType="utr"`, `transLevel="transcript"` for differential expression 
+analysis of transcripts using BAM files from 3' UTR RNA sequencing.
+
+## Data filtering
+
+The metaseqR2 pipeline has several options for gene filtering at the gene and 
+exon levels. These filters span various areas including:
+* The presence of a minimum number of reads in a fraction of the samples per 
+condition or experiment-wise.
+* The exclusion of specific biotypes (e.g. exluding pseudogenes)
+* The filtering based on several expression attributes such as average read
+presence over *n* kbs or the exclusion of genes whose expression is below the
+expression of a set of genes known *not* to be expressed in the biological
+mechanism under investigation
+* Filters based on exon expression such as the minimum fraction of exons that
+should contain reads over a gene.
+
+In addition, the metaseqR2 pipeline offers several analysis "presets" with
+respect to the filtering layers applied, the statistical analysis stringency and
+the amount of data exported.
+
+All the aforementioned parameters are well-documented in the main manual of the
+package and the respective man pages.
+
+# Running the `metaseqr2` pipeline
 
 **Note**: When conducting an analysis with metaseqR2, it is advised that you
 set a seed for random number generation using `set.seed()`. This should be set
@@ -136,8 +198,6 @@ reproducibility of these plots, a seed must be provided.
 ```{r seed-0, eval=TRUE, echo=TRUE}
 set.seed(42)
 ```
-
-## Running the metaseqr2 pipeline
 
 Running a metaseqr2 pipeline instance is quite straightforward. Again, see the
 examples in the main help page. Below, an example and the command window output 
@@ -159,7 +219,7 @@ sampleListMm9
 libsizeListMm9
 ```
 
-### Analysis at the gene level with gene counts
+## Analysis at the gene level with gene counts
 
 Following, a full example with the informative messages that are printed in the
 command window:
@@ -350,7 +410,7 @@ result <- metaseqr2(
 )
 ```
 
-### Analysis at the gene level with exon counts
+## Analysis at the gene level with exon counts
 
 **Note**: Be sure to have constructed a metaseqR2 annotation database prior to
 continuing with the following examples!
@@ -360,7 +420,7 @@ availabilities of metaseqR2 do not fit within the Bioconductor package, you can
 find additional examples in our GitHub 
 [page](https://github.com/pmoulos/metaseqR2) where issues can be reported too.
 
-### Estimating p-value weights
+## Estimating p-value weights
 
 In metaseqR2, the PANDORA algorithm is expaned with additional 3 algorithms.
 Briefly, PANDORA use of the area under False Discovery Curves to assess the 
@@ -388,6 +448,32 @@ weights <- estimateAufcWeights(
 
 ```{r head-3, eval=TRUE, echo=TRUE}
 weights
+```
+
+## Combining p-values from multiple tests
+
+Although the main `metaseqr2` function takes care of p-value combination,
+sometimes there is the need of simply importing externally calculated p-values
+and using the respective metaseqR2 functions to produce combined p-values. We
+demonstrate this capability using p-values from all metaseqR2 supported 
+algorithms, applied to data from 
+[Giakountis et al., 2016](https://doi.org/10.1016/j.celrep.2016.05.038).
+
+```{r example-6, eval=TRUE, echo=TRUE, tidy=FALSE, message=FALSE, warning=FALSE}
+data("hg19pvalues",package="metaseqR2")
+
+# Examine the data
+head(hg19pvalues)
+
+# Now combine the p-values using the Simes method
+pSimes <- apply(hg19pvalues,1,combineSimes)
+
+# The harmonic mean method with PANDORA weights
+w <- getWeights("human")
+pHarm <- apply(hg19pvalues,1,combineHarmonic,w)
+
+# The PANDORA method
+pPandora <- apply(hg19pvalues,1,combineWeight,w)
 ```
 
 # metaseqR2 components

@@ -225,6 +225,17 @@ checkPackages <- function(m,p) {
             backArgs$args$bt.col <- NULL
         }
         
+        # Similar check for utr.flank
+        backArgs$args$utrOpts <- list(
+            frac=1,
+            minLength=300,
+            downstream=50
+        )
+        if ("utr.flank" %in% oldInCall) {
+            backArgs$args$utrOpts$downstream <- args$utr.flank
+            backArgs$args$utr.flank <- NULL
+        }
+        
         return(backArgs)
     }
     else
@@ -240,9 +251,9 @@ checkPackages <- function(m,p) {
     map <- list()
     
     # 1. Remove "id.col","gc.col","name.col","bt.col" from old arguments so as
-    # to group them. Remove also gene.file.
-    r1 <- match(c("id.col","gc.col","name.col","bt.col","gene.file"),
-        oldArgNames)
+    # to group them. Remove also gene.file and utr.flank.
+    r1 <- match(c("id.col","gc.col","name.col","bt.col","gene.file",
+        "utr.flank"),oldArgNames)
     oldArgNames <- oldArgNames[-r1]
     # 2. Remove embedCols from new arguments as they can't be mapped directly
     r2 <- match("embedCols",newArgNames)
@@ -257,14 +268,15 @@ checkPackages <- function(m,p) {
     return(c(
         "counts","sampleList","excludeList","fileType","path","contrast",
         "libsizeList","embedCols","annotation","org","transLevel","countType",
-        "utrFlank","exonFilters","geneFilters","whenApplyFilter",
+        "utrOpts","exonFilters","geneFilters","whenApplyFilter",
         "normalization","normArgs","statistics","statArgs","adjustMethod",
-        "metaP","weight","nperm","reprod","pcut","logOffset","preset","qcPlots",
-        "figFormat","outList","exportWhere","exportWhat","exportScale",
-        "exportValues","exportStats","exportCountsTable","restrictCores",
-        "report","refdb","reportTop","reportTemplate","verbose","runLog",
-        "reportDb","saveGeneModel","version","localDb","offlineReport",
-        "createTracks","overwriteTracks","trackExportPath","trackInfo"
+        "metaP","weight","nperm","reprod","pcut","logOffset","pOffset",
+        "preset","qcPlots","figFormat","outList","exportWhere","exportWhat",
+        "exportScale","exportValues","exportStats","exportCountsTable",
+        "restrictCores","report","refdb","reportTop","reportTemplate","verbose",
+        "runLog","reportDb","saveGeneModel","version","localDb","offlineReport",
+        "createTracks","overwriteTracks","trackExportPath","trackInfo",
+        ".progressFun",".exportR2C"
     ))
 }
 

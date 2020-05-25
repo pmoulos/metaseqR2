@@ -1367,10 +1367,13 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             # We choose from all levels the two that will be used for the 
             # pairwise comparison: "cons[1],cons[2]"
             res <- waldTest(seqData,cons[1],cons[2],
-                equal.var=statArgs$equal.var) 
+                equal.var=statArgs$equal.var)
+            # Order according to initial object! waldTest returns results sorted
+            # in decreasing p-values...
+            res <- res[rownames(object),,drop=FALSE]
             p[[conName]] <- res$pval
         }
-        else{ # DE analysis of >2 levels in conditions factor
+        else { # DE analysis of >2 levels in conditions factor
             warnwrap(paste("DSS differential expression algorithm does not ",
                 "support multi-level designs (with more than two levels in a ",
                 "factor to be compared)! Switching to DESeq. ",

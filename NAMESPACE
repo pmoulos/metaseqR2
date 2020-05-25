@@ -122,6 +122,9 @@ importFrom("gplots",col2hex)
 importFrom("gplots",colorpanel)
 importFrom("gplots",heatmap.2)
 
+importFrom("harmonicmeanp",hmp.stat)
+importFrom("harmonicmeanp",p.hmp)
+
 importFrom("heatmaply",heatmaply)
 
 importFrom("htmltools",tags)
@@ -221,6 +224,7 @@ export(buildAnnotationDatabase)
 export(buildCustomAnnotation)
 export(createSignalTracks)
 export(combineBonferroni)
+export(combineHarmonic)
 export(combineMaxp)
 export(combineMinp)
 export(combineSimes)

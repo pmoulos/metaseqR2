@@ -72,6 +72,7 @@ metaseqR2 would benefit from the existence of all the following packages:
 * DT
 * EDASeq
 * edgeR
+* harmonicmeanp
 * GenomeInfoDb
 * GenomicAlignments
 * GenomicFeatures

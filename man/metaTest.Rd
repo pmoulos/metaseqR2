@@ -3,12 +3,13 @@
 \title{Meta-analysis using several RNA-Seq statistics}
 \usage{
     metaTest(cpList,
-        metaP = c("simes", "bonferroni", "fisher", "dperm_min", 
-        "dperm_max", "dperm_weight", "fperm", "whitlock", 
-        "minp", "maxp", "weight", "pandora", "none"), counts, 
-        sampleList, statistics, statArgs, libsizeList, 
-        nperm = 10000, weight = rep(1/length(statistics), 
-        length(statistics)), rc = NULL)
+        metaP = c("simes", "bonferroni", "fisher", "harmonic",
+        "dperm_min", "dperm_max", "dperm_weight", "fperm", 
+        "whitlock", "minp", "maxp", "weight", "pandora", 
+        "none"), counts, sampleList, statistics, statArgs, 
+        libsizeList, nperm = 10000, 
+        weight = rep(1/length(statistics), length(statistics)), 
+        pOffset = NULL, rc = NULL)
 }
 \arguments{
     \item{cpList}{a named list whose names are the contrasts
@@ -43,6 +44,10 @@
 
     \item{weight}{a numeric vector of weights for each
     statistical algorithm.}
+    
+    \item{pOffset}{\code{NULL} (default) or a fixed 
+    numeric value between 0 and 1. See also the main 
+    \code{\link{metaseqr2}} man page.}
 
     \item{rc}{the fraction of the available cores to use
     in a multicore system.}
@@ -62,8 +67,7 @@
     Ideally one would want to create the same set of indices 
     for a given dataset so as to create reproducible p-values. 
     To achieve this, use the \code{set.seed} function prior 
-    to any calculations. When metaseqR2 is loaded, the random
-    seed is set to \code{42}.
+    to any calculations.
 }
 \examples{
 cpList <- list(a=matrix(runif(100),50,2))

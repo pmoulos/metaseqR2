@@ -2425,11 +2425,11 @@ statistical analysis performed by the ```metaseqr2``` pipeline.
 
 ```{r results_tables_header}
 if (is.null(reportTop)) {
-    topText <- paste("all the statistically significant ",  transLevel,"s",
+    topText <- paste("all the statistically significant ",  transLevel,"s. ",
         sep="")
 } else {
     topText <- paste("the top ",round(100*reportTop),"% statistically ",
-        "significant ",transLevel,"s",sep="")
+        "significant ",transLevel,"s. ",sep="")
 }
 restText <- paste("Use the download links below each table to retrieve the ",
     "total list of differentially expressed ",transLevel,"s or the whole ",

@@ -36,13 +36,13 @@
             "dperm_weight", "fperm", "whitlock", "minp", "maxp",
              "weight", "pandora", "none") else "none",
         weight = rep(1/length(statistics), length(statistics)),
-        nperm = 10000, pcut = NA, logOffset = 1, preset = NULL,
-        qcPlots = c("mds", "biodetection", "countsbio", 
-            "saturation", "readnoise","filtered", "correl", 
-            "pairwise", "boxplot", "gcbias", "lengthbias", 
-            "meandiff", "meanvar", "rnacomp", "deheatmap",
-            "volcano", "biodist", "mastat", "statvenn",
-            "foldvenn", "deregulogram"),
+        nperm = 10000, pcut = NA, logOffset = 1, pOffset = NULL, 
+        preset = NULL, qcPlots = c("mds", "biodetection", 
+            "countsbio", "saturation", "readnoise","filtered", 
+            "correl", "pairwise", "boxplot", "gcbias", 
+            "lengthbias", "meandiff", "meanvar", "rnacomp", 
+            "deheatmap", "volcano", "biodist", "mastat", 
+            "statvenn", "foldvenn", "deregulogram"),
         figFormat = c("png", "jpg", "tiff", "bmp", "pdf", "ps"),
         outList = FALSE, exportWhere = NA,
         exportWhat = c("annotation", "p_value", "adj_p_value", 
@@ -60,14 +60,15 @@
         reportDb = c("dexie", "sqlite"), 
         localDb = file.path(system.file(package = "metaseqR2"),
             "annotation.sqlite"),
-        progressFun = NULL, offlineReport = TRUE, 
+        offlineReport = TRUE, 
         createTracks = FALSE, overwriteTracks = FALSE, 
         trackExportPath = file.path(exportWhere, "tracks"),
         trackInfo = list(stranded = FALSE, normTo = 1e+9, 
             urlBase = "http://www.trackserver.me",
             hubInfo = list(name = "MyHub", shortLabel = "My hub",
             longLabel = "My hub long", 
-            email = "someone@example.com")), ...)
+            email = "someone@example.com")), .progressFun = NULL,
+            .exportR2C = FALSE,...)
 }
 \arguments{
     \item{counts}{a text tab-delimited file containing gene,
@@ -255,6 +256,11 @@
     \item{logOffset}{an offset to be added to values during
     logarithmic transformations in order to avoid Infinity
     (default is \code{1}).}
+    
+    \item{pOffset}{a value between \code{0} and \code{1} 
+    to multiply potential zero p-values with for the 
+    combination methods including weighting or \code{NULL} 
+    (default). See also Details.}
 
     \item{preset}{an analysis strictness preset.
     \code{preset} can be one of \code{"all_basic"},
@@ -381,11 +387,6 @@
     \item{localDb}{the metaseqR2 annotaation database location.
     See also \code{link{buildAnnotationDatabase}}.}
     
-    \item{progressFun}{a function which updates a 
-    \code{Progress} object from shiny. This function must
-    accept a \code{detail} argument. See 
-    http://shiny.rstudio.com/articles/progress.html}
-    
     \item{offlineReport}{\code{TRUE} (default) to download
     and include the required JavaScript libraries to
     properly view the report offline. Ignored if
@@ -404,6 +405,14 @@
     \item{trackInfo}{if \code{createTracks=TRUE}, a list with
     additional required information to create the tracks. See
     Details for further explanation.}
+    
+    \item{.progressFun}{a function which updates a 
+    \code{Progress} object from shiny. This function must
+    accept a \code{detail} argument. See 
+    http://shiny.rstudio.com/articles/progress.html}
+    
+    \item{.exportR2C}{export additional RData along with
+    \code{saveGeneModel}.}
 
     \item{...}{further arguments that may be passed to
     plotting functions, related to \code{\link{par}}.}
@@ -672,6 +681,19 @@
     is rather rare in RNA-Seq experiments. Finally, 
     \code{"pandora"} is the same as \code{"weight"} and is
     added to be in accordance with the main algorithm name.
+    
+    Regarding \code{pOffset}, it is used to correct for
+    the case of a p-value which is equal to 0 as a result
+    of internal numerical and approximation procedures.
+    When \code{NULL}, random numbers greater than 0 and
+    less than or equal to 0.5 are used to multiply the
+    offending p-values with the lowest provided non-zero
+    p-value, maintaining thus a virtual order of 
+    significance, avoiding having the same p-values for 
+    two tests and assuming that all zero p-values represent
+    extreme statistical significance. When a numeric
+    between 0 and 1, this number is used for the above
+    multiplication instead.
     
     Regarding \code{qcPlots} The \code{"mds"} stands
     for Mutlti-Dimensional Scaling and it creates a PCA-like

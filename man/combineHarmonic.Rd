@@ -1,8 +1,8 @@
-\name{combineWeight}
-\alias{combineWeight}
+\name{combineHarmonic}
+\alias{combineHarmonic}
 \title{Combine p-values using weights}
 \usage{
-    combineWeight(p, w, zerofix = NULL)
+    combineHarmonic(p, w, zerofix = NULL)
 }
 \arguments{
     \item{p}{a p-value matrix (rows are genes, 
@@ -37,7 +37,7 @@
 }
 \examples{
 p <- matrix(runif(300),100,3)
-pc <- combineWeight(p,w=c(0.2,0.5,0.3))
+pc <- combineHarmonic(p,w=c(0.2,0.5,0.3))
 }
 \author{
     Panagiotis Moulos

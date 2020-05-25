@@ -58,6 +58,11 @@ buildAnnotationDatabase <- function(organisms,sources,
                     vss <- getUcscToEnsembl(o)
                     vs <- vss[length(vss)]
                 }
+                vs <- .validateEnsemblVersions(o,vs)
+                if (is.null(vs)) { # Something went wrong... Get latest again
+                    vss <- getUcscToEnsembl(o)
+                    vs <- vss[length(vss)]
+                }
             }
             else if (s %in% getSupportedUcscDbs())
                 vs <- format(Sys.Date(),"%Y%m%d")
@@ -1962,8 +1967,20 @@ getHost <- function(org,ver=NULL) {
         else
             return(ea[i,"url"])
     }
-    else
-        return(NULL)
+    else {
+        warning("Version ",ver," not found in biomaRt archives for ",org,"! ",
+            "Will use the latest available version for ",org,"...",
+            immediate.=TRUE)
+        u2e <- ucscToEnsembl()
+        vers <- u2e[[org]]
+        for (v in rev(vers)) {
+            newi <- grep(as.character(v),ea[,"version"])
+            if (length(newi) > 0)
+                return(ea[newi,"url"])
+        }
+    }
+    # If everything fails...
+    return(NULL)
 }
 
 getUcscToEnsembl <- function(org) {
@@ -2128,9 +2145,7 @@ getValidChrs <- function(org) {
         },
         dm6 = {
             return(c(
-                "chr2L","chr2LHet","chr2R","chr2RHet","chr3L","chr3LHet",
-                "chr3R","chr3RHet","chr4","chrU","chrUextra","chrX","chrXHet",
-                "chrYHet"
+                "chr2L","chr2R","chr3L","chr3R","chr4","chrX"
             ))
         },
         danrer7 = {
@@ -3293,4 +3308,29 @@ initDatabase <- function(db) {
         return(GenomeInfoDb::getChromInfoFromUCSC(o))
     else
         return(GenomeInfoDb::fetchExtendedChromInfoFromUCSC(o))
+}
+
+.validateEnsemblVersions <- function(o,v) {
+    ea <- biomaRt::listEnsemblArchives()
+    found <- as.character(v) %in% ea[,"version"]
+    if (any(!found)) {
+        nf <- which(!found)
+        warning("Version(s) ",paste0(v[nf],collapse=", ")," not found in ",
+            "biomaRt archives for current organism!\nWill use the latest ",
+            "available version(s)...",immediate.=TRUE)
+        newv <- v[-nf]
+        if (length(newv) == 0) {
+            warning("No Ensembl versions left after validation! Will return ",
+                "only the latest available...",immediate.=TRUE)
+            u2e <- ucscToEnsembl()
+            vers <- u2e[[o]]
+            for (newv in rev(vers)) {
+                newi <- grep(as.character(newv),ea[,"version"])
+                if (length(newi) > 0)
+                    return(newv)
+            }
+        }
+        return(newv)
+    }
+    return(v)
 }

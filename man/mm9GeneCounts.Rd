@@ -1,7 +1,7 @@
 \docType{data}
 \name{mm9GeneCounts}
 \alias{mm9GeneCounts}
-\title{mouse RNA-Seq data with two conditions, four samples}
+\title{Mouse RNA-Seq data with two conditions, four samples}
 \format{a \code{data.frame} with gene read counts and some embedded 
 annotation, one row per gene.}
 \source{

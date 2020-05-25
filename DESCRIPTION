@@ -31,6 +31,7 @@ Imports:
     gplots,
     graphics,
     grDevices,
+    harmonicmeanp,
     heatmaply,
     htmltools,
     httr,
@@ -86,8 +87,8 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     ChIPSeq
 VignetteBuilder: knitr
 BugReports: https://github.com/pmoulos/metaseqR2/issues
-Version: 1.1.11
-Date: 2020-04-29
+Version: 1.1.13
+Date: 2020-05-25
 Collate:
     'annotation.R'
     'argcheck.R'

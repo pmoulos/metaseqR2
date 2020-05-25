@@ -68,6 +68,7 @@ metaseqr2 <- function(
     nperm=10000,
     pcut=NA,
     logOffset=1,
+    pOffset=NULL,
     preset=NULL, # An analysis strictness preset
     qcPlots=c(
         "mds","biodetection","countsbio","saturation","readnoise","filtered",
@@ -93,7 +94,6 @@ metaseqr2 <- function(
     runLog=TRUE,
     reportDb=c("dexie","sqlite"),
     localDb=file.path(system.file(package="metaseqR2"),"annotation.sqlite"),
-    progressFun=NULL,
     offlineReport=TRUE,
     createTracks=FALSE,
     overwriteTracks=FALSE,
@@ -109,6 +109,8 @@ metaseqr2 <- function(
             email="someone@example.com"
         )
     ),
+    .progressFun=NULL,
+    .exportR2C=FALSE,
     ...
 ) {
     # Save function call for report
@@ -439,7 +441,10 @@ metaseqr2 <- function(
         checkNumArgs("embedCols$nameCol",embedCols$nameCol,"numeric",0,"gt")
     if (!is.null(embedCols$btCol) && !is.na(embedCols$btCol)) 
         checkNumArgs("embedCols$btCol",embedCols$btCol,"numeric",0,"gt")
-    if (!is.na(logOffset)) checkNumArgs("logOffset",logOffset,"numeric",0,"gt")
+    if (!is.na(logOffset)) 
+        checkNumArgs("logOffset",logOffset,"numeric",0,"gt")
+    if (!is.null(pOffset)) 
+        checkNumArgs("pOffset",pOffset,"numeric",c(0,1),"botheq")
     checkNumArgs("nperm",nperm,"numeric",10,"gt")
     if (!is.null(reportTop))
         checkNumArgs("reportTop",reportTop,"numeric",c(0,1),"both")
@@ -766,9 +771,9 @@ metaseqr2 <- function(
     if ("stats" %in% exportWhat)
         disp("Output statistics: ",paste(exportStats,collapse=", "),"\n")
         
-    if (is.function(progressFun)) {
+    if (is.function(.progressFun)) {
         text <- paste("Starting the analysis...")
-        progressFun(detail=text)
+        .progressFun(detail=text)
     }
     ############################################################################
     
@@ -1184,9 +1189,9 @@ metaseqr2 <- function(
     # BEGIN FILTERING SECTION
     ############################################################################
     
-    if (is.function(progressFun)) {
+    if (is.function(.progressFun)) {
         text <- paste("Filtering...")
-        progressFun(detail=text)
+        .progressFun(detail=text)
     }
     
     # GC bias is NOT alleviated if we do not remove the zeros!!!
@@ -1300,9 +1305,9 @@ metaseqr2 <- function(
             geneCountsDead <- geneDataDead <- geneCountsUnnorm <- NULL
         }
         
-        if (is.function(progressFun)) {
+        if (is.function(.progressFun)) {
             text <- paste("Normalizing...")
-            progressFun(detail=text)
+            .progressFun(detail=text)
         }
         
         disp("Normalizing with: ",normalization)
@@ -1346,9 +1351,9 @@ metaseqr2 <- function(
         normGenesExpr <- normGenes
     }
     else if (whenApplyFilter=="postnorm") {
-        if (is.function(progressFun)) {
+        if (is.function(.progressFun)) {
             text <- paste("Normalizing...")
-            progressFun(detail=text)
+            .progressFun(detail=text)
         }
         
     # Apply filtering after normalization if desired (default)
@@ -1568,9 +1573,9 @@ metaseqr2 <- function(
         stopwrap("No genes left after gene and/or exon filtering! Try again ",
             "with no filtering or less strict filter rules...")
 
-    if (is.function(progressFun)) {
+    if (is.function(.progressFun)) {
         text <- paste("Statistical testing...")
-        progressFun(detail=text)
+        .progressFun(detail=text)
     }
     
     # Run the statistical test, normGenes is always a method-specific object,
@@ -1781,6 +1786,7 @@ metaseqr2 <- function(
             libsizeList=libsizeList,
             nperm=nperm,
             weight=weight,
+            pOffset=pOffset,
             rc=restrictCores
         )
     }
@@ -1799,9 +1805,9 @@ metaseqr2 <- function(
     #                            EXPORT SECTION
     ############################################################################
 
-    if (is.function(progressFun)) {
+    if (is.function(.progressFun)) {
         text <- paste("Exporting...")
-        progressFun(detail=text)
+        .progressFun(detail=text)
     }
 
     # Bind all the flags
@@ -1881,6 +1887,24 @@ metaseqr2 <- function(
         geneCountsFiltered <- NULL
         geneCountsUnnormFiltered <- NULL
         allFlags <- NULL
+    }
+    
+    # Export structure for SeqCVIBE
+    if (.exportR2C) {
+        actLen <- c(attr(geneDataExpr,"geneLength"),
+            attr(geneDataFiltered,"geneLength"))
+        names(actLen) <- c(names(geneDataExpr),names(geneDataFiltered))
+        
+        disp("Saving more count data to ",file.path(PROJECT_PATH[["data"]],
+            "count_data.RData"))
+        .createR2CExport(
+            rbind(geneCountsExpr,geneCountsUnnormFiltered),
+            rbind(normGenesExpr,geneCountsFiltered),
+            c(geneDataExpr,geneDataFiltered),
+            actLen,
+            libsizeList,
+            file.path(PROJECT_PATH[["data"]],"count_data.RData")
+        )
     }
     
     reportTables <- vector("list",length(contrast))
@@ -2030,6 +2054,7 @@ metaseqr2 <- function(
             # ...and order them somehow... alphabetically according to row
             # names, as the annotation might not have been bundled...
             exportAll <- exportAll[order(rownames(exportAll)),]
+            colnames(exportAll)[1] <- "chromosome"
             
             # Here, both filtered and unfiltered genes are passed to the output
             # list.
@@ -2046,7 +2071,7 @@ metaseqr2 <- function(
         
         # If report requested, build a more condensed summary table, while the
         # complete tables are available for download
-        if (report) { 
+        if (report) {
             if (length(statistics) > 1) {
                 ew <- c("annotation","meta_p_value","adj_meta_p_value",
                     "fold_change","stats")
@@ -2091,7 +2116,14 @@ metaseqr2 <- function(
             reportTables[[cnt]] <- reportTables[[cnt]][order(pp),]
             
             if (!is.null(reportTop)) {
-                topi <- ceiling(reportTop*nrow(reportTables[[cnt]]))
+                plasm <- pcut
+                if (is.na(pcut))
+                    plasm <- 0.05
+                    
+                topi <- ceiling(reportTop*length(which(pp<=plasm)))
+                if (topi == 0)
+                    topi <- 10
+                #topi <- ceiling(reportTop*nrow(reportTables[[cnt]]))
                 reportTables[[cnt]] <- 
                     reportTables[[cnt]][seq_len(topi),,drop=FALSE]
             }
@@ -2106,9 +2138,9 @@ metaseqr2 <- function(
     # BEGIN PLOTTING SECTION
     ############################################################################
     
-    if (is.function(progressFun)) {
+    if (is.function(.progressFun)) {
         text <- paste("Plotting...")
-        progressFun(detail=text)
+        .progressFun(detail=text)
     }
     
     # Check if we have more than 6 samples in total, pairwise plots are not
@@ -2594,6 +2626,34 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
         return(FALSE)
     refdbs <- unique(us$source)
     return(refdb %in% refdbs)
+}
+
+.createR2CExport <- function(raw,norm,gr,al,lib,output) {
+    # Ensure the same order
+    nameOrder <- names(gr)[order(names(gr))]
+    
+    # Reorder
+    raw <- raw[nameOrder,]
+    norm <- norm[nameOrder,]
+    gr <- gr[nameOrder]
+    al <- al[nameOrder]
+    
+    # Active length and annotation data frame
+    attr(gr,"geneLength") <- al
+    ann <- as.data.frame(gr)
+    ann <- ann[,c(1,2,3,6,7,5,8,9)]
+    colnames(ann)[1] <- "chromosome"
+    
+    # Create the list to be exported, naming violation with dot(.) in order
+    # not to break current SeqCVIBE... Will correct in the future.
+    b2c.out <- list(
+        counts=raw,
+        norm=norm,
+        annotation=ann,
+        length=al,
+        libsize=lib
+    )
+    save(b2c.out,file=output,compress=TRUE)
 }
 
 .backwardsCompatibility <- function(dataFile) {

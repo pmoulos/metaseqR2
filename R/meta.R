@@ -1,11 +1,11 @@
-metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
+metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher","harmonic",
     "dperm_min","dperm_max","dperm_weight","fperm","whitlock","minp","maxp",
     "weight","pandora","none"),counts,sampleList,statistics,statArgs,
     libsizeList,nperm=10000,weight=rep(1/length(statistics),
-    length(statistics)),rc=NULL) {
-    checkTextArgs("metaP",metaP,c("simes","bonferroni","fisher","dperm_min",
-        "dperm_max","dperm_weight","fperm","whitlock","minp","maxp","weight",
-        "pandora","none"))
+    length(statistics)),pOffset=NULL,rc=NULL) {
+    checkTextArgs("metaP",metaP,c("simes","bonferroni","fisher","harmonic",
+    "dperm_min","dperm_max","dperm_weight","fperm","whitlock","minp","maxp",
+    "weight","pandora","none"))
     contrast <- names(cpList)
     disp("Performing meta-analysis with ",metaP)
     if (metaP=="pandora")
@@ -37,12 +37,12 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
         },
         simes = {
             sumpList <- cmclapply(cpList,function(x) {
-                return(apply(x,1,combineSimes))
+                return(apply(x,1,combineSimes,pOffset))
             },rc=rc)
         },
         bonferroni = {
             sumpList <- cmclapply(cpList,function(x) {
-                return(apply(x,1,combineBonferroni))
+                return(apply(x,1,combineBonferroni,pOffset))
             },rc=rc)
         },
         minp = {
@@ -55,9 +55,14 @@ metaTest <- function(cpList,metaP=c("simes","bonferroni","fisher",
                 return(apply(x,1,combineMaxp))
             },rc=rc)
         },
+        harmonic = {
+            sumpList <- cmclapply(cpList,function(x) {
+                return(apply(x,1,combineHarmonic,weight,pOffset))
+            },rc=rc)
+        },
         weight = {
             sumpList <- cmclapply(cpList,function(x) {
-                return(apply(x,1,combineWeight,weight))
+                return(apply(x,1,combineWeight,weight,pOffset))
             },rc=rc)
         },
         dperm_min = {
@@ -261,29 +266,30 @@ metaWorker <- function(x,co,sl,cnt,s,r,sa,ll,el,w) {
     return(pIter)
 }
 
-combineSimes <- function(p) {
-    ze <- which(p==0)
-    if (length(ze)>0)
-        p[ze] <- 0.1*min(p[-ze])
+combineSimes <- function(p,zerofix=NULL) {
+    p <- .zeroFix(p,zerofix)
     m <- length(p)
     y <- sort(p)
     s <- min(m*(y/(seq_len(m))))
     return(min(c(s,1)))
 }
 
-combineBonferroni <- function(p) {
-    ze <- which(p==0)
-    if (length(ze)>0)
-        p[ze] <- 0.1*min(p[-ze])
+combineBonferroni <- function(p,zerofix=NULL) {
+    p <- .zeroFix(p,zerofix)
     b <- length(p)*min(p)
     return(min(c(1,b)))
 }
 
-combineWeight <- function(p,w) {
-    ze <- which(p==0)
-    if (length(ze)>0)
-        p[ze] <- 0.1*min(p[-ze])
+combineWeight <- function(p,w,zerofix=NULL) {
+    p <- .zeroFix(p,zerofix)
     return(prod(p^w))
+}
+
+combineHarmonic <- function(p,w,zerofix=NULL) {
+    if (!requireNamespace("harmonicmeanp"))
+        stop("R package harmonicmeanp is required!")
+    p <- .zeroFix(p,zerofix)
+    return(p.hmp(p,w,L=length(p),multilevel=FALSE))
 }
 
 combineMinp <- function(p) { return(min(p)) }
@@ -314,12 +320,12 @@ fisherMethod <- function(pvals,method=c("fisher"),p.corr=c("bonferroni","BH",
         fisher.sums <- data.frame(do.call(rbind,fisher.sums))
     }
     
-  rownames(fisher.sums) <- rownames(pvals)
-  fisher.sums$p.value <- 1-pchisq(fisher.sums$S,df=2*fisher.sums$num.p)
-  fisher.sums$p.adj <- switch(p.corr,
-      bonferroni = p.adjust(fisher.sums$p.value,"bonferroni"),
-      BH = p.adjust(fisher.sums$p.value,"BH"),
-      none = fisher.sums$p.value
+    rownames(fisher.sums) <- rownames(pvals)
+    fisher.sums$p.value <- 1-pchisq(fisher.sums$S,df=2*fisher.sums$num.p)
+    fisher.sums$p.adj <- switch(p.corr,
+        bonferroni = p.adjust(fisher.sums$p.value,"bonferroni"),
+        BH = p.adjust(fisher.sums$p.value,"BH"),
+        none = fisher.sums$p.value
     )
     return(fisher.sums)
 }
@@ -369,9 +375,9 @@ fisherMethodPerm <- function(pvals,p.corr=c("bonferroni","BH","none"),
         message()
     ## rownames(resPerm) <- rownames(pvals)
     resPerm$p.adj <- switch(p.corr,
-      bonferroni = p.adjust(resPerm$p.value,"bonferroni"),
-      BH = p.adjust(resPerm$p.value,"BH"),
-      none = resPerm$p.value)
+        bonferroni = p.adjust(resPerm$p.value,"bonferroni"),
+        BH = p.adjust(resPerm$p.value,"BH"),
+        none = resPerm$p.value)
     return(resPerm)
 }
 
@@ -387,4 +393,22 @@ fisherSum <- function(p,zeroSub=0.00001,na.rm=FALSE) {
     S = -2*sum(log(p))
     res <- data.frame(S=S,num.p=length(p))
     return(res)
+}
+
+.zeroFix <- function(p,z=NULL) {
+    if (!is.null(z) && !is.numeric(z))
+        stop("zerofix must be NULL or a numeric greater than 0 and less than ",
+            "1!")
+    if (!is.null(z) && (z <= 0 || z >= 1))
+        stop("When zerofix is not NULL it must be a numeric greater than 0 ",
+            "and less than 1!")
+    #ze <- which(p==0)
+    ze <- which(p < 1e-300) # A very small value as 0 causes also problems...
+    if (length(ze)>0) {
+        if (!is.null(z))
+            p[ze] <- z*min(p[-ze])
+        else
+            p[ze] <- 0.5*runif(length(ze))*min(p[-ze])
+    }
+    return(p)
 }

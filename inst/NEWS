@@ -5,3 +5,21 @@ NEW FEATURES
 
     o First submission of metaseqR2
 
+CHANGES IN VERSION 1.1.13 (2020-05-25)
+-------------------------------------
+
+NEW FEATURES
+
+    o Addition of the harmonic mean p-value combination method
+    (Wilson, 2019 - https://doi.org/10.1073/pnas.1814092116)
+    o Addition of a new dataset (hg19pvalues) containing a set of
+    gene p-values from Giakountis et al., 
+    https://doi.org/10.1016/j.celrep.2016.05.038 to be used in the
+    main vignette as well as a playground for p-value combination
+    
+BUG FIXES
+
+    o Major bug fix! The order of p-values returned by statDss was
+    inconsistent with the rest of the stat* functions.
+    o Other minor bug fixes.
+
