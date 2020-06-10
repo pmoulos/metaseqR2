@@ -36,7 +36,8 @@ read2count <- function(targets,annotation,fileType=targets$type,
     if (length(grep("MET",annotation$transcript_id[1])) > 0
         || length(grep("MEU",annotation$transcript_id[1])) > 0)
         countType <- "utr"
-    else if (length(grep("MEX",annotation$transcript_id[1])) > 0)
+    else if (length(grep("MEX",annotation$exon_id[1])) > 0
+        || length(grep("MTE",annotation$exon_id[1])) > 0)
         countType <- "exon"
     else
         countType <- "gene"
@@ -112,7 +113,11 @@ read2count <- function(targets,annotation,fileType=targets$type,
     else if (fileType %in% c("sam","bam")) {
         if (fileType=="sam")
             sampleFiles <- .convertSam(sampleFiles)
-            
+        
+        # Adjust seqlevelsStyle locally, only for counting, the finally reported
+        # style is UCSC as several downstream steps depend on it
+        annotationGr <- .adjustSeqlevelsStyle(annotationGr,sampleFiles[1])
+        
         # We must now compare the Seqinfos of annotation and a BAM file to check
         # whether they match. If they do not match, then for now, we drop the
         # Seqinfo of annotation. In a future release, it will be converted to
@@ -401,6 +406,19 @@ readTargets <- function(input,path=NULL) {
         if (!identical(ciAnn,ciBam)) # Different lengths, drop from annotation
             seqlengths(gr) <- rep(NA,length(seqlengths(gr)))
     }
+    
+    return(gr)
+}
+
+.adjustSeqlevelsStyle <- function(gr,f) {
+    b <- BamFile(f)
+    
+    # Check seqlevels styles of the loaded genome for local counting use and
+    # change the style of the local annotation.
+    sb <- seqlevelsStyle(b)
+    sg <- seqlevelsStyle(gr)
+    if (!any(sg %in% sb))
+        seqlevelsStyle(gr) <- sb[1]
     
     return(gr)
 }

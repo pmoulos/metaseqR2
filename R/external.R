@@ -34,12 +34,12 @@
 .mySubmitQueryXML <- function (host, query) {
     httr::set_config(httr::config(http_version = 1L))
     res <- httr::POST(url = host, body = list(query = query),
-        httr::timeout(1000))
+        httr::timeout(2000))
     if (httr::status_code(res) == 302) {
         host <- stringr::str_match(string=res$all_headers[[1]]$headers$location,
             pattern = "//([a-zA-Z./]+)\\??;?redirectsrc")[, 2]
         res <- httr::POST(url = host, body = list(query = query),
-            config = list(httr::timeout(1000)))
+            config = list(httr::timeout(2000)))
     }
     return(suppressMessages(httr::content(res)))
 }

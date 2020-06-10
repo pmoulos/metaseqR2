@@ -1,11 +1,41 @@
 # metaseqR2-local
 
-An R package for the analysis, meta-analysis and result reporting of RNA-Seq gene expression data - Next Generation!
+An R package for the analysis, meta-analysis and result reporting of RNA-Seq 
+gene expression data - Next Generation!
 
-## Installation of the pre-Bioconductor release
+## Installation from Bioconductor
 
 ```
-git clone https://github.com/pmoulos/metaseqR2-local.git
+if (!requireNamespace("BiocManager",quietly=TRUE))
+    install.packages("BiocManager")
+
+library(BiocManager)
+
+BiocManager::install("metaseqR2")
+
+# or for development version to be installed
+# BiocManager::install("metaseqR2",version="devel")
+```
+
+## Installation from GitHub
+
+Use with caution as the latest version may be unstable, although typical
+Bioconductor checks are executed before each push.
+
+```
+if (!requireNamespace("devtools",quietly=TRUE))
+    install.packages("devtools")
+
+library(devtools)
+install_github("pmoulos/metaseqR2")
+```
+
+## Installation from source
+
+The same things apply regarding stability.
+
+```
+git clone https://github.com/pmoulos/metaseqR2.git
 mkdir metaseqR2-build
 rsync -avr --exclude=README.md --exclude=.git --exclude=.gitignore  \
     ./metaseqR2-local/ ./metaseqR2-build/metaseqR2
@@ -22,7 +52,7 @@ R CMD build --no-build-vignettes ./metaseqR2
 And then install
 
 ```
-R CMD INSTALL metaseqR2_0.0.1.tar.gz
+R CMD INSTALL ./metaseqR2_x.y.z.tar.gz
 ```
 
 Please report any issues [here](https://github.com/pmoulos/metaseqR2-local/issues). 
@@ -31,8 +61,10 @@ Please report any issues [here](https://github.com/pmoulos/metaseqR2-local/issue
 
 If you do not wish to build annotation databases on your own using the
 ```buildAnnotationDatabase``` function, you can find complete pre-built 
-annotation SQLite databases [here](https://drive.google.com/drive/folders/15lOY9PBggCcaoohO_0rQTvExXenqah55?usp=sharing). New versions will be constructed from time to time, most probably
-whenever a new Ensembl release comes live.
+annotation SQLite databases
+[here](https://drive.google.com/drive/folders/15lOY9PBggCcaoohO_0rQTvExXenqah55?usp=sharing). 
+New versions will be constructed from time to time, most probably whenever a new
+Ensembl release comes live.
 
 The prebuilt annotations contain:
 

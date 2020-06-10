@@ -208,7 +208,7 @@ buildAnnotationDatabase <- function(organisms,sources,
                         stop("3' UTR annotation for ",o," from ",s," version ",
                             vs," is required in order to build predefined ",
                             "merged 3' UTR regions for read counting.\nPlease ",
-                            "rerun the buildAnnotationStore function with ",
+                            "rerun the buildAnnotationDatabase function with ",
                             "appropriate parameters.")
                     annGr <- .loadPrebuiltAnnotation(con,o,s,v,"gene","utr")
                     message("Merging gene 3' UTRs for ",o," from ",s,
@@ -260,8 +260,9 @@ buildAnnotationDatabase <- function(organisms,sources,
                         stop("3' UTR annotation per transcript for ",o," from ",
                             s," version ",v," is required in order to build ",
                             "predefined merged 3'UTR regions for read ",
-                            "counting.\nPlease rerun the buildAnnotationStore",
-                            " function with appropriate parameters.")
+                            "counting.\nPlease rerun the ",
+                            "buildAnnotationDatabase function with ",
+                            "appropriate parameters.")
                     annGr <- 
                         .loadPrebuiltAnnotation(con,o,s,v,"transcript","utr")
                     message("Merging transcript 3' UTRs for ",o," from ",s,
@@ -323,7 +324,30 @@ buildAnnotationDatabase <- function(organisms,sources,
                         append=TRUE)
                 }
                 
-                # Then summarize the exons and write again with type sum_exon
+                # Retrieve extended annotations
+                if (.annotationExists(con,o,s,v,"transexon") && !forceDownload)
+                    message("Extended exon annotation for ",o," from ",s,
+                        " version ",v," has already been created and will be ",
+                        "skipped.\nIf you wish to recreate it choose ",
+                        "forceDownload = TRUE.")
+                else {
+                    message("Retrieving extended exon annotation for ",o,
+                        " from ",s," version ",v)
+                    ann <- getAnnotation(o,"transexon",refdb=s,ver=v,rc=rc)
+                    nr <- .dropAnnotation(con,o,s,v,"transexon")
+                    nr <- .insertContent(con,o,s,v,"transexon")
+                    nid <- .annotationExists(con,o,s,v,"transexon",out="id")
+                    ann$content_id <- rep(nid,nrow(ann))
+                    sfTrExon <- sf
+                    sfTrExon$content_id <- rep(nid,nrow(sfExon))
+                    dbWriteTable(con,"transexon",ann,row.names=FALSE,
+                        append=TRUE)
+                    dbWriteTable(con,"seqinfo",sfTrExon,row.names=FALSE,
+                        append=TRUE)
+                }
+                
+                # Then summarize the exons per gene and write again with type 
+                # summarized_exon
                 if (.annotationExists(con,o,s,v,"summarized_exon")
                     && !forceDownload)
                     message("Summarized exon annotation for ",o," from ",s,
@@ -336,8 +360,8 @@ buildAnnotationDatabase <- function(organisms,sources,
                             " is required in order to build predefined merged ",
                             "exon regions for RNA-Seq (exon) coverage ",
                             "calculations.\nPlease rerun the ",
-                            "buildAnnotationStore function with appropriate ",
-                            "parameters.")
+                            "buildAnnotationDatabase function with ",
+                            "appropriate parameters.")
                             
                     annGr <- .loadPrebuiltAnnotation(con,o,s,v,"exon","exon")
                     message("Merging exons for ",o," from ",s," version ",v)
@@ -371,6 +395,58 @@ buildAnnotationDatabase <- function(organisms,sources,
                     )
                     dbWriteTable(con,"active_length",active,row.names=FALSE,
                         append=TRUE)
+                }
+                
+                # Then summarize the exons per transcript and write again with 
+                # type summarized_transcript_exon
+                if (.annotationExists(con,o,s,v,"summarized_transcript_exon")
+                    && !forceDownload)
+                    message("Summarized exon annotation per transcript for ",o,
+                        " from ",s," version ",v," has already been created ",
+                        "and will be skipped.\nIf you wish to recreate it ",
+                        "choose forceDownload = TRUE.")
+                else {
+                    if (!.annotationExists(con,o,s,v,"transexon")) 
+                        stop("Extended exon annotation for ",o," from ",s,
+                            " version ",v," is required in order to build ",
+                            "summarized exon annotation per transcript\n",
+                            "Please rerun the buildAnnotationDatabase ",
+                            "function with appropriate parameters.")
+                
+                    annGr <- .loadPrebuiltAnnotation(con,o,s,v,"transcript",
+                        "exon")
+                    message("Merging exons for ",o," from ",s," version ",v)
+                    annList <- reduceTranscriptsExons(annGr)
+                    ann <- as.data.frame(annList$model)
+                    ann <- ann[,c(1,2,3,6,7,5,8,9)]
+                    names(ann)[1] <- "chromosome"
+                    ann$chromosome <- as.character(ann$chromosome)
+                    ann <- ann[order(ann$chromosome,ann$start),]
+                    nr <- .dropAnnotation(con,o,s,v,
+                        "summarized_transcript_exon")
+                    nr <- .insertContent(con,o,s,v,"summarized_transcript_exon")
+                    nid <- .annotationExists(con,o,s,v,
+                        "summarized_transcript_exon",out="id")
+                    ann$content_id <- rep(nid,nrow(ann))
+                    sfSumTrExon <- sf
+                    sfSumTrExon$content_id <- rep(nid,nrow(sfSumTrExon))
+                    dbWriteTable(con,"summarized_transcript_exon",ann,
+                        row.names=FALSE,append=TRUE)
+                    dbWriteTable(con,"seqinfo",sfSumTrExon,row.names=FALSE,
+                        append=TRUE)        
+                            
+                    activeLength <- annList$length
+                    nr <- .dropAnnotation(con,o,s,v,"active_trans_exon_length")
+                    nr <- .insertContent(con,o,s,v,"active_trans_exon_length")
+                    nid <- .annotationExists(con,o,s,v,
+                        "active_trans_exon_length",out="id")
+                    active <- data.frame(
+                        name=names(activeLength),
+                        length=activeLength,
+                        content_id=rep(nid,length(activeLength))
+                    )
+                    dbWriteTable(con,"active_trans_exon_length",active,
+                        row.names=FALSE,append=TRUE)
                 }
             }
         }
@@ -766,6 +842,8 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
         tName <- "active_utr_length"
     else if (metaType == "summarized_3utr_transcript")
         tName <- "active_trans_utr_length"
+    else if (metaType == "summarized_transcript_exon")
+        tName <- "active_trans_exon_length"
     cida <- .annotationExists(con,genome,refdb,version,"active_length",out="id")
         
     querySet <- .makeAnnotationQuerySet(metaType,cid,cida)
@@ -997,7 +1075,10 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
                         return("transcript")
                 },
                 exon = {
-                    # Stub
+                    if (summarized)
+                        return("summarized_transcript_exon")
+                    else
+                        return("transexon")
                 },
                 utr = {
                     if (summarized)
@@ -1009,8 +1090,20 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
         },
         exon = {
             switch(type,
+                gene = {
+                    if (summarized)
+                        return("summarized_exon")
+                    else
+                        return("exon")
+                },
                 exon = {
-                    return("exon")
+                    if (summarized)
+                        return("summarized_exon")
+                    else
+                        return("exon")
+                },
+                utr = {
+                    return("utr")
                 }
             )
         }
@@ -1364,6 +1457,68 @@ reduceExons <- function(gr) {
     return(list(model=grNew,length=len))
 }
 
+reduceTranscriptsExons <- function(gr) {
+    # Get the transcript ids to use ordering element
+    trans <- unique(as.character(gr$transcript_id))
+    
+    # Get the GRanges metadata to create a map for later
+    meta <- elementMetadata(gr)
+    if (is.null(gr$gene_name))
+        meta$gene_name <- meta$gene_id
+    if (is.null(gr$biotype))
+        meta$biotype <- rep("gene",nrow(meta))
+        
+    # There will be an exon_id
+    ir <- which(names(meta) == "exon_id")
+    map <- meta[,-ir]
+    
+    # Make the map and remove duplicates
+    d <- which(duplicated(map))
+    if (length(d) > 0)
+        map <- map[-d,,drop=FALSE]
+    rownames(map) <- map$transcript_id
+    map <- map[trans,]
+    
+    # Gene ids, names and biotypes for later reconstruction
+    #gi <- as.character(map$gene_id)
+    gn <- as.character(map$gene_name)
+    bt <- as.character(map$biotype)
+    
+    # Split the initial GRanges to apply rest operations
+    grList <- split(gr,gr$transcript_id)
+    # Re-order for common reference with the map
+    grList <- grList[trans]
+    # Now, reduce to merge overlaping exons
+    grList <- reduce(grList)
+    
+    # Start the reconstruction by getting new lengths and create names
+    lens <- lengths(grList)
+    inds <- unlist(lapply(lens,function(j) return(seq_len(j))),use.names=FALSE)
+    grNew <- unname(unlist(grList))
+    exon_id <- paste(rep(trans,lens),"MTE",inds,sep="_")
+    #transcript_id <- rep(gi,lens)
+    #gene_id <- rep(gi,lens)
+    gene_name <- rep(gn,lens)
+    biotype <- rep(bt,lens)
+    newMeta <- DataFrame(
+        exon_id=exon_id,
+        #gene_id=gene_id,
+        transcript_id=rep(trans,lens),
+        gene_name=gene_name,
+        biotype=biotype
+    )
+    mcols(grNew) <- newMeta
+    
+    # grNew is the GRanges to return. In order to get the activeLength, we split
+    # again per gene_id in a temp variable
+    tmp <- split(grNew,grNew$transcript_id)
+    tmp <- tmp[trans]
+    len <- vapply(width(tmp),sum,integer(1))
+    
+    #return(grNew)
+    return(list(model=grNew,length=len))
+}
+
 getAnnotation <- function(org,type,refdb="ensembl",ver=NULL,rc=NULL) {
     org <- tolower(org)
     switch(refdb,
@@ -1385,12 +1540,12 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
     chrsExp <- paste("^",getValidChrs(org),"$",sep="",collapse="|")
     if (type=="gene") {
         bm <- tryCatch(
-            getBM(attributes=getGeneAttributes(org),mart=mart),
+            getBM(attributes=.getGeneAttributes(org),mart=mart),
             error=function(e) {
                 message("Caught error: ",e)
                 message("This error is most probably related to httr package ",
                     "internals! Using fallback solution...")
-                .myGetBM(attributes=getGeneAttributes(org),mart=mart)
+                .myGetBM(attributes=.getGeneAttributes(org),mart=mart)
             },
             finally=""
         )
@@ -1411,12 +1566,12 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
     }
     else if (type=="transcript") {
         bm <- tryCatch(
-            getBM(attributes=getTranscriptAttributes(org),mart=mart),
+            getBM(attributes=.getTranscriptAttributes(org),mart=mart),
             error=function(e) {
                 message("Caught error: ",e)
                 message("This error is most probably related to httr package ",
                     "internals! Using fallback solution...")
-                .myGetBM(attributes=getTranscriptAttributes(org),mart=mart)
+                .myGetBM(attributes=.getTranscriptAttributes(org),mart=mart)
             },
             finally=""
         )
@@ -1435,12 +1590,12 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
     }
     else if (type=="utr") {
         bm <- tryCatch(
-            getBM(attributes=getTranscriptUtrAttributes(org),mart=mart),
+            getBM(attributes=.getTranscriptUtrAttributes(org),mart=mart),
             error=function(e) {
                 message("Caught error: ",e)
                 message("This error is most probably related to httr package ",
                     "internals! Using fallback solution...")
-                .myGetBM(attributes=getTranscriptUtrAttributes(org),mart=mart)
+                .myGetBM(attributes=.getTranscriptUtrAttributes(org),mart=mart)
             },
             finally=""
         )
@@ -1463,12 +1618,12 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
     }
     else if (type=="exon") {
         bm <- tryCatch(
-            getBM(attributes=getExonAttributes(org),mart=mart),
+            getBM(attributes=.getExonAttributes(org),mart=mart),
             error=function(e) {
                 message("Caught error: ",e)
                 message("This error is most probably related to httr package ",
                     "internals! Using fallback solution...")
-                .myGetBM(attributes=getExonAttributes(org),mart=mart)
+                .myGetBM(attributes=.getExonAttributes(org),mart=mart)
             },
             finally=""
         )
@@ -1484,6 +1639,30 @@ getEnsemblAnnotation <- function(org,type,ver=NULL) {
             biotype=bm$gene_biotype
         )
         rownames(ann) <- ann$exon_id
+    }
+    else if (type=="transexon") {
+        bm <- tryCatch(
+            getBM(attributes=.getTranscriptExonAttributes(org),mart=mart),
+            error=function(e) {
+                message("Caught error: ",e)
+                message("This error is most probably related to httr package ",
+                    "internals! Using fallback solution...")
+                .myGetBM(attributes=.getTranscriptExonAttributes(org),mart=mart)
+            },
+            finally=""
+        )
+        ann <- data.frame(
+            chromosome=paste("chr",bm$chromosome_name,sep=""),
+            start=bm$exon_chrom_start,
+            end=bm$exon_chrom_end,
+            exon_id=bm$ensembl_exon_id,
+            transcript_id=bm$ensembl_transcript_id,
+            #gene_id=bm$ensembl_gene_id,
+            strand=ifelse(bm$strand==1,"+","-"),
+            gene_name=if (org %in% c("hg18","hg19","mm9")) 
+                bm$external_gene_id else bm$external_gene_name,
+            biotype=bm$gene_biotype
+        )
     }
     ann <- ann[order(ann$chromosome,ann$start),]
     ann <- ann[grep(chrsExp,ann$chromosome),]
@@ -1521,7 +1700,8 @@ getUcscAnnotation <- function(org,type,refdb="ucsc",chunkSize=500,rc=NULL) {
             drv <- dbDriver("MySQL")
             con <- dbConnect(drv,user=dbCreds[2],password=NULL,dbname=dbOrg,
                 host=dbCreds[1])
-            query <- getUcscQuery(org,type,refdb)
+            type2 <- ifelse(type=="transexon","exon",type)
+            query <- getUcscQuery(org,type2,refdb)
             rawAnn <- dbGetQuery(con,query)
             dbDisconnect(con)
         }
@@ -1587,7 +1767,7 @@ getUcscAnnotation <- function(org,type,refdb="ucsc",chunkSize=500,rc=NULL) {
         rownames(ann) <- ann$transcript_id
         ann <- ann[,c(1,2,3,4,8,5:7)]
     }
-    else if (type=="exon") {
+    else if (type=="exon" || type=="transexon") {
         rawAnn <- rawAnn[grep(chrsExp,rawAnn$chromosome,perl=TRUE),]
         exList <- cmclapply(as.list(seq_len(nrow(rawAnn))),function(x,d) {
             r <- d[x,,drop=FALSE]
@@ -1641,6 +1821,9 @@ getUcscAnnotation <- function(org,type,refdb="ucsc",chunkSize=500,rc=NULL) {
             biotype=as.character(tmpAnn$biotype)
         )
         rownames(ann) <- ann$exon_id
+        
+        if (type == "transexon")
+            names(ann)[5] <- "transcript_id"
     }
     else if (type=="utr") {
         # We are already supposed to have the necessary elements to construct
@@ -1997,46 +2180,23 @@ ucscToEnsembl <- function() {
     return(list(
         hg18=67,
         hg19=74:75,
-        hg38=76:98,
+        hg38=76:100,
         mm9=67,
-        mm10=74:98,
+        mm10=74:100,
         rn5=74:79,
-        rn6=80:98,
+        rn6=80:100,
         dm3=c(67,74:78),
-        dm6=79:98,
+        dm6=79:100,
         danrer7=c(67,74:79),
         danrer10=80:91,
-        danrer11=92:98,
+        danrer11=92:100,
         pantro4=c(67,74:90),
-        pantro5=91:98,
+        pantro5=91:100,
         #pantro6=,
         susscr3=c(67,74:89),
-        susscr11=90:98,
-        equcab2=c(67,74:98)
+        susscr11=90:100,
+        equcab2=c(67,74:100)
     ))
-}
-
-getHostOld <- function(org) {
-    .Deprecated("getHost")
-    switch(org,
-        hg18 = { return("may2009.archive.ensembl.org") },
-        hg19 = { return("grch37.ensembl.org") },
-        hg38 = { return("www.ensembl.org") },
-        mm9 = { return("may2012.archive.ensembl.org") },
-        mm10 = { return("www.ensembl.org") },
-        rn5 = { return("grch37.ensembl.org") },
-        rn6 = { return("www.ensembl.org") },
-        dm3 = { return("grch37.ensembl.org") },
-        dm6 = { return("www.ensembl.org") },
-        danrer7 = { return("grch37.ensembl.org") },
-        danrer10 = { return("www.ensembl.org") },
-        danrer11 = { return("www.ensembl.org") },
-        pantro4 = { return("grch37.ensembl.org") },
-        pantro5 = { return("www.ensembl.org") },
-        #pantro6 = { return("www.ensembl.org") },
-        susscr3 = { return("grch37.ensembl.org") },
-        susscr11 = { return("www.ensembl.org") }
-    )
 }
 
 getAltHost <- function(org) {
@@ -2362,7 +2522,7 @@ getValidChrsWithMit <- function(org) {
     )
 }
 
-getGeneAttributes <- function(org) {
+.getGeneAttributes <- function(org) {
     if (org %in% c("hg18","hg19","mm9","tair10"))
         return(c(
             "chromosome_name",
@@ -2398,7 +2558,7 @@ getGeneAttributes <- function(org) {
         ))
 }
 
-getTranscriptAttributes <- function(org) {
+.getTranscriptAttributes <- function(org) {
     if (org %in% c("hg18","hg19","mm9","tair10"))
         return(c(
             "chromosome_name",
@@ -2423,7 +2583,7 @@ getTranscriptAttributes <- function(org) {
         ))
 }
 
-getTranscriptUtrAttributes <- function(org) {
+.getTranscriptUtrAttributes <- function(org) {
     if (org %in% c("hg18","hg19","mm9","tair10"))
         return(c(
             "chromosome_name",
@@ -2452,7 +2612,7 @@ getTranscriptUtrAttributes <- function(org) {
         ))
 }
 
-getExonAttributes <- function(org) {
+.getExonAttributes <- function(org) {
     if (org %in% c("hg18","hg19","mm9","tair10"))
         return(c(
             "chromosome_name",
@@ -2472,6 +2632,33 @@ getExonAttributes <- function(org) {
             "ensembl_exon_id",
             "strand",
             "ensembl_gene_id",
+            "external_gene_name",
+            "gene_biotype"
+        ))
+}
+
+.getTranscriptExonAttributes <- function(org) {
+    if (org %in% c("hg18","hg19","mm9","tair10"))
+        return(c(
+            "chromosome_name",
+            "exon_chrom_start",
+            "exon_chrom_end",
+            "ensembl_exon_id",
+            "strand",
+            "ensembl_transcript_id",
+            #"ensembl_gene_id",
+            "external_gene_id",
+            "gene_biotype"
+        ))
+    else
+        return(c(
+            "chromosome_name",
+            "exon_chrom_start",
+            "exon_chrom_end",
+            "ensembl_exon_id",
+            "strand",
+            "ensembl_transcript_id",
+            #"ensembl_gene_id",
             "external_gene_name",
             "gene_biotype"
         ))

@@ -342,7 +342,7 @@ fisherMethodPerm <- function(pvals,p.corr=c("bonferroni","BH","none"),
         stop("pvals must have a dim attribute")
     p.corr <- ifelse(length(p.corr)!=1,"BH",p.corr)
     pvals[pvals==0] <- zeroSub
-  
+
     resPerm <- lapply(seq_len(nrow(pvals)),function(i) {
         if(!is.na(blinker) & i%%blinker==0)
         message("=", appendLF=FALSE)
@@ -370,7 +370,7 @@ fisherMethodPerm <- function(pvals,p.corr=c("bonferroni","BH","none"),
         data.frame(S=S.obs$S, num.p=S.obs$num.p, p.value=p.value)
     })
     resPerm <- data.frame(do.call(rbind, resPerm))
-  
+
     if(!is.na(blinker) && blinker>0)
         message()
     ## rownames(resPerm) <- rownames(pvals)

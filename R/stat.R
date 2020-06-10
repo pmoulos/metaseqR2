@@ -813,7 +813,7 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
         DGEList = { # Has been normalized with edgeR
             # Trick found at http://cgrlucb.wikispaces.com/edgeR+spring2013
             scl <- object$samples$lib.size * object$samples$norm.factors
-            counts <- round(t(t(object$counts)/scl)*mean(scl))            
+            counts <- round(t(t(object$counts)/scl)*mean(scl))
             if (is.null(libsizeList)) {
                 libsizeList <- vector("list",length(classes))
                 names(libsizeList) <- unlist(sampleList,use.names=FALSE)
@@ -882,7 +882,7 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
         }
     )
     # To avoid repeating the following chunk in the above
-    if (!is(object,"list") && !is(object,"nbp")) {
+    if ((!is(object,"list") && !is(object,"nbp")) || is(object,"DGEList")) {
         #if (statArgs$main.method=="nbpseq") {
         #    nbData <- list(
         #        counts=as.matrix(counts),

@@ -2113,13 +2113,14 @@ metaseqr2 <- function(
                 logOffset=logOffset,
                 report=FALSE
             )$textTable
-            reportTables[[cnt]] <- reportTables[[cnt]][order(pp),]
+            reportTables[[cnt]] <- 
+                reportTables[[cnt]][names(pp)[order(pp)],,drop=FALSE]
             
             if (!is.null(reportTop)) {
                 plasm <- pcut
                 if (is.na(pcut))
                     plasm <- 0.05
-                    
+                
                 topi <- ceiling(reportTop*length(which(pp<=plasm)))
                 if (topi == 0)
                     topi <- 10

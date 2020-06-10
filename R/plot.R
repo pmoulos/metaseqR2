@@ -338,7 +338,7 @@ diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
     classes <- as.factor(asClassVector(sampleList))
     design <- as.numeric(classes)
     colspace <- c("red","blue","yellowgreen","orange","aquamarine2",
-                  "pink2","seagreen4","brown","purple","chocolate")
+        "pink2","seagreen4","brown","purple","chocolate")
     pchspace <- c(20,17,15,16,8,3,2,0,1,4)
     if (ncol(x)<3) {
         warnwrap("MDS plot cannot be created with less than 3 samples! ",
@@ -362,11 +362,11 @@ diagplotMds <- function(x,sampleList,method="spearman",logIt=TRUE,
         else
             graphicsOpen(output,fil,width=1024,height=768)     
         plot(mdsObj$points[,1],mdsObj$points[,2],
-             col=colspace[seq_len(length(levels(classes)))][design],
-             pch=pchspace[seq_len(length(levels(classes)))][design],
-             xlim=xlim,ylim=ylim,
-             main="MDS plot",xlab="MDS 1",ylab="MDS 2",
-             cex=0.9,cex.lab=0.9,cex.axis=0.9,cex.main=0.9)
+            col=colspace[seq_len(length(levels(classes)))][design],
+            pch=pchspace[seq_len(length(levels(classes)))][design],
+            xlim=xlim,ylim=ylim,
+            main="MDS plot",xlab="MDS 1",ylab="MDS 2",
+            cex=0.9,cex.lab=0.9,cex.axis=0.9,cex.main=0.9)
         text(mdsObj$points[,1],mdsObj$points[,2],labels=colnames(x),pos=3,
             cex=0.7)
         grid()
