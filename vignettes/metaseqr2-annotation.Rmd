@@ -307,7 +307,7 @@ if (.Platform$OS.type == "unix") {
 Another example, Armadillo from Ensembl. This should work irrespectively of 
 operating system. We are downloading chromosomal information from UCSC.
 
-```{r example-6, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+```{r example-6, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 # Gene annotation dump from Ensembl
 download.file(paste0("ftp://ftp.ensembl.org/pub/release-98/gtf/",
     "dasypus_novemcinctus/Dasypus_novemcinctus.Dasnov3.0.98.gtf.gz"),
