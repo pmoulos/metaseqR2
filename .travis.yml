@@ -8,6 +8,9 @@ r: bioc-release
 #r_check_args: --no-build-vignettes
 #bioc_check: true
 
+bioc_packages:
+ - BiocStyle
+
 r_github_packages:
  - r-lib/covr
 
