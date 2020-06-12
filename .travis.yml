@@ -1,0 +1,19 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+cache: packages
+
+r: bioc-devel
+#r_check_args: --no-build-vignettes
+#bioc_check: true
+
+r_github_packages:
+ - r-lib/covr
+
+script:
+ - R CMD build .
+ - R CMD check --no-build-vignettes *.tar.gz
+ - R CMD BiocCheck --no-check-version-num --no-check-deprecated *.tar.gz
+
+#env:
+# - PKG_TARBALL=metaseqR2_1.1.15.tar.gz
