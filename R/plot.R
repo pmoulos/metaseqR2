@@ -868,17 +868,17 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
             else {
                 diagplotDataSave = NOISeq::dat2save(diagplotData)
                 obj <- list(
-                   x=NULL,
-                   y=NULL,
-                   plot=NULL,
-                   samples=sampleList,
-                   ylims=NULL,
-                   xlims=NULL,
-                   status=status,
-                   pcut=NULL,
-                   fcut=NULL,
-                   altnames=covars$gene_name,
-                   user=list(plotdata=diagplotDataSave,covars=covars)
+                    x=NULL,
+                    y=NULL,
+                    plot=NULL,
+                    samples=sampleList,
+                    ylims=NULL,
+                    xlims=NULL,
+                    status=status,
+                    pcut=NULL,
+                    fcut=NULL,
+                    altnames=covars$gene_name,
+                    user=list(plotdata=diagplotDataSave,covars=covars)
                 )
                 #json <- bioDetectionToJSON(obj,out="list")
                 json <- bioDetectionToJSON(obj)
@@ -917,17 +917,17 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
             else {
                 colnames(x) <- unlist(sampleList)
                 obj <- list(
-                   x=NULL,
-                   y=NULL,
-                   plot=NULL,
-                   samples=sampleList,
-                   ylims=NULL,
-                   xlims=NULL,
-                   status=status,
-                   pcut=NULL,
-                   fcut=NULL,
-                   altnames=covars$gene_name,
-                   user=list(counts=nat2log(x),covars=covars)
+                    x=NULL,
+                    y=NULL,
+                    plot=NULL,
+                    samples=sampleList,
+                    ylims=NULL,
+                    xlims=NULL,
+                    status=status,
+                    pcut=NULL,
+                    fcut=NULL,
+                    altnames=covars$gene_name,
+                    user=list(counts=nat2log(x),covars=covars)
                 )
                 # Write JSON by sample
                 #fil <- vector("list",2)
@@ -979,17 +979,17 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
             else {
                 samples <- unlist(sampleList)
                 obj <- list(
-                   x=NULL,
-                   y=NULL,
-                   plot=NULL,
-                   samples=sampleList,
-                   ylims=NULL,
-                   xlims=NULL,
-                   status=status,
-                   pcut=NULL,
-                   fcut=NULL,
-                   altnames=covars$gene_name,
-                   user=list(plotdata=d2s)
+                    x=NULL,
+                    y=NULL,
+                    plot=NULL,
+                    samples=sampleList,
+                    ylims=NULL,
+                    xlims=NULL,
+                    status=status,
+                    pcut=NULL,
+                    fcut=NULL,
+                    altnames=covars$gene_name,
+                    user=list(plotdata=d2s)
                 )
                 # Write JSON by sample
                 #fil <- vector("list",2)
@@ -1047,17 +1047,17 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
             }
             else {
                 obj <- list(
-                   x=NULL,
-                   y=NULL,
-                   plot=NULL,
-                   samples=sampleList,
-                   ylims=NULL,
-                   xlims=NULL,
-                   status=status,
-                   pcut=NULL,
-                   fcut=NULL,
-                   altnames=covars$gene_name,
-                   user=list(plotdata=diagplotData@dat)
+                    x=NULL,
+                    y=NULL,
+                    plot=NULL,
+                    samples=sampleList,
+                    ylims=NULL,
+                    xlims=NULL,
+                    status=status,
+                    pcut=NULL,
+                    fcut=NULL,
+                    altnames=covars$gene_name,
+                    user=list(plotdata=diagplotData@dat)
                 )
                 json <- rnacompToJSON(obj)
                 return(json)
@@ -1168,17 +1168,17 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 
                 colnames(x) <- unlist(sampleList)
                 obj <- list(
-                   x=NULL,
-                   y=NULL,
-                   plot=NULL,
-                   samples=NULL,
-                   ylims=NULL,
-                   xlims=NULL,
-                   status=status,
-                   pcut=NULL,
-                   fcut=NULL,
-                   altnames=covars$gene_name,
-                   user=list(plotdata=dataList)
+                    x=NULL,
+                    y=NULL,
+                    plot=NULL,
+                    samples=NULL,
+                    ylims=NULL,
+                    xlims=NULL,
+                    status=status,
+                    pcut=NULL,
+                    fcut=NULL,
+                    altnames=covars$gene_name,
+                    user=list(plotdata=dataList)
                 )
                 
                 jsonList <- vector("list",2)

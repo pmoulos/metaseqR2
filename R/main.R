@@ -540,6 +540,16 @@ metaseqr2 <- function(
             qcPlots <- qcPlots[-which(qcPlots == "gcbias")]
     }
     
+    # In case someone wants a simple exon analysis but has not understood well
+    # the docs of transLevel and countType...
+    if (transLevel == "exon" && countType == "exon") {
+        warnwrap("You have chosen transLevel=\"exon\" and countType=\"exon\".",
+            "\nYou are probably trying to perform simple differential exon ",
+            "analysis. This can be perofmed\nby setting transLevel=\"exon\" ",
+            "and countType=\"gene\". Setting for you...")
+        countType <- "gene"
+    }
+    
     # Check if drawing a Venn diagram among tests is possible
     if ("statvenn" %in% qcPlots && length(statistics)==1) {
         warnwrap("The creation of a Venn diagram among different statistical ",
@@ -930,9 +940,13 @@ metaseqr2 <- function(
                 if (length(sampleList[[n]])==0) # Removed whole condition
                     sampleList[n] <- NULL
             }
-            theCounts <- theCounts[unlist(sampleList)]
+            # Attributes are lost when subsetting
+            # https://cran.r-project.org/web/packages/sticky/
+            #vignettes/introduction.html
+            theCounts <- .excludeSamplesFromList(theCounts,
+                unlist(sampleList,use.names=FALSE))
         }
-
+        
         # Apply exon filters
         if (!is.null(exonFilters)) {
             exonFilterOut <- filterExons(theCounts,geneData,sampleList,
@@ -1006,7 +1020,6 @@ metaseqr2 <- function(
                 if (fromRaw) { # Double check
                     r2c <- read2count(theList,transcriptData,fileType,
                         transLevel,utrOpts,rc=restrictCores)
-                    #assign("r2c",r2c,envir=.GlobalEnv)
                     transcriptCounts <- r2c$counts
                     if (is.null(libsizeList))
                         libsizeList <- r2c$libsize
@@ -1068,9 +1081,11 @@ metaseqr2 <- function(
                 if (length(sampleList[[n]])==0) # Removed whole condition
                     sampleList[n] <- NULL
             }
-            theCounts <- theCounts[unlist(sampleList)]
+            #theCounts <- theCounts[unlist(sampleList)]
+            theCounts <- .excludeSamplesFromList(theCounts,
+                unlist(sampleList,use.names=FALSE))
         }
-
+        
         disp("Summarizing count data...")
         theGeneCounts <- theTranscriptLengths <- vector("list",
             length(unlist(sampleList)))
@@ -1155,6 +1170,14 @@ metaseqr2 <- function(
         geneLength <- width(geneData)
         names(geneLength) <- names(geneData)
         
+        if (saveGeneModel) {
+            disp("Saving gene model to ",file.path(PROJECT_PATH[["data"]],
+                "gene_model.RData"))
+            save(geneCounts,geneData,sampleList,countType,
+                file=file.path(PROJECT_PATH$data,"gene_model.RData"),
+                compress=TRUE)
+        }
+        
         # Exclude any samples not wanted (when e.g. restoring a previous project
         # and having determined that some samples are of bad quality
         if (!is.null(excludeList) && !is.na(excludeList)) {
@@ -1166,14 +1189,6 @@ metaseqr2 <- function(
             }
             geneCounts <- geneCounts[,unlist(sampleList,use.names=FALSE)]
         }
-        
-        if (saveGeneModel) {
-            disp("Saving gene model to ",file.path(PROJECT_PATH[["data"]],
-                "gene_model.RData"))
-            save(geneCounts,geneData,sampleList,countType,
-                file=file.path(PROJECT_PATH$data,"gene_model.RData"),
-                compress=TRUE)
-        }
     }
 
     # Transform GC-content and biotype - should never be required in the new
@@ -1182,6 +1197,7 @@ metaseqr2 <- function(
         geneData$gc_content <- rep(0.5,length(geneData))
     if (is.null(geneData$biotype))
         geneData$biotype <- rep("gene",length(geneData))
+    
     names(geneLength) <- rownames(geneCounts)
     attr(geneData,"geneLength") <- geneLength
 
@@ -2683,4 +2699,11 @@ constructGeneModel <- function(countData,annoData,type,rc=NULL) {
         }        
     }
     return(tmpEnv)
+}
+
+.excludeSamplesFromList <- function(L,s) {
+    gl <- attr(L,"lengthList")
+    L <- L[s]
+    attr(L,"lengthList") <- gl
+    return(L)
 }
