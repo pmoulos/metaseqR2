@@ -23,3 +23,16 @@ BUG FIXES
     inconsistent with the rest of the stat* functions.
     o Other minor bug fixes.
 
+CHANGES IN VERSION 1.1.15 (2020-06-12)
+-------------------------------------
+
+NEW FEATURES
+
+    o Allow simple differential exon analysis
+    
+BUG FIXES
+
+    o Fixed annotation breaks from UCSC (rn, danRer).
+    o Fixed crash when using excludeList (due to attributes being gone after
+    list subsetting).
+
