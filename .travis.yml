@@ -8,6 +8,8 @@ r: bioc-release
 #r_check_args: --no-build-vignettes
 #bioc_check: true
 
+install: travis_wait 30 mvn install
+
 bioc_packages:
  - BiocStyle
 
