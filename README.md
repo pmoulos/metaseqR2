@@ -1,5 +1,5 @@
 <!-- badges: start -->
-  [![Travis build status](https://travis-ci.com/pmoulos/metaseqR2-local.svg?branch=master)](https://travis-ci.com/pmoulos/metaseqR2-local)
+  [![Travis build status](https://travis-ci.org/pmoulos/metaseqR2.svg?branch=master)](https://travis-ci.org/pmoulos/metaseqR2)
 <!-- badges: end -->
 
 # metaseqR2
