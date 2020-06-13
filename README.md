@@ -1,5 +1,8 @@
 <!-- badges: start -->
   [![Travis build status](https://travis-ci.org/pmoulos/metaseqR2.svg?branch=master)](https://travis-ci.org/pmoulos/metaseqR2)
+  ![GitHub](https://img.shields.io/github/license/pmoulos/metaseqR2)
+  ![GitHub repo size](https://img.shields.io/github/repo-size/pmoulos/metaseqR2)
+  ![GitHub issues](https://img.shields.io/github/issues/pmoulos/metaseqR2)
 <!-- badges: end -->
 
 # metaseqR2
