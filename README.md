@@ -1,3 +1,7 @@
+<!-- badges: start -->
+  [![Travis build status](https://travis-ci.com/pmoulos/metaseqR2-local.svg?branch=master)](https://travis-ci.com/pmoulos/metaseqR2-local)
+<!-- badges: end -->
+
 # metaseqR2
 
 An R package for the analysis, meta-analysis and result reporting of RNA-Seq 
