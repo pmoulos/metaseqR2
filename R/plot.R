@@ -1206,11 +1206,11 @@ diagplotNoiseqSaturation <- function(x,o,tb,path=NULL) {
     totalBiotypes <- table(tb)
     theBiotypes <- names(tb)
     biotypes <- colnames(x[[1]][,2:ncol(x[[1]])])
-    colspace <- c("red3","green4","blue2","orange3","burlywood",
-                  "lightpink4","gold","skyblue","red2","green2","firebrick3",
-                  "orange4","yellow4","skyblue3","tan4","gray40",
-                  "brown2","darkgoldenrod","cyan3","coral2","cadetblue",
-                  "bisque3","blueviolet","chocolate3","darkkhaki","dodgerblue")
+    colspace <- c("red3","green4","blue2","orange3","burlywood","lightpink4",
+        "gold","skyblue","red2","green2","firebrick3","orange4","yellow4",
+        "skyblue3","tan4","gray40","brown2","darkgoldenrod","cyan3","coral2",
+        "cadetblue","bisque3","blueviolet","chocolate3","darkkhaki",
+        "dodgerblue")
     pchspace <- c(rep(c(15,16,17,18),6),15)
 
     # Plot all biotypes per sample
@@ -2460,56 +2460,56 @@ makeVennAreas <- function(n) {
         },
         four = {
             return(list(
-                 A="area1",
-                 B="area2",
-                 C="area3",
-                 D="area4",
-                 AB="n12",
-                 AC="n13",
-                 AD="n14",
-                 BC="n23",
-                 BD="n24",
-                 CD="n34",
-                 ABC="n123",
-                 ABD="n124",
-                 ACD="n134",
-                 BCD="n234",
-                 ABCD="n1234"
+                A="area1",
+                B="area2",
+                C="area3",
+                D="area4",
+                AB="n12",
+                AC="n13",
+                AD="n14",
+                BC="n23",
+                BD="n24",
+                CD="n34",
+                ABC="n123",
+                ABD="n124",
+                ACD="n134",
+                BCD="n234",
+                ABCD="n1234"
             ))
         },
         five = {
             return(list(
-                 A="area1",
-                 B="area2",
-                 C="area3",
-                 D="area4",
-                 E="area5",
-                 AB="n12",
-                 AC="n13",
-                 AD="n14",
-                 AE="n15",
-                 BC="n23",
-                 BD="n24",
-                 BE="n25",
-                 CD="n34",
-                 CE="n35",
-                 DE="n45",
-                 ABC="n123",
-                 ABD="n124",
-                 ABE="n125",
-                 ACD="n134",
-                 ACE="n135",
-                 ADE="n145",
-                 BCD="n234",
-                 BCE="n235",
-                 BDE="n245",
-                 CDE="n345",
-                 ABCD="n1234",
-                 ABCE="n1235",
-                 ABDE="n1245",
-                 ACDE="n1345",
-                 BCDE="n2345",
-                 ABCDE="n12345"
+                A="area1",
+                B="area2",
+                C="area3",
+                D="area4",
+                E="area5",
+                AB="n12",
+                AC="n13",
+                AD="n14",
+                AE="n15",
+                BC="n23",
+                BD="n24",
+                BE="n25",
+                CD="n34",
+                CE="n35",
+                DE="n45",
+                ABC="n123",
+                ABD="n124",
+                ABE="n125",
+                ACD="n134",
+                ACE="n135",
+                ADE="n145",
+                BCD="n234",
+                BCE="n235",
+                BDE="n245",
+                CDE="n345",
+                ABCD="n1234",
+                ABCE="n1235",
+                ABDE="n1245",
+                ACDE="n1345",
+                BCDE="n2345",
+                ABCDE="n12345"
             ))
         }
     )
@@ -2538,56 +2538,56 @@ makeVennCounts <- function(n) {
         },
         four = {
             return(list(
-                 area1=NULL,
-                 area2=NULL,
-                 area3=NULL,
-                 area4=NULL,
-                 n12=NULL,
-                 n13=NULL,
-                 n14=NULL,
-                 n23=NULL,
-                 n24=NULL,
-                 n34=NULL,
-                 n123=NULL,
-                 n124=NULL,
-                 n134=NULL,
-                 n234=NULL,
-                 n1234=NULL
+                area1=NULL,
+                area2=NULL,
+                area3=NULL,
+                area4=NULL,
+                n12=NULL,
+                n13=NULL,
+                n14=NULL,
+                n23=NULL,
+                n24=NULL,
+                n34=NULL,
+                n123=NULL,
+                n124=NULL,
+                n134=NULL,
+                n234=NULL,
+                n1234=NULL
             ))
         },
         five = {
             return(list(
-                 area1=NULL,
-                 area2=NULL,
-                 area3=NULL,
-                 area4=NULL,
-                 area5=NULL,
-                 n12=NULL,
-                 n13=NULL,
-                 n14=NULL,
-                 n15=NULL,
-                 n23=NULL,
-                 n24=NULL,
-                 n25=NULL,
-                 n34=NULL,
-                 n35=NULL,
-                 n45=NULL,
-                 n123=NULL,
-                 n124=NULL,
-                 n125=NULL,
-                 n134=NULL,
-                 n135=NULL,
-                 n145=NULL,
-                 n234=NULL,
-                 n235=NULL,
-                 n245=NULL,
-                 n345=NULL,
-                 n1234=NULL,
-                 n1235=NULL,
-                 n1245=NULL,
-                 n1345=NULL,
-                 n2345=NULL,
-                 n12345=NULL
+                area1=NULL,
+                area2=NULL,
+                area3=NULL,
+                area4=NULL,
+                area5=NULL,
+                n12=NULL,
+                n13=NULL,
+                n14=NULL,
+                n15=NULL,
+                n23=NULL,
+                n24=NULL,
+                n25=NULL,
+                n34=NULL,
+                n35=NULL,
+                n45=NULL,
+                n123=NULL,
+                n124=NULL,
+                n125=NULL,
+                n134=NULL,
+                n135=NULL,
+                n145=NULL,
+                n234=NULL,
+                n235=NULL,
+                n245=NULL,
+                n345=NULL,
+                n1234=NULL,
+                n1235=NULL,
+                n1245=NULL,
+                n1345=NULL,
+                n2345=NULL,
+                n12345=NULL
             ))
         }
     )
@@ -3121,7 +3121,7 @@ cddat <- function (input) {
         data2plot = cbind(data2plot, acumu)   
     }
     colnames(data2plot)[-1] = colnames(datos)
-  
+
     # Diagnostic test
     KSpval = mostres = NULL
     for (i in seq_len(ncol(datos)-1)) {
@@ -3132,7 +3132,7 @@ cddat <- function (input) {
         }
     }    
     KSpval = p.adjust(KSpval, method = "fdr")
-  
+
     return(list(
         "data2plot"=data2plot,
         "DiagnosticTest"=data.frame("ComparedSamples"=mostres,"KSpvalue"=KSpval)
@@ -3162,10 +3162,10 @@ cdplot <- function (dat,samples=NULL,...) {
 }
 
 deplot <- function (output,q=NULL,logScale=TRUE,join=FALSE,...) { 
-  if (!is(output,"Output"))
-    stop("Error. Output argument must contain an object generated by ",
-        "noiseq or noiseqbio functions.\n")
-    
+    if (!is(output,"Output"))
+        stop("Error. Output argument must contain an object generated by ",
+            "noiseq or noiseqbio functions.\n")
+
     if(!is.null(q)) { # Computing DEG
         mySelection <- rownames(degenes(output,q))
         detect = rownames(output@results[[1]]) %in% mySelection
@@ -3173,7 +3173,7 @@ deplot <- function (output,q=NULL,logScale=TRUE,join=FALSE,...) {
     else
         stop("You must specify a valid value for q\n")
     
-    infobio = output@results[[1]][,"Chrom"]
+    infobio <- output@results[[1]][,"Chrom"]
     genome <- 100*table(infobio)/sum(table(infobio))
     ordre <- order(genome,decreasing=TRUE)      
     perdet1 <- genome*table(infobio,detect)[names(genome),2] / 

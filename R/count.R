@@ -231,6 +231,162 @@ read2count <- function(targets,annotation,fileType=targets$type,
 readTargets <- function(input,path=NULL) {
     if (missing(input) || !file.exists(input))
         stopwrap("The targets file should be a valid existing text file!")
+    # Test if the input file is YAML    
+    if (!requireNamespace("yaml"))
+        stopwrap("The R packge yaml is required to proceed!")
+    # If the output of read_yaml is a single character of length 1, then it is
+    # probably a tab-delimited file
+    test <- read_yaml(input)
+    if (is(test,"character") && length(test)==1)
+        return(.readTabTargets(input,path=NULL))
+    else
+        return(.readYamlTargets(test,path=NULL))
+}
+
+.readYamlTargets <- function(input,path=NULL) {
+    # The targets can be a nested field in a greater YAML configuration file
+    # (useful for integration in a wider CWL workflow). In this case it MUST be
+    # named targets OR metaseqR2_targets. Otherwise, crash is inevitable.
+    if (is.list(input) && !is.null(input$targets))
+        input <- input$targets
+    if (is.list(input) && !is.null(input$metaseqR2_targets))
+        input <- input$metaseqR2_targets
+    # We avoid fieldnames to provide the previous flexibility
+    samples <- as.character(input[[1]])
+    conditions <- unique(as.character(input[[3]]))
+    rawfiles <- as.character(input[[2]])
+    if (!is.null(path)) {
+        tmp <- dirname(rawfiles) # Test if there is already a path
+        if (any(tmp=="."))
+            rawfiles <- file.path(path,basename(rawfiles))
+    }
+    # Check if they exist!!!
+    for (f in rawfiles) {
+        if (!file.exists(f))
+            stopwrap("Raw reads input file ",f," does not exist! Please check!")
+    }
+    if (length(samples) != length(unique(samples)))
+        stopwrap("Sample names must be unique for each sample!")
+    if (length(rawfiles) != length(unique(rawfiles)))
+        stopwrap("File names must be unique for each sample!")
+    sampleList <- vector("list",length(conditions))
+    names(sampleList) <- conditions
+    for (n in conditions)
+        sampleList[[n]] <- samples[which(as.character(input[[3]])==n)]
+    fileList <- vector("list",length(conditions))
+    names(fileList) <- conditions
+    for (n in conditions) {
+        fileList[[n]] <- rawfiles[which(as.character(input[[3]])==n)]
+        names(fileList[[n]]) <- samples[which(as.character(input[[3]])==n)]
+    }
+    if (length(input)>3) { # Has info about single- or paired-end reads / strand
+        if (length(input)==4) { # Stranded or paired
+            whats <- tolower(as.character(input[[4]]))
+            if (!all(whats %in% c("yes","no","forward","reverse",
+                "single","paired")))
+                stopwrap("Unknown options for paired-end reads and/or ",
+                    "strandedness in targets file.")
+            what <- whats[1]
+            if (what %in% c("single","paired")) {
+                hasPairedInfo <- TRUE
+                hasStrandedInfo <- FALSE
+            }
+            else {
+                if (what %in% c("yes","no")) {
+                    .deprecatedWarning("readTargets")
+                    tmp <- as.character(input[[4]])
+                    tmp[tmp=="yes"] <- "forward"
+                    input[[4]] <- tmp
+                    hasPairedInfo <- FALSE
+                    hasStrandedInfo <- TRUE
+                }
+                if (what %in% c("forward","reverse","no")) {
+                    hasPairedInfo <- FALSE
+                    hasStrandedInfo <- TRUE
+                }
+            }
+        }
+        if (length(input)==5) { # Both
+            whatsPaired <- tolower(as.character(input[[4]]))
+            if (!all(whatsPaired %in% c("single","paired","mixed")))
+                stopwrap("Unknown option for type of reads (single, paired, ",
+                    "mixed) in targets file.")
+            whatsStrand <- tolower(as.character(input[[5]]))
+            if (!all(whatsStrand %in% c("yes","no","forward","reverse")))
+                stopwrap("Unknown option for read strandedness in targets file")
+            if (any(whatsStrand=="yes")) {
+                .deprecatedWarning("readTargets")
+                tmp <- as.character(input[[5]])
+                tmp[tmp=="yes"] <- "forward"
+                input[[5]] <- tmp
+            }
+            hasPairedInfo <- TRUE
+            hasStrandedInfo <- TRUE
+        }
+        if (hasPairedInfo && !hasStrandedInfo) {
+            pairedList <- vector("list",length(conditions))
+            names(pairedList) <- conditions
+            for (n in conditions) {
+                pairedList[[n]] <- character(length(sampleList[[n]]))
+                names(pairedList[[n]]) <- sampleList[[n]]
+                for (nn in names(pairedList[[n]]))
+                    pairedList[[n]][nn] <- as.character(input[[4]][which(
+                        as.character(input[[1]])==nn)])
+            }
+        }
+        else
+            pairedList <- NULL
+        if (hasStrandedInfo && !hasPairedInfo) {
+            strandedList <- vector("list",length(conditions))
+            names(strandedList) <- conditions
+            for (n in conditions) {
+                strandedList[[n]] <- character(length(sampleList[[n]]))
+                names(strandedList[[n]]) <- sampleList[[n]]
+                for (nn in names(strandedList[[n]]))
+                    strandedList[[n]][nn] <- as.character(input[[4]][which(
+                        as.character(input[[1]])==nn)])
+            }
+        }
+        else
+            strandedList <- NULL
+        if (hasStrandedInfo && hasPairedInfo) {
+            strandedList <- vector("list",length(conditions))
+            names(strandedList) <- conditions
+            for (n in conditions) {
+                strandedList[[n]] <- character(length(sampleList[[n]]))
+                names(strandedList[[n]]) <- sampleList[[n]]
+                for (nn in names(strandedList[[n]]))
+                    strandedList[[n]][nn] <- as.character(input[[5]][which(
+                        as.character(input[[1]])==nn)])
+            }
+            pairedList <- vector("list",length(conditions))
+            names(pairedList) <- conditions
+            for (n in conditions) {
+                pairedList[[n]] <- character(length(sampleList[[n]]))
+                names(pairedList[[n]]) <- sampleList[[n]]
+                for (nn in names(pairedList[[n]]))
+                    pairedList[[n]][nn] <- as.character(input[[4]][which(
+                        as.character(input[[1]])==nn)])
+            }
+        }
+    }
+    else
+        pairedList <- strandedList <- NULL
+    # Guess file type based on only one of them
+    tmp <- fileList[[1]][1]
+    if (length(grep("\\.bam$",tmp,ignore.case=TRUE,perl=TRUE))>0)
+        type <- "bam"
+    else if (length(grep("\\.sam$",tmp,ignore.case=TRUE,perl=TRUE))>0)
+        type <- "sam"
+    else if (length(grep("\\.bed$",tmp,ignore.case=TRUE,perl=TRUE)>0))
+        type <- "bed"
+    else
+        type <- NULL
+    return(list(samples=sampleList,files=fileList,paired=pairedList,
+        stranded=strandedList,type=type))
+}
+
+.readTabTargets <- function(input,path=NULL) {
     tab <- read.delim(input,strip.white=TRUE)
     samples <- as.character(tab[,1])
     conditions <- unique(as.character(tab[,3]))

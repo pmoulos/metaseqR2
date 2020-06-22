@@ -220,6 +220,9 @@ importFrom("utils",zip)
 importFrom("vsn",vsn2)
 importFrom("vsn",predict)
 
+importFrom("yaml",read_yaml)
+importFrom("yaml",write_yaml)
+
 importFrom("zoo",rollmean)
 
 export(buildAnnotationDatabase)

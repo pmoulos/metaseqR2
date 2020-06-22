@@ -36,3 +36,15 @@ BUG FIXES
     o Fixed crash when using excludeList (due to attributes being gone after
     list subsetting).
 
+CHANGES IN VERSION 1.1.16 (2020-06-22)
+-------------------------------------
+
+NEW FEATURES
+
+    o Added support for reading targets in YAML
+    
+BUG FIXES
+
+    o Fixed "rnacomp" plot trying to import to JSON db while not run.
+    o Fixed report crash when "exportWhere" was NA.
+    o Other minor bug fixes

@@ -10,7 +10,7 @@ statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     theDesign <- data.frame(condition=classes,row.names=colnames(object))
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
-     # Check if there is no replication anywhere
+    # Check if there is no replication anywhere
     if (all(vapply(sampleList,function(x) ifelse(length(x)==1,TRUE,FALSE),
         logical(1)))) {
         warnwrap("No replication detected! There is a possibility that ",
@@ -1149,7 +1149,7 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             classes <- asClassVector(sampleListTmp)
             groupsTmp <- as.factor(classes)
             design <- model.matrix(~0+groupsTmp)
-                              
+
             switch(class(object)[1],
                 ABSDataSet = {
                     abs <- ABSDataSet(excounts(object)[,names(unlist(con))],
@@ -1354,7 +1354,7 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             seqData <- estDispersion(seqData,trend=statArgs$trend)       
         }
     )
-                               
+
     for (conName in names(contrastList)) {
         disp(" Contrast: ",conName)
         # It assignes all element values of contrastList to con (number of 
@@ -1362,7 +1362,7 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
         con <- contrastList[[conName]]
         # It unlists con and picks the unique values
         cons <- unique(unlist(con)) 
-        
+
         if(length(con)==2) { # DE analysis of 2 conditions
             # We choose from all levels the two that will be used for the 
             # pairwise comparison: "cons[1],cons[2]"

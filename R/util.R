@@ -221,7 +221,7 @@ getDefaults <- function(what,method=NULL) {
                 absseq = {
                     # if sth is changed from here, change it also from the
                     # switch beggining at line 802
-                   return(list(
+                    return(list(
                         #ABSDataSet default args
                         paired = FALSE, minDispersion = NULL, minRates = 0.1,
                         maxRates = 0.3, LevelstoNormFC = 100,
@@ -2438,27 +2438,27 @@ makeReportMessages <- function(lang) {
                 "one in the lower part of the plot. You can always zoom in",
                 "when using interactive mode (the default).",collapse=" "
                     ),
-                 mastat=paste(
-                 "A mean-difference (or MA) plot with overlaid statistical",
-                 "information (p-value and fold change thresholds manifested",
-                 "as points with different colors) is a very useful graphic",
-                 "that enables the visualization of the results of",
-                 "differential expression analysis. It differs from the",
-                 "volcano plot regarding what is displayed in the axes system.",
-                 "While a volcano plot displays the fold change (x-axis)",
-                 "versus the statistical significance (y-axis), an MA plot",
-                 "with statistical scores depicts average expression over the",
-                 "biological conditions that are compared (x-axis) versus the",
-                 "fold change of the comparison. Statistical significance",
-                 "categorization is added as point coloring and statistical",
-                 "significance is indicated only by different colors and not",
-                 "by the position to the axes system as in the volcano plot.",
-                 "This plot is useful when it is of little interest how",
-                 "statistically significant a gene/transcript is (we are",
-                 "interested only in the fact that it is) but someone is",
-                 "interested in actual expression and fold change values",
-                 "instead.",collapse=" "
-                 ),
+                mastat=paste(
+                "A mean-difference (or MA) plot with overlaid statistical",
+                "information (p-value and fold change thresholds manifested",
+                "as points with different colors) is a very useful graphic",
+                "that enables the visualization of the results of",
+                "differential expression analysis. It differs from the",
+                "volcano plot regarding what is displayed in the axes system.",
+                "While a volcano plot displays the fold change (x-axis)",
+                "versus the statistical significance (y-axis), an MA plot",
+                "with statistical scores depicts average expression over the",
+                "biological conditions that are compared (x-axis) versus the",
+                "fold change of the comparison. Statistical significance",
+                "categorization is added as point coloring and statistical",
+                "significance is indicated only by different colors and not",
+                "by the position to the axes system as in the volcano plot.",
+                "This plot is useful when it is of little interest how",
+                "statistically significant a gene/transcript is (we are",
+                "interested only in the fact that it is) but someone is",
+                "interested in actual expression and fold change values",
+                "instead.",collapse=" "
+                ),
                 deregulogram=paste(
                 "The de-regulogram is a scatterplot of fold changes between ",
                 "two different contrasts. It depicts whether the DEGs between",
@@ -2472,7 +2472,7 @@ makeReportMessages <- function(lang) {
                 "pattern, while those localized in the first or third quartile",
                 "represent DEGs with opposite patterns of regulation."
                  ),
-                    biodist=paste(
+                biodist=paste(
                 "The chromosome and biotype distributions bar diagram for",
                 "Differentially Expressed Genes (DEGs) is split in two",
                 "panels: i)in the upper panel DEGs are distributed per",
@@ -2493,7 +2493,7 @@ makeReportMessages <- function(lang) {
                 "corresponding to the right axis scale). Otherwise, the lower",
                 "abundance, biotypes would be indistinguishable.",collapse=" "
                     ),
-                    filtered=paste(
+                filtered=paste(
                 "The chromosome and biotype distribution of filtered genes",
                 "is a quality control chart with two rows and four panels:",
                 "on the left panel of the first row, the bar chart depicts",

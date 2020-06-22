@@ -58,6 +58,7 @@ Imports:
     utils,
     VennDiagram,
     vsn,
+    yaml,
     zoo
 Suggests:
     BiocGenerics,
@@ -87,8 +88,8 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     ChIPSeq
 VignetteBuilder: knitr
 BugReports: https://github.com/pmoulos/metaseqR2/issues
-Version: 1.1.15
-Date: 2020-06-12
+Version: 1.1.16
+Date: 2020-06-19
 Collate:
     'annotation.R'
     'argcheck.R'

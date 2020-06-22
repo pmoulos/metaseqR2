@@ -1600,8 +1600,8 @@ cat("</code></pre>")
 ```{r display_targets}
 if (!is.null(theList)) {
     # First write targets
-    tarDf <- metaseqR2:::.writeTargets(theList,outfile=file.path(exportWhere,
-        "tracks","targets.txt"))
+    tarDf <- metaseqR2:::.writeTargets(theList,outfile=file.path(
+        PROJECT_PATH$main,"tracks","targets.txt"))
     tarDf$filename <- basename(as.character(tarDf$filename))
     
     # Download link

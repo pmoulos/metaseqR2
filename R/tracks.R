@@ -4,7 +4,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     if (!requireNamespace("rtracklayer"))
         stopwrap("Bioconductor package rtracklayer is required to build ",
             "tracks!")
-    
+
     if (!is.list(targets)) {
         if (file.exists(targets))
             targets <- readTargets(targets)
@@ -12,7 +12,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
             stopwrap("targets must be either the result of readTargets ",
                 "function or a valid targets file!")
     }
-    
+
     # Read in BAMs and make Rles
     message("Creating tracks...")
     if (stranded) {
@@ -42,7 +42,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
             "Use overwrite=TRUE to re-create them.")
         return("")
     }
-    
+
     # Positive and negative color options
     posBaseColours <- .getPosBaseColors()
     negBaseColours <- .getNegBaseColors()
@@ -51,16 +51,16 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     negCol <- rep(negBaseColours,length.out=length(targets$samples))
     negCol <- rep(negCol,lengths(targets$samples))
     names(posCol) <- names(negCol) <- unlist(targets$samples,use.names=FALSE)
-    
+
     # The BAM files
     bams <- unlist(targets$files,use.names=FALSE)
-    
+
     # Get seqinfo form first BAM
     preSf <- .chromInfoFromBAM(bams[1])
     vchrs <- getValidChrs(org)
     preSf <- preSf[intersect(vchrs,rownames(preSf)),,drop=FALSE]
     sf <- .chromInfoToSeqInfoDf(preSf,o=org,asSeqinfo=TRUE)
-    
+
     # Get coverage and assign seqinfo for bigwig
     message("Reading positive strand reads from BAM files to Rle...")
     pbg <- cmclapply(bams,function(b,v,s) {
@@ -76,7 +76,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
         return(gr)
     },vchrs,sf,rc=rc)
     names(pbg) <- names(posCol)
-    
+
     message("Reading negative strand reads from BAM files to Rle...")
     nbg <- cmclapply(bams,function(b,v,s) {
         message("  reading ",b)
@@ -93,21 +93,21 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
         return(gr)
     },vchrs,sf,rc=rc)
     names(nbg) <- names(negCol)
-    
+
     # Calculate normalization factors
     rawPosSums <- vapply(pbg,function(x) sum(x$score),numeric(1))
     rawNegSums <- vapply(nbg,function(x) sum(x$score),numeric(1))
-    
+
     rat <- rawPosSums/-rawNegSums
     posNormTo <- rat*0.5*normTo
     negNormTo <- normTo - posNormTo
-    
+
     posNormFacs <- 0.5*posNormTo/rawPosSums
     negNormFacs <- -0.5*negNormTo/rawNegSums
-    
+
     names(posNormFacs) <- names(pbg)
     names(negNormFacs) <- names(nbg)
-    
+
     # Normalize (should be quick)
     message("Normalizing positive strand...")
     npbg <- cmclapply(names(pbg),function(n,B,N) {
@@ -322,11 +322,11 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
 }
 
 .getPosBaseColors <- function() {
-     return(c("#B40000","#00B400","#0000B4","#B45200","#9B59B6","#21BCBF",
+    return(c("#B40000","#00B400","#0000B4","#B45200","#9B59B6","#21BCBF",
         "#BC4800","#135C34","#838F00","#4900B5"))
 }
 
 .getNegBaseColors <- function() {
-     return(c("#FF7575","#79FF79","#8484FF","#FFB77C","#EBB7FF","#63E5E7",
+    return(c("#FF7575","#79FF79","#8484FF","#FFB77C","#EBB7FF","#63E5E7",
         "#FFB88B","#5BFFA5","#F4FF75","#C69FFF"))
 }
