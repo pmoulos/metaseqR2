@@ -15,15 +15,16 @@ Imports:
     ABSSeq,
     baySeq,
     Biobase,
+    BiocGenerics,
     BiocParallel,
     biomaRt,
     Biostrings,
     corrplot,
-    DESeq,
     DSS,
     DT,
     EDASeq,
     edgeR,
+    genefilter,
     GenomeInfoDb,
     GenomicAlignments,
     GenomicFeatures,
@@ -37,9 +38,11 @@ Imports:
     httr,
     IRanges,
     jsonlite,
+    lattice,
     log4r,
-    NOISeq,
     magrittr,
+    MASS,
+    Matrix,
     methods,
     NBPSeq,
     pander,
@@ -61,7 +64,6 @@ Imports:
     yaml,
     zoo
 Suggests:
-    BiocGenerics,
     BiocManager,
     BSgenome,
     knitr,
@@ -77,6 +79,7 @@ Description: Provides an interface to several normalization and
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: false
+NeedsCompilation: yes
 URL: http://www.fleming.gr
 biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     Preprocessing, QualityControl, Normalization, ReportWriting, RNASeq,
@@ -88,20 +91,22 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     ChIPSeq
 VignetteBuilder: knitr
 BugReports: https://github.com/pmoulos/metaseqR2/issues
-Version: 1.1.16
-Date: 2020-06-19
+Version: 1.1.2
+Date: 2020-06-26
 Collate:
     'annotation.R'
     'argcheck.R'
     'count.R'
-    'metaseqr2-data.R'
+    'deseq.R'
     'export.R'
     'external.R'
     'filter.R'
     'json.R'
     'main.R'
     'meta.R'
+    'noiseq.R'
     'norm.R'
+    'metaseqr2-data.R'
     'metaseqR2-package.R'
     'plot.R'
     'query.R'

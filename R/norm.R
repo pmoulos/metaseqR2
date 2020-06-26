@@ -73,11 +73,13 @@ normalizeDeseq <- function(geneCounts,sampleList,normArgs=NULL,
     checkTextArgs("output",output,c("matrix","native"))
     classes <- asClassVector(sampleList)
     cds <- newCountDataSet(geneCounts,classes)
-    cds <- DESeq::estimateSizeFactors(cds,locfunc=normArgs$locfunc)
+    #cds <- DESeq::estimateSizeFactors(cds,locfunc=normArgs$locfunc)
+    cds <- estimateSizeFactors(cds,locfunc=normArgs$locfunc)
     if (output=="native")
-        return(cds) # Class: CountDataSet
+        return(cds) # Class: .CountDataSet
     else if (output=="matrix")
-        return(round(DESeq::counts(cds,normalized=TRUE))) # Class: matrix
+        #return(round(DESeq::counts(cds,normalized=TRUE))) # Class: matrix
+        return(round(counts(cds,normalized=TRUE))) # Class: matrix
 }
 
 normalizeDeseq2 <- function(geneCounts,sampleList,normArgs=NULL,
@@ -148,7 +150,8 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
         }
     }
     if (is.null(geneData)) {
-        nsObj <- NOISeq::readData(
+        #nsObj <- NOISeq::readData(
+        nsObj <- readData(
             data=geneCounts,
             factors=data.frame(class=classes)
         )
@@ -159,7 +162,8 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
         biotype <- as.character(geneData$biotype)
         names(gcContent) <- names(biotype) <- names(geneLength) <- 
             if (is.data.frame(geneData)) rownames(geneData) else names(geneData)
-        nsObj <- NOISeq::readData(
+        #nsObj <- NOISeq::readData(
+        nsObj <- readData(
             data=geneCounts,
             length=geneLength,
             gc=gcContent,
@@ -173,14 +177,14 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
         rpkm = {
             #M <- NOISeq::rpkm(assayData(nsObj)$exprs,long=normArgs$long,
             #    k=normArgs$k,lc=normArgs$lc)
-            M <- rpkm(assayData(nsObj)$exprs,geneLength=normArgs$long)
+            M <- noirpkm(assayData(nsObj)$exprs,long=normArgs$long)
         },
         uqua = {
-            M <- NOISeq::uqua(assayData(nsObj)$exprs,long=normArgs$long,
+            M <- noiuqua(assayData(nsObj)$exprs,long=normArgs$long,
                 k=normArgs$k,lc=normArgs$lc)
         },
         tmm = {
-            M <- NOISeq::tmm(assayData(nsObj)$exprs,long=normArgs$long,
+            M <- noitmm(assayData(nsObj)$exprs,long=normArgs$long,
                 k=normArgs$k,lc=normArgs$lc,refColumn=normArgs$refColumn,
                 logratioTrim=normArgs$logratioTrim,sumTrim=normArgs$sumTrim,
                 doWeighting=normArgs$doWeighting,Acutoff=normArgs$Acutoff)
@@ -188,12 +192,14 @@ normalizeNoiseq <- function(geneCounts,sampleList,normArgs=NULL,
     )
     if (output=="native") {
         if (is.null(geneData))
-            return(NOISeq::readData(
-            data=M,
-            factors=data.frame(class=classes)
+            #return(NOISeq::readData(
+            return(readData(
+                data=M,
+                factors=data.frame(class=classes)
         )) # Class: CD
         else    
-            return(NOISeq::readData(
+            #return(NOISeq::readData(
+            return(readData(
                 data=M,
                 length=geneLength,
                 gc=gcContent,
@@ -293,8 +299,10 @@ normalizeDss <- function(geneCounts,sampleList,normArgs=NULL,
         theDesign <- data.frame(condition=classes,row.names=colnames(seqD)) 
         cds <- newCountDataSet(as.matrix(round(assayData(seqD)$exprs)),
             theDesign$condition)
-        DESeq::sizeFactors(cds) <- normalizationFactor(seqD)
-        counts <- as.matrix(DESeq::counts(cds,normalized=TRUE))
+        #DESeq::sizeFactors(cds) <- normalizationFactor(seqD)
+        sizeFactors(cds) <- normalizationFactor(seqD)
+        #counts <- as.matrix(DESeq::counts(cds,normalized=TRUE))
+        counts <- as.matrix(counts(cds,normalized=TRUE))
         return(as.matrix(round(counts))) # Class: matrix
     }
 }

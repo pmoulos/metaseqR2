@@ -53,7 +53,6 @@
     function \code{metaseqR2:::makeContrastList}.
 }
 \examples{
-require(NOISeq)
 dataMatrix <- metaseqR2:::exampleCountData(1000)
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"

@@ -48,7 +48,6 @@
     for the same sample. A link to the created data is returned.
 }
 \examples{
-# Will fail as BAM files do not exist
 dataPath <- system.file("extdata",package="metaseqR2")
 targets <- data.frame(samplename=c("C","T"),
   filename=file.path(dataPath,c("C.bam","T.bam")),  

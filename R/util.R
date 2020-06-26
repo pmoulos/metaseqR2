@@ -2471,7 +2471,7 @@ makeReportMessages <- function(lang) {
                 "the fourth quartile, illustrate DEGs with a common regulation",
                 "pattern, while those localized in the first or third quartile",
                 "represent DEGs with opposite patterns of regulation."
-                 ),
+                ),
                 biodist=paste(
                 "The chromosome and biotype distributions bar diagram for",
                 "Differentially Expressed Genes (DEGs) is split in two",
@@ -2586,14 +2586,14 @@ makeReportMessages <- function(lang) {
                             "from RNA-Seq. Statistical Applications in",
                             "Genetics and Molecular Biology 10(1), 1-28."),
                         absseq=paste("Wentao Yang, Philip Rosenstiel and",
-                             "Hinrich Schulenburg: ABSSeq: a new RNA-Seq",
-                             "analysis method based on modelling absolute",
-                             "expression differences. BMC Genomics 2016;",
-                             "17: 541"),
+                            "Hinrich Schulenburg: ABSSeq: a new RNA-Seq",
+                            "analysis method based on modelling absolute",
+                            "expression differences. BMC Genomics 2016;",
+                            "17: 541"),
                         dss=paste("Hao Wu, Chi Wang, Zhijin Wu (2013):",
-                             "A new shrinkage estimator for dispersion",
-                             "improves differential expression detection in",
-                             "RNA-seq data. Biostatistics, 14(2):232-43."),
+                            "A new shrinkage estimator for dispersion",
+                            "improves differential expression detection in",
+                            "RNA-seq data. Biostatistics, 14(2):232-43."),
                         none=NULL
                     ),
                     stat=list(
@@ -2635,15 +2635,15 @@ makeReportMessages <- function(lang) {
                             "RNA-seq experiments. Bioinformatics 29, ",
                             "1035-1043"),
                         absseq=paste("Wentao Yang, Philip Rosenstiel and",
-                             "Hinrich Schulenburg: ABSSeq: a new RNA-Seq",
-                             "analysis method based on modelling absolute",
-                             "expression differences BMC Genomics 2016; 17:",
-                             "541"),
+                            "Hinrich Schulenburg: ABSSeq: a new RNA-Seq",
+                            "analysis method based on modelling absolute",
+                            "expression differences BMC Genomics 2016; 17:",
+                            "541"),
                         dss=paste("Hao Wu, Chi Wang, Zhijin Wu (2013):",
-                             "A new shrinkage estimator for dispersion",
-                             "improves differential expression detection in",
-                             "RNA-seq data. Biostatistics, 14(2):232-43.",
-                             "doi:10.1093/biostatistics/kxs033")
+                            "A new shrinkage estimator for dispersion",
+                            "improves differential expression detection in",
+                            "RNA-seq data. Biostatistics, 14(2):232-43.",
+                            "doi:10.1093/biostatistics/kxs033")
                     ),
                     meta=list(
                         fisher=paste("Fisher, R.A. (1932). Statistical",
@@ -2669,6 +2669,9 @@ makeReportMessages <- function(lang) {
                         simes=paste("Simes, R. J. (1986). An improved",
                             "Bonferroni procedure for multiple tests of",
                             "significance. Biometrika 73 (3): 751-754."),
+                        harmonic=paste("Wilson, D. J. (2019). The harmonic",
+                            "mean p-value for combining dependent tests.",
+                            "PNAS 116 (4): 1995-1200."),
                         none=NULL
                     ),
                     multiple=list(

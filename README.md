@@ -105,13 +105,13 @@ metaseqR2 would benefit from the existence of all the following packages:
 * Biostrings
 * BSgenome
 * corrplot
-* DESeq
 * DESeq2
 * DSS
 * DT
 * EDASeq
 * edgeR
 * harmonicmeanp
+* genefilter
 * GenomeInfoDb
 * GenomicAlignments
 * GenomicFeatures
@@ -128,9 +128,9 @@ metaseqR2 would benefit from the existence of all the following packages:
 * limma
 * log4r
 * magrittr
+* Matrix
 * methods
 * NBPSeq
-* NOISeq
 * pander
 * parallel
 * qvalue

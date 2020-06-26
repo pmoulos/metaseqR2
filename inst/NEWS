@@ -48,3 +48,15 @@ BUG FIXES
     o Fixed "rnacomp" plot trying to import to JSON db while not run.
     o Fixed report crash when "exportWhere" was NA.
     o Other minor bug fixes
+
+CHANGES IN VERSION 1.1.2 (2020-06-26)
+-------------------------------------
+
+NEW FEATURES
+
+    o Integrated functionalities from deprecated packages DESeq and
+    NOISeq in order to maintain PANDORA
+    
+BUG FIXES
+
+    o Fixed report crash with the new readTargets wrapper function.
