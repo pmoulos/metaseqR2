@@ -317,7 +317,7 @@ allMD <- function (input,factor,conditions,k=0.5,replicates,norm="rpkm",pnr=0.2,
         if (any(!is.na(featureData(input)@data$Length)) == TRUE) 
         long <- featureData(input)@data[concounts,"Length"]
     }
-  
+
     if (replicates == "technical") { ### technical replicates
         suma1 <- suma1[concounts]
         suma2 <- suma2[concounts]    
@@ -477,7 +477,7 @@ allMD <- function (input,factor,conditions,k=0.5,replicates,norm="rpkm",pnr=0.2,
     Ds <- as.numeric(MDs$D)
     names(Ds) <- rownames(MDs$D)
     Ds <- Ds[todos]
-      names(Ds) <- todos
+    names(Ds) <- todos
 
     ## Results
     list("k"=k,"comp"=comparison,"Level1"=lev1,"Level2"=lev2,"Ms"=Ms,"Ds"=Ds,
@@ -631,7 +631,7 @@ allMDbio <- function(input,factor,conditions,k=0.5,norm="rpkm",lc=1,r=10,
         datitos.0 <- noirpkm(datitos,long=long,k=k,lc=lc)
         datitos.norm <- datitos.0[gens.sin0,]
     }
-  
+
     if (norm == "uqua") {      # Upper Quartile
         datitos.0 <- noiuqua(datitos,long=long,lc=lc,k=k)
         datitos.norm <- datitos.0[gens.sin0,] 
@@ -643,7 +643,7 @@ allMDbio <- function(input,factor,conditions,k=0.5,norm="rpkm",lc=1,r=10,
     }
 
     #-------------------------------------------------------------------------#
-  
+
     ## Filtering out low count features
     if (filter != 0) {
         datos.filt <- filtered.data(dataset=datitos.norm,
@@ -653,16 +653,16 @@ allMDbio <- function(input,factor,conditions,k=0.5,norm="rpkm",lc=1,r=10,
     else {
         datos.filt <- datitos.norm
     }
-  
+
     datos1.filt <- datos.filt[,seq_len(n1)]
     datos2.filt <- datos.filt[,(n1+1):(n1+n2)]   
-  
+
     #-------------------------------------------------------------------------#
-  
+
     ## Noise distribution
-  
+
     Zr <- NULL
-  
+
     if (n1+n2 <= 9) {  # sharing information within clusters
         Zr=share.info(mydata=datos.filt,n1=n1,n2=n2,r=r,nclust=nclust)
     } 
@@ -684,7 +684,7 @@ allMDbio <- function(input,factor,conditions,k=0.5,norm="rpkm",lc=1,r=10,
     }
 
     #-------------------------------------------------------------------------#
-  
+
     ## Z-score for different experimental conditions (SIGNAL)
 
     mean1 <- rowMeans(as.matrix(datos1.filt))
@@ -696,9 +696,9 @@ allMDbio <- function(input,factor,conditions,k=0.5,norm="rpkm",lc=1,r=10,
     myparam=list("n"=c(n1,n2),"sd"=cbind(sd1,sd2))
 
     MDs <- MDbio(dat=cbind(mean1,mean2),param=myparam,a0per=a0per)
-    
+
     Zs <- myDfunction(mydif=MDs$D,myrat=MDs$M,stat=1,coef=0.5)
-  
+
     #-------------------------------------------------------------------------#
 
     ## Completing M and D (in signal)
@@ -717,7 +717,7 @@ allMDbio <- function(input,factor,conditions,k=0.5,norm="rpkm",lc=1,r=10,
     Zn <- as.numeric(Zr)
 
     #-------------------------------------------------------------------------#
-  
+
     ## Results
     list("k"=k,"comp"=comparison,"Level1"=lev1,"Level2"=lev2,"Zs"=Zs,"Zn"=Zn)
 }
@@ -1357,8 +1357,8 @@ ASCAfun12 <- function (X,Desa,Desb,Fac) {
     XK1 <- matrix(NA,nrow=I,ncol=n)
 
     for (i in seq_len(I)) {
-         sub <- X[Desa[,i]==1,]
-         XK1[i,] <- apply(sub,2,mean)
+        sub <- X[Desa[,i]==1,]
+        XK1[i,] <- apply(sub,2,mean)
     }
     
     NK <- matrix(NA,nrow=I,ncol=J)
@@ -1386,7 +1386,7 @@ ASCAfun12 <- function (X,Desa,Desb,Fac) {
     scw <- PCA$scores[,seq_len(Fac)]
     ld <- PCA$loadings[,seq_len(Fac)]
     ssq <- PCA$var.exp
-      
+
     if (Fac==1) {
         scw <- as.matrix(scw)
         ld <- as.matrix(ld) 
@@ -1676,20 +1676,20 @@ plot.y2 <- function(x,yright,yleft,yrightlim=range(yright,na.rm=TRUE),
     yylab=c("",""),lwd=c(2,2),pch=c(1,2),col=c(1,2),type=c("o","o"),
     linky=TRUE,smooth=0,bg=c("white","white"),lwds=1,length=10,...,x2=NULL,
     yright2=NULL,yleft2=NULL,col2=c(3,4)) {
-  
+
     ## Plotting RIGHT axis data
     plot(x,yright,axes=FALSE,ylab="",xlab=xlab,ylim=yrightlim,xlim=xlim,
         pch=pch[1],type=type[1],lwd=lwd[1],col=col[1],...)
-  
+
     axis(4,pretty(yrightlim,length),col=1,col.axis=1)
 
     if (is.null(yright2) == FALSE) {
         points(x2,yright2,type=type[1],pch=pch[1],lwd=lwd[1],col=col2[1],...)
     }
-  
+
     if (smooth != 0) 
         lines(supsmu(x,yright,span=smooth),col=col[1],lwd=lwds,...)
-  
+
     if (yylab[1]=="") {
         mtext(deparse(substitute(yright)),side=4,outer=FALSE,line=2,col=1,...)
     } 
@@ -1709,10 +1709,10 @@ plot.y2 <- function(x,yright,yleft,yrightlim=range(yright,na.rm=TRUE),
         points(x2,yleft2,type=type[2],pch=pch[2],bg=bg[2],lwd=lwd[2],
             col=col2[2],...)
     }
-  
+
     if (smooth != 0) 
         lines(supsmu(x,yleft,span=smooth),col=col[2],lwd=lwds,...)
-  
+
     if(yylab[2] == "") {
         mtext(deparse(substitute(yleft)),side=2,outer=FALSE,line=2,col=1,...)
     } 
@@ -2455,7 +2455,7 @@ DE.plot <- function(output,q=NULL,graphic=c("MD","expr","chrom","distr"),
             chr.start <- cumsum(c(1,chr.long$x[-length(chr.long$x)]))
             names(chr.start) <- chr.long[,1]
             plot(c(1,total.long),c(-max(ordenat[,5]),max(ordenat[,4])),
-                     type="n",xlab="",ylab="Expression data",xaxt="n")
+                type="n",xlab="",ylab="Expression data",xaxt="n")
             axis(side=1,at=chr.start,labels=chr.long[,1],font=2)
             abline(h=0,lty=2,lwd=0.5)        
             
@@ -3019,8 +3019,7 @@ MDbio <- function (dat=dat,selec= c(seq_len(nrow(dat))),param=NULL,a0per=0.9) {
             B <- 100
             a0.M <- B*max(sd.M,na.rm=TRUE)
             a0.D <- B*max(sd.D,na.rm=TRUE)
-      
-        } 
+        }
         else {
             a0per <- as.numeric(a0per)
             a0.M <- quantile(sd.M, probs = a0per, na.rm = TRUE)

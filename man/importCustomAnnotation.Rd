@@ -36,14 +36,14 @@ chromInfo <- data.frame(length=c(1000L,2000L,1500L),
 
 # Build with the metadata list filled (you can also provide a version)
 myGenes <- importCustomAnnotation(
-  gtfFile=file.path(system.file(package="metaseqR2"),"dummy.gtf"),
-  metadata=list(
-    organism="dummy",
-    source="dummy_db",
-    version=1,
-    chromInfo=chromInfo
-  ),
-  level="gene",type="gene"
+    gtfFile=file.path(system.file(package="metaseqR2"),"dummy.gtf"),
+    metadata=list(
+        organism="dummy",
+        source="dummy_db",
+        version=1,
+        chromInfo=chromInfo
+    ),
+    level="gene",type="gene"
 )
 
 ## Real data!

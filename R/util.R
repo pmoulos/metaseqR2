@@ -2807,7 +2807,7 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
         if (simple) {
             return(lapply(seq_along(x),function(i,x,y) {
                 return(c(x[i],y[i]))
-           },x,y))
+            },x,y))
         }
         if (is.null(a) && is.null(p)) {
             stru <- lapply(seq_along(x),function(i,x,y,n) {
@@ -2816,7 +2816,7 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
                     y=round(y[i],digits=3),
                     name=n[i]
                 ))
-           },x,y,n)
+            },x,y,n)
         }
         else if (!is.null(a) && is.null(p)) {
             stru <- lapply(seq_along(x),function(i,x,y,n,a) {
@@ -2826,7 +2826,7 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
                     name=n[i],
                     alt_name=a[i]
                 ))
-           },x,y,n,a)
+            },x,y,n,a)
         }
         else if (is.null(a) && !is.null(p)) {
             stru <- lapply(seq_along(x),function(i,x,y,n,p) {
@@ -2836,7 +2836,7 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
                     name=n[i],
                     sig=round(p[i],digits=3)
                 ))
-           },x,y,n,p)
+            },x,y,n,p)
         }
         else if (!is.null(a) && !is.null(p)) {
             stru <- lapply(seq_along(x),function(i,x,y,n,a,p) {
@@ -2847,7 +2847,7 @@ makeHighchartsPoints <- function(x,y,a=NULL,p=NULL,simple=FALSE) {
                     alt_name=a[i],
                     sig=round(p[i],digits=3)
                 ))
-           },x,y,n,a,p)
+            },x,y,n,a,p)
         }
     }
     else

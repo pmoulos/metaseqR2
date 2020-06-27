@@ -62,16 +62,16 @@ ends <- starts + lengths
 gc=runif(nrow(dataMatrix))
 biotype=rep("protein_coding",nrow(dataMatrix))
 geneData <- data.frame(
-  chromosome=c(rep("chr1",nrow(dataMatrix)/2),
-  rep("chr2",nrow(dataMatrix)/2)),
-    start=starts,end=ends,gene_id=rownames(dataMatrix),
-  gc_content=gc,biotype=biotype
+    chromosome=c(rep("chr1",nrow(dataMatrix)/2),
+    rep("chr2",nrow(dataMatrix)/2)),
+        start=starts,end=ends,gene_id=rownames(dataMatrix),
+    gc_content=gc,biotype=biotype
 )
 normArgs <- metaseqR2:::getDefaults("normalization","noiseq")
 normDataMatrix <- normalizeNoiseq(dataMatrix,sampleList,normArgs,
     geneData)
 p <- statNoiseq(normDataMatrix,sampleList,contrast,
-  geneData=geneData)
+    geneData=geneData)
 }
 \author{
     Panagiotis Moulos

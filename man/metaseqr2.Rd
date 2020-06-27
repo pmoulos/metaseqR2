@@ -34,7 +34,7 @@
         metaP = if (length(statistics) > 1) c("simes", 
             "bonferroni", "fisher", "dperm_min", "dperm_max",
             "dperm_weight", "fperm", "whitlock", "minp", "maxp",
-             "weight", "pandora", "none") else "none",
+            "weight", "pandora", "none") else "none",
         weight = rep(1/length(statistics), length(statistics)),
         nperm = 10000, pcut = NA, logOffset = 1, pOffset = NULL, 
         preset = NULL, qcPlots = c("mds", "biodetection", 
@@ -1097,22 +1097,22 @@
             \item \code{exportScale=c("natural","log2")} 
             \item \code{exportValues=c("normalized")} 
             \item \code{exportStats=c("mean","sd","cv")} 
-       } 
-       \item \code{"all_full"}: use all genes (do not filter) 
-       and export all genes and all annotation and statistics
-       elements. In this case, the above described arguments 
-       become: 
-       \itemize{ 
-           \item \code{exonFilters=NULL} 
-           \item \code{geneFilters=NULL}
-           \item \code{pcut=1} 
-           \item \code{exportWhat=c("annotation","p_value",
-           "adj_p_value","meta_p_value",} 
-           \code{"adj_meta_p_value","fold_change","stats","counts")}
-           \item \code{exportScale=c("natural","log2","log10","vst")}
-           \item \code{exportValues=c("raw","normalized")} 
-           \item \code{exportStats=c("mean","median","sd","mad",
-           "cv","rcv")}
+        }
+        \item \code{"all_full"}: use all genes (do not filter) 
+        and export all genes and all annotation and statistics
+        elements. In this case, the above described arguments 
+        become: 
+        \itemize{ 
+            \item \code{exonFilters=NULL} 
+            \item \code{geneFilters=NULL}
+            \item \code{pcut=1} 
+            \item \code{exportWhat=c("annotation","p_value",
+            "adj_p_value","meta_p_value",} 
+            \code{"adj_meta_p_value","fold_change","stats","counts")}
+            \item \code{exportScale=c("natural","log2","log10","vst")}
+            \item \code{exportValues=c("raw","normalized")} 
+            \item \code{exportStats=c("mean","median","sd","mad",
+            "cv","rcv")}
     } 
     \item \code{"medium_basic"}: apply a medium set of filters
     and and export statistically significant genes and basic
@@ -1218,8 +1218,8 @@
         \item \code{exportScale=c("natural","log2")} 
         \item \code{exportValues=c("normalized")} 
         \item \code{exportStats=c("mean","sd","cv")} 
-   } 
-   \item \code{"strict_full"}: apply a strict set of filters 
+    } 
+    \item \code{"strict_full"}: apply a strict set of filters 
     and export statistically significant genes and full
     annotation and statistics elements. In this case, the
     above described arguments become:
@@ -1248,45 +1248,45 @@
 data("mm9GeneData",package="metaseqR2")
 
 result <- metaseqr2(
-  counts=mm9GeneCounts,
-  sampleList=sampleListMm9,
-  contrast=c("adult_8_weeks_vs_e14.5"),
-  libsizeList=libsizeListMm9,
-  annotation="embedded",
-  org="mm9",
-  countType="gene",
-  normalization="edger",
-  statistics="edger",
-  pcut=0.05,
-  figFormat="png",
-  qcPlots="mds",
-  exportWhat=c("annotation","p_value","adj_p_value","fold_change"),
-  exportScale="natural",
-  exportValues="normalized",
-  exportStats="mean",
-  exportWhere=file.path(tempdir(),"test1"),
-  restrictCores=0.1,
-  geneFilters=list(
-    length=list(
-      length=500
+    counts=mm9GeneCounts,
+    sampleList=sampleListMm9,
+    contrast=c("adult_8_weeks_vs_e14.5"),
+    libsizeList=libsizeListMm9,
+    annotation="embedded",
+    org="mm9",
+    countType="gene",
+    normalization="edger",
+    statistics="edger",
+    pcut=0.05,
+    figFormat="png",
+    qcPlots="mds",
+    exportWhat=c("annotation","p_value","adj_p_value","fold_change"),
+    exportScale="natural",
+    exportValues="normalized",
+    exportStats="mean",
+    exportWhere=file.path(tempdir(),"test1"),
+    restrictCores=0.1,
+    geneFilters=list(
+        length=list(
+            length=500
+        ),
+        avgReads=list(
+            averagePerBp=100,
+            quantile=0.25
+        ),
+        expression=list(
+            median=TRUE,
+            mean=FALSE,
+            quantile=NA,
+            known=NA,
+            custom=NA
+       ),
+       biotype=getDefaults("biotypeFilter","mm9")
     ),
-    avgReads=list(
-      averagePerBp=100,
-      quantile=0.25
-    ),
-    expression=list(
-      median=TRUE,
-      mean=FALSE,
-      quantile=NA,
-      known=NA,
-      custom=NA
-    ),
-    biotype=getDefaults("biotypeFilter","mm9")
-  ),
-  outList=TRUE
+    outList=TRUE
 )
 head(result$data[["adult_8_weeks_vs_e14.5"]])
 }
 \author{
-  Panagiotis Moulos
+    Panagiotis Moulos
 }
