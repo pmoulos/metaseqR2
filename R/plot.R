@@ -836,7 +836,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
     # All of these plots are NOISeq specific so we need a local NOISeq object
     if (any(is.na(unique(covars$biotype))))
         covars$biotype=NULL # Otherwise, it will probably crash
-    localObj <- NOISeq::readData(
+    #localObj <- NOISeq::readData(
+    localObj <- readData(
         data=x,
         length=covars$geneLength,
         gc=covars$gcContent,
@@ -847,7 +848,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
     )
     switch(whichPlot,
         biodetection = {
-            diagplotData <- NOISeq::dat(localObj,type=whichPlot)
+            #diagplotData <- NOISeq::dat(localObj,type=whichPlot)
+            diagplotData <- dat(localObj,type=whichPlot)
             samples <- unlist(sampleList)
             if (output!="json") {
                 fil <- character(length(samples))
@@ -866,7 +868,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                 return(fil)
             }
             else {
-                diagplotDataSave = NOISeq::dat2save(diagplotData)
+                #diagplotDataSave = NOISeq::dat2save(diagplotData)
+                diagplotDataSave = dat2save(diagplotData)
                 obj <- list(
                     x=NULL,
                     y=NULL,
@@ -897,8 +900,9 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
         countsbio = {
             samples <- unlist(sampleList)
             if (output!="json") {
-                diagplotData <- NOISeq::dat(localObj,type=whichPlot,
-                    factor=NULL)
+                #diagplotData <- NOISeq::dat(localObj,type=whichPlot,
+                #    factor=NULL)
+                diagplotData <- dat(localObj,type=whichPlot,factor=NULL)
                 fil <- character(length(samples))
                 names(fil) <- samples
                 for (i in seq_len(length(samples))) {
@@ -969,8 +973,10 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
         },
         saturation = {
             # For 10 saturation points
-            diagplotData <- NOISeq::dat(localObj,k=0,ndepth=9,type=whichPlot)
-            d2s <- NOISeq::dat2save(diagplotData)
+            #diagplotData <- NOISeq::dat(localObj,k=0,ndepth=9,type=whichPlot)
+            diagplotData <- dat(localObj,k=0,ndepth=9,type=whichPlot)
+            #d2s <- NOISeq::dat2save(diagplotData)
+            d2s <- dat2save(diagplotData)
             if (output != "json") {
                 fil <- diagplotNoiseqSaturation(d2s,output,covars$biotype,
                     path=path)
@@ -1036,7 +1042,8 @@ diagplotNoiseq <- function(x,sampleList,covars,whichPlot=c("biodetection",
                     "than 12 samples! Skipping...")
                 return(NULL)
             }
-            diagplotData <- NOISeq::dat(localObj,type="cd")
+            #diagplotData <- NOISeq::dat(localObj,type="cd")
+            diagplotData <- dat(localObj,type="cd")
             if (output!="json") {
                 fil <- file.path(path,paste(whichPlot,"_",status,".",output,
                     sep=""))

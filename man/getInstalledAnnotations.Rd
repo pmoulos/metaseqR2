@@ -21,9 +21,9 @@
 }
 \examples{
 db <- file.path(system.file(package="metaseqR2"),
-  "annotation.sqlite")
+    "annotation.sqlite")
 if (file.exists(db))
-  ig <- getInstalledAnnotations(obj=db)
+    ig <- getInstalledAnnotations(obj=db)
 }
 \author{
     Panagiotis Moulos

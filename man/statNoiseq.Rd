@@ -53,7 +53,6 @@
     function \code{metaseqR2:::makeContrastList}.
 }
 \examples{
-require(NOISeq)
 dataMatrix <- metaseqR2:::exampleCountData(1000)
 sampleList <- list(A=c("A1","A2"),B=c("B1","B2","B3"))
 contrast <- "A_vs_B"
@@ -63,16 +62,16 @@ ends <- starts + lengths
 gc=runif(nrow(dataMatrix))
 biotype=rep("protein_coding",nrow(dataMatrix))
 geneData <- data.frame(
-  chromosome=c(rep("chr1",nrow(dataMatrix)/2),
-  rep("chr2",nrow(dataMatrix)/2)),
-    start=starts,end=ends,gene_id=rownames(dataMatrix),
-  gc_content=gc,biotype=biotype
+    chromosome=c(rep("chr1",nrow(dataMatrix)/2),
+    rep("chr2",nrow(dataMatrix)/2)),
+        start=starts,end=ends,gene_id=rownames(dataMatrix),
+    gc_content=gc,biotype=biotype
 )
 normArgs <- metaseqR2:::getDefaults("normalization","noiseq")
 normDataMatrix <- normalizeNoiseq(dataMatrix,sampleList,normArgs,
     geneData)
 p <- statNoiseq(normDataMatrix,sampleList,contrast,
-  geneData=geneData)
+    geneData=geneData)
 }
 \author{
     Panagiotis Moulos

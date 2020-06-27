@@ -77,14 +77,14 @@
 \examples{
 dataPath <- system.file("extdata",package="metaseqR2")
 targets <- data.frame(samplename=c("C","T"),
-  filename=file.path(dataPath,c("C.bam","T.bam")),  
-  condition=c("Control","Treatment"),
-  paired=c("single","single"),stranded=c("forward","forward"))
+    filename=file.path(dataPath,c("C.bam","T.bam")),  
+    condition=c("Control","Treatment"),
+    paired=c("single","single"),stranded=c("forward","forward"))
 path <- tempdir()
 
 # Tab delimited case
 write.table(targets,file=file.path(path,"targets.txt"),
-  sep="\t",row.names=FALSE,quote=FALSE)
+    sep="\t",row.names=FALSE,quote=FALSE)
 theList <- readTargets(file.path(path,"targets.txt"),path=path)
 sampleList <- theList$samples
 bamfileList <- theList$files

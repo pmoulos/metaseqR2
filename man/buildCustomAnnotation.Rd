@@ -82,21 +82,22 @@ chromInfo <- data.frame(length=c(1000L,2000L,1500L),
 
 # Build with the metadata list filled (you can also provide a version)
 if (.Platform$OS.type == "unix") {
-  buildCustomAnnotation(
-    gtfFile=file.path(system.file(package="metaseqR2"),"dummy.gtf"),
-    metadata=list(
-      organism="dummy",
-      source="dummy_db",
-      version=1,
-      chromInfo=chromInfo
-    ),
-    db=myDb
-  )
+    buildCustomAnnotation(
+        gtfFile=file.path(system.file(package="metaseqR2"),
+            "dummy.gtf"),
+        metadata=list(
+            organism="dummy",
+            source="dummy_db",
+            version=1,
+            chromInfo=chromInfo
+       ),
+       db=myDb
+    )
 
-  # Try to retrieve some data
-  myGenes <- loadAnnotation(genome="dummy",refdb="dummy_db",
-    level="gene",type="gene",db=myDb)
-  myGenes
+    # Try to retrieve some data
+    myGenes <- loadAnnotation(genome="dummy",refdb="dummy_db",
+        level="gene",type="gene",db=myDb)
+    myGenes
 }
 
 ## Real data!

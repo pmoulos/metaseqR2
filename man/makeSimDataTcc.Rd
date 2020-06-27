@@ -25,8 +25,8 @@
 \examples{
 if (require(TCC)) {
 dd <- makeSimDataTcc(Ngene=1000,PDEG=0.2,
-  DEG.assign=c(0.9,0.1),
-  DEG.foldchange=c(5,5),replicates=c(3,3))
+    DEG.assign=c(0.9,0.1),
+    DEG.foldchange=c(5,5),replicates=c(3,3))
 head(dd$simdata)
 }
 }

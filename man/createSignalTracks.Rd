@@ -48,15 +48,14 @@
     for the same sample. A link to the created data is returned.
 }
 \examples{
-# Will fail as BAM files do not exist
 dataPath <- system.file("extdata",package="metaseqR2")
 targets <- data.frame(samplename=c("C","T"),
-  filename=file.path(dataPath,c("C.bam","T.bam")),  
-  condition=c("Control","Treatment"),
-  paired=c("single","single"),stranded=c("forward","forward"))
+    filename=file.path(dataPath,c("C.bam","T.bam")),  
+    condition=c("Control","Treatment"),
+    paired=c("single","single"),stranded=c("forward","forward"))
 path <- tempdir()
 write.table(targets,file=file.path(path,"targets.txt"),
-  sep="\t",row.names=FALSE,quote=FALSE)
+    sep="\t",row.names=FALSE,quote=FALSE)
 if (.Platform$OS.type == "unix")
     link <- createSignalTracks(file.path(path,"targets.txt"),"mm9")
 }

@@ -1419,8 +1419,9 @@ metaseqr2 <- function(
         )
         
         switch(class(normGenes)[1], 
-            CountDataSet = { # Has been normalized with DESeq
-                tempMatrix <- round(DESeq::counts(normGenes,normalized=TRUE))
+            .CountDataSet = { # Has been normalized with DESeq
+                #tempMatrix <- round(DESeq::counts(normGenes,normalized=TRUE))
+                tempMatrix <- round(counts(normGenes,normalized=TRUE))
             },
             DESeqDataSet = { # Has been normalized with DESeq2
                 tempMatrix <- round(DESeq2::counts(normGenes,normalized=TRUE))
@@ -1454,9 +1455,11 @@ metaseqr2 <- function(
                     row.names=colnames(normGenes)) 
                 cds <- newCountDataSet(as.matrix(round(
                     assayData(normGenes)$exprs)),theDesign$condition)
-                DESeq::sizeFactors(cds) <- normalizationFactor(normGenes)
-                tempMatrix <- as.matrix(round(DESeq::counts(cds,
-                    normalized=TRUE)))
+                #DESeq::sizeFactors(cds) <- normalizationFactor(normGenes)
+                sizeFactors(cds) <- normalizationFactor(normGenes)
+                #tempMatrix <- as.matrix(round(DESeq::counts(cds,
+                #    normalized=TRUE)))
+                tempMatrix <- as.matrix(round(counts(cds,normalized=TRUE)))
             }
         )
 
@@ -1498,7 +1501,7 @@ metaseqr2 <- function(
             # Now filter
             theDeadInd <- match(theDead,rownames(tempMatrix))  
             switch(class(normGenes)[1],                           
-                CountDataSet = { # Has been normalized with DESeq
+                .CountDataSet = { # Has been normalized with DESeq
                     normGenesExpr <- normGenes[-theDeadInd,]
                 },
                 DESeqDataSet = { # Has been normalized with DESeq2
@@ -1552,9 +1555,12 @@ metaseqr2 <- function(
                         row.names=colnames(normGenesExpr)) 
                     cds <- newCountDataSet(as.matrix(round(
                         assayData(normGenesExpr)$exprs)),theDesign$condition)
-                    DESeq::sizeFactors(cds) <- 
-                        normalizationFactor(normGenesExpr)
-                    normGenesExpr <- as.matrix(round(DESeq::counts(cds,
+                    #DESeq::sizeFactors(cds) <- 
+                    #    normalizationFactor(normGenesExpr)
+                    sizeFactors(cds) <- normalizationFactor(normGenesExpr)
+                    #normGenesExpr <- as.matrix(round(DESeq::counts(cds,
+                    #    normalized=TRUE)))
+                    normGenesExpr <- as.matrix(round(counts(cds,
                         normalized=TRUE)))
                 }
             )
@@ -1723,9 +1729,12 @@ metaseqr2 <- function(
     # At this point, all method-specific objects must become matrices for  
     # exporting and plotting
     switch(class(normGenesExpr)[1],
-        CountDataSet = { # Has been processed with DESeq
-            normGenes <- round(DESeq::counts(normGenes,normalized=TRUE))
-            normGenesExpr <- round(DESeq::counts(normGenesExpr,normalized=TRUE))
+        .CountDataSet = { # Has been processed with DESeq
+            #normGenes <- round(DESeq::counts(normGenes,normalized=TRUE))
+            normGenes <- round(counts(normGenes,normalized=TRUE))
+            #normGenesExpr <- round(DESeq::counts(normGenesExpr,
+            #    normalized=TRUE))
+            normGenesExpr <- round(counts(normGenesExpr,normalized=TRUE))
         },
         DESeqDataSet = { # Has been processed with DESeq2
             normGenes <- round(DESeq2::counts(normGenes,normalized=TRUE))
@@ -1762,13 +1771,17 @@ metaseqr2 <- function(
                 row.names=colnames(normGenes)) 
             cds <- newCountDataSet(as.matrix(round(assayData(normGenes)$exprs)),
                 theDesign$condition)
-            DESeq::sizeFactors(cds) <- normalizationFactor(normGenes)
-            normGenes <- as.matrix(round(DESeq::counts(cds,normalized=TRUE)))
-
+            #DESeq::sizeFactors(cds) <- normalizationFactor(normGenes)
+            sizeFactors(cds) <- normalizationFactor(normGenes)
+            #normGenes <- as.matrix(round(DESeq::counts(cds,normalized=TRUE)))
+            normGenes <- as.matrix(round(counts(cds,normalized=TRUE)))
             cdsExpr <- newCountDataSet(as.matrix(round(assayData(
                 normGenesExpr)$exprs)),theDesign$condition)
-            DESeq::sizeFactors(cdsExpr) <- normalizationFactor(normGenesExpr)
-            normGenesExpr <- as.matrix(round(DESeq::counts(cdsExpr,
+            #DESeq::sizeFactors(cdsExpr) <- normalizationFactor(normGenesExpr)
+            sizeFactors(cdsExpr) <- normalizationFactor(normGenesExpr)
+            #normGenesExpr <- as.matrix(round(DESeq::counts(cdsExpr,
+            #    normalized=TRUE)))
+            normGenesExpr <- as.matrix(round(counts(cdsExpr,
                 normalized=TRUE)))
         }
         # We don't need the matrix case

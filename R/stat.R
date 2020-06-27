@@ -1,5 +1,5 @@
 statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
-    if (is.null(statArgs) && !is(object,"CountDataSet"))
+    if (is.null(statArgs) && !is(object,".CountDataSet"))
         statArgs <- getDefaults("statistics","deseq")
     if (is.null(contrastList))
         contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
@@ -25,16 +25,24 @@ statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
         fitTypeDisp <- statArgs$fitType
     }
     switch(class(object)[1],
-        CountDataSet = { # Has been normalized with DESeq
+        .CountDataSet = { # Has been normalized with DESeq
             cds <- object
-            cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #    sharingMode=sharingModeDisp,fitType=fitTypeDisp)
+            cds <- estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp,fitType=fitTypeDisp)
         },
         DESeqDataSet = { # Has been normalized with DESeq2
-            cds <- newCountDataSet(round(DESeq::counts(object,normalized=TRUE)),
+            #cds <- newCountDataSet(round(DESeq::counts(object,
+            #   normalized=TRUE)),
+            #    theDesign$condition)
+            cds <- newCountDataSet(round(counts(object,normalized=TRUE)),
                 theDesign$condition)
-            DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
-            cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
+            sizeFactors(cds) <- rep(1,ncol(cds))
+            #cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #    sharingMode=sharingModeDisp)
+            cds <- estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp)
         },
         DGEList = { # Has been normalized with edgeR
@@ -42,44 +50,62 @@ statDeseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             scl <- object$samples$lib.size * object$samples$norm.factors
             cds <- newCountDataSet(round(t(t(object$counts)/scl)*mean(scl)),
                 theDesign$condition)
-            DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
-            cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
+            sizeFactors(cds) <- rep(1,ncol(cds))
+            #cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #    sharingMode=sharingModeDisp)
+            cds <- estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp)
         },
         matrix = { # Has been normalized with EDASeq or NOISeq
             cds <- newCountDataSet(object,theDesign$condition)
-            DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
-            cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
+            sizeFactors(cds) <- rep(1,ncol(cds))
+            #cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #    sharingMode=sharingModeDisp)
+            cds <- estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp)
         },
         nbData = { # Has been normalized with NBPSeq and main method was 
             # "nbpseq"
             cds <- newCountDataSet(as.matrix(round(sweep(object$counts,2,
                 object$norm.factors,"*"))),theDesign$condition)
-            DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
-            cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
+            sizeFactors(cds) <- rep(1,ncol(cds))
+            #cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #    sharingMode=sharingModeDisp)
+            cds <- estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp)
         },
         nbp = { # Has been normalized with NBPSeq and main method was 
             # "nbsmyth"...
             cds <- newCountDataSet(as.matrix(round(object$pseudo.counts)),
                 theDesign$condition)
-            DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
-            cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
+            sizeFactors(cds) <- rep(1,ncol(cds))
+            #cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #    sharingMode=sharingModeDisp)
+            cds <- estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp)
         },
         ABSDataSet = { # Has been normalized with ABSSeq
             cds <- newCountDataSet(as.matrix(round(excounts(object)),
                 theDesign$condition))
-            DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
-            cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
+            sizeFactors(cds) <- rep(1,ncol(cds))
+            #cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #    sharingMode=sharingModeDisp)
+            cds <- estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp)
         },
         SeqCountSet = { # Has been normalized with DSS
             cds <- newCountDataSet(as.matrix(round(assayData(object)$exprs),
                 theDesign$condition))
-            DESeq::sizeFactors(cds) <- normalizationFactor(object)
-            cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #DESeq::sizeFactors(cds) <- normalizationFactor(object)
+            sizeFactors(cds) <- normalizationFactor(object)
+            #cds <- DESeq::estimateDispersions(cds,method=methodDisp,
+            #    sharingMode=sharingModeDisp)
+            cds <- estimateDispersions(cds,method=methodDisp,
                 sharingMode=sharingModeDisp)
         }
     )
@@ -134,8 +160,9 @@ statDeseq2 <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
                 maxit=statArgs$maxit,quiet=statArgs$quiet,
                 modelMatrix=statArgs$modelMatrix)                   
         },
-        CountDataSet = { # Has been normalized with DESeq
-            countData <- round(DESeq::counts(object, normalized=TRUE)) 
+        .CountDataSet = { # Has been normalized with DESeq
+            #countData <- round(DESeq::counts(object, normalized=TRUE))
+            countData <- round(counts(object, normalized=TRUE))
             dds <- DESeqDataSetFromMatrix(countData,colData,design=design,
                 tidy=statArgs$tidy) 
             DESeq2::sizeFactors(dds) <- rep(1,ncol(countData))
@@ -271,9 +298,10 @@ statEdger <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
     switch(class(object)[1],
-        CountDataSet = { # Has been normalized with DESeq
-            dge <- DGEList(counts=DESeq::counts(object,normalized=TRUE),
-                group=classes)
+        .CountDataSet = { # Has been normalized with DESeq
+            #dge <- DGEList(counts=DESeq::counts(object,normalized=TRUE),
+            #    group=classes)
+            dge <- DGEList(counts=counts(object,normalized=TRUE),group=classes)
         },
         DESeqDataSet = { # Has been normalized with DESeq2
             dge <- DGEList(counts=DESeq2::counts(object,normalized=TRUE),
@@ -444,8 +472,9 @@ statLimma <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
     switch(class(object)[1],
-        CountDataSet = { # Has been normalized with DESeq
-            dge <- DGEList(DESeq::counts(object,normalized=TRUE),group=classes)
+        .CountDataSet = { # Has been normalized with DESeq
+            #dge <- DGEList(DESeq::counts(object,normalized=TRUE),group=classes)
+            dge <- DGEList(counts(object,normalized=TRUE),group=classes)
         },
         DESeqDataSet = { # Has been normalized with DESeq2
             dge <- DGEList(DESeq2::counts(object,normalized=TRUE),group=classes)
@@ -550,9 +579,11 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
     switch(class(object)[1],
-        CountDataSet = { # Has been normalized with DESeq
-            nsObj <- NOISeq::readData(
-                data=DESeq::counts(object,normalized=TRUE),
+        .CountDataSet = { # Has been normalized with DESeq
+            #nsObj <- NOISeq::readData(
+            nsObj <- readData(
+                #data=DESeq::counts(object,normalized=TRUE),
+                data=counts(object,normalized=TRUE),
                 length=geneLength,
                 gc=gcContent,
                 chromosome=geneData[,c(1,2,3)],
@@ -561,7 +592,8 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             )
         },
         DESeqDataSet = { # Has been normalized with DESeq2
-            nsObj <- NOISeq::readData(
+            #nsObj <- NOISeq::readData(
+            nsObj <- readData(
                 data=DESeq2::counts(object,normalized=TRUE),
                 length=geneLength,
                 gc=gcContent,
@@ -574,7 +606,8 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             # Trick found at http://cgrlucb.wikispaces.com/edgeR+spring2013
             scl <- object$samples$lib.size * object$samples$norm.factors
             dm <- round(t(t(object$counts)/scl)*mean(scl))            
-            nsObj <- NOISeq::readData(
+            #nsObj <- NOISeq::readData(
+            nsObj <- readData(
                 data=dm,
                 length=geneLength,
                 gc=gcContent,
@@ -587,7 +620,8 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             nsObj <- object
         },
         matrix = { # Has been normalized with EDASeq
-            nsObj <- NOISeq::readData(
+            #nsObj <- NOISeq::readData(
+            nsObj <- readData(
                 data=object,
                 length=geneLength,
                 gc=gcContent,
@@ -597,7 +631,8 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             )
         },
         nbData = { # Has been normalized with NBPSeq and main method "nbpseq"
-            nsObj <- NOISeq::readData(
+            #nsObj <- NOISeq::readData(
+            nsObj <- readData(
                 data=as.matrix(round(sweep(object$counts,2,
                     object$norm.factors,"*"))),
                 length=geneLength,
@@ -608,7 +643,8 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             )
         },
         nbp = { # Has been normalized with NBPSeq and main method was "nbsmyth"
-            nsObj <- NOISeq::readData(
+            #nsObj <- NOISeq::readData(
+            nsObj <- readData(
                 data=as.matrix(round(object$pseudo.counts)),
                 length=geneLength,
                 gc=gcContent,
@@ -618,7 +654,8 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             )
         },
         ABSDataSet = { # Has been normalized with ABSSeq
-            nsObj <- NOISeq::readData(
+            #nsObj <- NOISeq::readData(
+            nsObj <- readData(
                 data=as.matrix(round(excounts(object))),
                 length=geneLength,
                 gc=gcContent,
@@ -636,9 +673,12 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 row.names=colnames(object))
             cds <- newCountDataSet(as.matrix(round(assayData(object)$exprs)),
                 theDesign$condition)
-            DESeq::sizeFactors(cds) <- normalizationFactor(object)
-            nsObj <- NOISeq::readData(
-                data=DESeq::counts(cds,normalized=TRUE),
+            #DESeq::sizeFactors(cds) <- normalizationFactor(object)
+            sizeFactors(cds) <- normalizationFactor(object)
+            #nsObj <- NOISeq::readData(
+            nsObj <- readData(
+                #data=DESeq::counts(cds,normalized=TRUE),
+                data=counts(cds,normalized=TRUE),
                 length=geneLength,
                 gc=gcContent,
                 chromosome=geneData[,c(1,2,3)],
@@ -680,8 +720,11 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             M <- assayData(nsObj)$exprs
             cds <- newCountDataSet(round(M),data.frame(condition=unlist(con),
                 row.names=names(unlist(con))))
-            DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
-            cds <- DESeq::estimateDispersions(cds,method="blind",
+            #DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
+            sizeFactors(cds) <- rep(1,ncol(cds))
+            #cds <- DESeq::estimateDispersions(cds,method="blind",
+            #    sharingMode="fit-only")
+            cds <- estimateDispersions(cds,method="blind",
                 sharingMode="fit-only")
             fit0 <- fitNbinomGLMs(cds,count~1)
             fit1 <- fitNbinomGLMs(cds,count~condition)
@@ -706,8 +749,9 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
     switch(class(object)[1],
-        CountDataSet = { # Has been normalized with DESeq
-            bayesData <- DESeq::counts(object,normalized=TRUE)
+        .CountDataSet = { # Has been normalized with DESeq
+            #bayesData <- DESeq::counts(object,normalized=TRUE)
+            bayesData <- counts(object,normalized=TRUE)
         },
         DESeqDataSet = { # Has been normalized with DESeq2
             bayesData <- DESeq2::counts(object,normalized=TRUE)
@@ -734,8 +778,10 @@ statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 row.names=colnames(object))
             cds <- newCountDataSet(as.matrix(round(assayData(object)$exprs)),
                 theDesign$condition)
-            DESeq::sizeFactors(cds) <- normalizationFactor(object)
-            bayesData <- as.matrix(DESeq::counts(cds,normalized=TRUE))
+            #DESeq::sizeFactors(cds) <- normalizationFactor(object)
+            sizeFactors(cds) <- normalizationFactor(object)
+            #bayesData <- as.matrix(DESeq::counts(cds,normalized=TRUE))
+            bayesData <- as.matrix(counts(cds,normalized=TRUE))
         }
     )
     CD <- new("countData",data=bayesData,replicates=classes)
@@ -790,8 +836,9 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     p <- vector("list",length(contrastList))
     names(p) <- names(contrastList)
     switch(class(object)[1],
-        CountDataSet = { # Has been normalized with DESeq
-            counts <- round(DESeq::counts(object,normalized=TRUE))
+        .CountDataSet = { # Has been normalized with DESeq
+            #counts <- round(DESeq::counts(object,normalized=TRUE))
+            counts <- round(counts(object,normalized=TRUE))
             if (is.null(libsizeList)) {
                 libsizeList <- vector("list",length(classes))
                 names(libsizeList) <- unlist(sampleList,use.names=FALSE)
@@ -870,8 +917,10 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
                 row.names=colnames(object)) 
             cds <- newCountDataSet(as.matrix(round(assayData(object)$exprs)),
                 theDesign$condition)
-            DESeq::sizeFactors(cds) <- normalizationFactor(object)
-            counts <- as.matrix(DESeq::counts(cds,normalized=TRUE))
+            #DESeq::sizeFactors(cds) <- normalizationFactor(object)
+            sizeFactors(cds) <- normalizationFactor(object)
+            #counts <- as.matrix(DESeq::counts(cds,normalized=TRUE))
+            counts <- as.matrix(counts(cds,normalized=TRUE))
             if (is.null(libsizeList)) {
                 libsizeList <- vector("list",length(classes))
                 names(libsizeList) <- unlist(sampleList,use.names=FALSE)
@@ -952,8 +1001,11 @@ statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
             cds <- newCountDataSet(nbData$counts,
                 data.frame(condition=unlist(con),
                 row.names=names(unlist(con))))
-            DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
-            cds <- DESeq::estimateDispersions(cds,method="blind",
+            #DESeq::sizeFactors(cds) <- rep(1,ncol(cds))
+            sizeFactors(cds) <- rep(1,ncol(cds))
+            #cds <- DESeq::estimateDispersions(cds,method="blind",
+            #    sharingMode="fit-only")
+            cds <- estimateDispersions(cds,method="blind",
                 sharingMode="fit-only")
             fit0 <- fitNbinomGLMs(cds,count~1)
             fit1 <- fitNbinomGLMs(cds,count~condition)
@@ -1022,8 +1074,9 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
                         minRates=statArgs$minRates,maxRates=statArgs$maxRates, 
                         LevelstoNormFC=statArgs$LevelstoNormFC)
                 },
-                CountDataSet = { # Has been normalized with DESeq
-                    countsTmp <- DESeq::counts(object)
+                .CountDataSet = { # Has been normalized with DESeq
+                    #countsTmp <- DESeq::counts(object)
+                    countsTmp <- counts(object)
                     abs <- ABSDataSet(countsTmp[,names(unlist(con))],
                         # "user" so as to pass my own sizeFactors
                         groupsTmp,normMethod="user",
@@ -1160,8 +1213,9 @@ statAbsseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
                         minRates=statArgs$minRates,maxRates=statArgs$maxRates, 
                         LevelstoNormFC=statArgs$LevelstoNormFC)
                 },
-                CountDataSet = { # Has been normalized with DESeq
-                    countsTmp <- DESeq::counts(object)
+                .CountDataSet = { # Has been normalized with DESeq
+                    #countsTmp <- DESeq::counts(object)
+                    countsTmp <- counts(object)
                     abs <- ABSDataSet(countsTmp[,names(unlist(con))],
                         normMethod="user", 
                         sizeFactor=sizeFactors(object)[names(unlist(con))],
@@ -1298,8 +1352,9 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
     names(p) <- names(contrastList)
     
     switch(class(object)[1],
-        CountDataSet = { # Has been normalized with DESeq
-            countData <- round(DESeq::counts(object, normalized=TRUE))
+        .CountDataSet = { # Has been normalized with DESeq
+            #countData <- round(DESeq::counts(object, normalized=TRUE))
+            countData <- round(counts(object, normalized=TRUE))
             seqData <- newSeqCountSet(countData,design,
             normalizationFactor=rep(1,ncol(countData)))
             # estimating dispersions
@@ -1389,8 +1444,11 @@ statDss <- function(object,sampleList,contrastList=NULL,statArgs=NULL) {
             cds <- newCountDataSet(as.matrix(round(assayData(seqData)$exprs)),
                 conditions=theDesign$condition)
             # retrieve DSS-calculated normalizationFactors
-            DESeq::sizeFactors(cds) <- normalizationFactor(seqData)     
-            cds <- DESeq::estimateDispersions(cds,method=statArgs$method,
+            #DESeq::sizeFactors(cds) <- normalizationFactor(seqData)     
+            sizeFactors(cds) <- normalizationFactor(seqData)     
+            #cds <- DESeq::estimateDispersions(cds,method=statArgs$method,
+            #        sharingMode=statArgs$sharingMode)
+            cds <- estimateDispersions(cds,method=statArgs$method,
                     sharingMode=statArgs$sharingMode)
 
             cc <- names(unlist(con))

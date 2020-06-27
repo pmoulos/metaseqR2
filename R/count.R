@@ -238,9 +238,9 @@ readTargets <- function(input,path=NULL) {
     # probably a tab-delimited file
     test <- read_yaml(input)
     if (is(test,"character") && length(test)==1)
-        return(.readTabTargets(input,path=NULL))
+        return(.readTabTargets(input,path=path))
     else
-        return(.readYamlTargets(test,path=NULL))
+        return(.readYamlTargets(test,path=path))
 }
 
 .readYamlTargets <- function(input,path=NULL) {

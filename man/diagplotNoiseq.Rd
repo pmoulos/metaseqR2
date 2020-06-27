@@ -86,22 +86,22 @@ lengths <- round(1000*runif(nrow(dataMatrix)))
 starts <- round(1000*runif(nrow(dataMatrix)))
 ends <- starts + lengths
 covars <- list(
-  data=dataMatrix,
-  length=lengths,
-  gc=runif(nrow(dataMatrix)),
-  chromosome=data.frame(
-    chromosome=c(rep("chr1",nrow(dataMatrix)/2),
-      rep("chr2",nrow(dataMatrix)/2)),
-    start=starts,
-    end=ends
-  ),
-  factors=data.frame(class=metaseqR2:::asClassVector(sampleList)),
-  biotype=c(rep("protein_coding",nrow(dataMatrix)/2),rep("ncRNA",
-    nrow(dataMatrix)/2))
+    data=dataMatrix,
+    length=lengths,
+    gc=runif(nrow(dataMatrix)),
+    chromosome=data.frame(
+        chromosome=c(rep("chr1",nrow(dataMatrix)/2),
+        rep("chr2",nrow(dataMatrix)/2)),
+        start=starts,
+        end=ends
+    ),
+    factors=data.frame(class=metaseqR2:::asClassVector(sampleList)),
+    biotype=c(rep("protein_coding",nrow(dataMatrix)/2),rep("ncRNA",
+        nrow(dataMatrix)/2))
 )
 p <- runif(nrow(dataMatrix))
 diagplotNoiseq(dataMatrix,sampleList,covars=covars,
-  biodistOpts=list(p=p,pcut=0.1,name="A_vs_B"))
+    biodistOpts=list(p=p,pcut=0.1,name="A_vs_B"))
 }
 \author{
     Panagiotis Moulos
