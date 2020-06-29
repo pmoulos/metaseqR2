@@ -49,7 +49,7 @@ BUG FIXES
     o Fixed report crash when "exportWhere" was NA.
     o Other minor bug fixes
 
-CHANGES IN VERSION 1.1.2 (2020-06-26)
+CHANGES IN VERSION 1.1.17 (2020-06-29)
 -------------------------------------
 
 NEW FEATURES
