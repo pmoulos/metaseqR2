@@ -1918,8 +1918,12 @@ makePathStruct <- function(mainPath) {
 }
 
 makeExportList <- function(con) {
-    f <- vector("list",length(con))
-    names(f) <- con
+    if (!is.null(contrast)) {
+        f <- vector("list",length(con))
+        names(f) <- con
+    }
+    else
+        f <- list(NT=NULL)
     return(f)
 }
 
@@ -1933,7 +1937,7 @@ makeGrid <- function(n) {
             k <- k+1
         else {
             while (n > m*k)
-                k=k-1
+                k <- k-1
         }
     }
     else

@@ -1601,130 +1601,134 @@ metaseqr2 <- function(
         stopwrap("No genes left after gene and/or exon filtering! Try again ",
             "with no filtering or less strict filter rules...")
 
-    if (is.function(.progressFun)) {
-        text <- paste("Statistical testing...")
-        .progressFun(detail=text)
-    }
-    
-    # Run the statistical test, normGenes is always a method-specific object,
-    # handled in the metaseqr.stat.R stat.* functions
-    cpList <- vector("list",length(contrast))
-    names(cpList) <- contrast
-    contrastList <- makeContrastList(contrast,sampleList)
-    for (n in names(cpList)) {
-        cpList[[n]] <- vector("list",length(statistics))
-        names(cpList[[n]]) <- statistics
-    }
-    for (alg in statistics) {
-        disp("Running statistical tests with: ",alg)    
-        switch(alg,
-            deseq = {
-                pList <- statDeseq(normGenesExpr,sampleList,contrastList,
-                    statArgs[[alg]])
-                if (!is.na(pcut)) {
-                    for (con in names(contrastList))
-                        disp("  Contrast ",con,": found ",
-                            length(which(pList[[con]]<=pcut))," genes")
-                }
-            },
-            deseq2 = {
-                pList <- statDeseq2(normGenesExpr,sampleList,contrastList,
-                    statArgs[[alg]])
-                if (!is.na(pcut)) {
-                    for (con in names(contrastList))
-                        disp("  Contrast ",con,": found ",
-                            length(which(pList[[con]]<=pcut))," genes")
-                }
-            },   
-            edger = {
-                pList <- statEdger(normGenesExpr,sampleList,contrastList,
-                    statArgs[[alg]])
-                if (!is.na(pcut)) {
-                    for (con in names(contrastList))
-                        disp("  Contrast ",con,": found ",
-                            length(which(pList[[con]]<=pcut))," genes")
-                }
-            },
-            noiseq = {
-                pList <- statNoiseq(normGenesExpr,sampleList,contrastList,
-                    statArgs[[alg]],geneDataExpr,logOffset)
-                if (!is.na(pcut)) {
-                    for (con in names(contrastList))
-                        disp("  Contrast ",con,": found ",
-                            length(which(pList[[con]]<=pcut))," genes")
-                }
-            },
-            bayseq = {
-                pList <- statBayseq(normGenesExpr,sampleList,contrastList,
-                    statArgs[[alg]],libsizeList)
-                if (!is.na(pcut)) {
-                    for (con in names(contrastList))
-                        disp("  Contrast ",con,": found ",
-                            length(which(pList[[con]]<=pcut))," genes")
-                }
-            },
-            limma = {
-                pList <- statLimma(normGenesExpr,sampleList,contrastList,
-                    statArgs[[alg]])
-                if (!is.na(pcut)) {
-                    for (con in names(contrastList))
-                        disp("  Contrast ",con,": found ",
-                            length(which(pList[[con]]<=pcut))," genes")
-                }
-            },
-            nbpseq = {
-                pList <- statNbpseq(normGenesExpr,sampleList,contrastList,
-                    statArgs[[alg]],libsizeList)
-                if (!is.na(pcut)) {
-                    for (con in names(contrastList))
-                        disp("  Contrast ",con,": found ",
-                            length(which(pList[[con]]<=pcut))," genes")
-                }
-            },
-            absseq = {
-                pList <- statAbsseq(normGenesExpr,sampleList,contrastList,
-                    statArgs[[alg]])
-                if (!is.na(pcut)) {
-                    for (con in names(contrastList))
-                        disp("  Contrast ",con,": found ",
-                            length(which(pList[[con]]<=pcut))," genes")
-                }
-            },
-            dss = {
-                pList <- statDss(normGenesExpr,sampleList,contrastList,
-                    statArgs[[alg]])
-                # Order pList genes as in normGenesExpr, because dss outputs 
-                # gene names in a different order
-                pList[[1]] <- pList[[1]][rownames(normGenesExpr)]
-                if (!is.na(pcut)) {
-                    for (con in names(contrastList))
-                        disp("  Contrast ",con,": found ",
-                            length(which(pList[[con]]<=pcut))," genes")
-                }
-            }
-        )
-        for (n in names(pList))
-            cpList[[n]][[alg]] <- pList[[n]]
-    }
-    for (n in names(cpList))
-        cpList[[n]] <- do.call("cbind",cpList[[n]])
-
-    # Create the adjusted p-value matrices (if needed)
-    if ("adj_p_value" %in% exportWhat) {
-        adjCpList <- cmclapply(cpList,
-            function(x,a) return(apply(x,2,p.adjust,a)),adjustMethod,
-            rc=restrictCores)
+    if (!is.null(contrast)) {
+        if (is.function(.progressFun)) {
+            text <- paste("Statistical testing...")
+            .progressFun(detail=text)
+        }
+        
+        # Run the statistical test, normGenes is always a method-specific object,
+        # handled in the metaseqr.stat.R stat.* functions
+        cpList <- vector("list",length(contrast))
+        names(cpList) <- contrast
+        contrastList <- makeContrastList(contrast,sampleList)
         for (n in names(cpList)) {
-            noi <- grep("noiseq",colnames(cpList[[n]]))
-            if (length(noi)>0) {
-                # DESeq has not run in this case, FDR cannot be calculated
-                if (length(strsplit(n,"_vs_")[[1]])==2)
-                    adjCpList[[n]][,noi] <- rep(NA,nrow(cpList[[n]]))
+            cpList[[n]] <- vector("list",length(statistics))
+            names(cpList[[n]]) <- statistics
+        }
+        for (alg in statistics) {
+            disp("Running statistical tests with: ",alg)    
+            switch(alg,
+                deseq = {
+                    pList <- statDeseq(normGenesExpr,sampleList,contrastList,
+                        statArgs[[alg]])
+                    if (!is.na(pcut)) {
+                        for (con in names(contrastList))
+                            disp("  Contrast ",con,": found ",
+                                length(which(pList[[con]]<=pcut))," genes")
+                    }
+                },
+                deseq2 = {
+                    pList <- statDeseq2(normGenesExpr,sampleList,contrastList,
+                        statArgs[[alg]])
+                    if (!is.na(pcut)) {
+                        for (con in names(contrastList))
+                            disp("  Contrast ",con,": found ",
+                                length(which(pList[[con]]<=pcut))," genes")
+                    }
+                },   
+                edger = {
+                    pList <- statEdger(normGenesExpr,sampleList,contrastList,
+                        statArgs[[alg]])
+                    if (!is.na(pcut)) {
+                        for (con in names(contrastList))
+                            disp("  Contrast ",con,": found ",
+                                length(which(pList[[con]]<=pcut))," genes")
+                    }
+                },
+                noiseq = {
+                    pList <- statNoiseq(normGenesExpr,sampleList,contrastList,
+                        statArgs[[alg]],geneDataExpr,logOffset)
+                    if (!is.na(pcut)) {
+                        for (con in names(contrastList))
+                            disp("  Contrast ",con,": found ",
+                                length(which(pList[[con]]<=pcut))," genes")
+                    }
+                },
+                bayseq = {
+                    pList <- statBayseq(normGenesExpr,sampleList,contrastList,
+                        statArgs[[alg]],libsizeList)
+                    if (!is.na(pcut)) {
+                        for (con in names(contrastList))
+                            disp("  Contrast ",con,": found ",
+                                length(which(pList[[con]]<=pcut))," genes")
+                    }
+                },
+                limma = {
+                    pList <- statLimma(normGenesExpr,sampleList,contrastList,
+                        statArgs[[alg]])
+                    if (!is.na(pcut)) {
+                        for (con in names(contrastList))
+                            disp("  Contrast ",con,": found ",
+                                length(which(pList[[con]]<=pcut))," genes")
+                    }
+                },
+                nbpseq = {
+                    pList <- statNbpseq(normGenesExpr,sampleList,contrastList,
+                        statArgs[[alg]],libsizeList)
+                    if (!is.na(pcut)) {
+                        for (con in names(contrastList))
+                            disp("  Contrast ",con,": found ",
+                                length(which(pList[[con]]<=pcut))," genes")
+                    }
+                },
+                absseq = {
+                    pList <- statAbsseq(normGenesExpr,sampleList,contrastList,
+                        statArgs[[alg]])
+                    if (!is.na(pcut)) {
+                        for (con in names(contrastList))
+                            disp("  Contrast ",con,": found ",
+                                length(which(pList[[con]]<=pcut))," genes")
+                    }
+                },
+                dss = {
+                    pList <- statDss(normGenesExpr,sampleList,contrastList,
+                        statArgs[[alg]])
+                    # Order pList genes as in normGenesExpr, because dss outputs
+                    # gene names in a different order
+                    pList[[1]] <- pList[[1]][rownames(normGenesExpr)]
+                    if (!is.na(pcut)) {
+                        for (con in names(contrastList))
+                            disp("  Contrast ",con,": found ",
+                                length(which(pList[[con]]<=pcut))," genes")
+                    }
+                }
+            )
+            for (n in names(pList))
+                cpList[[n]][[alg]] <- pList[[n]]
+        }
+        for (n in names(cpList))
+            cpList[[n]] <- do.call("cbind",cpList[[n]])
+
+        # Create the adjusted p-value matrices (if needed)
+        if ("adj_p_value" %in% exportWhat) {
+            adjCpList <- cmclapply(cpList,
+                function(x,a) return(apply(x,2,p.adjust,a)),adjustMethod,
+                rc=restrictCores)
+            for (n in names(cpList)) {
+                noi <- grep("noiseq",colnames(cpList[[n]]))
+                if (length(noi)>0) {
+                    # DESeq has not run in this case, FDR cannot be calculated
+                    if (length(strsplit(n,"_vs_")[[1]])==2)
+                        adjCpList[[n]][,noi] <- rep(NA,nrow(cpList[[n]]))
+                }
             }
         }
+        else
+            adjCpList <- NULL
     }
-    else
-        adjCpList <- NULL
+    else # No contrast provided, some dummy p-value data must exist for export
+        cpList <- adjCpList <- NULL
 
     # At this point, all method-specific objects must become matrices for  
     # exporting and plotting
@@ -1810,31 +1814,35 @@ metaseqr2 <- function(
 
     # Calculate meta-statistics, if more than one statistical algorithm has been
     # used
-    if (length(statistics)>1) {
-        sumpList <- metaTest(
-            cpList=cpList,
-            metaP=metaP,
-            counts=normGenesExpr,
-            sampleList=sampleList,
-            statistics=statistics,
-            statArgs=statArgs,
-            libsizeList=libsizeList,
-            nperm=nperm,
-            weight=weight,
-            pOffset=pOffset,
-            rc=restrictCores
-        )
+    if (!is.null(contrast)) {
+        if (length(statistics)>1) {
+            sumpList <- metaTest(
+                cpList=cpList,
+                metaP=metaP,
+                counts=normGenesExpr,
+                sampleList=sampleList,
+                statistics=statistics,
+                statArgs=statArgs,
+                libsizeList=libsizeList,
+                nperm=nperm,
+                weight=weight,
+                pOffset=pOffset,
+                rc=restrictCores
+            )
+        }
+        # We assign the p-values from the only statistic used to sumpList in order
+        # to use it for stat plots
+        else
+            sumpList <- cpList
+        # Useless for one statistics but just for safety
+        if ("adj_meta_p_value" %in% exportWhat) 
+            adjSumpList <- cmclapply(sumpList,
+                function(x,a) return(p.adjust(x,a)),adjustMethod,rc=restrictCores)
+        else
+            adjSumpList <- NULL
     }
-    # We assign the p-values from the only statistic used to sumpList in order
-    # to use it for stat plots
     else
-        sumpList <- cpList
-    # Useless for one statistics but just for safety
-    if ("adj_meta_p_value" %in% exportWhat) 
-        adjSumpList <- cmclapply(sumpList,
-            function(x,a) return(p.adjust(x,a)),adjustMethod,rc=restrictCores)
-    else
-        adjSumpList <- NULL
+        sumpList <- adjSumpList <- NULL
 
     ############################################################################
     #                            EXPORT SECTION
@@ -1864,7 +1872,7 @@ metaseqr2 <- function(
     
     disp("Building output files...")
     if (outList) 
-        out <- makeExportList(contrast) 
+        out <- makeExportList(contrast)
     else 
         out <- NULL
     if (report) 
