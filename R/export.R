@@ -1,6 +1,5 @@
 buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
-    sampleList,cnt,statistics,
-    rawList,normList,
+    sampleList,cnt=NULL,statistics=NA,rawList,normList,
     pMat=if (is(geneData,"GenomicRanges")) 
         matrix(NA,length(geneData),length(statistics))
         else matrix(NA,nrow(geneData),length(statistics)),
@@ -33,12 +32,36 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
             baseInd <- c(baseInd,bti)
         geneData <- geneData[,baseInd]
     }
-        
-    if (is.null(colnames(pMat)))
+    
+    if (is.null(cnt)) { # No p-value or fold change can be exported
+        if ("p_value" %in% exportWhat)
+            exportWhat <- exportWhat[-which(exportWhat == "p_value")]
+        if ("adj_p_value" %in% exportWhat)
+            exportWhat <- exportWhat[-which(exportWhat == "adj_p_value")]
+        if ("meta_p_value" %in% exportWhat)
+            exportWhat <- exportWhat[-which(exportWhat == "meta_p_value")]
+        if ("adj_meta_p_value" %in% exportWhat)
+            exportWhat <- exportWhat[-which(exportWhat == "adj_meta_p_value")]
+        if ("fold_change" %in% exportWhat)
+            exportWhat <- exportWhat[-which(exportWhat == "fold_change")]
+    }
+    
+    if (is.na(statistics)) { # No p-value can be exported
+        if ("p_value" %in% exportWhat)
+            exportWhat <- exportWhat[-which(exportWhat == "p_value")]
+        if ("adj_p_value" %in% exportWhat)
+            exportWhat <- exportWhat[-which(exportWhat == "adj_p_value")]
+        if ("meta_p_value" %in% exportWhat)
+            exportWhat <- exportWhat[-which(exportWhat == "meta_p_value")]
+        if ("adj_meta_p_value" %in% exportWhat)
+            exportWhat <- exportWhat[-which(exportWhat == "adj_meta_p_value")]
+    }
+
+    if (is.null(colnames(pMat)) && "p_value" %in% exportWhat)
         colnames(pMat) <- statistics
-    if (is.null(adjpMat))
+    if (is.null(adjpMat) && "adj_p_value" %in% exportWhat)
         adjpMat=matrix(NA,nrow(geneData),length(statistics))
-    if (is.null(colnames(adjpMat)))
+    if (is.null(colnames(adjpMat)) && "adj_p_value" %in% exportWhat)
         colnames(adjpMat) <- statistics
     
     export <- data.frame(row.names=rownames(geneData))
@@ -149,7 +172,10 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
         }
     }
     if ("stats" %in% exportWhat) {
-        conds <- strsplit(cnt,"_vs_")[[1]]
+        if (!is.null(cnt))
+            conds <- strsplit(cnt,"_vs_")[[1]]
+        else
+            conds <- names(sampleList)
         for (cond in conds) {
             if ("normalized" %in% exportValues) {
                 if ("mean" %in% exportStats) {
@@ -278,7 +304,10 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
         }
     }
     if ("counts" %in% exportWhat) {
-        conds <- strsplit(cnt,"_vs_")[[1]]
+        if (!is.null(cnt))
+            conds <- strsplit(cnt,"_vs_")[[1]]
+        else
+            conds <- names(sampleList)
         for (cond in conds) {
             if ("normalized" %in% exportValues) {                    
                 disp("      binding all normalized counts for ",cond,"...")

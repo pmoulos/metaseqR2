@@ -90,8 +90,8 @@ if (.Platform$OS.type == "unix") {
             source="dummy_db",
             version=1,
             chromInfo=chromInfo
-       ),
-       db=myDb
+        ),
+        db=myDb
     )
 
     # Try to retrieve some data

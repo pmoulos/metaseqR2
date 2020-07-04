@@ -60,10 +60,10 @@ if (offlineReport) {
         cat("<script>Module = { TOTAL_MEMORY: 134217728 };</script>")
         cat("<script type=\"text/javascript\" src=\"js/sql.js\"></script>",
             sep="")
-    }
-    else if (reportDb == "dexie")
+    } else if (reportDb == "dexie") {
        cat("<script type=\"text/javascript\" src=\"js/dexie.min.js\"></script>",
             sep="")
+    }
 } else {
     #cat("<script type=\"text/javascript\" src=\"https://raw.github.com/",
     #   "HubSpot/pace/v1.0.0/pace.min.js\"></script>",sep="")
@@ -88,11 +88,11 @@ if (offlineReport) {
         cat("<script type=\"text/javascript\" src=\"",
         "https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js\">",
         "</script>",sep="")
-    }
-    else if (reportDb == "dexie")
+    } else if (reportDb == "dexie") {
         cat("<script type=\"text/javascript\" ",
             "src=\"https://unpkg.com/dexie@2.0.4/dist/dexie.min.js\">",
             "</script>",sep="")
+    }
 }
 if (reportDb == "dexie")
     cat("<script type=\"text/javascript\" src=\"data/reportdb.js\"></script>")
@@ -119,8 +119,9 @@ if (reportDb == "dexie") {
         "db.plots.clear().then(console.log('Previous plots cleared!'));\n",
         "db.plots.bulkAdd(plotData);"
     )
-} else if (reportDb == "sqlite")
+} else if (reportDb == "sqlite") {
     code <- "var DEXIE = false;"
+}
 cat("<script>\n",code,"\n</script>")
 ```
 
@@ -774,33 +775,35 @@ if (fromRaw) {
     cat("The raw ",fileType," files, one for each RNA-Seq sample, were ",
         "summarized to ")
     if (transLevel == "gene") {
-        if (countType=="exon")
+        if (countType=="exon") {
             cat("an exon ") 
-        else if (countType=="gene")
+        } else if (countType=="gene") {
             cat("a gene ")
-        else if (countType=="utr") 
+        } else if (countType=="utr") {
             cat("a 3'UTR ")
-    }
-    else if (transLevel=="transcript") {
-        if (countType=="exon")
+        }
+    } else if (transLevel=="transcript") {
+        if (countType=="exon") {
             cat("an exon ")
-        else if (countType=="utr")
+        } else if (countType=="utr") {
             cat("a 3'UTR ")
-    }
-    else if (transLevel=="exon") {
+        }
+    } else if (transLevel=="exon") {
         if (countType=="exon")
             cat("an exon ")
     }
     cat("read counts table, ")
-    if (fileType=="bam" || fileType=="sam")
+    if (fileType=="bam" || fileType=="sam") {
         cat("using the Bioconductor package GenomicRanges. ")
-    else if (fileType=="bed")
+    } else if (fileType=="bed") {
         cat("using the Bioconductor packages rtracklayer and GenomicRanges. ")
+    }
     cat("In the final read counts table, each row represented ")
-    if (countType=="exon") cat("one exon, ") 
-        else if 
-    (countType=="gene") 
+    if (countType=="exon") {
+        cat("one exon, ") 
+    } else if (countType=="gene") {
         cat("one gene, ")
+    }
     cat("each column one RNA-Seq sample and each cell, the corresponding ",
         "read counts associated with each row and column.")
 }
@@ -967,12 +970,13 @@ if (!is.null(geneFilters)) {
             geneFilters$presence$minCount," counts (",
             length(geneFilterResult$presence)," ",transLevel,"s)",sep=""
         )
-        if (geneFilters$presence$perCondition)
+        if (geneFilters$presence$perCondition) {
             msgGeneFiltersPresence <- 
                 paste(msgGeneFiltersPresence," condition-wise",sep="")
-        else
+        } else {
             msgGeneFiltersPresence <- 
                 paste(msgGeneFiltersPresence," across all samples",sep="")
+        }
     }
     
     cat(msgGeneFiltersLength,msgGeneFiltersAvgReads,
@@ -1008,88 +1012,96 @@ if (length(statistics)>1) {
 if (!is.na(pcut))
     if (pcut==1) plasm <- 0.05 else plasm <- pcut
 
-cat("The final numbers of differentially expressed ",transLevel,"s were (per ",
-    "contrast): ",sep="")
-msgContrast <- character(length(contrast))
-names(msgContrast) <- contrast
+if (!is.null(contrast)) {
+    cat("The final numbers of differentially expressed ",transLevel,"s were ",
+        "(per contrast): ",sep="")
+    msgContrast <- character(length(contrast))
+    names(msgContrast) <- contrast
 
-for (cnt in contrast) {
-    if (!is.na(pcut) && length(which(sumpList[[cnt]]<plasm))==0) {
-        msgContrast[cnt] <- paste(
-            "for the contrast ",gsub("_vs_"," versus ",cnt),
-            ", no differentially expressed ",transLevel,"s were found",
-            " with a p-value threshold of ",plasm,sep=""
-        )
-    } else if (is.na(pcut)) {
-        msgContrast[cnt] <- paste(
-            "for the contrast ",gsub("_vs_"," versus ",cnt),
-            ", no statistical threshold defined",sep=""
-        )
-    } else {
-        if (adjustMethod != "none") {
-            addTextP <- paste(
-                " (",length(which(p.adjust(sumpList[[cnt]],
-                adjustMethod)<plasm)),")",sep=""
+    for (cnt in contrast) {
+        if (!is.na(pcut) && length(which(sumpList[[cnt]]<plasm))==0) {
+            msgContrast[cnt] <- paste(
+                "for the contrast ",gsub("_vs_"," versus ",cnt),
+                ", no differentially expressed ",transLevel,"s were found",
+                " with a p-value threshold of ",plasm,sep=""
             )
-            hasFdrText <- " (FDR or adjusted p-value)"
-        }
-        else
-            addTextP <- hasFdrText <- NULL
-        if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
-            tmp <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
-                sumpList[[cnt]]<plasm),,drop=FALSE],logOffset))
+        } else if (is.na(pcut)) {
+            msgContrast[cnt] <- paste(
+                "for the contrast ",gsub("_vs_"," versus ",cnt),
+                ", no statistical threshold defined",sep=""
+            )
+        } else {
             if (adjustMethod != "none") {
-                areThere <- which(p.adjust(sumpList[[cnt]],adjustMethod)<plasm)
-                if (length(areThere) > 0) {
-                    if (length(areThere)==1) {
-                        tmpF <- log2(makeFoldChange(cnt,sampleList,
-                            normGenesExpr[areThere,,drop=FALSE],logOffset))
-                        addTextFu <- 
-                            paste(" (",length(which(tmpF>=1)),")",sep="")
-                        addTextFd <- 
-                            paste(" (",length(which(tmpF<=-1)),")",sep="")
-                        addTextFn <- 
-                            paste(" (",length(which(abs(tmpF)<1)),")",sep="")
-                    }
-                    else {
-                        tmpF <- log2(makeFoldChange(cnt,sampleList,
-                            normGenesExpr[areThere,,drop=FALSE],logOffset))
-                        addTextFu <- 
-                            paste(" (",length(which(tmpF>=1)),")",sep="")
-                        addTextFd <- 
-                            paste(" (",length(which(tmpF<=-1)),")",sep="")
-                        addTextFn <- 
-                            paste(" (",length(which(abs(tmpF)<1)),")",sep="")
-                    }
-                }
-                else
-                    addTextFu <- addTextFd <- addTextFn <- NULL
+                addTextP <- paste(
+                    " (",length(which(p.adjust(sumpList[[cnt]],
+                    adjustMethod)<plasm)),")",sep=""
+                )
+                hasFdrText <- " (FDR or adjusted p-value)"
+            } else {
+                addTextP <- hasFdrText <- NULL
             }
-            else
-                addTextFu <- addTextFd <- addTextFn <- NULL
-            msgContrast[cnt] <- paste(
-                "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
-                length(which(sumpList[[cnt]]<plasm)),addTextP,
-                " statistically significant ",transLevel,"s were found with ",
-                "a p-value",hasFdrText," threshold of ",plasm," and of these, ",
-                length(which(tmp>=1)),addTextFu," were up-regulated, ",
-                length(which(tmp<=-1)),addTextFd," were down-regulated and ",
-                length(which(abs(tmp)<1)),addTextFn," were not ",
-                "differentially expressed according to an absolute fold ",
-                "change cutoff value of 1 in log<sub>2</sub> scale",sep=""
-            )
+            if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
+                tmp <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
+                    sumpList[[cnt]]<plasm),,drop=FALSE],logOffset))
+                if (adjustMethod != "none") {
+                    areThere <- which(p.adjust(sumpList[[cnt]],
+                        adjustMethod)<plasm)
+                    if (length(areThere) > 0) {
+                        if (length(areThere)==1) {
+                            tmpF <- log2(makeFoldChange(cnt,sampleList,
+                                normGenesExpr[areThere,,drop=FALSE],logOffset))
+                            addTextFu <- 
+                                paste(" (",length(which(tmpF>=1)),")",sep="")
+                            addTextFd <- 
+                                paste(" (",length(which(tmpF<=-1)),")",sep="")
+                            addTextFn <- 
+                                paste(" (",length(which(abs(tmpF)<1)),")",
+                                    sep="")
+                        } else {
+                            tmpF <- log2(makeFoldChange(cnt,sampleList,
+                                normGenesExpr[areThere,,drop=FALSE],logOffset))
+                            addTextFu <- 
+                                paste(" (",length(which(tmpF>=1)),")",sep="")
+                            addTextFd <- 
+                                paste(" (",length(which(tmpF<=-1)),")",sep="")
+                            addTextFn <- 
+                                paste(" (",length(which(abs(tmpF)<1)),")",
+                                    sep="")
+                        }
+                    } else {
+                        addTextFu <- addTextFd <- addTextFn <- NULL
+                    }
+                } else {
+                    addTextFu <- addTextFd <- addTextFn <- NULL
+                }
+                msgContrast[cnt] <- paste(
+                    "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
+                    length(which(sumpList[[cnt]]<plasm)),addTextP,
+                    " statistically significant ",transLevel,"s were found ",
+                    "with a p-value",hasFdrText," threshold of ",plasm," and ",
+                    "of these, ",length(which(tmp>=1)),addTextFu,
+                    " were up-regulated, ",length(which(tmp<=-1)),addTextFd,
+                    " were down-regulated and ",addTextFn,
+                    " were not differentially expressed according to an ",
+                    "absolute fold change cutoff value of 1 in ",
+                    "log<sub>2</sub> scale",sep=""
+                )
+            } else {
+                msgContrast[cnt] <- paste(
+                    "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
+                    length(which(sumpList[[cnt]]<plasm)),addTextP,
+                    " differentially expressed ",transLevel,"s were found ",
+                    "with a p-value",hasFdrText," threshold of ",plasm," at ",
+                    "least in one condition",sep=""
+                )
+            }
         }
-        else
-            msgContrast[cnt] <- paste(
-                "for the contrast ",gsub("_vs_"," versus ",cnt),", ",
-                length(which(sumpList[[cnt]]<plasm)),addTextP,
-                " differentially expressed ",transLevel,"s were found with ",
-                "a p-value",hasFdrText," threshold of ",plasm," at least in ",
-                "one condition",sep=""
-            )
     }
+    cat(paste(msgContrast,collapse=", "))
+} else {
+    cat("No statistical testing was performed")
 }
-cat(paste(msgContrast,collapse=", "))
+
 cat(". Literature references for all the algorithms used can be found at the ",
     "end of this report.")
 ```
@@ -1125,7 +1137,11 @@ if (!is.null(excludeList) && !is.na(excludeList)) {
 
 **Requested contrasts:** 
 ```{r summary_input_options_5}
-cat(paste(contrast,collapse=", "))
+if (!is.null(contrast)) {
+    cat(paste(contrast,collapse=", "))
+} else {
+    cat("No contrasts were defined.")
+}
 ```
 
 **Library sizes:**
@@ -1173,14 +1189,15 @@ if (!is.null(exonFilters)) {
             sep="")
         for (efp in names(exonFilters[[ef]])) {
             if (length(exonFilters[[ef]][[efp]]) == 1 
-                && is.function(exonFilters[[ef]][[efp]]))
+                && is.function(exonFilters[[ef]][[efp]])) {
                 cat("<li>custom function</li>")
-            else if (length(exonFilters[[ef]][[efp]]) == 1)
+            } else if (length(exonFilters[[ef]][[efp]]) == 1) {
                 cat("<li>",paste(efp,exonFilters[[ef]][[efp]],sep=": "),
                     "</li>",sep="")
-            else if (length(exonFilters[[ef]][[efp]]) > 1)
+            } else if (length(exonFilters[[ef]][[efp]]) > 1) {
                 cat("<li>",paste(efp,paste(exonFilters[[ef]][[efp]],
                     collapse=", "),sep=": "),"</li>",sep="")
+            }
         }
         cat("</ul></li></ul>")
     }
@@ -1204,14 +1221,15 @@ if (!is.null(geneFilters)) {
             sep="")
         for (gfp in names(geneFilters[[gf]])) {
             if (length(geneFilters[[gf]][[gfp]]) == 1 
-                && is.function(geneFilters[[gf]][[gfp]]))
+                && is.function(geneFilters[[gf]][[gfp]])) {
                 cat("<li>custom function</li>")
-            else if (length(geneFilters[[gf]][[gfp]]) == 1)
+            } else if (length(geneFilters[[gf]][[gfp]]) == 1) {
                 cat("<li>",paste(gfp,geneFilters[[gf]][[gfp]],sep=": "),"</li>",
                     sep="")
-            else if (length(geneFilters[[gf]][[gfp]]) > 1)
+            } else if (length(geneFilters[[gf]][[gfp]]) > 1) {
                 cat("<li>",paste(gfp,paste(geneFilters[[gf]][[gfp]],
                     collapse=", "),sep=": "),"</li>",sep="")
+            }
         }
         cat("</ul></li></ul>")
     }
@@ -1255,11 +1273,11 @@ if (!is.null(normArgs)) {
                     }
                 }
                 cat("</ul>")
+            } else {
+                cat("not available or not required")
             }
-            else cat("not available or not required")
         }
-    }
-    else {
+    } else {
         cat(paste(names(normArgs),collapse=", "),"<br/>")
         cat("<ul>")
         for (na in names(normArgs)) {
@@ -1268,8 +1286,7 @@ if (!is.null(normArgs)) {
                     sep="")
             } else if (length(normArgs[[na]]) == 1) {
                 cat("<li>",paste(na,normArgs[[na]],sep=": "),"</li>")
-            }
-            else if (length(normArgs[[na]]) > 1) {
+            } else if (length(normArgs[[na]]) > 1) {
                 cat("<li>",paste(na,paste(normArgs[[na]],collapse=", "),
                     sep=": "),"</li>")
             }
@@ -1283,8 +1300,12 @@ if (!is.null(normArgs)) {
 
 **Statistical algorithm(s):** 
 ```{r summary_input_options_17}
-cat(paste(unlist(reportMessages$stat[statistics],use.names=FALSE),
-    collapse=", "))
+if (!is.na(statistics)) {
+    cat(paste(unlist(reportMessages$stat[statistics],use.names=FALSE),
+        collapse=", "))
+} else {
+    cat("No statitical testing performed.")
+}
 ```
 
 ```{r summary_input_options_18}
@@ -1431,8 +1452,7 @@ for (n in names(geneFilterResult)) {
             cat("<li>",n,": ",length(unlist(geneFilterResult[[n]])),
                 " genes with filter cutoff value ",geneFilterCutoff[[n]],
                 "</li>",sep="")
-    }
-    else {
+    } else {
         cat("<li>",n,": ",length(unlist(geneFilterResult[[n]])),
             " ",transLevel,"s further decomposed to (filter name, filtered ",
             transLevel,"s, filter cutoff):</li>",sep="")
@@ -1460,130 +1480,135 @@ cat(transLevel,"s",sep="")
 **Number of differentially expressed **
 ```{r summary_de_what_2}
 cat("<strong>",transLevel,"s per contrast: </strong>",sep="")
-if (!is.na(pcut) && pcut==1)
-    cat("The p-value cutoff during the analysis was set to 1 so as to ",
-        "retrieve the total ",transLevel," list which passed the filtering ",
-        "procedure. Each ",transLevel," in the list is accompanied by its ",
-        "statistical scores (p-value, FDR, etc.)")
+if (!is.null(contrast) && !is.na(statistics)) {
+    if (!is.na(pcut) && pcut==1)
+        cat("The p-value cutoff during the analysis was set to 1 so as to ",
+            "retrieve the total ",transLevel," list which passed the filtering ",
+            "procedure. Each ",transLevel," in the list is accompanied by its ",
+            "statistical scores (p-value, FDR, etc.)")
 
-cat("<ul>")
-for (cnt in contrast) {
-    cat("<li><strong>",cnt,": </strong>",sep="")
-    if (!is.na(pcut) && length(which(sumpList[[cnt]]<pcut)) == 0) {
-        cat("no differentially expressed ",transLevel,"s","</li>",sep="")
-    } else if (is.na(pcut)) {
-        cat("no statistical threshold defined","</li>")
-    } else {
-        if (!is.na(pcut) && pcut==1)
-            plasm <- 0.05
-        else
-            plasm <- pcut
-        if (adjustMethod!="none") {
-            addTextP <- paste("(",length(which(p.adjust(sumpList[[cnt]],
-                adjustMethod) < plasm)),")",sep="")
-            hasFdrText <- "(FDR or adjusted p-value)"
-        }
-        else
-            addTextP <- hasFdrText <- NULL
-        if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
-            tmpP <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
-                sumpList[[cnt]] < plasm),,drop=FALSE],logOffset))
-            if (adjustMethod != "none") {
-                areThere <- which(p.adjust(sumpList[[cnt]],adjustMethod)<plasm)
-                if (length(areThere)>0) {
-                    if (length(areThere) == 1) {
-                        tmpF <- log2(makeFoldChange(cnt,sampleList,
-                            normGenesExpr[areThere,,drop=FALSE],logOffset))
-                        addTextFu <- 
-                            paste(" (",length(which(tmpF>=1)),")",sep="")
-                        addTextFd <- 
-                            paste(" (",length(which(tmpF<=-1)),")",sep="")
-                        addTextFn <- 
-                            paste(" (",length(which(abs(tmpF)<1)),")",sep="")
-                    }
-                    else {
-                        tmpF <- log2(makeFoldChange(cnt,sampleList,
-                            normGenesExpr[areThere,,drop=FALSE],logOffset))
-                        addTextFu <- 
-                            paste(" (",length(which(tmpF>=1)),")",sep="")
-                        addTextFd <- 
-                            paste(" (",length(which(tmpF<=-1)),")",sep="")
-                        addTextFn <- 
-                            paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+    cat("<ul>")
+    for (cnt in contrast) {
+        cat("<li><strong>",cnt,": </strong>",sep="")
+        if (!is.na(pcut) && length(which(sumpList[[cnt]]<pcut)) == 0) {
+            cat("no differentially expressed ",transLevel,"s","</li>",sep="")
+        } else if (is.na(pcut)) {
+            cat("no statistical threshold defined","</li>")
+        } else {
+            if (!is.na(pcut) && pcut==1) {
+                plasm <- 0.05
+            } else {
+                plasm <- pcut
+            }
+            if (adjustMethod!="none") {
+                addTextP <- paste("(",length(which(p.adjust(sumpList[[cnt]],
+                    adjustMethod) < plasm)),")",sep="")
+                hasFdrText <- "(FDR or adjusted p-value)"
+            } else {
+                addTextP <- hasFdrText <- NULL
+            }
+            if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
+                tmpP <- log2(makeFoldChange(cnt,sampleList,normGenesExpr[which(
+                    sumpList[[cnt]] < plasm),,drop=FALSE],logOffset))
+                if (adjustMethod != "none") {
+                    areThere <- which(p.adjust(sumpList[[cnt]],adjustMethod)<plasm)
+                    if (length(areThere)>0) {
+                        if (length(areThere) == 1) {
+                            tmpF <- log2(makeFoldChange(cnt,sampleList,
+                                normGenesExpr[areThere,,drop=FALSE],logOffset))
+                            addTextFu <- 
+                                paste(" (",length(which(tmpF>=1)),")",sep="")
+                            addTextFd <- 
+                                paste(" (",length(which(tmpF<=-1)),")",sep="")
+                            addTextFn <- 
+                                paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+                        } else {
+                            tmpF <- log2(makeFoldChange(cnt,sampleList,
+                                normGenesExpr[areThere,,drop=FALSE],logOffset))
+                            addTextFu <- 
+                                paste(" (",length(which(tmpF>=1)),")",sep="")
+                            addTextFd <- 
+                                paste(" (",length(which(tmpF<=-1)),")",sep="")
+                            addTextFn <- 
+                                paste(" (",length(which(abs(tmpF)<1)),")",sep="")
+                        }
+                    } else {
+                        addTextFu <- addTextFd <- addTextFn <- NULL
                     }
                 } else {
                     addTextFu <- addTextFd <- addTextFn <- NULL
                 }
+                cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
+                    " statistically significant ",transLevel,"s of which ",
+                    length(which(tmpP>=1)),addTextFu," up regulated, ",
+                    length(which(tmpP<=-1)),addTextFd," down regulated and ",
+                    length(which(abs(tmpP)<1)),addTextFn," not differentially ",
+                    "expressed according to a p-value ",hasFdrText," threshold of ",
+                    plasm," and an absolute fold change cutoff value of 1 in ",
+                    "log<sub>2</sub> scale.",sep="")
             } else {
-                addTextFu <- addTextFd <- addTextFn <- NULL
+                cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
+                    " statistically significant, differentially expressed in at",
+                    " least one condition at a p-value ",hasFdrText,
+                    " threshold of ",plasm,".",sep="")
             }
-            cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
-                " statistically significant ",transLevel,"s of which ",
-                length(which(tmpP>=1)),addTextFu," up regulated, ",
-                length(which(tmpP<=-1)),addTextFd," down regulated and ",
-                length(which(abs(tmpP)<1)),addTextFn," not differentially ",
-                "expressed according to a p-value ",hasFdrText," threshold of ",
-                plasm," and an absolute fold change cutoff value of 1 in ",
-                "log<sub>2</sub> scale.",sep="")
-        } else {
-            cat(length(which(sumpList[[cnt]]<plasm))," ",addTextP,
-                " statistically significant, differentially expressed in at",
-                " least one condition at a p-value ",hasFdrText,
-                " threshold of ",plasm,".",sep="")
-        }
-        if (length(statistics)>1 && metaP != "none") {
-            cat(" These numbers refer to the combined analysis performed by ",
-                "metaseqR2. Per statistical algorithm, the differentially ",
-                "expressed ",transLevel,"s are:",sep="")
-            cat("<ul>")
-            for (s in statistics) {
-                cat("<li><em>",reportMessages$stat[[s]],": </em>",sep="")
-                if (adjustMethod!="none") {
-                    addTextP <- paste("(",length(which(p.adjust(
-                        cpList[[cnt]][,s],adjustMethod)<plasm)),")",sep="")
-                    hasFdrText <- "(FDR or adjusted p-value)"
-                } else {
-                    addTextP <- hasFdrText <- NULL
-                }
-                if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
-                    tmpP <- log2(makeFoldChange(cnt,sampleList,
-                        normGenesExpr[which(cpList[[cnt]][,s]<plasm),,
-                        drop=FALSE],logOffset))
-                    if (adjustMethod != "none") {
-                        tmpF <- log2(makeFoldChange(cnt,sampleList,
-                            normGenesExpr[which(p.adjust(cpList[[cnt]][,s],
-                            adjustMethod)<plasm),,drop=FALSE],logOffset))
-                        addTextFu <- 
-                            paste("(",length(which(tmpF>=1)),")",sep="")
-                        addTextFd <- 
-                            paste("(",length(which(tmpF<=-1)),")",sep="")
-                        addTextFn <- 
-                            paste("(",length(which(abs(tmpF)<1)),")",sep="")
+            if (length(statistics)>1 && metaP != "none") {
+                cat(" These numbers refer to the combined analysis performed by ",
+                    "metaseqR2. Per statistical algorithm, the differentially ",
+                    "expressed ",transLevel,"s are:",sep="")
+                cat("<ul>")
+                for (s in statistics) {
+                    cat("<li><em>",reportMessages$stat[[s]],": </em>",sep="")
+                    if (adjustMethod!="none") {
+                        addTextP <- paste("(",length(which(p.adjust(
+                            cpList[[cnt]][,s],adjustMethod)<plasm)),")",sep="")
+                        hasFdrText <- "(FDR or adjusted p-value)"
                     } else {
-                        addTextFu <- addTextFd <- addTextFn <- NULL
+                        addTextP <- hasFdrText <- NULL
                     }
-                    cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
-                        " statistically significant ",transLevel,"s of which ",
-                        length(which(tmpP>=1))," ",addTextFu," up regulated, ",
-                        length(which(tmpP<=-1)),addTextFd," down regulated ",
-                        "and ",length(which(abs(tmpP)<1))," ",addTextFn,
-                        " not differentially expressed according to a p-value ",
-                        hasFdrText," threshold of ",plasm," and an absolute ",
-                        "fold change cutoff value of 1 in log<sub>2</sub> ",
-                        "scale.",sep="")
-                } else {
-                    cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
-                        " statistically significant, differentially expressed ",
-                        "in at least one condition at a p-value ",hasFdrText,
-                        " threshold of ",plasm,".",sep="")
+                    if (length(strsplit(cnt,"_vs_")[[1]]) == 2) {
+                        tmpP <- log2(makeFoldChange(cnt,sampleList,
+                            normGenesExpr[which(cpList[[cnt]][,s]<plasm),,
+                            drop=FALSE],logOffset))
+                        if (adjustMethod != "none") {
+                            tmpF <- log2(makeFoldChange(cnt,sampleList,
+                                normGenesExpr[which(p.adjust(cpList[[cnt]][,s],
+                                adjustMethod)<plasm),,drop=FALSE],logOffset))
+                            addTextFu <- 
+                                paste("(",length(which(tmpF>=1)),")",sep="")
+                            addTextFd <- 
+                                paste("(",length(which(tmpF<=-1)),")",sep="")
+                            addTextFn <- 
+                                paste("(",length(which(abs(tmpF)<1)),")",sep="")
+                        } else {
+                            addTextFu <- addTextFd <- addTextFn <- NULL
+                        }
+                        cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
+                            " statistically significant ",transLevel,"s of which ",
+                            length(which(tmpP>=1))," ",addTextFu," up regulated, ",
+                            length(which(tmpP<=-1)),addTextFd," down regulated ",
+                            "and ",length(which(abs(tmpP)<1))," ",addTextFn,
+                            " not differentially expressed according to a p-value ",
+                            hasFdrText," threshold of ",plasm," and an absolute ",
+                            "fold change cutoff value of 1 in log<sub>2</sub> ",
+                            "scale.",sep="")
+                    } else {
+                        cat(length(which(cpList[[cnt]][,s]<plasm))," ",addTextP,
+                            " statistically significant, differentially expressed ",
+                            "in at least one condition at a p-value ",hasFdrText,
+                            " threshold of ",plasm,".",sep="")
+                    }
+                    cat("</li>")
                 }
-                cat("</li>")
+                cat("</ul>")
             }
-            cat("</ul>")
         }
     }
+    cat("</ul>")
+} else {
+    cat("No statistical testing was performed. If contrasts were defined,",
+        "then fold changes are available in the Results section.")
 }
-cat("</ul>")
 ```
 
 ## Command
@@ -1889,12 +1914,13 @@ if ("correl" %in% qcPlots) {
     for (i in 1:n)
         for (j in 1:n)
             labs[i,j] <- sprintf("%.2f",corMat[i,j])
-    if (n <= 5)
+    if (n <= 5) {
         notecex <- 1.2
-    else if (n > 5 & n < 10)
+    } else if (n > 5 & n < 10) {
         notecex <- 0.9
-    else
+    } else {
         notecex <- 0.7
+    }
     
     h <- list(heatmaply(corMat,revC=TRUE,trace="none",symm=TRUE,Colv=TRUE,
         cellnote=labs,colors=colorRampPalette(c("yellow","grey","blue")),
@@ -2220,10 +2246,11 @@ if ("deheatmap" %in% qcPlots) {
         if (is.na(pcut))
             pcut <- 0.05
         ind <- which(sumpList[[cnt]]<=pcut)
-        if (length(ind) > 0)
+        if (length(ind) > 0) {
             mat <- as.matrix(normGenesExpr[ind,s])
-        else
+        } else {
             mat <- as.matrix(normGenesExpr[,s])
+        }
         if (!is.null(reportTop)) {
             topg <- ceiling(reportTop*nrow(mat))
             mat <- mat[1:topg,,drop=FALSE]
@@ -2385,10 +2412,11 @@ if ("foldvenn" %in% qcPlots) {
         "<br/><br/></div>",sep="")
         
     # Create a selector for each contrast
-    if (length(statistics) > 1)
+    if (length(statistics) > 1) {
         nn <- c(statistics,metaP)
-    else
+    } else {
         nn <- statistics
+    }
     
     items <- paste("<option value=",paste("foldvenn",nn,sep="_"),">",nn,
         "</option>",sep="")
@@ -2421,7 +2449,9 @@ if ("foldvenn" %in% qcPlots) {
 ## Tables of differentially expressed genes
 
 The following tables allow for a quick exploration of the results of the
-statistical analysis performed by the ```metaseqr2``` pipeline.
+statistical analysis performed by the ```metaseqr2``` pipeline. If no
+statistical testing or contrasts requested, just ignore any respective texts
+and jump to tables or download the results.
 
 ```{r results_tables_header}
 if (is.null(reportTop)) {
@@ -2465,116 +2495,354 @@ DT::datatable(NULL,extensions="Buttons")
 
 ```{r results_tables}
 # Create a selector for each contrast
-items <- paste("<option value=",paste("detable",gsub("\\.","__",
-    names(contrastList)),sep="_"),">",gsub("_vs_"," vs ",
-    names(contrastList)),"</option>",sep="")
+if (!is.null(contrast)) {
+    items <- paste("<option value=",paste("detable",gsub("\\.","__",
+        names(contrastList)),sep="_"),">",gsub("_vs_"," vs ",
+        names(contrastList)),"</option>",sep="")
+} else {
+    items <- "<option value=detable_no_contrast>No contrast</option>"
+}
 cat("<hr><div>")
 cat("<div class=\"hc-selector-label\">Select a contrast to display ",
     "DEG table for </div>",sep="")
 cat("<select id=\"detable_selector\">",items,"</select>",sep="")
 cat("</div><br/>")
 
-for (cnt in contrast) {
-    cntn <- gsub("_vs_"," vs ",cnt)
-    #pandoc.header(cntn,level=3)
-    
-    cat("<div class='detable-helper-wrapper' id='detable_",gsub("\\.","__",cnt),
-        "'>",sep="")
-    
-    cat("<h4>DEG table for the contrast <strong>",cntn,"</strong></h4>",sep="")
-    cat("<div class=\"figure-hint\">The following table presents ",topText,
-        " for the contrast <strong>",cntn,"</strong>.</div>",sep="")
+if (!is.null(contrast) && !is.na(statistics)) {
+    for (cnt in contrast) {
+        cntn <- gsub("_vs_"," vs ",cnt)
+        #pandoc.header(cntn,level=3)
+        
+        cat("<div class='detable-helper-wrapper' id='detable_",
+            gsub("\\.","__",cnt),"'>",sep="")
+        
+        cat("<h4>DEG table for the contrast <strong>",cntn,"</strong></h4>",
+            sep="")
+        cat("<div class=\"figure-hint\">The following table presents ",topText,
+            " for the contrast <strong>",cntn,"</strong>.</div>",sep="")
+        
+        # 15 colors should be enough for most situations...
+        sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9",
+            "#EDEEC9","#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2",
+            "#B2F7EF","#EFF7F6","#F7D6E0","#F2B5D4")
+            
+        # We do not need GC content really...
+        gci <- grep("gc_content",colnames(reportTables[[cnt]]))
+        if (length(gci) > 0)
+            reportTables[[cnt]] <- reportTables[[cnt]][,-gci]
+            
+        # Fold change and condition means should always exist in this table 
+        # defined by us...
+        pi <- grep("p-value",colnames(reportTables[[cnt]]))
+        di <- grep("FDR",colnames(reportTables[[cnt]]))
+        fi <- grep("_vs_",colnames(reportTables[[cnt]]))
+        # If more than one statistics applied, the 1st two from fi are meta 
+        # p-value and meta FDR
+        if (length(statistics) > 1)
+            fi <- fi[-c(1,2)]
+        #ci <- numeric(length(sampleList))
+        #N <- names(sampleList)
+        ci <- numeric(length(contrastList[[cnt]]))
+        N <- unique(unlist(contrastList[[cnt]],use.names=FALSE))
+        
+        if (length(grep("rpgm_normalized_mean_counts_",
+            colnames(reportTables[[cnt]]))) > 0) {
+            for (i in 1:length(N))
+                ci[i] <- grep(paste0("rpgm_normalized_mean_counts_",N[i]),
+                    colnames(reportTables[[cnt]]))
+        } else {
+            for (i in 1:length(N))
+                ci[i] <- grep(N[i],colnames(reportTables[[cnt]]),fixed=TRUE)
+        }
+        
+        # Get values before rounding for styling
+        brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
+            na.rm=TRUE)
+        preClrs <- col2rgb(rev(redgreen(length(brks)+1)))
+        clrs <- paste("rgb(",apply(preClrs,2,paste0,collapse=","),")",sep="")
+        pRangeForColor <- 1-as.numeric(reportTables[[cnt]][,pi])
+        fRangeForColor <- 1-as.numeric(reportTables[[cnt]][,di])
+        styleBars <- character(length(ci))
+        for (i in 1:length(ci))
+            styleBars[i] <- styleColorBar(range(reportTables[[cnt]][,ci[i]]),
+                sColors[i])
+        
+        # After setting colors, format the table for the report
+        if (!is.numeric(version)) # Not defined in call
+            version <- NULL
+        reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]],o=org,
+            r=refdb,v=version)
+        # Hack to prevent the header name taking 2 rows because of 
+        # hyphenation(?)
+        names(reportTables[[cnt]])[pi] <- "p_value"
+        
+        # Dirty hack
+        # https://stackoverflow.com/questions/32018521/
+        # shiny-use-stylecolorbar-with-data-from-two-data-frames
+        reportTables[[cnt]] <- 
+            cbind(pRangeForColor,fRangeForColor,reportTables[[cnt]])
+        jspf <- paste0("function(row,data) {",
+            "var value = data[0];",
+            "var backgroundValueP =",styleColorBar(pRangeForColor,
+                "lightblue")[1],";",
+            "var value = data[1];",
+            "var backgroundValueF =",styleColorBar(fRangeForColor,
+                "lightsalmon")[1],";",
+            "$('td',row).eq(",pi-1,").css({",
+                "'background': backgroundValueP,",
+                "'background-repeat': 'no-repeat',",
+                "'background-position': 'center',",
+                "'background-size': '98% 88%'",
+            "});",
+            "$('td',row).eq(",di-1,").css({",
+                "'background': backgroundValueF,",
+                "'background-repeat': 'no-repeat',",
+                "'background-position': 'center',",
+                "'background-size': '98% 88%'",
+            "});",
+            "for (var i=",fi[1],";i<=",fi[length(fi)],";i++) {",
+                "var value = data[i+1];",
+                "$('td',row).eq(i-1).css({",
+                    "'color': '#FFFFFF',",
+                    "'font-weight': 'bold',",
+                    "'background-color': ",styleInterval(brks,clrs),
+                "});",
+            "}")
+        
+        for (i in 1:length(ci)) {
+            jsa <- paste0("var value = data[",ci[i]+1,"];",
+                "$('td',row).eq(",ci[i]-1,").css({",
+                    "'background': ",styleBars[i],",",
+                    "'background-repeat': 'no-repeat',",
+                    "'background-position': 'center',",
+                    "'background-size': '98% 88%'",
+                "});")
+            jspf <- paste0(jspf,jsa)
+        }
+        jspf <- paste0(jspf,"}")
+        
+        theTable <- DT::datatable(
+            reportTables[[cnt]],
+            rownames=FALSE,
+            width="95%",
+            height=460,
+            style="bootstrap",
+            class="table-condensed table-striped table-responsive",
+            escape=FALSE,
+            elementId=paste("detable_",gsub("\\.","__",cnt),"_",sep=""),
+            extensions="Buttons",
+            options=list(
+                scrollX=TRUE,
+                order=list(list(pi+1,"asc")),
+                columnDefs=list(
+                    list(
+                        targets=0:1,
+                        visible=FALSE
+                    )
+                ),
+                dom='Bfrtip',
+                #buttons=I('colvis'),
+                buttons=list(
+                    list(
+                        extend='colvis',
+                        #exclude=0:1,
+                        text="Show/Hide columns"
+                    )
+                ),
+                rowCallback=JS(jspf)
+            )
+        ) #%>% formatStyle(
+            #names(reportTables[[cnt]])[fi+2],
+            #backgroundColor=styleInterval(brks,clrs),
+            #fontWeight="bold",
+            #color="#FFFFFF"
+        #) #%>% formatStyle(
+            #names(reportTables[[cnt]])[pi+2],
+            #background=styleColorBar(pRangeForColor,"lightblue"),
+            #fontWeight="bold",
+            #backgroundSize="98% 88%",
+            #backgroundRepeat="no-repeat",
+            #backgroundPosition="center"
+        #)
+        print(htmltools::tagList(tags$div(class="detable-container",theTable)))
+        
+        cat("<br/><br/><div class=\"figure-hint link-box\">")
+        cat("<strong><a href=\"lists/metaseqr_sig_out_",cnt,".txt.gz\"",
+            " download>Download</a> the DEG result list for ",cnt,
+            ".</strong><br/>",sep="")
+        if (!is.null(geneCountsZero) || !is.null(geneCountsDead))
+            cat("<strong><a href=\"lists/metaseqr_all_out_",cnt,".txt.gz\"",
+            " download>Download</a> the whole result list for ",cnt,
+            ".</strong><br/>",sep="")
+        cat("</div><br/><br/>")
+        
+        cat("</div>")
+    }
+} else if (!is.null(contrast) && is.na(statistics)) {
+    for (cnt in contrast) {
+        cntn <- gsub("_vs_"," vs ",cnt)
+        
+        cat("<div class='detable-helper-wrapper' id='detable_",
+            gsub("\\.","__",cnt),"'>",sep="")
+        
+        cat("<h4>DEG table for the contrast <strong>",cntn,"</strong></h4>",
+            sep="")
+        cat("<div class=\"figure-hint\">The following table presents ",topText,
+            " for the contrast <strong>",cntn,"</strong>.</div>",sep="")
+        
+        # 15 colors should be enough for most situations...
+        sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9",
+            "#EDEEC9","#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2",
+            "#B2F7EF","#EFF7F6","#F7D6E0","#F2B5D4")
+            
+        # We do not need GC content really...
+        gci <- grep("gc_content",colnames(reportTables[[cnt]]))
+        if (length(gci) > 0)
+            reportTables[[cnt]] <- reportTables[[cnt]][,-gci]
+            
+        # Fold change and condition means should always exist in this table 
+        # defined by us...
+        fi <- grep("_vs_",colnames(reportTables[[cnt]]))
+        #ci <- numeric(length(contrastList[[cnt]]))
+        #N <- unique(unlist(contrastList[[cnt]],use.names=FALSE))
+        ci <- numeric(length(names(sampleList)))
+        N <- names(sampleList)
+        
+        if (length(grep("rpgm_normalized_mean_counts_",
+            colnames(reportTables[[cnt]]))) > 0) {
+            for (i in 1:length(N))
+                ci[i] <- grep(paste0("rpgm_normalized_mean_counts_",N[i]),
+                    colnames(reportTables[[cnt]]))
+        } else {
+            for (i in 1:length(N))
+                ci[i] <- grep(N[i],colnames(reportTables[[cnt]]),fixed=TRUE)
+        }
+        
+        # Get values before rounding for styling
+        brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
+            na.rm=TRUE)
+        preClrs <- col2rgb(rev(redgreen(length(brks)+1)))
+        clrs <- paste("rgb(",apply(preClrs,2,paste0,collapse=","),")",sep="")
+        styleBars <- character(length(ci))
+        for (i in 1:length(ci))
+            styleBars[i] <- styleColorBar(range(reportTables[[cnt]][,ci[i]]),
+                sColors[i])
+        
+        # After setting colors, format the table for the report
+        if (!is.numeric(version)) # Not defined in call
+            version <- NULL
+        reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]],o=org,
+            r=refdb,v=version)
+        
+        # Dirty hack
+        # https://stackoverflow.com/questions/32018521/
+        # shiny-use-stylecolorbar-with-data-from-two-data-frames
+        reportTables[[cnt]] <- cbind(reportTables[[cnt]])
+        jspf <- paste0("function(row,data) {",
+            "for (var i=",fi[1],";i<=",fi[length(fi)],";i++) {",
+                "var value = data[i-1];",
+                "$('td',row).eq(i-1).css({",
+                    "'color': '#FFFFFF',",
+                    "'font-weight': 'bold',",
+                    "'background-color': ",styleInterval(brks,clrs),
+                "});",
+            "}")
+        
+        for (i in 1:length(ci)) {
+            jsa <- paste0("var value = data[",ci[i]-1,"];",
+                "$('td',row).eq(",ci[i]-1,").css({",
+                    "'background': ",styleBars[i],",",
+                    "'background-repeat': 'no-repeat',",
+                    "'background-position': 'center',",
+                    "'background-size': '98% 88%'",
+                "});")
+            jspf <- paste0(jspf,jsa)
+        }
+        jspf <- paste0(jspf,"}")
+        
+        theTable <- DT::datatable(
+            reportTables[[cnt]],
+            rownames=FALSE,
+            width="95%",
+            height=460,
+            style="bootstrap",
+            class="table-condensed table-striped table-responsive",
+            escape=FALSE,
+            elementId=paste("detable_",gsub("\\.","__",cnt),"_",sep=""),
+            extensions="Buttons",
+            options=list(
+                scrollX=TRUE,
+                dom='Bfrtip',
+                buttons=list(
+                    list(
+                        extend='colvis',
+                        text="Show/Hide columns"
+                    )
+                ),
+                rowCallback=JS(jspf)
+            )
+        )
+        print(htmltools::tagList(tags$div(class="detable-container",theTable)))
+        
+        cat("<br/><br/><div class=\"figure-hint link-box\">")
+        cat("<strong><a href=\"lists/metaseqr_sig_out_",cnt,".txt.gz\"",
+            " download>Download</a> the DEG result list for ",cnt,
+            ".</strong><br/>",sep="")
+        if (!is.null(geneCountsZero) || !is.null(geneCountsDead))
+            cat("<strong><a href=\"lists/metaseqr_all_out_",cnt,".txt.gz\"",
+            " download>Download</a> the whole result list for ",cnt,
+            ".</strong><br/>",sep="")
+        cat("</div><br/><br/>")
+        
+        cat("</div>")
+    }
+} else {
+    cat("<div class='detable-helper-wrapper' id='detable_no_contrast'>")
+    cat("<h4>Quantification table for the run</h4>")
     
     # 15 colors should be enough for most situations...
-    sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9","#EDEEC9",
-        "#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2","#B2F7EF","#EFF7F6",
-        "#F7D6E0","#F2B5D4")
+    sColors <- c("#97F9F9","#A4DEF9","#C1E0F7","#CFBAE1","#C59FC9",
+        "#EDEEC9","#DDE7C7","#BFD8BD","#98C9A3","#77BFA3","#7BDFF2",
+        "#B2F7EF","#EFF7F6","#F7D6E0","#F2B5D4")
         
     # We do not need GC content really...
-    gci <- grep("gc_content",colnames(reportTables[[cnt]]))
+    gci <- grep("gc_content",colnames(reportTables[[1]]))
     if (length(gci) > 0)
-        reportTables[[cnt]] <- reportTables[[cnt]][,-gci]
+        reportTables[[1]] <- reportTables[[1]][,-gci]
         
-    # Fold change and condition means should always exist in this table defined 
-    # by us...
-    pi <- grep("p-value",colnames(reportTables[[cnt]]))
-    di <- grep("FDR",colnames(reportTables[[cnt]]))
-    fi <- grep("_vs_",colnames(reportTables[[cnt]]))
-    # If more than one statistics applied, the 1st two from fi are meta p-value
-    # and meta FDR
-    if (length(statistics) > 1)
-        fi <- fi[-c(1,2)]
-    #ci <- numeric(length(sampleList))
-    #N <- names(sampleList)
-    ci <- numeric(length(contrastList[[cnt]]))
-    N <- unique(unlist(contrastList[[cnt]],use.names=FALSE))
+    #ci <- numeric(length(unlist(sampleList)))
+    #N <- unique(unlist(sampleList,use.names=FALSE))
+    ci <- numeric(length(names(sampleList)))
+    N <- names(sampleList)
     
     if (length(grep("rpgm_normalized_mean_counts_",
-        colnames(reportTables[[cnt]]))) > 0) {
+        colnames(reportTables[[1]]))) > 0) {
         for (i in 1:length(N))
             ci[i] <- grep(paste0("rpgm_normalized_mean_counts_",N[i]),
-                colnames(reportTables[[cnt]]))
-    }
-    else {
+                colnames(reportTables[[1]]))
+    } else {
         for (i in 1:length(N))
-            ci[i] <- grep(N[i],colnames(reportTables[[cnt]]),fixed=TRUE)
+            ci[i] <- grep(N[i],colnames(reportTables[[1]]),fixed=TRUE)
     }
     
     # Get values before rounding for styling
-    brks <- quantile(reportTables[[cnt]][,fi],probs=seq(.05,.95,.05),
-        na.rm=TRUE)
-    preClrs <- col2rgb(rev(redgreen(length(brks)+1)))
-    clrs <- paste("rgb(",apply(preClrs,2,paste0,collapse=","),")",sep="")
-    pRangeForColor <- 1-as.numeric(reportTables[[cnt]][,pi])
-    fRangeForColor <- 1-as.numeric(reportTables[[cnt]][,di])
     styleBars <- character(length(ci))
     for (i in 1:length(ci))
-        styleBars[i] <- styleColorBar(range(reportTables[[cnt]][,ci[i]]),
+        styleBars[i] <- styleColorBar(range(reportTables[[1]][,ci[i]]),
             sColors[i])
     
     # After setting colors, format the table for the report
     if (!is.numeric(version)) # Not defined in call
         version <- NULL
-    reportTables[[cnt]] <- .formatForReport(reportTables[[cnt]],o=org,r=refdb,
+    reportTables[[1]] <- .formatForReport(reportTables[[1]],o=org,r=refdb,
         v=version)
-    # Hack to prevent the header name taking 2 rows because of hyphenation(?)
-    names(reportTables[[cnt]])[pi] <- "p_value"
     
     # Dirty hack
     # https://stackoverflow.com/questions/32018521/
     # shiny-use-stylecolorbar-with-data-from-two-data-frames
-    reportTables[[cnt]] <- 
-        cbind(pRangeForColor,fRangeForColor,reportTables[[cnt]])
-    jspf <- paste0("function(row,data) {",
-        "var value = data[0];",
-        "var backgroundValueP =",styleColorBar(pRangeForColor,"lightblue")[1],
-            ";",
-        "var value = data[1];",
-        "var backgroundValueF =",styleColorBar(fRangeForColor,"lightsalmon")[1],
-            ";",
-        "$('td',row).eq(",pi-1,").css({",
-            "'background': backgroundValueP,",
-            "'background-repeat': 'no-repeat',",
-            "'background-position': 'center',",
-            "'background-size': '98% 88%'",
-        "});",
-        "$('td',row).eq(",di-1,").css({",
-            "'background': backgroundValueF,",
-            "'background-repeat': 'no-repeat',",
-            "'background-position': 'center',",
-            "'background-size': '98% 88%'",
-        "});",
-        "for (var i=",fi[1],";i<=",fi[length(fi)],";i++) {",
-            "var value = data[i+1];",
-            "$('td',row).eq(i-1).css({",
-                "'color': '#FFFFFF',",
-                "'font-weight': 'bold',",
-                "'background-color': ",styleInterval(brks,clrs),
-            "});",
-        "}")
-    
+    jspf <- paste0("function(row,data) {")
     for (i in 1:length(ci)) {
-        jsa <- paste0("var value = data[",ci[i]+1,"];",
+        jsa <- paste0("var value = data[",ci[i]-1,"];",
             "$('td',row).eq(",ci[i]-1,").css({",
                 "'background': ",styleBars[i],",",
                 "'background-repeat': 'no-repeat',",
@@ -2586,61 +2854,38 @@ for (cnt in contrast) {
     jspf <- paste0(jspf,"}")
     
     theTable <- DT::datatable(
-        reportTables[[cnt]],
+        reportTables[[1]],
         rownames=FALSE,
         width="95%",
         height=460,
         style="bootstrap",
         class="table-condensed table-striped table-responsive",
         escape=FALSE,
-        elementId=paste("detable_",gsub("\\.","__",cnt),"_",sep=""),
+        elementId="detable_no_contrast",
         extensions="Buttons",
         options=list(
             scrollX=TRUE,
-            order=list(list(pi+1,"asc")),
-            columnDefs=list(
-                list(
-                    targets=0:1,
-                    visible=FALSE
-                )
-            ),
             dom='Bfrtip',
-            #buttons=I('colvis'),
             buttons=list(
                 list(
                     extend='colvis',
-                    #exclude=0:1,
                     text="Show/Hide columns"
                 )
             ),
             rowCallback=JS(jspf)
         )
-    ) #%>% formatStyle(
-        #names(reportTables[[cnt]])[fi+2],
-        #backgroundColor=styleInterval(brks,clrs),
-        #fontWeight="bold",
-        #color="#FFFFFF"
-    #) #%>% formatStyle(
-        #names(reportTables[[cnt]])[pi+2],
-        #background=styleColorBar(pRangeForColor,"lightblue"),
-        #fontWeight="bold",
-        #backgroundSize="98% 88%",
-        #backgroundRepeat="no-repeat",
-        #backgroundPosition="center"
-    #)
+    )
     print(htmltools::tagList(tags$div(class="detable-container",theTable)))
     
     cat("<br/><br/><div class=\"figure-hint link-box\">")
-    cat("<strong><a href=\"lists/metaseqr_sig_out_",cnt,".txt.gz\"",
-        " download>Download</a> the DEG result list for ",cnt,".</strong><br/>",
-        sep="")
+    cat("<strong><a href=\"lists/metaseqr_sig_out.txt.gz\"",
+        " download>Download</a> the result list.</strong><br/>",sep="")
     if (!is.null(geneCountsZero) || !is.null(geneCountsDead))
-        cat("<strong><a href=\"lists/metaseqr_all_out_",cnt,".txt.gz\"",
-        " download>Download</a> the whole result list for ",cnt,
-        ".</strong><br/>",sep="")
+        cat("<strong><a href=\"lists/metaseqr_all_out.txt.gz\"",
+        " download>Download</a> the whole result list.</strong><br/>",sep="")
     cat("</div><br/><br/>")
     
-    cat("</div>")                  
+    cat("</div>")
 }
 ```
 
