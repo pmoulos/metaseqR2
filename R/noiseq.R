@@ -18,8 +18,8 @@ setMethod("explo.plot","Biodetection",
         biodetection.plot(object@dat,samples=samples,plottype=plottype,
             toplot=toplot,...))
 
-#setMethod("explo.plot","CD",function(object,samples=NULL,...) 
-#    cd.plot(object@dat,samples=samples,...))
+setMethod("explo.plot","CD",function(object,samples=NULL,...) 
+    cd.plot(object@dat,samples=samples,...))
 
 setMethod("explo.plot","CountsBio",
     function(object,samples=c(1,2),toplot="global",
@@ -1990,6 +1990,126 @@ biodetection.plot <- function(dat,samples=c(1,2),
 
 ################################################################################
 
+# cd.plot.R
+
+cd.dat <- function (input,norm=FALSE,refColumn=1) {
+    if (inherits(input,"eSet") == FALSE)
+        stop("ERROR: The input data must be an eSet object.\n")
+    
+    if (!is.null(assayData(input)$exprs)) {
+        if (ncol( assayData(input)$exprs) < 2)
+            stop("ERROR: The input object should have at least two samples.\n")
+
+        datos <- assayData(input)$exprs
+    } 
+    else {
+        if (ncol(assayData(input)$counts) < 2)
+            stop("ERROR: The input object should have at least two samples.\n")
+        datos <- assayData(input)$counts
+    }
+
+    ceros = which(rowSums(datos) == 0)
+    hayceros = (length(ceros) > 0)
+
+    if (hayceros) {
+        print(paste("Warning:",length(ceros),"features with 0 counts in all",
+            "samples are to be removed for this analysis."))
+        datos <- datos[-ceros,]
+    }
+    
+    ## scaling data and/or changing 0 to k
+    if (norm)
+        datos <- sinceros(datos, k = NULL)
+    else
+        datos <- noirpkm(datos,long=1000,lc=1,k=0.5)
+
+    ## to plot
+    data2plot <- log2(datos/datos[,refColumn])
+
+    if (is.numeric(refColumn)) 
+        refColumn <- colnames(datos)[refColumn]
+    
+    print(paste("Reference sample is:",refColumn))
+
+    MsinRef <- as.matrix(data2plot[,-match(refColumn, colnames(data2plot))])
+    colnames(MsinRef) <- colnames(data2plot)[-match(refColumn,
+        colnames(data2plot))]
+    alpha <- 0.05
+    alpha <- alpha/ncol(MsinRef)
+    nperm <- 10^3
+
+    bootmed <- vapply(seq_len(nperm),function(k) {
+        permut <- sample(seq_len(nrow(MsinRef)),replace=TRUE,nrow(MsinRef))
+        permut <- as.matrix(MsinRef[permut,])
+        permut <- apply(permut,2,median)   
+        permut
+    },numeric(ncol(MsinRef)))
+
+    if (is.null(dim(bootmed))) 
+        bootmed <- t(as.matrix(bootmed))
+
+    bootmed <- t(apply(bootmed,1,quantile,probs=round(c(alpha/2,1-alpha/2),4)))
+    diagno <- apply(bootmed,1,function (x) {
+        ddd <- (x[1] <= 0) * (0 <= x[2])
+        if (ddd == 1)
+            ddd = "PASSED" 
+        else
+            ddd = "FAILED"
+        ddd
+    })
+    bootmed <- cbind(bootmed,diagno)
+
+    rownames(bootmed) <- colnames(MsinRef)
+    colnames(bootmed)[3] <- "Diagnostic Test"
+    print("Confidence intervals for median of M:")
+    print(bootmed)
+
+    if ("FAILED" %in% bootmed[,3])
+        print(paste0("Diagnostic test: FAILED. Normalization is required ",
+            "to correct this bias."))
+    else
+        print("Diagnostic test: PASSED.")
+
+    list("data2plot"=data2plot,"refColumn"=refColumn,"DiagnosticTest"=bootmed)
+}
+
+cd.plot <- function (dat,samples=NULL,...) {
+    refColumn <- dat$refColumn
+    dat <- dat$data2plot
+    if (is.null(samples)) 
+        samples <- seq_len(ncol(dat))
+    if (is.numeric(samples))
+        samples <- colnames(dat)[samples]
+    samples <- setdiff(samples,refColumn)
+
+    if(length(samples) > 12) 
+        stop("Please select 12 samples or less to be plotted (excluding ",
+            "reference).")
+    
+    dat <- as.matrix(dat[,samples])
+    dat.dens <- apply(dat,2,density,adjust=1.5)
+    limY <- c(0,max(vapply(dat.dens,
+        function(x) max(x$y,na.rm=TRUE),numeric(1))))
+
+    plot(dat.dens[[1]],xlab="M = log2(sample/refsample)",ylab="Density",
+        lwd=2,ylim=limY,type="l",col=miscolores[1],
+        main=paste("Reference sample:",refColumn),...)
+    abline(v=median(dat[,1],na.rm=TRUE),col=miscolores[1],lty=2)
+    if (length(samples) > 1) {
+        for (i in 2:length(samples)) {
+            lines(dat.dens[[i]],col=miscolores[i],lwd=2)
+            abline(v=median(dat[,i],na.rm=TRUE),col=miscolores[i],lty=i+1)
+        }
+    }
+    legend("topleft",legend=samples,
+        text.col=miscolores[seq_len(length(samples))],bty="n",lty=1,lwd=2,
+        col=miscolores[seq_len(length(samples))])
+}
+
+################################################################################
+
+################################################################################
+
 # countsbio.plot.R
 
 countsbio.dat <- function (input,biotypes=NULL,factor=NULL,norm=FALSE)  {
@@ -2294,9 +2414,9 @@ dat <- function(input,type = c("biodetection","cd","countsbio","GCbias",
             dat=biodetection.dat(input,factor=factor,k=k))        
     }
     
-    #if (type == "cd") {
-    #    output <- new("CD",dat=cd.dat(input,norm=norm,refColumn=refColumn))
-    #}
+    if (type == "cd") {
+        output <- new("CD",dat=cd.dat(input,norm=norm,refColumn=refColumn))
+    }
 
     if (type == "countsbio") {
         output <- new("CountsBio",

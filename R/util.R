@@ -566,6 +566,8 @@ getDefaults <- function(what,method=NULL) {
 }
 
 validateAlgArgs <- function(normalization,statistics,normArgs,statArgs) {
+    if (is.na(statistics)) # Locally fake an option as it will not be used
+        statistics <- "deseq2"
     if (normalization=="each") {
         if (!is.null(normArgs)) {
             for (s in statistics) {
@@ -1918,7 +1920,7 @@ makePathStruct <- function(mainPath) {
 }
 
 makeExportList <- function(con) {
-    if (!is.null(contrast)) {
+    if (!is.null(con)) {
         f <- vector("list",length(con))
         names(f) <- con
     }
@@ -2037,6 +2039,7 @@ makeReportMessages <- function(lang) {
                     simes="Simes correction and combination method",
                     whitlock=paste("Whitlock's Z-transformation method",
                         "(Bioconductor package survcomp)"),
+                    harmonic="Wilson's Harmonic mean of p-values",
                     none=paste("no meta-analysis, reported p-values from the",
                         "first supplied statistical algorithm")
                 ),
@@ -2068,7 +2071,10 @@ makeReportMessages <- function(lang) {
                     filtered="filtered biotypes",
                     correl="correlation heatmap and correlogram",
                     pairwise="pairwise scatterplots between samples",
-                    venn="Venn diagrams"
+                    statvenn="statistical algorithm Venn diagrams",
+                    foldvenn="fold change Venn diagrams",
+                    deregulogram="deregulogram",
+                    mastat="staistical significance MA plot"
                 ),
                 export=list(
                     annotation="Annotation",

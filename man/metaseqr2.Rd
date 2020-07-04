@@ -108,7 +108,9 @@
     Each element of contrast should STRICTLY have the format
     "ConditionA_vs_ConditionB_vs_...". Special attention is
     needed as fold change calculations are based on this
-    argument. See Details for further information.}
+    argument. If it is \code{NULL}, no statistical testing
+    of fold change calculations are performed. See Details 
+    for further information.}
 
     \item{libsizeList}{an optional named list where names
     represent samples (MUST be the same as the samples in
@@ -214,7 +216,10 @@
     implemented in the DSS package and \code{"absseq"} to 
     conduct statistical test(s) implemented in the ABSSeq 
     package. In any case individual algorithm parameters are 
-    controlled by the contents of the \code{statArgs} list.}
+    controlled by the contents of the \code{statArgs} list.
+    Finally, it can be \code{NA}. In this case no testing
+    is performed and only fold changes are provided if
+    \code{contrast} is not \code{NULL}.}
 
     \item{statArgs}{a named list whose names are the names
     of the statistical algorithms used in the pipeline. Each
@@ -1280,8 +1285,8 @@ result <- metaseqr2(
             quantile=NA,
             known=NA,
             custom=NA
-       ),
-       biotype=getDefaults("biotypeFilter","mm9")
+        ),
+        biotype=getDefaults("biotypeFilter","mm9")
     ),
     outList=TRUE
 )

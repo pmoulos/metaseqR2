@@ -14,19 +14,19 @@ metaseqrPlot <- function(object,sampleList,annotation=NULL,contrastList=NULL,
     if (is.null(annotation) && any(plotType %in% c("biodetection",
         "countsbio","saturation","rnacomp","readnoise","biodist","gcbias",
         "lengthbias","filtered")))
-        stopwrap("annotation argument is needed when plotType is ",
+        stopwrap("annotation argument is needed when plotType is\n",
             "\"biodetection\", \"countsbio\",\"saturation\",\"rnacomp\", ",
             "\"readnoise\", \"biodist\", \"gcbias\", \"lengthbias\", ",
             "\"filtered\", \"statvenn\" or \"foldvenn\"!")
-    if (any(plotType %in% c("deheatmap","volcano","biodist","mastat",
-        "deregulogram","statvenn","foldvenn"))) {
+    if (any(plotType %in% c("deheatmap","volcano","biodist","deregulogram",
+        "statvenn","foldvenn"))) {
         if (is.null(contrastList))
             stopwrap("contrastList argument is needed when plotType is ",
                 "\"deheatmap\",\"volcano\", \"biodist\", \"deregulogram\", ",
                 "\"mastat\", \"statvenn\" or \"foldvenn\"!")
         if (is.null(pList))
             stopwrap("The p argument which is a list of p-values for each ",
-                "contrast is needed when plotType is \"deheatmap\", ",
+                "contrast is needed when plotType is\n\"deheatmap\", ",
                 "\"volcano\", \"mastat\", \"biodist\", \"deregulogram\", ",
                 "\"statvenn\" or \"foldvenn\"!")
         if (is.na(thresholds$p) || is.null(thresholds$p) || thresholds$p==1) {
@@ -1426,7 +1426,7 @@ diagplotVolcano <- function(f,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
     }
 }
 
-diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
+diagplotMa <- function(m,a,p=NULL,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
     output="x11",path=NULL,...) { # output can be json here...
     if (is.null(path)) path <- getwd()
     if (is.null(con))
@@ -1442,28 +1442,39 @@ diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
         else
             graphicsOpen(output,fil,width=1024,height=768,res=100)
     }
-    rem <- which(is.na(p))
-    if (length(rem)>0) {
-        p <- p[-rem]
-        m <- m[-rem]
-        a <- a[-rem]
-        if (!is.null(altNames))
-            altNames <- altNames[-rem]
+    
+    if (!is.null(p)) {
+        rem <- which(is.na(p))
+        if (length(rem)>0) {
+            p <- p[-rem]
+            m <- m[-rem]
+            a <- a[-rem]
+            if (!is.null(altNames))
+                altNames <- altNames[-rem]
+        }
+        # Fix problem with extremely low p-values, only for display purposes 
+        # though
+        pZero <- which(p==0)
+        if (length(pZero)>0)
+            p[pZero] <- runif(length(pZero),0,1e-256)
+        
+        upstat <- which(m>=fcut & p<pcut)
+        downstat <- which(m<=-fcut & p<pcut)
+        up <- which(m>=fcut & p>=pcut)
+        down <- which(m<=-fcut & p>=pcut)
+        poor <- which(p<pcut & abs(m)<fcut)
+        neutral <- setdiff(seq_len(length(a)),
+            Reduce("union",list(upstat,downstat,up,down,poor)))
     }
-    # Fix problem with extremely low p-values, only for display purposes though
-    pZero <- which(p==0)
-    if (length(pZero)>0)
-        p[pZero] <- runif(length(pZero),0,1e-256)
+    else {
+        upstat <- downstat <- poor <- integer(0)
+        up <- which(m>=fcut)
+        down <- which(m<=-fcut)
+        neutral <- setdiff(seq_len(length(a)),union(up,down))
+    }
+        
     ylim <- c(-max(abs(m)),max(abs(m)))
     xlim <- c(min(a),max(a))
-    
-    upstat <- which(m>=fcut & p<pcut)
-    downstat <- which(m<=-fcut & p<pcut)
-    up <- which(m>=fcut & p>=pcut)
-    down <- which(m<=-fcut & p>=pcut)
-    poor <- which(p<pcut & abs(m)<fcut)
-    neutral <- setdiff(seq_len(length(a)),
-        Reduce("union",list(upstat,downstat,up,down,poor)))
     
     if (output!="json") {
         par(cex.main=1.1,cex.lab=1.1,cex.axis=1.1,font.lab=2,font.axis=2,
@@ -1479,8 +1490,10 @@ diagplotMa <- function(m,a,p,con=NULL,fcut=1,pcut=0.05,altNames=NULL,
         points(a[poor],m[poor],pch=20,col="orange",cex=0.5)
         points(a[up],m[up],pch=20,col="red3",cex=0.5)
         points(a[down],m[down],pch=20,col="green3",cex=0.5)
-        points(a[upstat],m[upstat],pch=20,col="red",cex=0.5)
-        points(a[downstat],m[downstat],pch=20,col="green",cex=0.5)
+        if (length(upstat) > 0)
+            points(a[upstat],m[upstat],pch=20,col="red",cex=0.5)
+        if (length(downstat) > 0)
+            points(a[downstat],m[downstat],pch=20,col="green",cex=0.5)
         abline(h=-fcut,lty=2)
         abline(h=fcut,lty=2)
         grid()

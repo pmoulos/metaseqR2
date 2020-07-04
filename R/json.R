@@ -2620,14 +2620,22 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
     #conlab <- paste(conlab[[1]][2],"against",conlab[[1]][1])
     #statMap <- .getStatMap()
     #statlab <- statMap[[stat]]
-
-    upstat <- which(f>=fcut & p<pcut)
-    downstat <- which(f<=-fcut & p<pcut)
-    up <- which(f>=fcut & p>=pcut)
-    down <- which(f<=-fcut & p>=pcut)
-    poor <- which(p<pcut & abs(f)<fcut)
-    neutral <- setdiff(seq_len(length(a)),
-        Reduce("union",list(upstat,downstat,up,down,poor)))
+    
+    if (!is.null(p)) {
+        upstat <- which(f>=fcut & p<pcut)
+        downstat <- which(f<=-fcut & p<pcut)
+        up <- which(f>=fcut & p>=pcut)
+        down <- which(f<=-fcut & p>=pcut)
+        poor <- which(p<pcut & abs(f)<fcut)
+        neutral <- setdiff(seq_len(length(a)),
+            Reduce("union",list(upstat,downstat,up,down,poor)))
+    }
+    else {
+        upstat <- downstat <- poor <- integer(0)
+        up <- which(f>=fcut)
+        down <- which(f<=-fcut)
+        neutral <- setdiff(seq_len(length(a)),union(up,down))
+    }
     
     switch(jl,
         highcharts = {
@@ -2645,7 +2653,7 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         x=a[upstat],
                         y=f[upstat],
                         a=unname(altNames[upstat]),
-                        p=-log10(p[upstat])
+                        p=if (!is.null(p)) -log10(p[upstat]) else NULL
                     )
                 )
             }
@@ -2661,7 +2669,7 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         x=a[downstat],
                         y=f[downstat],
                         a=unname(altNames[downstat]),
-                        p=-log10(p[downstat])
+                        p=if (!is.null(p)) -log10(p[downstat]) else NULL
                     )
                 )
             }
@@ -2677,7 +2685,7 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         x=a[up],
                         y=f[up],
                         a=unname(altNames[up]),
-                        p=-log10(p[up])
+                        p=if (!is.null(p)) -log10(p[up]) else NULL
                     )
                 )
             }
@@ -2693,7 +2701,7 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         x=a[down],
                         y=f[down],
                         a=unname(altNames[down]),
-                        p=-log10(p[down])
+                        p=if (!is.null(p)) -log10(p[down]) else NULL
                     )
                 )
             }
@@ -2706,7 +2714,7 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         x=a[poor],
                         y=f[poor],
                         a=unname(altNames[poor]),
-                        p=-log10(p[poor])
+                        p=if (!is.null(p)) -log10(p[poor]) else NULL
                     )
                 )
             }
@@ -2719,7 +2727,7 @@ maStatToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
                         x=a[neutral],
                         y=f[neutral],
                         a=unname(altNames[neutral]),
-                        p=-log10(p[neutral])
+                        p=if (!is.null(p)) -log10(p[neutral]) else NULL
                     )
                 )
             }

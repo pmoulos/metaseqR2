@@ -404,8 +404,9 @@ metaseqr2 <- function(
         "prenorm"),multiarg=FALSE)
     checkTextArgs("normalization",normalization,c("edaseq","deseq","deseq2",
         "edger","noiseq","nbpseq","absseq","dss","each","none"),multiarg=FALSE)
-    checkTextArgs("statistics",statistics,c("deseq","deseq2","edger","noiseq",
-        "bayseq","limma","nbpseq","absseq","dss"),multiarg=TRUE)
+    if (!is.na(statistics))
+        checkTextArgs("statistics",statistics,c("deseq","deseq2","edger",
+            "noiseq","bayseq","limma","nbpseq","absseq","dss"),multiarg=TRUE)
     checkTextArgs("metaP",metaP,c("simes","bonferroni","fisher","dperm_min",
         "dperm_max","dperm_weight","fperm","whitlock","minp","maxp","weight",
         "pandora","none"),multiarg=FALSE)
@@ -452,8 +453,8 @@ metaseqr2 <- function(
         checkContrastFormat(contrast,sampleList)
         contrast <- unique(contrast)
     }
-    if ("bayseq" %in% statistics) libsizeList <- checkLibsize(libsizeList,
-        sampleList)
+    if ("bayseq" %in% statistics) 
+        libsizeList <- checkLibsize(libsizeList,sampleList)
     # Check the genomic database version argument
     if (is.character(version)) {
         version <- tolower(version)
@@ -550,22 +551,62 @@ metaseqr2 <- function(
         countType <- "gene"
     }
     
+    # Remove biodist and volcano if no statistics or contrast
+    if ("biodist" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+        warnwrap("The creation of a biodist diagram requires statistical ",
+            "testing! Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "biodist")]
+    }
+    if ("volcano" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+        warnwrap("The creation of a volcano plot requires statistical ",
+            "testing! Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "volcano")]
+    }
+    if ("deheatmap" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+        warnwrap("The creation of a deheatmap plot requires statistical ",
+            "testing! Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "deheatmap")]
+    }
+    if ("statvenn" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+        warnwrap("The creation of a statvenn plot requires statistical ",
+            "testing! Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "statvenn")]
+    }
+    if ("foldvenn" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+        warnwrap("The creation of a foldvenn plot requires statistical ",
+            "testing! Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "foldvenn")]
+    }
+    if ("deregulogram" %in% qcPlots && (is.na(statistics) 
+        || is.null(contrast))) {
+        warnwrap("The creation of a deregulogram plot requires statistical ",
+            "testing! Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "deregulogram")]
+    }
+    # mastat only if there is a contrast, otherwise nothing to plot
+    if ("mastat" %in% qcPlots && is.null(contrast)) {
+        warnwrap("The creation of a mastat plot requires the definition of a ",
+            "contrast! Removing from figures list...")
+        qcPlots <- qcPlots[-which(qcPlots == "mastat")]
+    }
     # Check if drawing a Venn diagram among tests is possible
-    if ("statvenn" %in% qcPlots && length(statistics)==1) {
+    if ("statvenn" %in% qcPlots && length(statistics)==1 
+        && !is.na(statistics)) {
         warnwrap("The creation of a Venn diagram among different statistical ",
             "tests is possible only when more than\none statistical ",
             "algorithms are used! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "statvenn")]
     }
     # Check if drawing a Venn diagram among contrasts is possible
-    if ("foldvenn" %in% qcPlots && length(contrast)==1) {
+    if ("foldvenn" %in% qcPlots && !is.null(contrast) &&  length(contrast)==1) {
         warnwrap("The creation of a Venn diagram among different statistical ",
             "comparisons is possible only when more than\none contrast ",
             "defined! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "foldvenn")]
     }
     # Check if drawing a deregulogram for contrast pairs
-    if ("deregulogram" %in% qcPlots && length(contrast)==1) {
+    if ("deregulogram" %in% qcPlots && !is.null(contrast) 
+        && length(contrast)==1) {
         warnwrap("The creation of a deregulogram for pairwise statistical ",
             "comparisons is possible only when more than\none contrast ",
             "defined! Removing from figures list...")
@@ -682,7 +723,10 @@ metaseqr2 <- function(
         disp("Samples to exclude: ",paste(unlist(excludeList),collapse=", "))
     else
         disp("Samples to exclude: none")
-    disp("Requested contrasts: ",paste(contrast,collapse=", "))
+    if (!is.null(contrast))
+        disp("Requested contrasts: ",paste(contrast,collapse=", "))
+    else
+        disp("Requested contrasts: none")
     if (!is.null(libsizeList)) {
         disp("Library sizes: ")
         for (n in names(libsizeList))
@@ -755,20 +799,27 @@ metaseqr2 <- function(
                     sep=": "))
         }
     }
-    disp("Statistical algorithm: ",paste(statistics,collapse=", "))
+    if (!is.na(statistics))
+        disp("Statistical algorithm(s): ",paste(statistics,collapse=", "))
+    else
+        disp("Statistical algorithm(s): no testing selected")
     if (!is.null(statArgs)) {
-        disp("Statistical arguments: ")
-        for (sa in names(statArgs)) {
-            if (length(statArgs[[sa]])==1 && is.function(statArgs[[sa]])) {
-                disp("  ",sa,": ")
-                disp(as.character(substitute(statArgs[[na]])))
+        if (!is.na(statistics)) {
+            disp("Statistical arguments: ")
+            for (sa in names(statArgs)) {
+                if (length(statArgs[[sa]])==1 && is.function(statArgs[[sa]])) {
+                    disp("  ",sa,": ")
+                    disp(as.character(substitute(statArgs[[na]])))
+                }
+                else if (length(statArgs[[sa]])==1)
+                    disp("  ",paste(sa,statArgs[[sa]],sep=": "))
+                else if (length(statArgs[[sa]])>1)
+                    disp("  ",paste(sa,paste(statArgs[[sa]],collapse=", "),
+                        sep=": "))
             }
-            else if (length(statArgs[[sa]])==1)
-                disp("  ",paste(sa,statArgs[[sa]],sep=": "))
-            else if (length(statArgs[[sa]])>1)
-                disp("  ",paste(sa,paste(statArgs[[sa]],collapse=", "),
-                    sep=": "))
         }
+        else
+            disp("Statistical arguments: no testing selected")
     }
     disp("Meta-analysis method: ",metaP)
     disp("Multiple testing correction: ",adjustMethod)
@@ -1601,14 +1652,14 @@ metaseqr2 <- function(
         stopwrap("No genes left after gene and/or exon filtering! Try again ",
             "with no filtering or less strict filter rules...")
 
-    if (!is.null(contrast)) {
+    if (!is.null(contrast) && !is.na(statistics)) {
         if (is.function(.progressFun)) {
             text <- paste("Statistical testing...")
             .progressFun(detail=text)
         }
         
-        # Run the statistical test, normGenes is always a method-specific object,
-        # handled in the metaseqr.stat.R stat.* functions
+        # Run the statistical test, normGenes is always a method-specific
+        # object, handled in the metaseqr.stat.R stat.* functions
         cpList <- vector("list",length(contrast))
         names(cpList) <- contrast
         contrastList <- makeContrastList(contrast,sampleList)
@@ -1727,8 +1778,13 @@ metaseqr2 <- function(
         else
             adjCpList <- NULL
     }
-    else # No contrast provided, some dummy p-value data must exist for export
+    else
+        # No contrast provided or no staistical tests selected, some dummy 
+        # p-value data must exist for export
         cpList <- adjCpList <- NULL
+    
+    if (!is.null(contrast)) # In case of only statistics=NA
+        contrastList <- makeContrastList(contrast,sampleList)
 
     # At this point, all method-specific objects must become matrices for  
     # exporting and plotting
@@ -1814,7 +1870,7 @@ metaseqr2 <- function(
 
     # Calculate meta-statistics, if more than one statistical algorithm has been
     # used
-    if (!is.null(contrast)) {
+    if (!is.null(contrast) && !is.na(statistics)) {
         if (length(statistics)>1) {
             sumpList <- metaTest(
                 cpList=cpList,
@@ -1830,14 +1886,15 @@ metaseqr2 <- function(
                 rc=restrictCores
             )
         }
-        # We assign the p-values from the only statistic used to sumpList in order
-        # to use it for stat plots
+        # We assign the p-values from the only statistic used to sumpList in
+        # order to use it for stat plots
         else
             sumpList <- cpList
         # Useless for one statistics but just for safety
         if ("adj_meta_p_value" %in% exportWhat) 
             adjSumpList <- cmclapply(sumpList,
-                function(x,a) return(p.adjust(x,a)),adjustMethod,rc=restrictCores)
+                function(x,a) return(p.adjust(x,a)),adjustMethod,
+                    rc=restrictCores)
         else
             adjSumpList <- NULL
     }
@@ -1950,12 +2007,294 @@ metaseqr2 <- function(
         )
     }
     
-    reportTables <- vector("list",length(contrast))
-    names(reportTables) <- contrast
-    
-    counter <- 1
-    for (cnt in contrast) {
-        disp("  Contrast: ",cnt)
+    if (!is.null(contrast)) {
+        reportTables <- vector("list",length(contrast))
+        names(reportTables) <- contrast
+        
+        for (cnt in contrast) {
+            disp("  Contrast: ",cnt)
+            disp("    Adding non-filtered data...")
+            if (!is.na(statistics))
+                theExport <- buildExport(
+                    geneData=geneDataExpr,
+                    rawGeneCounts=geneCountsExpr,
+                    normGeneCounts=normGenesExpr,
+                    flags=goodFlags,
+                    sampleList=sampleList,
+                    cnt=cnt,
+                    statistics=statistics,
+                    rawList=rawList,
+                    normList=normList,
+                    pMat=cpList[[cnt]],
+                    adjpMat=adjCpList[[cnt]],
+                    sumP=sumpList[[cnt]],
+                    adjSumP=adjSumpList[[cnt]],
+                    exportWhat=exportWhat,
+                    exportScale=exportScale,
+                    exportValues=exportValues,
+                    exportStats=exportStats,
+                    logOffset=logOffset,
+                    #report=report
+                    report=FALSE
+                )
+            else
+                theExport <- buildExport(
+                    geneData=geneDataExpr,
+                    rawGeneCounts=geneCountsExpr,
+                    normGeneCounts=normGenesExpr,
+                    flags=goodFlags,
+                    sampleList=sampleList,
+                    cnt=cnt,
+                    rawList=rawList,
+                    normList=normList,
+                    exportWhat=exportWhat,
+                    exportScale=exportScale,
+                    exportValues=exportValues,
+                    exportStats=exportStats,
+                    logOffset=logOffset,
+                    #report=report
+                    report=FALSE
+                )
+            
+            # Adjust the export based on what statistics have been done and a 
+            # possible p-value cutoff
+            export <- theExport$textTable
+            colnames(export)[1] <- "chromosome"
+            if (report)
+                exportHtml <- theExport$htmlTable
+            if (!is.na(statistics)) { # Ordering based on p-value
+                if (!is.na(pcut)) {
+                    if (length(statistics)>1) {
+                        switch(metaP,
+                            fisher = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            fperm = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            whitlock = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            dperm_min = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            dperm_max = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            dperm_weight = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            minp = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            maxp = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            weight = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            pandora = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            simes = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            },
+                            none = {
+                                cutInd <- which(sumpList[[cnt]]<=pcut)
+                            }
+                        )
+                        pp <- sumpList[[cnt]][cutInd]
+                        export <- export[cutInd,]
+                        export <- export[order(pp),]
+                        if (report) {
+                            exportHtml <- exportHtml[cutInd,]
+                            exportHtml <- exportHtml[order(pp),]
+                        }
+                    }
+                    else {
+                        cutInd <- which(sumpList[[cnt]]<=pcut)
+                        pp <- sumpList[[cnt]][cutInd,]
+                        export <- export[cutInd,]
+                        export <- export[order(pp),]
+                        if (report) {
+                            exportHtml <- exportHtml[cutInd,]
+                            exportHtml <- exportHtml[order(pp),]
+                        }
+                    }
+                }
+                else {
+                    pp <- sumpList[[cnt]]
+                    export <- export[order(pp),]
+                    if (report)
+                        exportHtml <- exportHtml[order(pp),]
+                }
+            }
+            
+            # Final safety trigger
+            naInd <- grep("NA",rownames(export))
+            if (length(naInd)>0) {
+                export <- export[-naInd,]
+                if (report) 
+                    exportHtml <- exportHtml[-naInd,]
+            }
+
+            resFile <- file.path(PROJECT_PATH[["lists"]],
+                paste("metaseqr_sig_out_",cnt,".txt.gz",sep=""))
+            disp("    Writing output...")
+            gzfh <- gzfile(resFile,"w")
+            write.table(export,gzfh,quote=FALSE,row.names=FALSE,sep="\t")
+            close(gzfh)
+            if (outList)
+                out[[cnt]] <- export
+
+            if (!is.null(geneCountsZero) || !is.null(geneCountsDead)) {
+                disp("    Adding filtered data...")
+                theExportFiltered <- buildExport(
+                    geneData=geneDataFiltered,
+                    rawGeneCounts=geneCountsUnnormFiltered,
+                    normGeneCounts=geneCountsFiltered,
+                    flags=allFlags,
+                    sampleList=sampleList,
+                    cnt=cnt,
+                    statistics=statistics,
+                    rawList=rawListFiltered,
+                    normList=normListFiltered,
+                    exportWhat=exportWhat,
+                    exportScale=exportScale,
+                    exportValues=exportValues,
+                    exportStats=exportStats,
+                    logOffset=logOffset,
+                    report=FALSE
+                )
+
+                # Now we should be having theExport and theExportFiltered. We do
+                # not generate html output for filtered or total results just a
+                # compressed text file. We thus have to append 
+                # theExport$textTable and theExportFiltered$htmlTable before
+                # writing the final output...
+                exportAll <- rbind(theExport$textTable,
+                    theExportFiltered$textTable)
+                # ...and order them somehow... alphabetically according to row
+                # names, as the annotation might not have been bundled...
+                exportAll <- exportAll[order(rownames(exportAll)),]
+                colnames(exportAll)[1] <- "chromosome"
+                
+                # Here, both filtered and unfiltered genes are passed to the 
+                # output list.
+                if (outList)
+                    out[[cnt]] <- exportAll   
+                
+                resFile <- file.path(PROJECT_PATH[["lists"]],paste(
+                    "metaseqr_all_out_",cnt,".txt.gz",sep=""))
+                disp("    Writing output...")
+                gzfh <- gzfile(resFile,"w")
+                write.table(exportAll,gzfh,quote=FALSE,row.names=FALSE,sep="\t")
+                close(gzfh)
+            }
+            
+            # If report requested, build a more condensed summary table, while 
+            # the complete tables are available for download
+            if (report) {
+                if (!is.na(statistics)) {
+                    if (length(statistics) > 1) {
+                        ew <- c("annotation","meta_p_value","adj_meta_p_value",
+                            "fold_change","stats")
+                        if (is.null(adjSumpList))
+                            adjSumpList <- cmclapply(sumpList,
+                                function(x,a) return(p.adjust(x,a)),
+                                    adjustMethod,rc=restrictCores)
+                    }
+                    else
+                        ew <- c("annotation","p_value","adj_p_value",
+                            "fold_change","stats")
+                }
+                else
+                    ew <- c("annotation","fold_change","stats")
+                
+                esc <- "rpgm"
+                ev <- "normalized"
+                est <- "mean"
+                
+                faR <- attr(geneDataExpr,"geneLength")          
+                facR <- faR[rownames(normGenesExpr)]
+                normListR <- makeTransformation(normGenesExpr,esc,facR,
+                    logOffset)
+                
+                disp("    Adding report data...")
+                if (!is.na(statistics)) {
+                    reportTables[[cnt]] <- buildExport(
+                        geneData=geneDataExpr,
+                        rawGeneCounts=geneCountsExpr,
+                        normGeneCounts=normGenesExpr,
+                        flags=goodFlags,
+                        sampleList=sampleList,
+                        cnt=cnt,
+                        statistics=statistics,
+                        rawList=NULL,
+                        normList=normListR,
+                        pMat=cpList[[cnt]],
+                        adjpMat=adjCpList[[cnt]],
+                        sumP=sumpList[[cnt]],
+                        adjSumP=adjSumpList[[cnt]],
+                        exportWhat=ew,
+                        exportScale=esc,
+                        exportValues=ev,
+                        exportStats=est,
+                        logOffset=logOffset,
+                        report=FALSE
+                    )$textTable
+                    reportTables[[cnt]] <- 
+                        reportTables[[cnt]][names(pp)[order(pp)],,drop=FALSE]
+                    
+                    if (!is.null(reportTop)) {
+                        plasm <- pcut
+                        if (is.na(pcut))
+                            plasm <- 0.05
+                        
+                        topi <- ceiling(reportTop*length(which(pp<=plasm)))
+                        if (topi == 0)
+                            topi <- 10
+                        #topi <- ceiling(reportTop*nrow(reportTables[[cnt]]))
+                        reportTables[[cnt]] <- 
+                            reportTables[[cnt]][seq_len(topi),,drop=FALSE]
+                    }
+                }
+                else {
+                    reportTables[[cnt]] <- buildExport(
+                        geneData=geneDataExpr,
+                        rawGeneCounts=geneCountsExpr,
+                        normGeneCounts=normGenesExpr,
+                        flags=goodFlags,
+                        sampleList=sampleList,
+                        cnt=cnt,
+                        rawList=NULL,
+                        normList=normListR,
+                        exportWhat=ew,
+                        exportScale=esc,
+                        exportValues=ev,
+                        exportStats=est,
+                        logOffset=logOffset,
+                        report=FALSE
+                    )$textTable
+                    
+                    if (!is.null(reportTop)) {
+                        ii <- grep("fold_change_",colnames(reportTables[[cnt]]))
+                        forOrder <- as.numeric(reportTables[[cnt]][,ii[1]])
+                        oo <- sort(abs(forOrder),decreasing=TRUE,
+                            index.return=TRUE)
+                        topi <- ceiling(reportTop*length(oo$ix))
+                        if (topi == 0)
+                            topi <- 10  
+                        reportTables[[cnt]] <- 
+                            reportTables[[cnt]][oo$ix[seq_len(topi)],,
+                                drop=FALSE]
+                    }
+                }
+            }
+        }
+    }
+    else {
+        disp("  No contrast was specified, exporting only quantifications")
         disp("    Adding non-filtered data...")
         theExport <- buildExport(
             geneData=geneDataExpr,
@@ -1963,96 +2302,22 @@ metaseqr2 <- function(
             normGeneCounts=normGenesExpr,
             flags=goodFlags,
             sampleList=sampleList,
-            cnt=cnt,
             statistics=statistics,
             rawList=rawList,
             normList=normList,
-            pMat=cpList[[cnt]],
-            adjpMat=adjCpList[[cnt]],
-            sumP=sumpList[[cnt]],
-            adjSumP=adjSumpList[[cnt]],
             exportWhat=exportWhat,
             exportScale=exportScale,
             exportValues=exportValues,
             exportStats=exportStats,
             logOffset=logOffset,
-            #report=report
             report=FALSE
         )
         
-        # Adjust the export based on what statistics have been done and a 
-        # possible p-value cutoff
         export <- theExport$textTable
         colnames(export)[1] <- "chromosome"
         if (report)
             exportHtml <- theExport$htmlTable
-        if (!is.na(pcut)) {
-            if (length(statistics)>1) {
-                switch(metaP,
-                    fisher = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    fperm = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    whitlock = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    dperm_min = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    dperm_max = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    dperm_weight = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    minp = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    maxp = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    weight = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    pandora = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    simes = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    },
-                    none = {
-                        cutInd <- which(sumpList[[cnt]]<=pcut)
-                    }
-                )
-                pp <- sumpList[[cnt]][cutInd]
-                export <- export[cutInd,]
-                export <- export[order(pp),]
-                if (report) {
-                    exportHtml <- exportHtml[cutInd,]
-                    exportHtml <- exportHtml[order(pp),]
-                }
-            }
-            else {
-                cutInd <- which(sumpList[[cnt]]<=pcut)
-                pp <- sumpList[[cnt]][cutInd,]
-                export <- export[cutInd,]
-                export <- export[order(pp),]
-                if (report) {
-                    exportHtml <- exportHtml[cutInd,]
-                    exportHtml <- exportHtml[order(pp),]
-                }
-            }
-        }
-        else {
-            pp <- sumpList[[cnt]]
-            export <- export[order(pp),]
-            if (report)
-                exportHtml <- exportHtml[order(pp),]
-        }
-
-        # Final safety trigger
+        
         naInd <- grep("NA",rownames(export))
         if (length(naInd)>0) {
             export <- export[-naInd,]
@@ -2060,15 +2325,14 @@ metaseqr2 <- function(
                 exportHtml <- exportHtml[-naInd,]
         }
 
-        resFile <- file.path(PROJECT_PATH[["lists"]],
-            paste("metaseqr_sig_out_",cnt,".txt.gz",sep=""))
+        resFile <- file.path(PROJECT_PATH[["lists"]],"metaseqr_sig_out.txt.gz")
         disp("    Writing output...")
         gzfh <- gzfile(resFile,"w")
         write.table(export,gzfh,quote=FALSE,row.names=FALSE,sep="\t")
         close(gzfh)
         if (outList)
             out[[cnt]] <- export
-
+            
         if (!is.null(geneCountsZero) || !is.null(geneCountsDead)) {
             disp("    Adding filtered data...")
             theExportFiltered <- buildExport(
@@ -2077,7 +2341,6 @@ metaseqr2 <- function(
                 normGeneCounts=geneCountsFiltered,
                 flags=allFlags,
                 sampleList=sampleList,
-                cnt=cnt,
                 statistics=statistics,
                 rawList=rawListFiltered,
                 normList=normListFiltered,
@@ -2089,87 +2352,74 @@ metaseqr2 <- function(
                 report=FALSE
             )
 
-            # Now we should be having theExport and theExportFiltered. We do not
-            # generate html output for filtered or total results just a 
-            # compressed text file. We thus have to append theExport$textTable
-            # and theExportFiltered$htmlTable before writing the final output...
-            exportAll <- rbind(theExport$textTable,theExportFiltered$textTable)
+            # Now we should be having theExport and theExportFiltered. We do
+            # not generate html output for filtered or total results just a
+            # compressed text file. We thus have to append 
+            # theExport$textTable and theExportFiltered$htmlTable before
+            # writing the final output...
+            exportAll <- rbind(theExport$textTable,
+                theExportFiltered$textTable)
             # ...and order them somehow... alphabetically according to row
             # names, as the annotation might not have been bundled...
             exportAll <- exportAll[order(rownames(exportAll)),]
             colnames(exportAll)[1] <- "chromosome"
             
-            # Here, both filtered and unfiltered genes are passed to the output
-            # list.
+            # Here, both filtered and unfiltered genes are passed to the 
+            # output list.
             if (outList)
                 out[[cnt]] <- exportAll   
             
-            resFile <- file.path(PROJECT_PATH[["lists"]],paste(
-                "metaseqr_all_out_",cnt,".txt.gz",sep=""))
+            resFile <- file.path(PROJECT_PATH[["lists"]],
+                "metaseqr_all_out.txt.gz")
             disp("    Writing output...")
             gzfh <- gzfile(resFile,"w")
             write.table(exportAll,gzfh,quote=FALSE,row.names=FALSE,sep="\t")
             close(gzfh)
         }
         
-        # If report requested, build a more condensed summary table, while the
-        # complete tables are available for download
+        # If report requested, build a more condensed summary table, while 
+        # the complete tables are available for download
         if (report) {
-            if (length(statistics) > 1) {
-                ew <- c("annotation","meta_p_value","adj_meta_p_value",
-                    "fold_change","stats")
-                if (is.null(adjSumpList))
-                    adjSumpList <- cmclapply(sumpList,
-                        function(x,a) return(p.adjust(x,a)),
-                            adjustMethod,rc=restrictCores)
-            }
-            else
-                ew <- c("annotation","p_value","adj_p_value","fold_change",
-                    "stats")
+            ew <- c("annotation","stats")
             esc <- "rpgm"
             ev <- "normalized"
             est <- "mean"
             
             faR <- attr(geneDataExpr,"geneLength")          
             facR <- faR[rownames(normGenesExpr)]
-            normListR <- makeTransformation(normGenesExpr,esc,facR,logOffset)
+            normListR <- makeTransformation(normGenesExpr,esc,facR,
+                logOffset)
             
             disp("    Adding report data...")
-            reportTables[[cnt]] <- buildExport(
+            reportTables <- list(NT=buildExport(
                 geneData=geneDataExpr,
                 rawGeneCounts=geneCountsExpr,
                 normGeneCounts=normGenesExpr,
                 flags=goodFlags,
                 sampleList=sampleList,
-                cnt=cnt,
                 statistics=statistics,
                 rawList=NULL,
                 normList=normListR,
-                pMat=cpList[[cnt]],
-                adjpMat=adjCpList[[cnt]],
-                sumP=sumpList[[cnt]],
-                adjSumP=adjSumpList[[cnt]],
                 exportWhat=ew,
                 exportScale=esc,
                 exportValues=ev,
                 exportStats=est,
                 logOffset=logOffset,
                 report=FALSE
-            )$textTable
-            reportTables[[cnt]] <- 
-                reportTables[[cnt]][names(pp)[order(pp)],,drop=FALSE]
+            )$textTable)
             
+            # Some kind of toping for the table must be done, most probably
+            # based on top expressed genes
             if (!is.null(reportTop)) {
-                plasm <- pcut
-                if (is.na(pcut))
-                    plasm <- 0.05
-                
-                topi <- ceiling(reportTop*length(which(pp<=plasm)))
+                ii <- grep("rpgm",colnames(reportTables[[1]]))
+                forOrder <- as.matrix(reportTables[[1]][,ii])
+                avgRpgm <- apply(forOrder,1,mean,na.rm=TRUE)
+                oo <- sort(avgRpgm,decreasing=TRUE,index.return=TRUE)
+                topi <- ceiling(reportTop*length(oo$ix))
                 if (topi == 0)
-                    topi <- 10
-                #topi <- ceiling(reportTop*nrow(reportTables[[cnt]]))
-                reportTables[[cnt]] <- 
-                    reportTables[[cnt]][seq_len(topi),,drop=FALSE]
+                    topi <- 10  
+                reportTables[[1]] <- 
+                    reportTables[[1]][oo$ix[seq_len(topi)],,drop=FALSE]
             }
         }
     }
@@ -2211,6 +2461,8 @@ metaseqr2 <- function(
         names(figRaw) <- names(figUnorm) <- names(figNorm) <-
             names(figStat) <- names(figOther) <- names(figVenn) <-
             figFormat
+        if (is.null(contrast))
+            contrastList <- NULL
         for (fig in figFormat) {
             disp("Plotting in ",fig," format...")
             figRaw[[fig]] <- metaseqrPlot(geneCounts,sampleList,
@@ -2445,16 +2697,19 @@ metaseqr2 <- function(
             attr(geneDataFiltered,"geneLength"))
         names(a) <- rownames(tmp)
         attr(tmp,"geneLength") <- a
-        for (n in names(cpList)) {
-            if (!is.null(geneDataFiltered)) {
-                filler <- matrix(NA,length(geneDataFiltered),ncol(cpList[[n]]))
-                rownames(filler) <- names(geneDataFiltered)
-                colnames(filler) <- colnames(cpList[[n]])
-            }
-            else {
-                filler <- NULL
-                cpList[[n]] <- rbind(cpList[[n]],filler)
-                cpList[[n]] <- cpList[[n]][rownames(tmp),,drop=FALSE]
+        if (!is.null(cpList)) {
+            for (n in names(cpList)) {
+                if (!is.null(geneDataFiltered)) {
+                    filler <- matrix(NA,length(geneDataFiltered),
+                        ncol(cpList[[n]]))
+                    rownames(filler) <- names(geneDataFiltered)
+                    colnames(filler) <- colnames(cpList[[n]])
+                }
+                else {
+                    filler <- NULL
+                    cpList[[n]] <- rbind(cpList[[n]],filler)
+                    cpList[[n]] <- cpList[[n]][rownames(tmp),,drop=FALSE]
+                }
             }
         }
         if (!is.null(adjCpList)) {
