@@ -21,4 +21,4 @@ script:
  - R CMD BiocCheck --no-check-version-num --no-check-deprecated *.tar.gz
 
 #env:
-# - PKG_TARBALL=metaseqR2_1.1.15.tar.gz
+# - PKG_TARBALL=metaseqR2_1.1.18.tar.gz

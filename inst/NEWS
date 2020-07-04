@@ -60,3 +60,17 @@ NEW FEATURES
 BUG FIXES
 
     o Fixed report crash with the new readTargets wrapper function.
+
+CHANGES IN VERSION 1.1.18 (2020-07-03)
+-------------------------------------
+
+NEW FEATURES
+
+    o Simple quantification, QC and reporting is now allowed without having
+    to define a contrast or statistical tests to be performed. 
+    o In case of only a contrast is defined but no statistical tests required
+    only fold changes are calculated.
+    
+BUG FIXES
+
+    o Fixed undefined class/function leftovers from NOISeq integration.
