@@ -1261,6 +1261,9 @@ metaseqr2 <- function(
         totalGeneData <- geneData # We need this for some total stats
         exonFilterResult <- NULL
 
+        gValid <- intersect(rownames(geneCounts), geneData$gene_id)
+        geneCounts <- geneCounts[gValid,]
+
         geneData <- geneData[rownames(geneCounts)]
         geneLength <- width(geneData)
         names(geneLength) <- names(geneData)
