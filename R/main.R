@@ -923,17 +923,29 @@ metaseqr2 <- function(
                 if (!is.data.frame(counts) && !is.list(counts)) {
                     disp("Reading counts file ",countsName,"...")
                     exonCounts <- read.delim(counts,row.names=1)
+
+                    ## Re-arrange columns to be in consistency with colData
+                    ## used in statDeseq2
+                    exonCounts <- exonCounts[, unlist(sampleList, use.names= FALSE)]
                 }
                 else { # Already a data frame as input
                     if (is.character(counts[,1])) {
                         exonCounts <- as.matrix(counts[,-1])
                         rownames(exonCounts) <- as.character(counts[,1])
+
+                        ## Re-arrange columns to be in consistency with colData
+                        ## used in statDeseq2
+                        exonCounts <- exonCounts[, unlist(sampleList, use.names= FALSE)]
                     }
                     else { # Should be named!
                         if (is.null(rownames(counts)))
                             stopwrap("A counts data frame as input should ",
                                 "have rownames!")
                         exonCounts <- counts
+
+                        ## Re-arrange columns to be in consistency with colData
+                        ## used in statDeseq2
+                        exonCounts <- exonCounts[, unlist(sampleList, use.names= FALSE)]
                     }
                 }
             }
@@ -1058,18 +1070,32 @@ metaseqr2 <- function(
             if (!is.null(counts)) { # Otherwise coming ready from read2count
                 if (!is.data.frame(counts) && !is.list(counts)) {
                     disp("Reading counts file ",countsName,"...")
-                    transcriptCounts <- read.delim(counts)
+                    transcriptCounts <- read.delim(counts, row.names=1)
+
+                    ## Re-arrange columns to be in consistency with colData
+                    ## used in statDeseq2
+                    transcriptCounts <- transcriptCounts[, unlist(sampleList, use.names= FALSE)]
                 }
                 else { # Already a data frame as input
                     if (is.character(counts[,1])) {
                         transcriptCounts <- as.matrix(counts[,-1])
                         rownames(transcriptCounts) <- as.character(counts[,1])
+
+                        ## Re-arrange columns to be in consistency with colData
+                        ## used in statDeseq2
+                        transcriptCounts <- transcriptCounts[, unlist(sampleList, 
+                            use.names= FALSE)]
                     }
                     else { # Should be named!
                         if (is.null(rownames(counts)))
                             stopwrap("A counts data frame as input should ",
                                 "have rownames!")
                         transcriptCounts <- counts
+
+                        ## Re-arrange columns to be in consistency with colData
+                        ## used in statDeseq2
+                        transcriptCounts <- transcriptCounts[, unlist(sampleList, 
+                            use.names= FALSE)]
                     }
                 }
             }
@@ -1174,18 +1200,30 @@ metaseqr2 <- function(
             if (!is.null(counts)  && !is.list(counts)) {
                 if (!is.data.frame(counts)) { # Else it's already here
                     disp("Reading counts file ",countsName,"...")
-                    geneCounts <- read.delim(counts)
+                    geneCounts <- read.delim(counts, row.names= 1)
+
+                    ## Re-arrange columns to be in consistency with colData
+                    ## used in statDeseq2
+                    geneCounts <- geneCounts[, unlist(sampleList, use.names= FALSE)]
                 }
                 else { # Already a data frame as input
                     if (is.character(counts[,1])) {
                         geneCounts <- as.matrix(counts[,-1])
                         rownames(geneCounts) <- as.character(counts[,1])
+
+                        ## Re-arrange columns to be in consistency with colData
+                        ## used in statDeseq2
+                        geneCounts <- geneCounts[, unlist(sampleList, use.names= FALSE)]
                     }
                     else { # Should be named!
                         if (is.null(rownames(counts)))
                             stopwrap("A counts data frame as input should ",
                                 "have rownames!")
                         geneCounts <- counts
+
+                        ## Re-arrange columns to be in consistency with colData
+                        ## used in statDeseq2
+                        geneCounts <- geneCounts[, unlist(sampleList, use.names= FALSE)]
                     }
                 }
             }
@@ -1222,6 +1260,9 @@ metaseqr2 <- function(
         
         totalGeneData <- geneData # We need this for some total stats
         exonFilterResult <- NULL
+
+        gValid <- intersect(rownames(geneCounts), geneData$gene_id)
+        geneCounts <- geneCounts[gValid,]
 
         geneData <- geneData[rownames(geneCounts)]
         geneLength <- width(geneData)
