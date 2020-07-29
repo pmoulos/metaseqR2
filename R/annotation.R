@@ -747,6 +747,8 @@ loadAnnotation <- function(genome,refdb,level=c("gene","transcript","exon"),
     if (!requireNamespace("RSQLite"))
         stop("R package RSQLite is required to load annotation from database!")
     
+    genome <- tolower(genome[1])
+    refdb <- tolower(refdb[1])
     level <- level[1]
     checkTextArgs("level",level,c("gene","transcript","exon"),multiarg=FALSE)
     type <- type[1]
