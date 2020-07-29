@@ -46,7 +46,7 @@ buildExport <- function(geneData,rawGeneCounts,normGeneCounts,flags,
             exportWhat <- exportWhat[-which(exportWhat == "fold_change")]
     }
     
-    if (is.na(statistics)) { # No p-value can be exported
+    if (any(is.na(statistics))) { # No p-value can be exported
         if ("p_value" %in% exportWhat)
             exportWhat <- exportWhat[-which(exportWhat == "p_value")]
         if ("adj_p_value" %in% exportWhat)

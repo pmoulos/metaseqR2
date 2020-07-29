@@ -1300,7 +1300,7 @@ if (!is.null(normArgs)) {
 
 **Statistical algorithm(s):** 
 ```{r summary_input_options_17}
-if (!is.na(statistics)) {
+if (!any(is.na(statistics))) {
     cat(paste(unlist(reportMessages$stat[statistics],use.names=FALSE),
         collapse=", "))
 } else {
@@ -1480,7 +1480,7 @@ cat(transLevel,"s",sep="")
 **Number of differentially expressed **
 ```{r summary_de_what_2}
 cat("<strong>",transLevel,"s per contrast: </strong>",sep="")
-if (!is.null(contrast) && !is.na(statistics)) {
+if (!is.null(contrast) && !any(is.na(statistics))) {
     if (!is.na(pcut) && pcut==1)
         cat("The p-value cutoff during the analysis was set to 1 so as to ",
             "retrieve the total ",transLevel," list which passed the filtering ",
@@ -2508,7 +2508,7 @@ cat("<div class=\"hc-selector-label\">Select a contrast to display ",
 cat("<select id=\"detable_selector\">",items,"</select>",sep="")
 cat("</div><br/>")
 
-if (!is.null(contrast) && !is.na(statistics)) {
+if (!is.null(contrast) && !any(is.na(statistics))) {
     for (cnt in contrast) {
         cntn <- gsub("_vs_"," vs ",cnt)
         #pandoc.header(cntn,level=3)
@@ -2678,7 +2678,7 @@ if (!is.null(contrast) && !is.na(statistics)) {
         
         cat("</div>")
     }
-} else if (!is.null(contrast) && is.na(statistics)) {
+} else if (!is.null(contrast) && any(is.na(statistics))) {
     for (cnt in contrast) {
         cntn <- gsub("_vs_"," vs ",cnt)
         

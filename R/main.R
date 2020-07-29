@@ -378,23 +378,21 @@ metaseqr2 <- function(
                 "rn6","dm3","dm6","danrer7","pantro4","susscr3","tair10",
                 "equcab2"),multiarg=FALSE)
     }
-    else {
+    else if (is.null(annotation) 
+        && !(is.character(localDb) || file.exists(localDb))) {
         # So only some annotations can be fetched on-the-fly
-        if (is.null(annotation)) 
-            checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5",
-                "rn6","dm3","dm6","danrer7","pantro4","susscr3","tair10",
-                "equcab2"),multiarg=FALSE)
+        checkTextArgs("org",org,c("hg18","hg19","hg38","mm9","mm10","rn5","rn6",
+            "dm3","dm6","danrer7","pantro4","susscr3","tair10","equcab2"),
+            multiarg=FALSE)
     }
     if (is.character(localDb) && file.exists(localDb)) {
         if (!.userRefdb(refdb,localDb) && is.null(annotation))
             checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),
                 multiarg=FALSE)
     }
-    else {
-        # So only some annotations can be fetched on-the-fly
-        if (is.null(annotation)) 
-            checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),
-                multiarg=FALSE)
+    else if (is.null(annotation) 
+        && !(is.character(localDb) || file.exists(localDb))) {
+        checkTextArgs("refdb",refdb,c("ensembl","ucsc","refseq"),multiarg=FALSE)
     }
     checkTextArgs("transLevel",transLevel,c("gene","transcript","exon"),
         multiarg=FALSE)
@@ -404,7 +402,7 @@ metaseqr2 <- function(
         "prenorm"),multiarg=FALSE)
     checkTextArgs("normalization",normalization,c("edaseq","deseq","deseq2",
         "edger","noiseq","nbpseq","absseq","dss","each","none"),multiarg=FALSE)
-    if (!is.na(statistics))
+    if (!any(is.na(statistics)))
         checkTextArgs("statistics",statistics,c("deseq","deseq2","edger",
             "noiseq","bayseq","limma","nbpseq","absseq","dss"),multiarg=TRUE)
     checkTextArgs("metaP",metaP,c("simes","bonferroni","fisher","dperm_min",
@@ -552,32 +550,37 @@ metaseqr2 <- function(
     }
     
     # Remove biodist and volcano if no statistics or contrast
-    if ("biodist" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+    if ("biodist" %in% qcPlots && (any(is.na(statistics)) 
+        || is.null(contrast))) {
         warnwrap("The creation of a biodist diagram requires statistical ",
             "testing! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "biodist")]
     }
-    if ("volcano" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+    if ("volcano" %in% qcPlots && (any(is.na(statistics)) 
+        || is.null(contrast))) {
         warnwrap("The creation of a volcano plot requires statistical ",
             "testing! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "volcano")]
     }
-    if ("deheatmap" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+    if ("deheatmap" %in% qcPlots && (any(is.na(statistics)) 
+        || is.null(contrast))) {
         warnwrap("The creation of a deheatmap plot requires statistical ",
             "testing! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "deheatmap")]
     }
-    if ("statvenn" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+    if ("statvenn" %in% qcPlots && (any(is.na(statistics)) 
+        || is.null(contrast))) {
         warnwrap("The creation of a statvenn plot requires statistical ",
             "testing! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "statvenn")]
     }
-    if ("foldvenn" %in% qcPlots && (is.na(statistics) || is.null(contrast))) {
+    if ("foldvenn" %in% qcPlots && (any(is.na(statistics)) 
+        || is.null(contrast))) {
         warnwrap("The creation of a foldvenn plot requires statistical ",
             "testing! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "foldvenn")]
     }
-    if ("deregulogram" %in% qcPlots && (is.na(statistics) 
+    if ("deregulogram" %in% qcPlots && (any(is.na(statistics)) 
         || is.null(contrast))) {
         warnwrap("The creation of a deregulogram plot requires statistical ",
             "testing! Removing from figures list...")
@@ -591,7 +594,7 @@ metaseqr2 <- function(
     }
     # Check if drawing a Venn diagram among tests is possible
     if ("statvenn" %in% qcPlots && length(statistics)==1 
-        && !is.na(statistics)) {
+        && !any(is.na(statistics))) {
         warnwrap("The creation of a Venn diagram among different statistical ",
             "tests is possible only when more than\none statistical ",
             "algorithms are used! Removing from figures list...")
@@ -612,7 +615,7 @@ metaseqr2 <- function(
             "defined! Removing from figures list...")
         qcPlots <- qcPlots[-which(qcPlots == "deregulogram")]
     }
-    # Remove meandiff if there are more than 
+    # Remove meandiff if there are no replicates 
     if ("meandiff" %in% qcPlots & any(lengths(sampleList) < 2)) {
         warnwrap("The creation of a meandiff plot is not possible for single ",
             "replicate conditions!\nRemoving from figures list...")
@@ -799,12 +802,12 @@ metaseqr2 <- function(
                     sep=": "))
         }
     }
-    if (!is.na(statistics))
+    if (!any(is.na(statistics)))
         disp("Statistical algorithm(s): ",paste(statistics,collapse=", "))
     else
         disp("Statistical algorithm(s): no testing selected")
     if (!is.null(statArgs)) {
-        if (!is.na(statistics)) {
+        if (!any(is.na(statistics))) {
             disp("Statistical arguments: ")
             for (sa in names(statArgs)) {
                 if (length(statArgs[[sa]])==1 && is.function(statArgs[[sa]])) {
@@ -875,6 +878,14 @@ metaseqr2 <- function(
             colnames(geneData)[embedCols$btCol] <- "biotype"
         geneData <- GRanges(geneData)
         names(geneData) <- geneData$gene_id
+        
+        # Remove saturation if no biotypes
+        if ("saturation" %in% qcPlots && (is.na(embedCols$btCol) 
+            || length(unique(geneData$biotype)) == 1)) {
+            warnwrap("The creation of an saturation plots is available for ",
+                "more than one biotype!\nRemoving from figures list...")
+            qcPlots <- qcPlots[-which(qcPlots == "saturation")]
+        }
     }
     else {
         geneData <- tryCatch(loadAnnotation(org,refdb,level=transLevel,
@@ -892,6 +903,13 @@ metaseqr2 <- function(
                     stop("Please provide an existing organism or a list ",
                         "with annotation metadata and GTF file!")
             },finally="")
+        
+        # Remove saturation if no biotypes
+        if ("saturation" %in% qcPlots && length(unique(geneData$biotype))==1) {
+            warnwrap("The creation of an saturation plots is available for ",
+                "more than one biotype!\nRemoving from figures list...")
+            qcPlots <- qcPlots[-which(qcPlots == "saturation")]
+        }
     }
     
     # Now start examining additional required data per case...
@@ -926,7 +944,8 @@ metaseqr2 <- function(
 
                     ## Re-arrange columns to be in consistency with colData
                     ## used in statDeseq2
-                    exonCounts <- exonCounts[, unlist(sampleList, use.names= FALSE)]
+                    exonCounts <- exonCounts[,unlist(sampleList,
+                        use.names=FALSE),drop=FALSE]
                 }
                 else { # Already a data frame as input
                     if (is.character(counts[,1])) {
@@ -935,7 +954,8 @@ metaseqr2 <- function(
 
                         ## Re-arrange columns to be in consistency with colData
                         ## used in statDeseq2
-                        exonCounts <- exonCounts[, unlist(sampleList, use.names= FALSE)]
+                        exonCounts <- exonCounts[,unlist(sampleList,
+                            use.names=FALSE),drop=FALSE]
                     }
                     else { # Should be named!
                         if (is.null(rownames(counts)))
@@ -945,7 +965,8 @@ metaseqr2 <- function(
 
                         ## Re-arrange columns to be in consistency with colData
                         ## used in statDeseq2
-                        exonCounts <- exonCounts[, unlist(sampleList, use.names= FALSE)]
+                        exonCounts <- exonCounts[,unlist(sampleList,
+                            use.names=FALSE),drop=FALSE]
                     }
                 }
             }
@@ -1074,7 +1095,8 @@ metaseqr2 <- function(
 
                     ## Re-arrange columns to be in consistency with colData
                     ## used in statDeseq2
-                    transcriptCounts <- transcriptCounts[, unlist(sampleList, use.names= FALSE)]
+                    transcriptCounts <- transcriptCounts[,unlist(sampleList,
+                        use.names= FALSE)]
                 }
                 else { # Already a data frame as input
                     if (is.character(counts[,1])) {
@@ -1083,8 +1105,8 @@ metaseqr2 <- function(
 
                         ## Re-arrange columns to be in consistency with colData
                         ## used in statDeseq2
-                        transcriptCounts <- transcriptCounts[, unlist(sampleList, 
-                            use.names= FALSE)]
+                        transcriptCounts <- transcriptCounts[,unlist(sampleList,
+                            use.names=FALSE),drop=FALSE]
                     }
                     else { # Should be named!
                         if (is.null(rownames(counts)))
@@ -1094,8 +1116,8 @@ metaseqr2 <- function(
 
                         ## Re-arrange columns to be in consistency with colData
                         ## used in statDeseq2
-                        transcriptCounts <- transcriptCounts[, unlist(sampleList, 
-                            use.names= FALSE)]
+                        transcriptCounts <- transcriptCounts[,unlist(sampleList,
+                            use.names=FALSE),drop=FALSE]
                     }
                 }
             }
@@ -1204,7 +1226,8 @@ metaseqr2 <- function(
 
                     ## Re-arrange columns to be in consistency with colData
                     ## used in statDeseq2
-                    geneCounts <- geneCounts[, unlist(sampleList, use.names= FALSE)]
+                    geneCounts <- geneCounts[,unlist(sampleList,
+                        use.names=FALSE),drop=FALSE]
                 }
                 else { # Already a data frame as input
                     if (is.character(counts[,1])) {
@@ -1213,7 +1236,8 @@ metaseqr2 <- function(
 
                         ## Re-arrange columns to be in consistency with colData
                         ## used in statDeseq2
-                        geneCounts <- geneCounts[, unlist(sampleList, use.names= FALSE)]
+                        geneCounts <- geneCounts[,unlist(sampleList,
+                            use.names=FALSE),drop=FALSE]
                     }
                     else { # Should be named!
                         if (is.null(rownames(counts)))
@@ -1223,7 +1247,8 @@ metaseqr2 <- function(
 
                         ## Re-arrange columns to be in consistency with colData
                         ## used in statDeseq2
-                        geneCounts <- geneCounts[, unlist(sampleList, use.names= FALSE)]
+                        geneCounts <- geneCounts[,unlist(sampleList,
+                            use.names=FALSE),drop=FALSE]
                     }
                 }
             }
@@ -1693,7 +1718,7 @@ metaseqr2 <- function(
         stopwrap("No genes left after gene and/or exon filtering! Try again ",
             "with no filtering or less strict filter rules...")
 
-    if (!is.null(contrast) && !is.na(statistics)) {
+    if (!is.null(contrast) && !any(is.na(statistics))) {
         if (is.function(.progressFun)) {
             text <- paste("Statistical testing...")
             .progressFun(detail=text)
@@ -1911,7 +1936,7 @@ metaseqr2 <- function(
 
     # Calculate meta-statistics, if more than one statistical algorithm has been
     # used
-    if (!is.null(contrast) && !is.na(statistics)) {
+    if (!is.null(contrast) && !any(is.na(statistics))) {
         if (length(statistics)>1) {
             sumpList <- metaTest(
                 cpList=cpList,
@@ -2055,7 +2080,7 @@ metaseqr2 <- function(
         for (cnt in contrast) {
             disp("  Contrast: ",cnt)
             disp("    Adding non-filtered data...")
-            if (!is.na(statistics))
+            if (!any(is.na(statistics)))
                 theExport <- buildExport(
                     geneData=geneDataExpr,
                     rawGeneCounts=geneCountsExpr,
@@ -2103,7 +2128,7 @@ metaseqr2 <- function(
             colnames(export)[1] <- "chromosome"
             if (report)
                 exportHtml <- theExport$htmlTable
-            if (!is.na(statistics)) { # Ordering based on p-value
+            if (!any(is.na(statistics))) { # Ordering based on p-value
                 if (!is.na(pcut)) {
                     if (length(statistics)>1) {
                         switch(metaP,
@@ -2236,7 +2261,7 @@ metaseqr2 <- function(
             # If report requested, build a more condensed summary table, while 
             # the complete tables are available for download
             if (report) {
-                if (!is.na(statistics)) {
+                if (!any(is.na(statistics))) {
                     if (length(statistics) > 1) {
                         ew <- c("annotation","meta_p_value","adj_meta_p_value",
                             "fold_change","stats")
@@ -2262,7 +2287,7 @@ metaseqr2 <- function(
                     logOffset)
                 
                 disp("    Adding report data...")
-                if (!is.na(statistics)) {
+                if (!any(is.na(statistics))) {
                     reportTables[[cnt]] <- buildExport(
                         geneData=geneDataExpr,
                         rawGeneCounts=geneCountsExpr,

@@ -860,7 +860,7 @@ bioSaturationToJSON <- function(obj,by=c("sample","biotype"),
         for (n in samplenames) {
             depth <- round(plotdata[[n]][,1]/1e+6)
             global <- round(plotdata[[n]][,2])
-            M <- plotdata[[n]][,3:ncol(plotdata[[n]])]
+            M <- plotdata[[n]][,3:ncol(plotdata[[n]]),drop=FALSE]
             
             # To determine the separation
             ord <- sort(M[nrow(M),],decreasing=TRUE,index.return=TRUE)

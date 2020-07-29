@@ -566,7 +566,7 @@ getDefaults <- function(what,method=NULL) {
 }
 
 validateAlgArgs <- function(normalization,statistics,normArgs,statArgs) {
-    if (is.na(statistics)) # Locally fake an option as it will not be used
+    if (any(is.na(statistics))) # Locally fake an option as it will not be used
         statistics <- "deseq2"
     if (normalization=="each") {
         if (!is.null(normArgs)) {

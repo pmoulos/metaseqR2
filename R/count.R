@@ -571,10 +571,16 @@ readTargets <- function(input,path=NULL) {
     
     # Check seqlevels styles of the loaded genome for local counting use and
     # change the style of the local annotation.
-    sb <- seqlevelsStyle(b)
-    sg <- seqlevelsStyle(gr)
-    if (!any(sg %in% sb))
-        seqlevelsStyle(gr) <- sb[1]
+    # ! Does not work for non-supported organisms !
+    tryCatch({
+        sb <- seqlevelsStyle(b)
+        sg <- seqlevelsStyle(gr)
+        if (!any(sg %in% sb))
+            seqlevelsStyle(gr) <- sb[1]
+    },error=function(e) {
+        #warning("Caught error: ",e)
+        # Silence, we know the source
+    },finally="")
     
     return(gr)
 }
