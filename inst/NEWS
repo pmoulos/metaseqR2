@@ -74,3 +74,16 @@ NEW FEATURES
 BUG FIXES
 
     o Fixed undefined class/function leftovers from NOISeq integration.
+
+CHANGES IN VERSION 1.1.19 (2020-07-29)
+-------------------------------------
+
+NEW FEATURES
+
+    o None
+    
+BUG FIXES
+
+    o Fixed several problems with respect to custom GTF annotation import,
+    especially when the GTF is compliant with minor GTF standards.
+    o Fixed a few warnings resulting in errors in R>4.0.
