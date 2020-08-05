@@ -6,6 +6,7 @@
         stranded = FALSE, normTo = 1e+9, exportPath = ".",
         hubInfo = list(name = "MyHub", shortLabel = "My hub",
         longLabel = "My hub", email = "someone@example.com"),
+        fasta = NULL, gtf = NULL, forceHub = FALSE, 
         overwrite = FALSE, rc = NULL)
 }
 \arguments{
@@ -35,6 +36,21 @@
     
     \item{overwrite}{overwrite tracks if they exist? Defaults to
     \code{FALSE}.}
+    
+    \item{fasta}{reference genome in FASTA format for the case
+    of analyzing a custom, non-directly supported organism. It
+    will be converted to the .2bit format and written along with
+    a track hub.}
+    
+    \item{gtf}{a GTF file describing gene models in the case of
+    analyzing a custom, non-directly supported organism. It will
+    be converted to the .bigBed format and written along with
+    a track hub.}
+    
+    \item{forceHub}{when \code{stranded=TRUE}, a UCSC Genome
+    Browser trackhub is created, otherwise only tracklines 
+    describing individual tracks. If \code{TRUE}, a trackhub is
+    always created.}
     
     \item{rc}{Fraction of cores to use.}
 }

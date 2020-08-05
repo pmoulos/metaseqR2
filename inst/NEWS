@@ -87,3 +87,15 @@ BUG FIXES
     o Fixed several problems with respect to custom GTF annotation import,
     especially when the GTF is compliant with minor GTF standards.
     o Fixed a few warnings resulting in errors in R>4.0.
+
+CHANGES IN VERSION 1.1.21 (2020-08-05)
+-------------------------------------
+
+NEW FEATURES
+
+    o Creation of UCSC track and assembly hubs through the provision of a FASTA
+    genome and/or assembly file for a non-supported or custom organism.
+    
+BUG FIXES
+
+    o Fixed a problem with rownames when importing an existing counts table.

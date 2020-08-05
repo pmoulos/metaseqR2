@@ -65,6 +65,7 @@
         trackExportPath = file.path(exportWhere, "tracks"),
         trackInfo = list(stranded = FALSE, normTo = 1e+9, 
             urlBase = "http://www.trackserver.me",
+            fasta = NULL, gtf = NULL,
             hubInfo = list(name = "MyHub", shortLabel = "My hub",
             longLabel = "My hub long", 
             email = "someone@example.com")), .progressFun = NULL,
@@ -806,6 +807,15 @@
         \item \code{hubInfo}, a list with the track hub 
         description in case of stranded tracks. Please see the
         track hub specifications at the UCSC Genome Browser site.
+        \item \code{fasta}, reference genome in FASTA format for 
+        the case of analyzing a custom, non-directly supported 
+        organism. It will be converted to the .2bit format and 
+        written along with a track hub.
+        \item \code{gtf}, a GTF file describing gene models in 
+        the case of analyzing a custom, non-directly supported 
+        organism. It will be converted to the .bigBed format and 
+        written along with a track hub. Essentially the same as
+        \code{annotation$gtf}.
     }
     All files (bigWig files, track/trackhub info) are written in 
     the \code{tracks} subdirectory of the main path where the
