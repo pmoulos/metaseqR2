@@ -51,31 +51,12 @@ importFrom("BiocGenerics","dispTable<-")
 importFrom("BiocGenerics",sizeFactors)
 importFrom("BiocGenerics","sizeFactors<-")
 
-#importFrom("Biobase",assayData)
-#importFrom("Biobase",AnnotatedDataFrame)
-
 importFrom("BiocParallel",bpparam)
 
 importFrom("Biostrings",alphabetFrequency)
+importFrom("Biostrings",readDNAStringSet)
 
 importFrom("corrplot",corrplot)
-
-#importFrom("DESeq",adjustScvForBias)
-#importFrom("DESeq",conditions)
-#importFrom("DESeq",counts)
-#importFrom("DESeq",estimateDispersions)
-#importFrom("DESeq",estimateSizeFactors)
-#importFrom("DESeq",fitInfo)
-#importFrom("DESeq",fitNbinomGLMs)
-#importFrom("DESeq",fitNbinomGLMsForMatrix)
-#importFrom("DESeq",getBaseMeansAndVariances)
-#importFrom("DESeq",makeExampleCountDataSet)
-#importFrom("DESeq",nbinomGLMTest)
-#importFrom("DESeq",nbinomTest)
-#importFrom("DESeq",nbinomTestForMatrices)
-#importFrom("DESeq",nbkd.sf)
-#importFrom("DESeq",newCountDataSet)
-#importFrom("DESeq",sizeFactors)
 
 importFrom("DESeq2",DESeq)
 importFrom("DESeq2",DESeqDataSetFromMatrix)
@@ -167,18 +148,6 @@ importFrom("MASS",negative.binomial)
 
 importFrom("Matrix",rankMatrix)
 
-#importFrom("NOISeq",addData)
-#importFrom("NOISeq",dat)
-#importFrom("NOISeq",dat2save)
-#importFrom("NOISeq",degenes)
-#importFrom("NOISeq",DE.plot)
-#importFrom("NOISeq",explo.plot)
-#importFrom("NOISeq",noiseq)
-#importFrom("NOISeq",noiseqbio)
-#importFrom("NOISeq",readData)
-#importFrom("NOISeq",tmm)
-#importFrom("NOISeq",uqua)
-
 importFrom("pander",pandoc.header)
 
 importFrom("qvalue",qvalue)
@@ -187,9 +156,10 @@ importFrom("rmarkdown",render)
 
 importFrom("rmdformats",material)
 
+importFrom("rtracklayer",export.2bit)
+importFrom("rtracklayer",export.bw)
 importFrom("rtracklayer",import)
 importFrom("rtracklayer",import.bed)
-importFrom("rtracklayer",export.bw)
 
 importFrom("S4Vectors",DataFrame)
 importFrom("S4Vectors",Rle)

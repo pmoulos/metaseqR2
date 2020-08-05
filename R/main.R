@@ -102,6 +102,8 @@ metaseqr2 <- function(
         stranded=FALSE,
         normTo=1e+9,
         urlBase="http://www.trackserver.me",
+        fasta=NULL,
+        gtf=NULL,
         hubInfo=list(
             name="MyHub",
             shortLabel="My hub",
@@ -2580,6 +2582,7 @@ metaseqr2 <- function(
             tLink <- createSignalTracks(theList,org,stranded=trackInfo$stranded,
                 normTo=trackInfo$normTo,urlBase=trackInfo$urlBase,
                 exportPath=trackExportPath,hubInfo=trackInfo$hubInfo,
+                fasta=trackInfo$fasta,gtf=trackInfo$gtf,
                 overwrite=overwriteTracks,rc=restrictCores)
         else
             tLink <- NULL
