@@ -91,8 +91,8 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     ChIPSeq
 VignetteBuilder: knitr
 BugReports: https://github.com/pmoulos/metaseqR2/issues
-Version: 1.1.21
-Date: 2020-08-05
+Version: 1.1.22
+Date: 2020-10-06
 Collate:
     'annotation.R'
     'argcheck.R'

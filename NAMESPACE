@@ -54,6 +54,7 @@ importFrom("BiocGenerics","sizeFactors<-")
 importFrom("BiocParallel",bpparam)
 
 importFrom("Biostrings",alphabetFrequency)
+importFrom("Biostrings",uniqueLetters)
 importFrom("Biostrings",readDNAStringSet)
 
 importFrom("corrplot",corrplot)
