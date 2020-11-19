@@ -14,6 +14,13 @@
 An R package for the analysis, meta-analysis and result reporting of RNA-Seq 
 gene expression data - Next Generation!
 
+## Citation
+
+metaseqR2 along with further research regarding the abilities of the PANDORA 
+algorithm was published in [Briefings in Bioinformatics](https://academic.oup.com/bib/advance-article/doi/10.1093/bib/bbaa156/5890504). If you use metaseqR2 in your research, please cite:
+
+> Dionysios Fanidis, Panagiotis Moulos: **Integrative, normalization-insusceptible statistical analysis of RNA-Seq data, with improved differential expression and unbiased downstream functional analysis**, *Briefings in Bioinformatics*, 2020, bbaa156, DOI: [10.1093/bib/bbaa156](https://doi.org/10.1093/bib/bbaa156)
+
 ## Installation from Bioconductor
 
 ```
