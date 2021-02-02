@@ -1,12 +1,11 @@
 <!-- badges: start -->
-  [![Travis build status](https://travis-ci.org/pmoulos/metaseqR2.svg?branch=master)](https://travis-ci.org/pmoulos/metaseqR2)
-  ![GitHub](https://img.shields.io/github/license/pmoulos/metaseqR2)
-  ![GitHub repo size](https://img.shields.io/github/repo-size/pmoulos/metaseqR2)
-  ![GitHub issues](https://img.shields.io/github/issues/pmoulos/metaseqR2)
-  </br>
   ![Bioconductor build](http://www.bioconductor.org/shields/build/devel/bioc/metaseqR2.svg)
   ![Bioconductor platforms](http://www.bioconductor.org/shields/availability/3.12/metaseqR2.svg)
   ![Bioconductor dependencies](http://www.bioconductor.org/shields/dependencies/devel/metaseqR2.svg)
+  </br>
+  ![GitHub](https://img.shields.io/github/license/pmoulos/metaseqR2)
+  ![GitHub repo size](https://img.shields.io/github/repo-size/pmoulos/metaseqR2)
+  ![GitHub issues](https://img.shields.io/github/issues/pmoulos/metaseqR2)
 <!-- badges: end -->
 
 # metaseqR2

@@ -2182,22 +2182,22 @@ ucscToEnsembl <- function() {
     return(list(
         hg18=67,
         hg19=74:75,
-        hg38=76:100,
+        hg38=76:102,
         mm9=67,
-        mm10=74:100,
+        mm10=74:102,
         rn5=74:79,
-        rn6=80:100,
+        rn6=80:102,
         dm3=c(67,74:78),
         dm6=79:100,
         danrer7=c(67,74:79),
         danrer10=80:91,
-        danrer11=92:100,
+        danrer11=92:102,
         pantro4=c(67,74:90),
-        pantro5=91:100,
+        pantro5=91:102,
         #pantro6=,
         susscr3=c(67,74:89),
-        susscr11=90:100,
-        equcab2=c(67,74:100)
+        susscr11=90:102,
+        equcab2=c(67,74:102)
     ))
 }
 
@@ -3859,7 +3859,7 @@ initDatabase <- function(db) {
     if (packageVersion("GenomeInfoDb")>=1.23)
         return(GenomeInfoDb::getChromInfoFromUCSC(o))
     else
-        return(GenomeInfoDb::fetchExtendedChromInfoFromUCSC(o))
+        return(GenomeInfoDb::getChromInfoFromUCSC(o))
 }
 
 .validateEnsemblVersions <- function(o,v) {
