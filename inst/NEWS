@@ -99,3 +99,15 @@ NEW FEATURES
 BUG FIXES
 
     o Fixed a problem with rownames when importing an existing counts table.
+
+CHANGES IN VERSION 1.3.13 (2021-02-20)
+-------------------------------------
+
+NEW FEATURES
+
+    o Ability to use a different sample list with different condition names but
+    same sample set (or subset) with a previous gene model with same samples.
+    
+BUG FIXES
+
+    o None.

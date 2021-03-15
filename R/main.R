@@ -192,14 +192,21 @@ metaseqr2 <- function(
             "be a targets file\nwith at least three columns! See the ",
             "readTargets function.\ncounts may also be a gene model list ",
             "(see the documentation)")
+    sampleListPrev <- NULL
     if (!missing(counts) && !missing(sampleList) && is.character(counts) 
         && file.exists(counts) && length(grep(".RData$",counts))>0) {
-        warning("When restoring a previous analysis, sampleList argument is ",
-            "not necessary! Ignoring...",immediate.=TRUE)
+        warning("When restoring a previous analysis, if the sampleList ",
+            "argument is provided, it precedes the stored one. Also, the ",
+            "excludeList argument is ingored...",immediate.=TRUE)
         fromPrevious <- TRUE
         disp("Restoring previous analysis from ",basename(counts))
         tmpEnv <- .backwardsCompatibility(counts)
-        sampleList <- tmpEnv$sampleList
+        sampleListPrev <- tmpEnv$sampleList
+        excludeList <- NULL
+        if (is.character(sampleList) && file.exists(sampleList)) {
+            theList <- readTargets(sampleList,path=path)
+            sampleList <- theList$samples
+        }
         countType <- tmpEnv$countType
     }
     if (!missing(counts) && missing(sampleList) && is.character(counts) 
@@ -1024,7 +1031,8 @@ metaseqr2 <- function(
         }
 
         # Exclude any samples not wanted (when e.g. restoring a previous project
-        # and having determined that some samples are of bad quality
+        # and having determined that some samples are of bad quality OR using
+        # a different condition set with a subset of known samples
         if (!is.null(excludeList) && !is.na(excludeList)) {
             for (n in names(excludeList)) {
                 sampleList[[n]] <- setdiff(sampleList[[n]],
@@ -1038,6 +1046,9 @@ metaseqr2 <- function(
             theCounts <- .excludeSamplesFromList(theCounts,
                 unlist(sampleList,use.names=FALSE))
         }
+        if (!is.null(sampleListPrev) && !identical(sampleList,sampleListPrev))
+            theCounts <- .excludeSamplesFromList(theCounts,
+                unlist(sampleList,use.names=FALSE))
         
         # Apply exon filters
         if (!is.null(exonFilters)) {
@@ -1216,73 +1227,75 @@ metaseqr2 <- function(
         exonFilterResult <- NULL
     }
     
-    else if (countType=="gene") {
+    if (countType=="gene") {
         # geneData has already been loaded and also geneCounts in the case of
         # embedded annotation
-        if (!fromPrevious) {
-            # Load/read counts
-            if (!is.null(counts)  && !is.list(counts)) {
-                if (!is.data.frame(counts)) { # Else it's already here
-                    disp("Reading counts file ",countsName,"...")
-                    geneCounts <- read.delim(counts, row.names= 1)
-
-                    ## Re-arrange columns to be in consistency with colData
-                    ## used in statDeseq2
-                    geneCounts <- geneCounts[,unlist(sampleList,
-                        use.names=FALSE),drop=FALSE]
-                }
-                else { # Already a data frame as input
-                    if (is.character(counts[,1])) {
-                        geneCounts <- as.matrix(counts[,-1])
-                        rownames(geneCounts) <- as.character(counts[,1])
+        if (annotation != "embedded") {
+            if (!fromPrevious) {
+                # Load/read counts
+                if (!is.null(counts)  && !is.list(counts)) {
+                    if (!is.data.frame(counts)) { # Else it's already here
+                        disp("Reading counts file ",countsName,"...")
+                        geneCounts <- read.delim(counts,row.names=1)
 
                         ## Re-arrange columns to be in consistency with colData
                         ## used in statDeseq2
                         geneCounts <- geneCounts[,unlist(sampleList,
                             use.names=FALSE),drop=FALSE]
                     }
-                    else { # Should be named!
-                        if (is.null(rownames(counts)))
-                            stopwrap("A counts data frame as input should ",
-                                "have rownames!")
-                        geneCounts <- counts
+                    else { # Already a data frame as input
+                        if (is.character(counts[,1])) {
+                            geneCounts <- as.matrix(counts[,-1])
+                            rownames(geneCounts) <- as.character(counts[,1])
 
-                        ## Re-arrange columns to be in consistency with colData
-                        ## used in statDeseq2
-                        geneCounts <- geneCounts[,unlist(sampleList,
-                            use.names=FALSE),drop=FALSE]
+                            ## Re-arrange columns to be in consistency with 
+                            ## colData used in statDeseq2
+                            geneCounts <- geneCounts[,unlist(sampleList,
+                                use.names=FALSE),drop=FALSE]
+                        }
+                        else { # Should be named!
+                            if (is.null(rownames(counts)))
+                                stopwrap("A counts data frame as input should ",
+                                    "have rownames!")
+                            geneCounts <- counts
+
+                            ## Re-arrange columns to be in consistency with 
+                            ## colData used in statDeseq2
+                            geneCounts <- geneCounts[,unlist(sampleList,
+                                use.names=FALSE),drop=FALSE]
+                        }
+                    }
+                }
+                else { # Coming from read2count
+                    if (fromRaw) { # Double check
+                        r2c <- read2count(theList,geneData,fileType,
+                            utrOpts,rc=restrictCores)
+                        geneCounts <- r2c$counts
+                        if (is.null(libsizeList))
+                            libsizeList <- r2c$libsize
+                        if (exportCountsTable) {
+                            geneDataExp <- as.data.frame(geneData)
+                            geneDataExp <- geneDataExp[,c(1,2,3,6,7,5,8,9)]
+                            names(geneDataExp)[1] <- "chromosome"
+                            disp("Exporting raw read counts table to ",
+                                file.path(PROJECT_PATH[["lists"]],
+                                "raw_counts_table.txt.gz"))
+                            resFile <- file.path(PROJECT_PATH[["lists"]],
+                                "raw_counts_table.txt.gz")
+                            gzfh <- gzfile(resFile,"w")
+                            write.table(cbind(
+                                geneDataExp[rownames(geneCounts),],
+                                geneCounts
+                            ),gzfh,sep="\t",row.names=FALSE,quote=FALSE)
+                            close(gzfh)
+                        }
                     }
                 }
             }
-            else { # Coming from read2count
-                if (fromRaw) { # Double check
-                    r2c <- read2count(theList,geneData,fileType,
-                        utrOpts,rc=restrictCores)
-                    geneCounts <- r2c$counts
-                    if (is.null(libsizeList))
-                        libsizeList <- r2c$libsize
-                    if (exportCountsTable) {
-                        geneDataExp <- as.data.frame(geneData)
-                        geneDataExp <- geneDataExp[,c(1,2,3,6,7,5,8,9)]
-                        names(geneDataExp)[1] <- "chromosome"
-                        disp("Exporting raw read counts table to ",
-                            file.path(PROJECT_PATH[["lists"]],
-                            "raw_counts_table.txt.gz"))
-                        resFile <- file.path(PROJECT_PATH[["lists"]],
-                            "raw_counts_table.txt.gz")
-                        gzfh <- gzfile(resFile,"w")
-                        write.table(cbind(
-                            geneDataExp[rownames(geneCounts),],
-                            geneCounts
-                        ),gzfh,sep="\t",row.names=FALSE,quote=FALSE)
-                        close(gzfh)
-                    }
-                }
+            else {
+                geneCounts <- tmpEnv$geneCounts
+                geneData <- tmpEnv$geneData
             }
-        }
-        else {
-            geneCounts <- tmpEnv$geneCounts
-            geneData <- tmpEnv$geneData
         }
         
         totalGeneData <- geneData # We need this for some total stats
@@ -2272,9 +2285,14 @@ metaseqr2 <- function(
                                 function(x,a) return(p.adjust(x,a)),
                                     adjustMethod,rc=restrictCores)
                     }
-                    else
+                    else {
                         ew <- c("annotation","p_value","adj_p_value",
                             "fold_change","stats")
+                        if (is.null(adjCpList))
+                            adjCpList <- cmclapply(cpList,
+                                function(x,a) return(p.adjust(x,a)),
+                                    adjustMethod,rc=restrictCores)
+                    }
                 }
                 else
                     ew <- c("annotation","fold_change","stats")
@@ -2301,7 +2319,7 @@ metaseqr2 <- function(
                         rawList=NULL,
                         normList=normListR,
                         pMat=cpList[[cnt]],
-                        adjpMat=adjCpList[[cnt]],
+                        adjpMat=as.matrix(adjCpList[[cnt]]),
                         sumP=sumpList[[cnt]],
                         adjSumP=adjSumpList[[cnt]],
                         exportWhat=ew,
