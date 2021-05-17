@@ -1230,10 +1230,11 @@ metaseqr2 <- function(
     if (countType=="gene") {
         # geneData has already been loaded and also geneCounts in the case of
         # embedded annotation
-        if (annotation != "embedded") {
+        if (is.null(annotation) || annotation != "embedded") {
             if (!fromPrevious) {
                 # Load/read counts
-                if (!is.null(counts)  && !is.list(counts)) {
+                if (!is.null(counts) 
+                    && (is.character(counts) || is.data.frame(counts))) {
                     if (!is.data.frame(counts)) { # Else it's already here
                         disp("Reading counts file ",countsName,"...")
                         geneCounts <- read.delim(counts,row.names=1)
