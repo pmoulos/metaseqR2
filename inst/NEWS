@@ -111,3 +111,17 @@ NEW FEATURES
 BUG FIXES
 
     o None.
+
+CHANGES IN VERSION 1.5.1 (2021-06-14)
+-------------------------------------
+
+NEW FEATURES
+
+    o None.
+
+BUG FIXES
+
+    o Fix in annotation backwards compatibility.
+    o Fix bigGenePred gene annotation track generation.
+
+

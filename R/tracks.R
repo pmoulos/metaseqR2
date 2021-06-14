@@ -149,13 +149,13 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     if (hasGtf) {
         annTrack <- list(
             track=paste0(org,"_genes"),
-            type="bigBed",
+            type="bigGenePred",
             shortLabel=paste0(org," genes"),
             longLabel=paste0(org," gene models"),
             boxedCfg="on",
             color="184,0,212",
             exonArrows="on",
-            visibility="dense",
+            visibility="pack",
             group="annotation",
             bigDataUrl=paste0(urlBase,"/",org,"/",paste0(org,".bigBed"))
         )
@@ -659,7 +659,7 @@ createSignalTracks <- function(targets,org,urlBase=NULL,stranded=FALSE,
     tmpBigBed <- file.path(tempdir(),paste(format(Sys.time(),
         "%Y%m%d%H%M%S"),"bigBed",sep="."))
     message("  Converting sorted ",basename(tmpSort)," to bigBed")
-    command4 <- paste("bedToBigBed -type=bed12+8 -tab -as=",bigGenePred.as,
+    command4 <- paste(bedToBigBed," -type=bed12+8 -tab -as=",bigGenePred.as,
         " ",tmpSort," ",chromInfo," ",tmpBigBed,sep="")
     message("Executing: ",command4)
     system(command4)

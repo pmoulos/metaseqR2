@@ -594,7 +594,8 @@ readTargets <- function(input,path=NULL) {
         else {
             if (transLevel=="gene") {
                 disp("Merging exons to create unique gene models...")
-                annotationGr <- .reduceExonsOld(annotationGr)
+                tmp <- .reduceExonsOld(annotationGr)
+                annotationGr <- tmp$model
             }
             #else if (transLevel=="transcript") {
             #   disp("Merging exons to create unique gene models...")
