@@ -440,7 +440,7 @@ weights <- estimateAufcWeights(
     normalization="edaseq",
     statistics=c("edger","limma"),
     nsim=1,N=10,ndeg=c(2,2),top=4,modelOrg="mm9",
-    rc=0.1,libsizeGt=1e+5
+    rc=0.02,libsizeGt=1e+5
 )
 ```
 
