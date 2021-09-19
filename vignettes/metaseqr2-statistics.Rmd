@@ -260,7 +260,7 @@ result <- metaseqr2(
     exportValues="normalized",
     exportStats=c("mean","sd","cv"),
     exportWhere=file.path(tempdir(),"test1"),
-    restrictCores=0.1,
+    restrictCores=0.01,
     geneFilters=list(
          length=list(
                 length=500
@@ -328,7 +328,7 @@ result <- metaseqr2(
         "lengthbias","meandiff","meanvar","deheatmap","volcano",
         "mastat"
     ),
-    restrictCores=0.1,
+    restrictCores=0.01,
     figFormat=c("png","pdf"),
     preset="medium_normal",
     exportWhere=file.path(tempdir(),"test2"),
@@ -365,7 +365,7 @@ result <- metaseqr2(
         "lengthbias","meandiff","meanvar","deheatmap","volcano",
         "mastat"
     ),
-    restrictCores=0.1,
+    restrictCores=0.01,
     figFormat=c("png","pdf"),
     preset="medium_normal",
     outList=TRUE,
@@ -404,7 +404,7 @@ result <- metaseqr2(
         "lengthbias","meandiff","meanvar","deheatmap","volcano",
         "mastat"
     ),
-    restrictCores=0.1,
+    restrictCores=0.01,
     outList=TRUE,
     exportWhere=file.path(tempdir(),"test4")
 )
@@ -440,7 +440,7 @@ weights <- estimateAufcWeights(
     normalization="edaseq",
     statistics=c("edger","limma"),
     nsim=1,N=10,ndeg=c(2,2),top=4,modelOrg="mm9",
-    rc=0.02,libsizeGt=1e+5
+    rc=0.01,libsizeGt=1e+5
 )
 ```
 
