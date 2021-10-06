@@ -57,7 +57,7 @@ targets <- data.frame(samplename=c("C","T"),
 path <- tempdir()
 write.table(targets,file=file.path(path,"targets.txt"),
     sep="\t",row.names=FALSE,quote=FALSE)
-geneData <- loadAnnotation("mm9","ensembl","gene")
+geneData <- loadAnnotation("mm10","ensembl","gene")
 myTargets <- readTargets(file.path(path,"targets.txt"))
 if (.Platform$OS.type == "unix") {
     r2c <- read2count(targets=myTargets,

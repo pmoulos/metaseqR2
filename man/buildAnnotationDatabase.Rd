@@ -82,7 +82,7 @@
 # Build a test database with one genome
 myDb <- file.path(tempdir(),"testann.sqlite")
 
-organisms <- list(mm9=67)
+organisms <- list(mm10=75)
 sources <- "ensembl"
 
 # If the example is not running in a multicore system, rc is ignored
