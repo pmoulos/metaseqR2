@@ -90,7 +90,7 @@ database file you created to every metaseqr2 call you perform, otherwise, the
 pipeline will download and use annotations on-the-fly.
 
 In this vignette, we will build a minimal database comprising only the mouse
-*mm9* genome version from Ensembl. The database will be build in a temporary
+*mm10* genome version from Ensembl. The database will be build in a temporary
 directory inside session `tempdir()`.
 
 **Important note**: As the annotation build function makes use of 
@@ -113,7 +113,7 @@ dir.create(buildDir)
 myDb <- file.path(buildDir,"testann.sqlite")
 
 # Since we are using Ensembl, we can also ask for a version
-organisms <- list(mm9=67)
+organisms <- list(mm10=75)
 sources <- ifelse(.Platform$OS.type=="unix",c("ensembl","refseq"),"ensembl")
 
 # If the example is not running in a multicore system, rc is ignored
@@ -129,23 +129,23 @@ a `GRanges` object by default.
 
 ```{r example-2, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 # Load standard annotation based on gene body coordinates
-genes <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="gene",
+genes <- loadAnnotation(genome="mm10",refdb="ensembl",level="gene",type="gene",
     db=myDb)
 genes
 
 # Load standard annotation based on 3' UTR coordinates
-utrs <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="utr",
+utrs <- loadAnnotation(genome="mm10",refdb="ensembl",level="gene",type="utr",
     db=myDb)
 utrs
 
 # Load summarized exon annotation based used with RNA-Seq analysis
-sumEx <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="exon",
+sumEx <- loadAnnotation(genome="mm10",refdb="ensembl",level="gene",type="exon",
     summarized=TRUE,db=myDb)
 sumEx
 
 # Load standard annotation based on gene body coordinates from RefSeq
 if (.Platform$OS.type=="unix") {
-    refGenes <- loadAnnotation(genome="mm9",refdb="refseq",level="gene",
+    refGenes <- loadAnnotation(genome="mm10",refdb="refseq",level="gene",
         type="gene",db=myDb)
     refGenes
 }
@@ -156,7 +156,7 @@ not contain metadata like `Seqinfo` to be used for any susequent validations:
 
 ```{r example-3, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 # Load standard annotation based on gene body coordinates
-genes <- loadAnnotation(genome="mm9",refdb="ensembl",level="gene",type="gene",
+genes <- loadAnnotation(genome="mm10",refdb="ensembl",level="gene",type="gene",
     db=myDb,asdf=TRUE)
 head(genes)
 ```
