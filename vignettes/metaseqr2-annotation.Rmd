@@ -113,7 +113,7 @@ dir.create(buildDir)
 myDb <- file.path(buildDir,"testann.sqlite")
 
 # Since we are using Ensembl, we can also ask for a version
-organisms <- list(mm10=75)
+organisms <- list(mm10=100)
 sources <- ifelse(.Platform$OS.type=="unix",c("ensembl","refseq"),"ensembl")
 
 # If the example is not running in a multicore system, rc is ignored
