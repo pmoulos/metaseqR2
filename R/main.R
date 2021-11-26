@@ -1511,8 +1511,8 @@ metaseqr2 <- function(
             .progressFun(detail=text)
         }
         
-    # Apply filtering after normalization if desired (default)
-    disp("Normalizing with: ",normalization)   
+        # Apply filtering after normalization if desired (default)
+        disp("Normalizing with: ",normalization)   
         switch(normalization,
             edaseq = {
                 normGenes <- normalizeEdaseq(geneCounts,sampleList,
@@ -2330,8 +2330,12 @@ metaseqr2 <- function(
                         logOffset=logOffset,
                         report=FALSE
                     )$textTable
+                    if (is.matrix(pp))
+                        npp <- rownames(pp)
+                    else
+                        npp <- names(pp)
                     reportTables[[cnt]] <- 
-                        reportTables[[cnt]][names(pp)[order(pp)],,drop=FALSE]
+                        reportTables[[cnt]][npp[order(pp)],,drop=FALSE]
                     
                     if (!is.null(reportTop)) {
                         plasm <- pcut

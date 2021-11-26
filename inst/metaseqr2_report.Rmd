@@ -1701,7 +1701,7 @@ if (createTracks) {
         tLines <- readLines(file.path(trackExportPath,"tracks.txt"))
         tmp <- strsplit(tLines," ")
         tNames <- sapply(tmp,function(x) {
-            return(strsplit(x[6],"=")[[1]][2])
+            return(strsplit(x[3],"=")[[1]][2])
         })
         tLinks <- paste0(trackInfo$urlBase,"/",tNames,".bigWig")
         cat("You can download individual bigWig files, one for each sample,",

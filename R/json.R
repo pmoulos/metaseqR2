@@ -1312,11 +1312,12 @@ boxplotToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         outliers[[n]]$data <- list()
         m <- match(name[[n]],colnames(d))
         if (length(m)>0) {
-            for (i in m)
+            for (i in m) {
                 x <- rep(d[1,i],length(oList[[i]]))
                 names(x) <- names(oList[[i]])
                 outliers[[n]]$data <- c(outliers[[n]]$data,
                     makeHighchartsPoints(x,oList[[i]],unname(altnames)))
+            }
         }
     }
         
