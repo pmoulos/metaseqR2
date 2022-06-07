@@ -186,7 +186,10 @@ read2count <- function(targets,annotation,fileType=targets$type,
             else {
                 reads <- BamFile(sampleFiles[n],asMates=asMates)
                 libsize <- countBam(reads,
-                param=ScanBamParam(scanBamFlag(isUnmappedQuery=FALSE)))$records
+                    #param=ScanBamParam(scanBamFlag(isUnmappedQuery=FALSE))
+                    param=ScanBamParam(scanBamFlag(isUnmappedQuery=FALSE),
+                        mapqFilter=20)
+                )$records
                 isRemote <- FALSE
             }
             if (libsize>0) {
@@ -207,9 +210,12 @@ read2count <- function(targets,annotation,fileType=targets$type,
                 }
                 if (isRemote)
                     disp("    ...for remote BAM file... might take longer...")
+                pa=ScanBamParam(scanBamFlag(isUnmappedQuery=FALSE),
+                    mapqFilter=20)
                 counts <- summarizeOverlaps(annotationGr,reads,
                     singleEnd=singleEnd,fragments=fragments,
-                    ignore.strand=ignoreStrand,inter.feature=interFeature)
+                    ignore.strand=ignoreStrand,inter.feature=interFeature,
+                    param=pa)
                 counts <- assays(counts)$counts
             }
             else
