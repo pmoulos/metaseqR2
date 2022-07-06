@@ -897,8 +897,13 @@ metaseqr2 <- function(
         }
     }
     else {
+        #sitaType <- ifelse(transLevel=="gene","gene",
+        #   ifelse(transLevel=="transcript","transcript",
+        #   ifelse(transLevel=="exon","exon")))
         geneData <- tryCatch(loadAnnotation(org,refdb,level=transLevel,
             type="gene",version=version,db=localDb,rc=restrictCores),
+            #               sitadela::loadAnnotation(org,refdb,type=sitaType,
+            #version=version,db=localDb,rc=restrictCores)
             error=function(e) {
                 # Not found and user based
                 if (!is.null(annotation)) { # Has been checked
@@ -907,6 +912,8 @@ metaseqr2 <- function(
                     metadata$gtf <- NULL
                     geneData <- importCustomAnnotation(gtfFile,metadata,
                         "gene","gene")
+                    #geneData <- sitadela::importCustomAnnotation(gtfFile,metadata,
+                    #    sitaType)
                 }
                 else
                     stop("Please provide an existing organism or a list ",
@@ -928,9 +935,14 @@ metaseqr2 <- function(
         if (!fromPrevious) {
             # Load exon annotation
             disp("Loading exon annotation...")
+            #sitaType <- ifelse(transLevel=="gene","exon",
+            #   ifelse(transLevel=="transcript","transexon",
+            #   ifelse(transLevel=="exon","exon")))
             exonData <- tryCatch(loadAnnotation(org,refdb,level=transLevel,
                 type=countType,version=version,db=localDb,summarized=TRUE,
                 rc=restrictCores),
+                                #sitadela::loadAnnotation(org,refdb,type=sitaType,
+                #version=version,db=localDb,summarized=TRUE,rc=restrictCores)
             error=function(e) {
                 # Not found and user based
                 if (!is.null(annotation)) { # Has been checked
@@ -939,6 +951,8 @@ metaseqr2 <- function(
                     metadata$gtf <- NULL
                     exonData <- importCustomAnnotation(gtfFile,metadata,
                         "gene","exon")
+                    #exonData <- importCustomAnnotation(gtfFile,metadata,
+                    #    sitaType)
                 }
                 else
                     stop("Please provide an existing organism or a list ",
@@ -1084,9 +1098,16 @@ metaseqr2 <- function(
         # provided
         if (!fromPrevious) {
             disp("Loading 3' UTR annotation...")
+            #sitaType <- ifelse(transLevel=="gene","utr",
+            #   ifelse(transLevel=="transcript","transutr",
+            #   ifelse(transLevel=="exon","utr")))
             transcriptData <- tryCatch(loadAnnotation(org,refdb,
                 level=transLevel,type=countType,version=version,db=localDb,
-                summarized=TRUE,rc=restrictCores),error=function(e) {
+                summarized=TRUE,rc=restrictCores),
+                #   sitadela::loadAnnotation(org,refdb,
+                #type=sitaType,version=version,db=localDb,
+                #summarized=TRUE,rc=restrictCores)
+                error=function(e) {
                 # Not found and user based
                 if (!is.null(annotation)) { # Has been checked
                     gtfFile <- annotation$gtf
@@ -1094,6 +1115,8 @@ metaseqr2 <- function(
                     metadata$gtf <- NULL
                     transcriptData <- importCustomAnnotation(gtfFile,metadata,
                         transLevel,countType)
+                    #transcriptData <- sitadela::importCustomAnnotation(gtfFile,metadata,
+                    #    sitaType)
                 }
                 else
                     stop("Please provide an existing organism or a list with ",

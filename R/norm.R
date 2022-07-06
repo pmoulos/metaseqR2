@@ -60,7 +60,7 @@ normalizeEdaseq <- function(geneCounts,sampleList,normArgs=NULL,
             "gc",which=normArgs$within.which),which=normArgs$between.which)
     }
     if (output=="matrix")
-        return(counts(seqGenes)) # Class: matrix
+        return(normCounts(seqGenes)) # Class: matrix
     else if (output=="native")
         return(seqGenes) # Class: SeqExpressionSet
 }
