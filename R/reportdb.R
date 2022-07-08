@@ -363,6 +363,18 @@
         disp("  Importing foldvenn")
         nn <- names(contrastList)
         
+        ## Fold venn cannot be created for ANOVA-like cases, only p-values can
+        ## be used in such cases, so a failsafe
+        #tmp <- strsplit(nn,"_vs_")
+        #tmpl <- lengths(tmp)
+        #nn2 <- NULL
+        #if (any(tmpl) > 2) {
+        #   jj1 <- which(tmpl==2)
+        #   jj2 <- which(tmpl>2)
+        #   nn2 <- nn[jj2]
+        #   nn <- nn[jj1]
+        #}
+        
         # We need to construct a matrix with p-values for each contrast and
         # each statistical algorithm
         if (ncol(cpList[[1]]) > 1) {

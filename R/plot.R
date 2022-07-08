@@ -2162,7 +2162,7 @@ makeJVennFoldData <- function(pmat,fcmat=NULL,pcut=0.05,fcut=0.5,
     checkTextArgs("direction",direction,c("dereg","up","down"))
     if (is.na(pcut) || is.null(pcut) || pcut==1)
         warnwrap("Invalid pcut argument! Using the default (0.05)")
-        
+    
     conts <- colnames(pmat)
     if (is.null(conts))
         stopwrap("The p-value matrices must have the colnames attribute ",
