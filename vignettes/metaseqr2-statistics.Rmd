@@ -10,6 +10,7 @@ vignette: >
   %\VignetteIndexEntry{RNA-Seq data analysis with metaseqR2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{BiocStyle}
 ---
 
 RNA-Seq data analysis using mulitple statistical algorithms with metaseqR2

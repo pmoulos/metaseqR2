@@ -64,6 +64,7 @@ Imports:
     yaml,
     zoo
 Suggests:
+    BiocStyle,
     BiocManager,
     BSgenome,
     knitr,

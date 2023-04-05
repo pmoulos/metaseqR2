@@ -10,6 +10,7 @@ vignette: >
   %\VignetteIndexEntry{Building an annotation database for metaseqR2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{BiocStyle}
 ---
 
 Simple, flexible and reusable annotation for metaseqR2 pipeline

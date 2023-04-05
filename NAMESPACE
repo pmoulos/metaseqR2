@@ -7,7 +7,7 @@ import(graphics)
 import(lattice)
 import(limma)
 import(methods)
-import(magrittr)
+#import(magrittr)
 import(NBPSeq)
 import(parallel)
 import(Rsamtools)
@@ -145,6 +145,8 @@ importFrom("log4r",info)
 importFrom("log4r",level)
 importFrom("log4r",logfile)
 importFrom("log4r",warn)
+
+importFrom(magrittr,"%>%")
 
 importFrom("MASS",negative.binomial)
 
