@@ -211,7 +211,12 @@ if (.Platform$OS.type == "unix" && !grepl("^darwin",R.version$os)) {
     chromInfo <- chromInfo[,2,drop=FALSE]
     
     # Coversion from genePred to GTF
-    genePredToGtf <- file.path(customDir,"genePredToGtf")
+    genePredToGtfEnv <- Sys.getenv("GENEPREDTOGTF_BINARY")
+    if (genePredToGtfEnv == "") {
+        genePredToGtf <- file.path(customDir,"genePredToGtf")
+    } else {
+        genePredToGtf <- file.path(genePredToGtfEnv)
+    }
     if (!file.exists(genePredToGtf)) {
         download.file(
         "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/genePredToGtf",
