@@ -1876,8 +1876,13 @@ getUcscUtr <- function(org,refdb="ucsc") {
     # Do the conversion stuff. AS there is no easy way to check if genePredToGtf
     # exists in the system, we should download it on the fly (once for the 
     # session). If no Linux machine, then problem.
-    genePredToGtf <- file.path(tempdir(),"genePredToGtf")
-    if (!file.exists(file.path(tempdir(),"genePredToGtf"))) {
+    genePredToGtfEnv <- Sys.getenv("GENEPREDTOGTF_BINARY")
+    if (genePredToGtfEnv == "") {
+        genePredToGtf <- file.path(customDir,"genePredToGtf")
+    } else {
+        genePredToGtf <- file.path(genePredToGtfEnv)
+    }
+    if (!file.exists(genePredToGtf)) {
         message("  Retrieving genePredToGtf tool")
         download.file(
         "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/genePredToGtf",
