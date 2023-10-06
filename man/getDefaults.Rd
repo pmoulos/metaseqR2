@@ -31,8 +31,8 @@
     one of \code{"edaseq"}, \code{"deseq"}, \code{"edger"},
     \code{"noiseq"} or \code{"nbpseq"}. When \code{what} is
     \code{"statistics"}, method is one of \code{"deseq"},
-    \code{"edger"}, \code{"noiseq"}, \code{"bayseq"},
-    \code{"limma"} or \code{"nbpseq"}. When \code{method} is
+    \code{"edger"}, \code{"noiseq"}, \code{"limma"},
+    or \code{"nbpseq"}. When \code{method} is
     \code{"biotypeFilter"}, \code{what} is the input
     organism (see the main \code{\link{metaseqr2}} help page
     for a list of supported organisms).

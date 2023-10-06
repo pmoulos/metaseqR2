@@ -1110,11 +1110,11 @@
             file.path(prPath$js,"export-data.js"))
     if (!file.exists(file.path(prPath$js,"canvas2svg.js")))
         download.file(
-            "http://jvenn.toulouse.inra.fr/app/js/canvas2svg.js",
+            "http://jvenn.toulouse.inrae.fr/app/js/canvas2svg.js",
             file.path(prPath$js,"canvas2svg.js"))
     if (!file.exists(file.path(prPath$js,"jvenn.min.js")))
         download.file(
-            "http://jvenn.toulouse.inra.fr/app/js/jvenn.min.js",
+            "http://jvenn.toulouse.inrae.fr/app/js/jvenn.min.js",
             file.path(prPath$js,"jvenn.min.js"))
     if (reportDb == "sqlite") {
         if (!file.exists(file.path(prPath$js,"sql.js")))

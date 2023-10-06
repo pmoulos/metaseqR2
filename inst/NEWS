@@ -125,3 +125,13 @@ BUG FIXES
     o Fix bigGenePred gene annotation track generation.
 
 
+CHANGES IN VERSION 1.13.2 (2023-10-04)
+-------------------------------------
+
+NEW FEATURES
+
+    o None.
+
+BUG FIXES
+
+    o Removed the deprecated baySeq from PANDORA

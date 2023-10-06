@@ -57,8 +57,10 @@ metaseqr2 <- function(
     normalization=c("deseq","deseq2","edaseq","edger","noiseq","nbpseq",
         "absseq","dss","each","none"),
     normArgs=NULL,
-    statistics=c("deseq","deseq2","edger","noiseq","bayseq","limma","nbpseq",
-        "absseq","dss"),
+    #statistics=c("deseq","deseq2","edger","noiseq","bayseq","limma","nbpseq",
+    #    "absseq","dss"),
+    statistics=c("deseq","deseq2","noiseq","bayseq","limma","nbpseq","absseq",
+        "dss"),
     statArgs=NULL,
     adjustMethod=sort(c(p.adjust.methods,"qvalue")),
     metaP=if (length(statistics)>1) c("simes","bonferroni","fisher",
@@ -412,8 +414,10 @@ metaseqr2 <- function(
     checkTextArgs("normalization",normalization,c("edaseq","deseq","deseq2",
         "edger","noiseq","nbpseq","absseq","dss","each","none"),multiarg=FALSE)
     if (!any(is.na(statistics)))
+        #checkTextArgs("statistics",statistics,c("deseq","deseq2","edger",
+        #    "noiseq","bayseq","limma","nbpseq","absseq","dss"),multiarg=TRUE)
         checkTextArgs("statistics",statistics,c("deseq","deseq2","edger",
-            "noiseq","bayseq","limma","nbpseq","absseq","dss"),multiarg=TRUE)
+            "noiseq","limma","nbpseq","absseq","dss"),multiarg=TRUE)
     checkTextArgs("metaP",metaP,c("simes","bonferroni","fisher","dperm_min",
         "dperm_max","dperm_weight","fperm","whitlock","minp","maxp","weight",
         "pandora","none"),multiarg=FALSE)
@@ -460,8 +464,8 @@ metaseqr2 <- function(
         checkContrastFormat(contrast,sampleList)
         contrast <- unique(contrast)
     }
-    if ("bayseq" %in% statistics) 
-        libsizeList <- checkLibsize(libsizeList,sampleList)
+    #if ("bayseq" %in% statistics) 
+    #    libsizeList <- checkLibsize(libsizeList,sampleList)
     # Check the genomic database version argument
     if (is.character(version)) {
         version <- tolower(version)
@@ -1811,15 +1815,15 @@ metaseqr2 <- function(
                                 length(which(pList[[con]]<=pcut))," genes")
                     }
                 },
-                bayseq = {
-                    pList <- statBayseq(normGenesExpr,sampleList,contrastList,
-                        statArgs[[alg]],libsizeList)
-                    if (!is.na(pcut)) {
-                        for (con in names(contrastList))
-                            disp("  Contrast ",con,": found ",
-                                length(which(pList[[con]]<=pcut))," genes")
-                    }
-                },
+                #bayseq = {
+                #    pList <- statBayseq(normGenesExpr,sampleList,contrastList,
+                #        statArgs[[alg]],libsizeList)
+                #    if (!is.na(pcut)) {
+                #        for (con in names(contrastList))
+                #            disp("  Contrast ",con,": found ",
+                #                length(which(pList[[con]]<=pcut))," genes")
+                #    }
+                #},
                 limma = {
                     pList <- statLimma(normGenesExpr,sampleList,contrastList,
                         statArgs[[alg]])

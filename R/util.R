@@ -6,81 +6,141 @@ getWeights <- function(org=c("human","chimpanzee","mouse","fruitfly",
         "arabidopsis","rat"))
     switch(org,
         human = {
+            #return(c(
+            #    deseq=0.03077317,
+            #    deseq2=0.16791844,
+            #    edger=0.07695718,
+            #    limma=0.18600075,
+            #    nbpseq=0.03315111,
+            #    noiseq=0.05058633,
+            #    bayseq=0.15290457,
+            #    absseq=0.12843044,
+            #    dss=0.17327802
+            #))
             return(c(
-                deseq=0.03077317,
-                deseq2=0.16791844,
-                edger=0.07695718,
-                limma=0.18600075,
-                nbpseq=0.03315111,
-                noiseq=0.05058633,
-                bayseq=0.15290457,
-                absseq=0.12843044,
-                dss=0.17327802
+                deseq=0.04988624,
+                deseq2=0.18703151,
+                edger=0.09607025,
+                limma=0.20511382,
+                nbpseq=0.05226418,
+                noiseq=0.06969940,
+                absseq=0.14754351,
+                dss=0.19239109
             ))
         },
         chimpanzee = {
+            #return(c(
+            #    deseq=0.03345859,
+            #    deseq2=0.17691534,
+            #    edger=0.08214923,
+            #    limma=0.18127409,
+            #    nbpseq=0.03209271,
+            #    noiseq=0.05261594,
+            #    bayseq=0.15328300,
+            #    absseq=0.13449179,
+            #    dss=0.15371930
+            #))
             return(c(
-                deseq=0.03345859,
-                deseq2=0.17691534,
-                edger=0.08214923,
-                limma=0.18127409,
-                nbpseq=0.03209271,
-                noiseq=0.05261594,
-                bayseq=0.15328300,
-                absseq=0.13449179,
-                dss=0.15371930
+                deseq=0.05261897,
+                deseq2=0.19607572,
+                edger=0.10130960,
+                limma=0.20043447,
+                nbpseq=0.05125309,
+                noiseq=0.07177632,
+                absseq=0.15365217,
+                dss=0.17287968
             ))
         },
         mouse = {
+            #return(c(
+            #    deseq=0.02707875,
+            #    deseq2=0.16434559,
+            #    edger=0.12614496,
+            #    limma=0.17038977,
+            #    nbpseq=0.02614409,
+            #    noiseq=0.02064747,
+            #    bayseq=0.15508511,
+            #    absseq=0.14800242,
+            #    dss=0.16216184
+            #))
             return(c(
-                deseq=0.02707875,
-                deseq2=0.16434559,
-                edger=0.12614496,
-                limma=0.17038977,
-                nbpseq=0.02614409,
-                noiseq=0.02064747,
-                bayseq=0.15508511,
-                absseq=0.14800242,
-                dss=0.16216184
+                deseq=0.04646439,
+                deseq2=0.18373123,
+                edger=0.14553060,
+                limma=0.18977541,
+                nbpseq=0.04552973,
+                noiseq=0.04003311,
+                absseq=0.16738806,
+                dss=0.18154748
             ))
         },
         fruitfly = {
+            #return(c(
+            #    deseq=0.006526282,
+            #    deseq2=0.172079991,
+            #    edger=0.064114940,
+            #    limma=0.193692581,
+            #    nbpseq=0.005907387,
+            #    noiseq=0.019310076,
+            #    bayseq=0.177483603,
+            #    absseq=0.166022212,
+            #    dss=0.194862929
+            #))
             return(c(
-                deseq=0.006526282,
-                deseq2=0.172079991,
-                edger=0.064114940,
-                limma=0.193692581,
-                nbpseq=0.005907387,
-                noiseq=0.019310076,
-                bayseq=0.177483603,
-                absseq=0.166022212,
-                dss=0.194862929
+                deseq=0.02871173,
+                deseq2=0.19426544,
+                edger=0.08630039,
+                limma=0.21587803,
+                nbpseq=0.02809284,
+                noiseq=0.04149553,
+                absseq=0.18820766,
+                dss=0.21704838
             ))
         },
         arabidopsis = {
+            #return(c(
+            #    deseq=0.02745255,
+            #    deseq2=0.18604304,
+            #    edger=0.05530561,
+            #    limma=0.20806899,
+            #    nbpseq=0.02567801,
+            #    noiseq=0.04377844,
+            #    bayseq=0.16104719,
+            #    absseq=0.09621622,
+            #    dss=0.19640995
+            #))
             return(c(
-                deseq=0.02745255,
-                deseq2=0.18604304,
-                edger=0.05530561,
-                limma=0.20806899,
-                nbpseq=0.02567801,
-                noiseq=0.04377844,
-                bayseq=0.16104719,
-                absseq=0.09621622,
-                dss=0.19640995
+                deseq=0.04758345,
+                deseq2=0.20617394,
+                edger=0.07543651,
+                limma=0.22819989,
+                nbpseq=0.04580891,
+                noiseq=0.06390934,
+                absseq=0.11634712,
+                dss=0.21654085
             ))
         },
         rat = {
+            #return(c(
+            #    deseq=0.03409202,
+            #    deseq2=0.15203180,
+            #    edger=0.14542665,
+            #    limma=0.15327172,
+            #    nbpseq=0.03501810,
+            #    noiseq=0.01954866,
+            #    bayseq=0.15587551,
+            #    absseq=0.15289613,
+            #    dss=0.15183941
+            #))
             return(c(
-                deseq=0.03409202,
-                deseq2=0.15203180,
-                edger=0.14542665,
-                limma=0.15327172,
-                nbpseq=0.03501810,
-                noiseq=0.01954866,
-                bayseq=0.15587551,
-                absseq=0.15289613,
-                dss=0.15183941
+                deseq=0.05357646,
+                deseq2=0.17151624,
+                edger=0.16491109,
+                limma=0.17275616,
+                nbpseq=0.05450254,
+                noiseq=0.03903310,
+                absseq=0.17238057,
+                dss=0.17132385
             ))
         }
     )
@@ -199,14 +259,14 @@ getDefaults <- function(what,method=NULL) {
                         
                     ))
                 },
-                bayseq = {
-                    return(list(samplesize=10000,samplingSubset=NULL,
-                        equalDispersions=TRUE,estimation="QL",zeroML=FALSE,
-                        consensus=FALSE,moderate=TRUE,pET="BIC",
-                        marginalise=FALSE,subset=NULL,priorSubset=NULL,
-                        bootStraps=1,conv=1e-4,nullData=FALSE,returnAll=FALSE,
-                        returnPD=FALSE,discardSampling=FALSE,cl=NULL))
-                },
+                #bayseq = {
+                #    return(list(samplesize=10000,samplingSubset=NULL,
+                #        equalDispersions=TRUE,estimation="QL",zeroML=FALSE,
+                #        consensus=FALSE,moderate=TRUE,pET="BIC",
+                #        marginalise=FALSE,subset=NULL,priorSubset=NULL,
+                #        bootStraps=1,conv=1e-4,nullData=FALSE,returnAll=FALSE,
+                #        returnPD=FALSE,discardSampling=FALSE,cl=NULL))
+                #},
                 limma = {
                     return(list(normalize.method="none"))
                 },
@@ -616,14 +676,14 @@ validateAlgArgs <- function(normalization,statistics,normArgs,statArgs) {
                             if (length(tmp)>0)
                                 normArgs[[s]] <- setArg(normArgs[[s]],tmp)
                         },
-                        bayseq = {
-                            tmp <- normArgs[[s]]
-                            tmp <- validateListArgs("statistics","edger",tmp)
-                            normArgs[[s]] <- getDefaults("normalization",
-                                "edger")
-                            if (length(tmp)>0)
-                                normArgs[[s]] <- setArg(normArgs[[s]],tmp)
-                        },
+                        #bayseq = {
+                        #    tmp <- normArgs[[s]]
+                        #    tmp <- validateListArgs("statistics","edger",tmp)
+                        #    normArgs[[s]] <- getDefaults("normalization",
+                        #        "edger")
+                        #    if (length(tmp)>0)
+                        #        normArgs[[s]] <- setArg(normArgs[[s]],tmp)
+                        #},
                         absseq = {
                             #the arguments' list passed by the user
                             tmp <- normArgs[[s]]
@@ -672,10 +732,10 @@ validateAlgArgs <- function(normalization,statistics,normArgs,statArgs) {
                             normArgs[[s]] <- getDefaults(normalization,
                                 "noiseq")
                         },
-                        bayseq = {
-                            normArgs[[s]] <- getDefaults(normalization,
-                                "edger")
-                        },    
+                        #bayseq = {
+                        #    normArgs[[s]] <- getDefaults(normalization,
+                        #        "edger")
+                        #},    
                         absseq = {
                             normArgs[[s]] <- getDefaults(normalization,
                                 "absseq")
@@ -710,9 +770,9 @@ validateAlgArgs <- function(normalization,statistics,normArgs,statArgs) {
                     noiseq = {
                         normArgs[[s]] <- getDefaults(normalization,"noiseq")
                     },
-                    bayseq = {
-                        normArgs[[s]] <- getDefaults(normalization,"edger")
-                    },
+                    #bayseq = {
+                    #    normArgs[[s]] <- getDefaults(normalization,"edger")
+                    #},
                     absseq = {
                         normArgs[[s]] <- getDefaults(normalization,"absseq")
                     },   
@@ -838,14 +898,14 @@ validateListArgs <- function(what,method=NULL,argList) {
                         "adj","a0per","filter","depth","cv.cutoff","cpm")
                     not.valid <- which(!valid)
                 },
-                bayseq = {
-                    valid <- names(argList) %in% c("samplesize",
-                        "samplingSubset","equalDispersions","estimation",
-                        "zeroML","consensus","moderate","pET","marginalise",
-                        "subset","priorSubset","bootStraps","conv","nullData",
-                        "returnAll","returnPD","discardSampling","cl")
-                    not.valid <- which(!valid)
-                },
+                #bayseq = {
+                #    valid <- names(argList) %in% c("samplesize",
+                #        "samplingSubset","equalDispersions","estimation",
+                #        "zeroML","consensus","moderate","pET","marginalise",
+                #        "subset","priorSubset","bootStraps","conv","nullData",
+                #        "returnAll","returnPD","discardSampling","cl")
+                #    not.valid <- which(!valid)
+                #},
                 limma = {
                     valid <- names(argList) %in% c("normalize.method")
                     not.valid <- which(!valid)
@@ -2015,7 +2075,7 @@ makeReportMessages <- function(lang) {
                     deseq2="DESeq2",
                     edger="edgeR",
                     noiseq="NOISeq",
-                    bayseq="baySeq",
+                    #bayseq="baySeq",
                     limma="limma",
                     nbpseq="NBPSeq",
                     absseq="ABSSeq",
@@ -2628,10 +2688,10 @@ makeReportMessages <- function(lang) {
                             "Computational Biology Solutions using R and",
                             "Bioconductor, G. R., C. V., D. S., I. R., and",
                             "H. W., eds. (New York, Springer), pp. 397-420."),
-                        bayseq=paste("Hardcastle, T.J., and Kelly, K.A.",
-                            "(2010). baySeq: empirical Bayesian methods for",
-                            "identifying differential expression in sequence",
-                            "count data. BMC Bioinformatics 11, 422."),
+                        #bayseq=paste("Hardcastle, T.J., and Kelly, K.A.",
+                        #    "(2010). baySeq: empirical Bayesian methods for",
+                        #    "identifying differential expression in sequence",
+                        #    "count data. BMC Bioinformatics 11, 422."),
                         nbpseq=paste("Di, Y, Schafer, D., Cumbie, J.S., and",
                             "Chang, J.H. (2011). The NBP Negative Binomial",
                             "Model for Assessing Differential Gene Expression",

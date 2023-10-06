@@ -3314,7 +3314,7 @@ dereguloToJSON <- function(obj,jl=c("highcharts"),out=c("json","list")) {
         limma="voom",
         nbpseq="NBPSeq",
         noiseq="NOISeq",
-        bayseq="baySeq",
+        #bayseq="baySeq",
         absseq="ABSSeq",
         dss="DSS"
     ))

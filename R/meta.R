@@ -228,10 +228,10 @@ metaWorker <- function(x,co,sl,cnt,s,r,sa,ll,el,w) {
                 pList <- suppressMessages(statNoiseq(pl$counts,pl$sampleList,
                     tcl,sa[[alg]]))
             },
-            bayseq = {
-                pList <- suppressMessages(statBayseq(pl$counts,pl$sampleList,
-                    tcl,sa[[alg]],ll))
-            },
+            #bayseq = {
+            #    pList <- suppressMessages(statBayseq(pl$counts,pl$sampleList,
+            #        tcl,sa[[alg]],ll))
+            #},
             limma = {
                 pList <- suppressMessages(statLimma(pl$counts,pl$sampleList,
                     tcl,sa[[alg]]))

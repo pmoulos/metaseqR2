@@ -28,7 +28,7 @@
             "noiseq", "nbpseq", "absseq", "dss", "each", "none"),
         normArgs = NULL,
         statistics = c("deseq", "deseq2", "edger", "noiseq", 
-            "bayseq", "limma", "nbpseq", "absseq", "dss"),
+            "limma", "nbpseq", "absseq", "dss"),
         statArgs = NULL,
         adjustMethod = sort(c(p.adjust.methods, "qvalue")),
         metaP = if (length(statistics) > 1) c("simes", 
@@ -208,19 +208,18 @@
     package, \code{"limma"} to conduct the RNA-Seq version of
     statistical test(s) implemented in the limma package,
     \code{"noiseq"} to conduct statistical test(s)
-    implemented in the NOISeq package, \code{"bayseq"} to
-    conduct statistical test(s) implemented in the baySeq
-    package, \code{"nbpseq"} to conduct statistical test(s)
-    implemented in the NBPSeq package, \code{"deseq2"} to 
-    conduct statistical test(s) implemented in the DESeq2 
-    package, \code{"dss"} to conduct statistical test(s) 
-    implemented in the DSS package and \code{"absseq"} to 
-    conduct statistical test(s) implemented in the ABSSeq 
-    package. In any case individual algorithm parameters are 
-    controlled by the contents of the \code{statArgs} list.
-    Finally, it can be \code{NA}. In this case no testing
-    is performed and only fold changes are provided if
-    \code{contrast} is not \code{NULL}.}
+    implemented in the NOISeq package, \code{"nbpseq"} to 
+    conduct statistical test(s) implemented in the NBPSeq 
+    package, \code{"deseq2"} to conduct statistical test(s)
+    implemented in the DESeq2 package, \code{"dss"} to 
+    conduct statistical test(s) implemented in the DSS
+    package and \code{"absseq"} to conduct statistical 
+    test(s) implemented in the ABSSeq package. In any case 
+    individual algorithm parameters are controlled by the 
+    contents of the \code{statArgs} list. Finally, it can 
+    be \code{NA}. In this case no testing is performed and 
+    only fold changes are provided if \code{contrast} is 
+    not \code{NULL}.}
 
     \item{statArgs}{a named list whose names are the names
     of the statistical algorithms used in the pipeline. Each
@@ -459,18 +458,17 @@
     of currently widely used algorithms, including DESeq
     (Anders and Huber, 2010), edgeR (Robinson et al., 2010),
     NOISeq (Tarazona et al., 2012), limma (Smyth et al.,
-    2005) for RNA-Seq data, baySeq (Hardcastle et al., 2012)
-    vi) in the case of multiple statistical testing
-    algorithms, performs meta-analysis using one of five
-    available methods (see the meta.p argument) vii) exports
-    the resulting differentially expressed gene list in text
-    tab-delimited format viii) creates a set of diagnostic
-    plots either available in the aforementioned packages or
-    metaseqr2 specific ones and ix) creates a comprehensive
-    HTML report which summarizes the run information, the
-    results and the diagnostic plots. Certain diagnostic
-    plots (e.g. the volcano plot) can be interactive with the
-    use of the external Highcharts
+    2005) for RNA-Seq data vi) in the case of multiple 
+    statistical testing algorithms, performs meta-analysis 
+    using one of six vailable methods (see the meta.p argument) 
+    vii) exports the resulting differentially expressed gene 
+    list in text tab-delimited format viii) creates a set of 
+    diagnostic plots either available in the aforementioned 
+    packages or metaseqr2 specific ones and ix) creates a 
+    comprehensive HTML report which summarizes the run 
+    information, the results and the diagnostic plots. Certain 
+    diagnostic plots (e.g. the volcano plot) can be interactive 
+    with the use of the external Highcharts
     (http://www.highcharts.com) JavaScript library for
     interactive graphs. Although the inputs to the metaseqr2
     workflow are many, in practice, setting only very few of
@@ -1033,7 +1031,7 @@
     statistical algorithm. Again, the names of the member
     lists are parameter names and the values of the member
     lists are parameter values. You should check the
-    documentations of DESeq, edgeR, NOISeq, baySeq, limma and
+    documentations of DESeq, edgeR, NOISeq, limma and
     NBPSeq for these parameters. There are a few exceptions
     in parameter names: In case of \code{statistics="edger"},
     apart from the rest of the edgeR statistical testing

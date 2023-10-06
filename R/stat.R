@@ -736,92 +736,92 @@ statNoiseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     return(p)
 }
 
-statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
-    libsizeList=NULL) {
-    if (is.null(statArgs))
-        statArgs <- getDefaults("statistics","bayseq")
-    if (is.null(contrastList))
-        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
-            collapse="_vs_"),sampleList)
-    if (!is.list(contrastList))
-        contrastList <- makeContrastList(contrastList,sampleList)
-    classes <- asClassVector(sampleList)
-    p <- vector("list",length(contrastList))
-    names(p) <- names(contrastList)
-    switch(class(object)[1],
-        .CountDataSet = { # Has been normalized with DESeq
-            #bayesData <- DESeq::counts(object,normalized=TRUE)
-            bayesData <- counts(object,normalized=TRUE)
-        },
-        DESeqDataSet = { # Has been normalized with DESeq2
-            bayesData <- DESeq2::counts(object,normalized=TRUE)
-        },  
-        DGEList = { # Has been normalized with edgeR
-            scl <- object$samples$lib.size * object$samples$norm.factors
-            bayesData <- round(t(t(object$counts)/scl)*mean(scl))
-        },
-        matrix = { # Has been normalized with EDASeq or NOISeq or ABSSeq
-            bayesData <- object
-        },
-        nbData = {
-            bayesData <- as.matrix(round(sweep(object$counts,2,
-                object$norm.factors,"*")))
-        },
-        nbp = {
-            bayesData <- as.matrix(round(object$pseudo.counts))
-        },
-        ABSDataSet = {
-            bayesData <- as.matrix(round(excounts(object)))
-        },
-        SeqCountSet = { # Again the same trick I did back in NOISeq
-            theDesign <- data.frame(condition=classes,
-                row.names=colnames(object))
-            cds <- newCountDataSet(as.matrix(round(assayData(object)$exprs)),
-                theDesign$condition)
-            #DESeq::sizeFactors(cds) <- normalizationFactor(object)
-            sizeFactors(cds) <- normalizationFactor(object)
-            #bayesData <- as.matrix(DESeq::counts(cds,normalized=TRUE))
-            bayesData <- as.matrix(counts(cds,normalized=TRUE))
-        }
-    )
-    CD <- new("countData",data=bayesData,replicates=classes)
-    CD@annotation <- data.frame(name=rownames(bayesData))
-    if (is.null(libsizeList))
-        baySeq::libsizes(CD) <- baySeq::getLibsizes(CD)
-    else
-        baySeq::libsizes(CD) <- unlist(libsizeList)
-    for (conName in names(contrastList)) {
-        disp("  Contrast: ", conName)
-        con <- contrastList[[conName]]
-        #cd <- CD[,names(unlist(con))]
-        cd <- CD[,match(names(unlist(con)),colnames(CD@data))]
-        if (length(con)==2)
-            baySeq::groups(cd) <- list(NDE=rep(1,length(unlist(con))),
-                DE=c(rep(1,length(con[[1]])),rep(2,length(con[[2]]))))
-        else
-            baySeq::groups(cd) <- list(NDE=rep(1,length(unlist(con))),
-                DE=unlist(con,use.names=FALSE)) # Maybe this will not work
-        baySeq::replicates(cd) <- as.factor(classes[names(unlist(con))])
-        cd <- baySeq::getPriors.NB(cd,samplesize=statArgs$samplesize,
-            samplingSubset=statArgs$samplingSubset,
-            equalDispersions=statArgs$equalDispersions,
-            estimation=statArgs$estimation,zeroML=statArgs$zeroML,
-            consensus=statArgs$consensus,cl=statArgs$cl)
-        cd <- baySeq::getLikelihoods(cd,pET=statArgs$pET,
-            marginalise=statArgs$marginalise,subset=statArgs$subset,
-            priorSubset=statArgs$priorSubset,bootStraps=statArgs$bootStraps,
-            conv=statArgs$conv,nullData=statArgs$nullData,
-            returnAll=statArgs$returnAll,returnPD=statArgs$returnPD,
-            discardSampling=statArgs$discardSampling,cl=statArgs$cl)
-        tmp <- baySeq::topCounts(cd,group="DE",number=nrow(cd))
-        #p[[conName]] <- 1 - as.numeric(tmp[,"Likelihood"])
-        p[[conName]] <- 1 - as.numeric(tmp[,"likes"])
-        names(p[[conName]]) <- as.character(tmp$name)
-        p[[conName]] <- p[[conName]][rownames(CD@data)]
-        p[[conName]][which(is.na(p[[conName]]))] <- 1
-    }
-    return(p)
-}
+#statBayseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
+#    libsizeList=NULL) {
+#    if (is.null(statArgs))
+#        statArgs <- getDefaults("statistics","bayseq")
+#    if (is.null(contrastList))
+#        contrastList <- makeContrastList(paste(names(sampleList)[c(1,2)],
+#            collapse="_vs_"),sampleList)
+#    if (!is.list(contrastList))
+#        contrastList <- makeContrastList(contrastList,sampleList)
+#    classes <- asClassVector(sampleList)
+#    p <- vector("list",length(contrastList))
+#    names(p) <- names(contrastList)
+#    switch(class(object)[1],
+#        .CountDataSet = { # Has been normalized with DESeq
+#            #bayesData <- DESeq::counts(object,normalized=TRUE)
+#            bayesData <- counts(object,normalized=TRUE)
+#        },
+#        DESeqDataSet = { # Has been normalized with DESeq2
+#            bayesData <- DESeq2::counts(object,normalized=TRUE)
+#        },  
+#        DGEList = { # Has been normalized with edgeR
+#            scl <- object$samples$lib.size * object$samples$norm.factors
+#            bayesData <- round(t(t(object$counts)/scl)*mean(scl))
+#        },
+#        matrix = { # Has been normalized with EDASeq or NOISeq or ABSSeq
+#            bayesData <- object
+#        },
+#        nbData = {
+#            bayesData <- as.matrix(round(sweep(object$counts,2,
+#                object$norm.factors,"*")))
+#        },
+#        nbp = {
+#            bayesData <- as.matrix(round(object$pseudo.counts))
+#        },
+#        ABSDataSet = {
+#            bayesData <- as.matrix(round(excounts(object)))
+#        },
+#        SeqCountSet = { # Again the same trick I did back in NOISeq
+#            theDesign <- data.frame(condition=classes,
+#                row.names=colnames(object))
+#            cds <- newCountDataSet(as.matrix(round(assayData(object)$exprs)),
+#                theDesign$condition)
+#            #DESeq::sizeFactors(cds) <- normalizationFactor(object)
+#            sizeFactors(cds) <- normalizationFactor(object)
+#            #bayesData <- as.matrix(DESeq::counts(cds,normalized=TRUE))
+#            bayesData <- as.matrix(counts(cds,normalized=TRUE))
+#        }
+#    )
+#    CD <- new("countData",data=bayesData,replicates=classes)
+#    CD@annotation <- data.frame(name=rownames(bayesData))
+#    if (is.null(libsizeList))
+#        baySeq::libsizes(CD) <- baySeq::getLibsizes(CD)
+#    else
+#        baySeq::libsizes(CD) <- unlist(libsizeList)
+#    for (conName in names(contrastList)) {
+#        disp("  Contrast: ", conName)
+#        con <- contrastList[[conName]]
+#        #cd <- CD[,names(unlist(con))]
+#        cd <- CD[,match(names(unlist(con)),colnames(CD@data))]
+#        if (length(con)==2)
+#            baySeq::groups(cd) <- list(NDE=rep(1,length(unlist(con))),
+#                DE=c(rep(1,length(con[[1]])),rep(2,length(con[[2]]))))
+#        else
+#            baySeq::groups(cd) <- list(NDE=rep(1,length(unlist(con))),
+#                DE=unlist(con,use.names=FALSE)) # Maybe this will not work
+#        baySeq::replicates(cd) <- as.factor(classes[names(unlist(con))])
+#        cd <- baySeq::getPriors.NB(cd,samplesize=statArgs$samplesize,
+#            samplingSubset=statArgs$samplingSubset,
+#            equalDispersions=statArgs$equalDispersions,
+#            estimation=statArgs$estimation,zeroML=statArgs$zeroML,
+#            consensus=statArgs$consensus,cl=statArgs$cl)
+#        cd <- baySeq::getLikelihoods(cd,pET=statArgs$pET,
+#            marginalise=statArgs$marginalise,subset=statArgs$subset,
+#            priorSubset=statArgs$priorSubset,bootStraps=statArgs$bootStraps,
+#            conv=statArgs$conv,nullData=statArgs$nullData,
+#            returnAll=statArgs$returnAll,returnPD=statArgs$returnPD,
+#            discardSampling=statArgs$discardSampling,cl=statArgs$cl)
+#        tmp <- baySeq::topCounts(cd,group="DE",number=nrow(cd))
+#        #p[[conName]] <- 1 - as.numeric(tmp[,"Likelihood"])
+#        p[[conName]] <- 1 - as.numeric(tmp[,"likes"])
+#        names(p[[conName]]) <- as.character(tmp$name)
+#        p[[conName]] <- p[[conName]][rownames(CD@data)]
+#        p[[conName]][which(is.na(p[[conName]]))] <- 1
+#    }
+#    return(p)
+#}
 
 statNbpseq <- function(object,sampleList,contrastList=NULL,statArgs=NULL,
     libsizeList=NULL) {

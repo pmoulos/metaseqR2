@@ -701,7 +701,6 @@ the package requires this list to be populated also here. Therefore, metaseqR2
 would benefit from the existence of all the following packages:
 
  * ABSSeq
- * baySeq
  * Biobase
  * BiocGenerics
  * BiocManager

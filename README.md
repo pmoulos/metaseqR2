@@ -105,7 +105,6 @@ Alternatively, on-the-fly download is still supported but is inneficient.
 metaseqR2 would benefit from the existence of all the following packages:
 
 * ABSSeq
-* baySeq
 * Biobase
 * BiocGenerics
 * BiocManager
