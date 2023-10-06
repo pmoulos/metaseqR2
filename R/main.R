@@ -59,7 +59,7 @@ metaseqr2 <- function(
     normArgs=NULL,
     #statistics=c("deseq","deseq2","edger","noiseq","bayseq","limma","nbpseq",
     #    "absseq","dss"),
-    statistics=c("deseq","deseq2","noiseq","bayseq","limma","nbpseq","absseq",
+    statistics=c("deseq","deseq2","edger","noiseq","limma","nbpseq","absseq",
         "dss"),
     statArgs=NULL,
     adjustMethod=sort(c(p.adjust.methods,"qvalue")),
