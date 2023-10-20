@@ -904,8 +904,10 @@ metaseqr2 <- function(
         #sitaType <- ifelse(transLevel=="gene","gene",
         #   ifelse(transLevel=="transcript","transcript",
         #   ifelse(transLevel=="exon","exon")))
+        summarized <- ifelse(transLevel %in% c("exon","transcript"),TRUE,FALSE)
         geneData <- tryCatch(loadAnnotation(org,refdb,level=transLevel,
-            type="gene",version=version,db=localDb,rc=restrictCores),
+            type="gene",version=version,summarized=summarized,db=localDb,
+            rc=restrictCores),
             #               sitadela::loadAnnotation(org,refdb,type=sitaType,
             #version=version,db=localDb,rc=restrictCores)
             error=function(e) {
@@ -999,8 +1001,8 @@ metaseqr2 <- function(
             }
             else { # Coming from read2count
                 if (fromRaw) { # Double check
-                    r2c <- read2count(theList,exonData,fileType,utrOpts,
-                        rc=restrictCores)
+                    r2c <- read2count(theList,exonData,fileType,transLevel,
+                        utrOpts,rc=restrictCores)
                     exonCounts <- r2c$counts
                     # Merged exon data! - Not needed anymore
                     #exonData <- r2c$mergedann
@@ -1296,7 +1298,7 @@ metaseqr2 <- function(
                 }
                 else { # Coming from read2count
                     if (fromRaw) { # Double check
-                        r2c <- read2count(theList,geneData,fileType,
+                        r2c <- read2count(theList,geneData,fileType,transLevel,
                             utrOpts,rc=restrictCores)
                         geneCounts <- r2c$counts
                         if (is.null(libsizeList))
@@ -1329,7 +1331,12 @@ metaseqr2 <- function(
         totalGeneData <- geneData # We need this for some total stats
         exonFilterResult <- NULL
 
-        gValid <- intersect(rownames(geneCounts), geneData$gene_id)
+        if (transLevel == "gene")
+            gValid <- intersect(rownames(geneCounts),geneData$gene_id)
+        else if (transLevel == "transcript")
+            gValid <- intersect(rownames(geneCounts),geneData$transcript_id)
+        else if (transLevel == "exon")
+            gValid <- intersect(rownames(geneCounts),geneData$exon_id)
         geneCounts <- geneCounts[gValid,]
 
         geneData <- geneData[rownames(geneCounts)]

@@ -33,8 +33,9 @@ read2count <- function(targets,annotation,fileType=targets$type,
         annotationGr <- annotation
     
     # Determine internal count type
-    if (length(grep("MET",annotation$transcript_id[1])) > 0
+    if ((length(grep("MET",annotation$transcript_id[1])) > 0
         || length(grep("MEU",annotation$transcript_id[1])) > 0)
+        && transLevel!="transcript")
         countType <- "utr"
     else if (length(grep("MEX",annotation$exon_id[1])) > 0
         || length(grep("MTE",annotation$exon_id[1])) > 0)
