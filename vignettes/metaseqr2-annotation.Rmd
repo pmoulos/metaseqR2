@@ -352,23 +352,23 @@ like (supposing the default annotation database location):
 
 ```{r example-7, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 organisms <- list(
-    hg18=67,
+    hg18=54,
     hg19=75,
-    hg38=97:98,
-    mm9=67,
-    mm10=97:98,
-    rn5=79,
-    rn6=97:98,
-    dm3=78,
-    dm6=97:98,
-    danrer7=79,
-    danrer10=91,
-    danrer11=97:98,
-    pantro4=90,
-    pantro5=97:98,
-    susscr3=89,
-    susscr11=97:98,
-    equcab2=97:98
+    hg38=110:111,
+    mm9=54,
+    mm10=110:111,
+    rn5=77,
+    rn6=110:111,
+    dm3=77,
+    dm6=110:111,
+    danrer7=77,
+    danrer10=80,
+    danrer11=110:111,
+    pantro4=80,
+    pantro5=110:111,
+    susscr3=80,
+    susscr11=110:111,
+    equcab2=110:111
 )
 
 sources <- c("ensembl","ucsc","refseq")
