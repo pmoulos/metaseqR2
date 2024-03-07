@@ -135,3 +135,14 @@ NEW FEATURES
 BUG FIXES
 
     o Removed the deprecated baySeq from PANDORA
+
+CHANGES IN VERSION 1.15.1 (2024-03-07)
+-------------------------------------
+
+NEW FEATURES
+
+    o None.
+
+BUG FIXES
+
+    o Fixed supported Ensembl annotation versions

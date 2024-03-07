@@ -1985,7 +1985,7 @@ getSeqInfo <- function(org,asSeqinfo=FALSE) {
     sf <- sf[getValidChrs(org),]
     if (asSeqinfo)
         return(Seqinfo(seqnames=sf[,1],seqlengths=sf[,2],
-            isCircular=sf[,3],genome=getUcscOrganism(org)))
+            isCircular=sf[,"circular"],genome=getUcscOrganism(org)))
     else
         return(data.frame(chromosome=sf[,1],length=as.integer(sf[,2])))
 }
@@ -2185,48 +2185,48 @@ checkUcscToEnsembl <- function(org,ver) {
 
 ucscToEnsembl <- function() {
     return(list(
-        hg18=67,
-        hg19=74:75,
-        hg38=76:102,
-        mm9=67,
-        mm10=74:102,
-        rn5=74:79,
-        rn6=80:102,
-        dm3=c(67,74:78),
-        dm6=79:100,
-        danrer7=c(67,74:79),
-        danrer10=80:91,
-        danrer11=92:102,
-        pantro4=c(67,74:90),
-        pantro5=91:102,
+        hg18=54,
+        hg19=75,
+        hg38=95:111,
+        mm9=54,
+        mm10=95:111,
+        rn5=77,
+        rn6=c(80,95:111),
+        dm3=c(75,77),
+        dm6=c(80,95:111),
+        danrer7=c(75,77),
+        danrer10=80,
+        danrer11=95:111,
+        pantro4=c(75,77,80),
+        pantro5=95:111,
         #pantro6=,
-        susscr3=c(67,74:89),
-        susscr11=90:102,
-        equcab2=c(67,74:102)
+        susscr3=c(75,77,80),
+        susscr11=95:111,
+        equcab2=c(75,77,95:111)
     ))
 }
 
-getAltHost <- function(org) {
-    .Deprecated("getHost")
-    switch(org,
-        hg18 = { return("may2009.archive.ensembl.org") },
-        hg19 = { return("grch37.ensembl.org") },
-        hg38 = { return("uswest.ensembl.org") },
-        mm9 = { return("may2012.archive.ensembl.org") },
-        mm10 = { return("uswest.ensembl.org") },
-        rn5 = { return("uswest.ensembl.org") },
-        dm3 = { return("uswest.ensembl.org") },
-        dm6 = { return("uswest.ensembl.org") },
-        danrer7 = { return("uswest.ensembl.org") },
-        danrer10 = { return("uswest.ensembl.org") },
-        danrer11 = { return("uswest.ensembl.org") },
-        pantro4 = { return("uswest.ensembl.org") },
-        pantro5 = { return("uswest.ensembl.org") },
-        #pantro6 = { return("uswest.ensembl.org") },
-        susscr3 = { return("uswest.ensembl.org") },
-        susscr11 = { return("www.ensembl.org") }
-    )
-}
+#~ getAltHost <- function(org) {
+#~     .Deprecated("getHost")
+#~     switch(org,
+#~         hg18 = { return("may2009.archive.ensembl.org") },
+#~         hg19 = { return("grch37.ensembl.org") },
+#~         hg38 = { return("uswest.ensembl.org") },
+#~         mm9 = { return("may2009.archive.ensembl.org") },
+#~         mm10 = { return("uswest.ensembl.org") },
+#~         rn5 = { return("uswest.ensembl.org") },
+#~         dm3 = { return("uswest.ensembl.org") },
+#~         dm6 = { return("uswest.ensembl.org") },
+#~         danrer7 = { return("uswest.ensembl.org") },
+#~         danrer10 = { return("uswest.ensembl.org") },
+#~         danrer11 = { return("uswest.ensembl.org") },
+#~         pantro4 = { return("uswest.ensembl.org") },
+#~         pantro5 = { return("uswest.ensembl.org") },
+#~         #pantro6 = { return("uswest.ensembl.org") },
+#~         susscr3 = { return("uswest.ensembl.org") },
+#~         susscr11 = { return("www.ensembl.org") }
+#~     )
+#~ }
 
 getDataset <- function(org) {
     switch(org,
@@ -2530,7 +2530,7 @@ getValidChrsWithMit <- function(org) {
 }
 
 .getGeneAttributes <- function(org) {
-    if (org %in% c("hg18","hg19","mm9","tair10"))
+    if (org %in% c("hg18","hg19","mm9"))
         return(c(
             "chromosome_name",
             "start_position",
@@ -2566,7 +2566,7 @@ getValidChrsWithMit <- function(org) {
 }
 
 .getTranscriptAttributes <- function(org) {
-    if (org %in% c("hg18","hg19","mm9","tair10"))
+    if (org %in% c("hg18","hg19","mm9"))
         return(c(
             "chromosome_name",
             "transcript_start",
@@ -2591,7 +2591,7 @@ getValidChrsWithMit <- function(org) {
 }
 
 .getTranscriptUtrAttributes <- function(org) {
-    if (org %in% c("hg18","hg19","mm9","tair10"))
+    if (org %in% c("hg18","hg19","mm9"))
         return(c(
             "chromosome_name",
             "transcript_start",
@@ -2620,7 +2620,7 @@ getValidChrsWithMit <- function(org) {
 }
 
 .getExonAttributes <- function(org) {
-    if (org %in% c("hg18","hg19","mm9","tair10"))
+    if (org %in% c("hg18","hg19","mm9"))
         return(c(
             "chromosome_name",
             "exon_chrom_start",
@@ -2645,7 +2645,7 @@ getValidChrsWithMit <- function(org) {
 }
 
 .getTranscriptExonAttributes <- function(org) {
-    if (org %in% c("hg18","hg19","mm9","tair10"))
+    if (org %in% c("hg18","hg19","mm9"))
         return(c(
             "chromosome_name",
             "exon_chrom_start",
@@ -3861,8 +3861,15 @@ initDatabase <- function(db) {
 }
 
 .chromInfoWrapperGID <- function(o) {
-    if (packageVersion("GenomeInfoDb")>=1.23)
-        return(GenomeInfoDb::getChromInfoFromUCSC(o))
+    #if (packageVersion("GenomeInfoDb")>=1.23)
+    #    return(GenomeInfoDb::getChromInfoFromUCSC(o))
+    #else
+    #    return(GenomeInfoDb::getChromInfoFromUCSC(o))
+    if (o == "TAIR10") {
+        g <- GenomeInfoDb::getChromInfoFromEnsembl(o,division="plants")
+        g$name = paste("chr",g$name,sep="")
+        return(g)
+    }
     else
         return(GenomeInfoDb::getChromInfoFromUCSC(o))
 }
