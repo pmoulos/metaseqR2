@@ -57,6 +57,7 @@ Imports:
     stringr,
     SummarizedExperiment,
     survcomp,
+    txdbmaker,
     utils,
     VennDiagram,
     vsn,
@@ -91,8 +92,8 @@ biocViews: Software, GeneExpression, DifferentialExpression, WorkflowStep,
     ChIPSeq
 VignetteBuilder: knitr
 BugReports: https://github.com/pmoulos/metaseqR2/issues
-Version: 1.15.1
-Date: 2024-03-07
+Version: 1.15.2
+Date: 2024-03-13
 Collate:
     'annotation.R'
     'argcheck.R'
