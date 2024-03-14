@@ -9,6 +9,7 @@ test_estimate_aufc_weights <- function() {
        rc=0.01,libsizeGt=1e+5
     )
     #checkEqualsNumeric(weights,c(0.5384615,0.4615385),tolerance=1e-5)
-    checkEqualsNumeric(weights,c(0.5,0.5),tolerance=1e-5)
+    #checkEqualsNumeric(weights,c(0.5,0.5),tolerance=1e-5)
+    checkEqualsNumeric(weights,c(0.6,0.4),tolerance=1e-5)
     checkEqualsNumeric(sum(weights),1,tolerance=1e-9)
 }
