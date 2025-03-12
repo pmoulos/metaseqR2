@@ -1109,13 +1109,17 @@
             "https://code.highcharts.com/modules/export-data.js",
             file.path(prPath$js,"export-data.js"))
     if (!file.exists(file.path(prPath$js,"canvas2svg.js")))
-        download.file(
-            "http://jvenn.toulouse.inrae.fr/app/js/canvas2svg.js",
-            file.path(prPath$js,"canvas2svg.js"))
+        #download.file(
+        #    "http://jvenn.toulouse.inrae.fr/app/js/canvas2svg.js",
+        #    file.path(prPath$js,"canvas2svg.js"))
+        file.copy(from=system.file(package="metaseqR2","canvas2svg.js"),
+            to=file.path(prPath$js,"canvas2svg.js"),overwrite=TRUE)
     if (!file.exists(file.path(prPath$js,"jvenn.min.js")))
-        download.file(
-            "http://jvenn.toulouse.inrae.fr/app/js/jvenn.min.js",
-            file.path(prPath$js,"jvenn.min.js"))
+        #download.file(
+        #    "http://jvenn.toulouse.inrae.fr/app/js/jvenn.min.js",
+        #    file.path(prPath$js,"jvenn.min.js"))
+        file.copy(from=system.file(package="metaseqR2","jvenn.min.js"),
+            to=file.path(prPath$js,"jvenn.min.js"),overwrite=TRUE)
     if (reportDb == "sqlite") {
         if (!file.exists(file.path(prPath$js,"sql.js")))
             download.file(
