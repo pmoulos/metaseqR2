@@ -94,14 +94,15 @@ importFrom("EDASeq",withinLaneNormalization)
 
 importFrom("genefilter",rowVars)
 
+importFrom("Seqinfo",seqinfo)
+importFrom("Seqinfo",Seqinfo)
+importFrom("Seqinfo",seqlevels)
+importFrom("Seqinfo",seqlengths)
+importFrom("Seqinfo","seqlengths<-")
+
 importFrom("GenomeInfoDb",dropSeqlevels)
 #importFrom("GenomeInfoDb",fetchExtendedChromInfoFromUCSC)
 importFrom("GenomeInfoDb",getChromInfoFromUCSC)
-importFrom("GenomeInfoDb",seqinfo)
-importFrom("GenomeInfoDb",Seqinfo)
-importFrom("GenomeInfoDb",seqlevels)
-importFrom("GenomeInfoDb",seqlengths)
-importFrom("GenomeInfoDb","seqlengths<-")
 importFrom("GenomeInfoDb",seqlevelsStyle)
 importFrom("GenomeInfoDb","seqlevelsStyle<-")
 

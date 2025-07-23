@@ -746,6 +746,7 @@ would benefit from the existence of all the following packages:
  * rtracklayer
  * RUnit
  * S4Vectors
+ * Seqinfo
  * stats
  * stringr
  * SummarizedExperiment
