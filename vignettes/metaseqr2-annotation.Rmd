@@ -128,7 +128,7 @@ since the built database is not in the default location, we need to pass the
 database file in each data retrieval function. The annotation is retrieved as
 a `GRanges` object by default.
 
-```{r example-2, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+```{r example-2, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 # Load standard annotation based on gene body coordinates
 genes <- loadAnnotation(genome="mm10",refdb="ensembl",level="gene",type="gene",
     db=myDb)
@@ -187,7 +187,7 @@ process involves using the `genePredToGtf` which is not available for Windows.
 Let's try a couple of exammples. The first one is a custom annotation for the
 Ebola virus from UCSC:
 
-```{r example-4, eval=TRUE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
+```{r example-4, eval=FALSE, echo=TRUE, tidy=FALSE, message=TRUE, warning=FALSE}
 # Setup a temporary directory to download files etc.
 customDir <- file.path(tempdir(),"test_custom")
 dir.create(customDir)

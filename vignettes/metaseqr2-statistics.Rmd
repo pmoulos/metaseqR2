@@ -376,7 +376,7 @@ result <- metaseqr2(
 
 Another example with the full PANDORA algorithm (not evaluated here):
 
-```{r example-4, eval=TRUE, echo=TRUE, tidy=FALSE, message=FALSE, warning=FALSE}
+```{r example-4, eval=FALSE, echo=TRUE, tidy=FALSE, message=FALSE, warning=FALSE}
 library(metaseqR2)
 
 data("mm9GeneData",package="metaseqR2")
