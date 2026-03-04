@@ -1088,26 +1088,38 @@
 .downloadJsLibs <- function(prPath,reportDb) {
     disp("Downloading required JavaScript libraries...")
     if (!file.exists(file.path(prPath$js,"pace.min.js")))
-        download.file(paste0("https://raw.github.com/HubSpot/pace/",
-            "v1.0.0/pace.min.js"),
-            file.path(prPath$js,"pace.min.js"))
+        #download.file(paste0("https://raw.github.com/HubSpot/pace/",
+        #    "v1.0.0/pace.min.js"),
+        #    file.path(prPath$js,"pace.min.js"))
+        file.copy(from=system.file(package="metaseqR2","pace.min.js"),
+            to=file.path(prPath$js,"pace.min.js"),overwrite=TRUE)
     if (!file.exists(file.path(prPath$js,"highcharts.js")))
-        download.file("https://code.highcharts.com/highcharts.js",
-            file.path(prPath$js,"highcharts.js"))
+        #download.file("https://code.highcharts.com/highcharts.js",
+        #    file.path(prPath$js,"highcharts.js"))
+        file.copy(from=system.file(package="metaseqR2","highcharts.js"),
+            to=file.path(prPath$js,"highcharts.js"),overwrite=TRUE)    
     if (!file.exists(file.path(prPath$js,"highcharts-more.js")))
-        download.file("https://code.highcharts.com/highcharts-more.js",
-            file.path(prPath$js,"highcharts-more.js"))
+        #download.file("https://code.highcharts.com/highcharts-more.js",
+        #    file.path(prPath$js,"highcharts-more.js"))
+        file.copy(from=system.file(package="metaseqR2","highcharts-more.js"),
+            to=file.path(prPath$js,"highcharts-more.js"),overwrite=TRUE)
     if (!file.exists(file.path(prPath$js,"exporting.js")))
-        download.file("https://code.highcharts.com/modules/exporting.js",
-            file.path(prPath$js,"exporting.js"))
+        #download.file("https://code.highcharts.com/modules/exporting.js",
+        #    file.path(prPath$js,"exporting.js"))
+        file.copy(from=system.file(package="metaseqR2","exporting.js"),
+            to=file.path(prPath$js,"exporting.js"),overwrite=TRUE)
     if (!file.exists(file.path(prPath$js,"offline-exporting.js")))
-        download.file(
-            "https://code.highcharts.com/modules/offline-exporting.js",
-            file.path(prPath$js,"offline-exporting.js"))
+        #download.file(
+        #    "https://code.highcharts.com/modules/offline-exporting.js",
+        #    file.path(prPath$js,"offline-exporting.js"))
+        file.copy(from=system.file(package="metaseqR2","offline-exporting.js"),
+            to=file.path(prPath$js,"offline-exporting.js"),overwrite=TRUE)
     if (!file.exists(file.path(prPath$js,"export-data.js")))
-        download.file(
-            "https://code.highcharts.com/modules/export-data.js",
-            file.path(prPath$js,"export-data.js"))
+        #download.file(
+        #    "https://code.highcharts.com/modules/export-data.js",
+        #    file.path(prPath$js,"export-data.js"))
+        file.copy(from=system.file(package="metaseqR2","export-data.js"),
+            to=file.path(prPath$js,"export-data.js"),overwrite=TRUE)
     if (!file.exists(file.path(prPath$js,"canvas2svg.js")))
         #download.file(
         #    "http://jvenn.toulouse.inrae.fr/app/js/canvas2svg.js",
@@ -1128,9 +1140,11 @@
     }
     else if (reportDb == "dexie") {
         if (!file.exists(file.path(prPath$js,"dexie.min.js")))
-            download.file(
-                "https://unpkg.com/dexie@2.0.4/dist/dexie.min.js",
-                file.path(prPath$js,"dexie.min.js"))
+            #download.file(
+            #    "https://unpkg.com/dexie@2.0.4/dist/dexie.min.js",
+            #    file.path(prPath$js,"dexie.min.js"))
+            file.copy(from=system.file(package="metaseqR2","dexie.min.js"),
+                to=file.path(prPath$js,"dexie.min.js"),overwrite=TRUE)
     }
 }
 
