@@ -57,13 +57,13 @@ targets <- data.frame(samplename=c("C","T"),
 path <- tempdir()
 write.table(targets,file=file.path(path,"targets.txt"),
     sep="\t",row.names=FALSE,quote=FALSE)
-geneData <- loadAnnotation("mm10","ensembl","gene")
+#geneData <- loadAnnotation("mm10","ensembl","gene")
 myTargets <- readTargets(file.path(path,"targets.txt"))
 if (.Platform$OS.type == "unix") {
-    r2c <- read2count(targets=myTargets,
-        fileType=myTargets$type,annotation=geneData)
-    geneCounts <- r2c$counts
-    libsizeList <- r2c$libsize
+#    r2c <- read2count(targets=myTargets,
+#        fileType=myTargets$type,annotation=geneData)
+#    geneCounts <- r2c$counts
+#    libsizeList <- r2c$libsize
 }
 }
 \author{

@@ -608,7 +608,7 @@ getDefaults <- function(what,method=NULL) {
                         tRNA=FALSE
                     ))
                 },
-                equcab2 = {
+                equcab3 = {
                     return(list(
                         miRNA=FALSE,
                         misc_RNA=FALSE,
@@ -1105,7 +1105,7 @@ validateListArgs <- function(what,method=NULL,argList) {
                         "snRNA","transposable_element","tRNA")
                     not.valid <- which(!valid)
                 },
-                equcab2 = {
+                equcab3 = {
                     valid <- names(argList) %in% c("miRNA","misc_RNA",
                         "protein_coding","pseudogene","processed_pseudogene",
                         "rRNA","snoRNA","snRNA")
@@ -1385,7 +1385,7 @@ getStrictBiofilter <- function(org) {
                 tRNA=TRUE
             ))
         },
-        equcab2 = {
+        equcab3 = {
             return(list(
                 miRNA=FALSE,
                 misc_RNA=TRUE,
@@ -2044,8 +2044,8 @@ makeReportMessages <- function(lang) {
                         "genome version alias susScr3"),
                     susscr11=paste("pig (<em>Sus scrofa</em>),",
                         "genome version alias susScr11"),
-                    equcab2=paste("horse (<em>Equus cabalus</em>),",
-                        "genome version alias equcab2"),
+                    equcab3=paste("horse (<em>Equus cabalus</em>),",
+                        "genome version alias equcab3"),
                     tair10=paste("arabidopsis (<em>Arabidobsis thaliana</em>)",
                         ",","genome version alias TAIR10")
                 ),

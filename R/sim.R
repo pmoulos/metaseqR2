@@ -142,7 +142,7 @@ makeSimDataSd <- function(N,param,samples=c(5,5),ndeg=rep(round(0.1*N),2),
     simLengthBias=FALSE) {
     if (!is.null(modelOrg)) {
         modelOrg <- tolower(modelOrg)
-        checkTextArgs("modelOrg",modelOrg,c("hg18","hg19","mm9","mm10",
+        checkTextArgs("modelOrg",modelOrg,c("hg18","hg19","mm9","mm10","mm39",
             "rno5","dm3","rn5","rn6","danrer7","pantro4","tair10"),
             multiarg=FALSE)
         ann <- getAnnotation(modelOrg,"gene")

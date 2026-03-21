@@ -1913,7 +1913,7 @@ getUcscUtr <- function(org,refdb="ucsc") {
     # There is an exception for organisms that do not exist in UCSC databases
     # so we must use RefSeq
     ucscUnsup <- c("rn5","rn6","dm3","dm6","danrer7","danrer10","danrer11",
-        "pantro4","pantro5","susscr3","susscr11","equcab2")
+        "pantro4","pantro5","susscr3","susscr11","equcab3")
     if (refdb == "ucsc" && !(org %in% ucscUnsup))
         command <- commandUcsc
     
@@ -1997,6 +1997,7 @@ getUcscOrganism <- function(org) {
         hg38 = { return("hg38") },
         mm9 = { return("mm9") },
         mm10 = { return("mm10") },
+        mm39 = { return("mm39") },
         rn5 = { return("rn5") },
         rn6 = { return("rn6") },
         dm3 = { return("dm3") },
@@ -2008,7 +2009,7 @@ getUcscOrganism <- function(org) {
         pantro5 = { return("panTro5") },
         susscr3 = { return("susScr3") },
         susscr11 = { return("susScr11") },
-        equcab2 = { return("equCab2") },
+        equcab3 = { return("equCab3") },
         tair10 = { return("TAIR10") }
     )
 }
@@ -2029,6 +2030,9 @@ getBsOrganism <- function(org) {
         },
         mm10 = {
             return("BSgenome.Mmusculus.UCSC.mm10")
+        },
+        mm39 = {
+            return("BSgenome.Mmusculus.UCSC.mm39")
         },
         rn5 = {
             return("BSgenome.Rnorvegicus.UCSC.rn5")
@@ -2073,8 +2077,8 @@ getBsOrganism <- function(org) {
                 immediate.=TRUE)
             return(NA)
         },
-        equcab2 = {
-            warning("equCab2 is not supported by BSgenome! Please use Ensembl ",
+        equcab3 = {
+            warning("equCab3 is not supported by BSgenome! Please use Ensembl ",
                 "as annotation source if GC content is important.",
                 immediate.=TRUE)
             return(NA)
@@ -2135,6 +2139,8 @@ getHost <- function(org,ver=NULL) {
         
     if (org == "tair10")
         return("plants.ensembl.org")
+    if (org == "hg19")
+        return("grch37.ensembl.org")
     
     aver <- getUcscToEnsembl(org)
     if (!is.null(ver) && !(ver %in% aver)) {
@@ -2187,46 +2193,25 @@ ucscToEnsembl <- function() {
     return(list(
         hg18=54,
         hg19=75,
-        hg38=95:111,
+        hg38=110:115,
         mm9=54,
-        mm10=95:111,
+        mm10=102,
+        mm39=110:115,
         rn5=77,
-        rn6=c(80,95:111),
-        dm3=c(75,77),
-        dm6=c(80,95:111),
-        danrer7=c(75,77),
+        rn6=110:115,
+        dm3=77,
+        dm6=110:115,
+        danrer7=77,
         danrer10=80,
-        danrer11=95:111,
-        pantro4=c(75,77,80),
-        pantro5=95:111,
+        danrer11=110:115,
+        pantro4=80,
+        pantro5=110:115,
         #pantro6=,
-        susscr3=c(75,77,80),
-        susscr11=95:111,
-        equcab2=c(75,77,95:111)
+        susscr3=80,
+        susscr11=110:115,
+        equcab3=110:115
     ))
 }
-
-#~ getAltHost <- function(org) {
-#~     .Deprecated("getHost")
-#~     switch(org,
-#~         hg18 = { return("may2009.archive.ensembl.org") },
-#~         hg19 = { return("grch37.ensembl.org") },
-#~         hg38 = { return("uswest.ensembl.org") },
-#~         mm9 = { return("may2009.archive.ensembl.org") },
-#~         mm10 = { return("uswest.ensembl.org") },
-#~         rn5 = { return("uswest.ensembl.org") },
-#~         dm3 = { return("uswest.ensembl.org") },
-#~         dm6 = { return("uswest.ensembl.org") },
-#~         danrer7 = { return("uswest.ensembl.org") },
-#~         danrer10 = { return("uswest.ensembl.org") },
-#~         danrer11 = { return("uswest.ensembl.org") },
-#~         pantro4 = { return("uswest.ensembl.org") },
-#~         pantro5 = { return("uswest.ensembl.org") },
-#~         #pantro6 = { return("uswest.ensembl.org") },
-#~         susscr3 = { return("uswest.ensembl.org") },
-#~         susscr11 = { return("www.ensembl.org") }
-#~     )
-#~ }
 
 getDataset <- function(org) {
     switch(org,
@@ -2235,6 +2220,7 @@ getDataset <- function(org) {
         hg38 = { return("hsapiens_gene_ensembl") },
         mm9 = { return("mmusculus_gene_ensembl") },
         mm10 = { return("mmusculus_gene_ensembl") },
+        mm39 = { return("mmusculus_gene_ensembl") },
         rn5 = { return("rnorvegicus_gene_ensembl") },
         rn6 = { return("rnorvegicus_gene_ensembl") },
         dm3 = { return("dmelanogaster_gene_ensembl") },
@@ -2247,7 +2233,7 @@ getDataset <- function(org) {
         #pantro6 = { return("ptroglodytes_gene_ensembl") },
         susscr3 = { return("sscrofa_gene_ensembl") },
         susscr11 = { return("sscrofa_gene_ensembl") },
-        equcab2 = { return("ecaballus_gene_ensembl") },
+        equcab3 = { return("ecaballus_gene_ensembl") },
         tair10 = { return("athaliana_eg_gene") }
     )
 }
@@ -2283,6 +2269,13 @@ getValidChrs <- function(org) {
             ))
         },
         mm10 = {
+            return(c(
+                "chr1","chr10","chr11","chr12","chr13","chr14","chr15","chr16",
+                "chr17","chr18","chr19","chr2","chr3","chr4","chr5","chr6",
+                "chr7","chr8","chr9","chrX","chrY"
+            ))
+        },
+        mm39 = {
             return(c(
                 "chr1","chr10","chr11","chr12","chr13","chr14","chr15","chr16",
                 "chr17","chr18","chr19","chr2","chr3","chr4","chr5","chr6",
@@ -2371,7 +2364,7 @@ getValidChrs <- function(org) {
                 "chr8","chr9","chrX","chrY"
             ))
         },
-        equcab2 = {
+        equcab3 = {
             return(c(
                 "chr1","chr10","chr11","chr12","chr13","chr14","chr15","chr16",
                 "chr17","chr18","chr19","chr2","chr20","chr21","chr22","chr23",
@@ -2418,6 +2411,13 @@ getValidChrsWithMit <- function(org) {
             ))
         },
         mm10 = {
+            return(c(
+                "chr1","chr10","chr11","chr12","chr13","chr14","chr15","chr16",
+                "chr17","chr18","chr19","chr2","chr3","chr4","chr5","chr6",
+                "chr7","chr8","chr9","chrX","chrY","chrM"
+            ))
+        },
+        mm39 = {
             return(c(
                 "chr1","chr10","chr11","chr12","chr13","chr14","chr15","chr16",
                 "chr17","chr18","chr19","chr2","chr3","chr4","chr5","chr6",
@@ -2511,7 +2511,7 @@ getValidChrsWithMit <- function(org) {
                 "chr8","chr9","chrX","chrY","chrM"
             ))
         },
-        equcab2 = {
+        equcab3 = {
             return(c(
                 "chr1","chr10","chr11","chr12","chr13","chr14","chr15","chr16",
                 "chr17","chr18","chr19","chr2","chr20","chr21","chr22","chr23",
@@ -2721,6 +2721,20 @@ getBiotypes <- function(org) {
                 "IG_V_pseudogene","TR_V_gene","TR_V_pseudogene",
                 "3prime_overlapping_ncrna"))
         },
+        mm39 = {
+            return(c("IG_C_gene","IG_C_pseudogene","IG_D_gene",
+                "IG_D_pseudogene","IG_J_gene","IG_LV_gene","IG_pseudogene",
+                "IG_V_gene","IG_V_pseudogene","lncRNA","miRNA","misc_RNA",
+                "Mt_rRNA","Mt_tRNA","processed_pseudogene","protein_coding",
+                "pseudogene","ribozyme","rRNA","scaRNA","scRNA","snoRNA",
+                "snRNA","sRNA","TEC","transcribed_processed_pseudogene",
+                "transcribed_unitary_pseudogene",
+                "transcribed_unprocessed_pseudogene",   
+                "translated_unprocessed_pseudogene",
+                "TR_C_gene","TR_D_gene","TR_J_gene","TR_J_pseudogene",
+                "TR_V_gene","TR_V_pseudogene","unitary_pseudogene",
+                "unprocessed_pseudogene"))
+        },
         dm3 = {
             return(c("protein_coding","ncRNA","snoRNA","pre_miRNA","pseudogene",
                 "snRNA","tRNA","rRNA"))
@@ -2779,7 +2793,7 @@ getBiotypes <- function(org) {
                 "misc_RNA","non_coding","IG_C_gene","IG_J_gene",
                 "IG_V_gene","IG_V_pseudogene"))
         },
-        equcab2 = {
+        equcab3 = {
             return(c("miRNA","misc_RNA","protein_coding","pseudogene","rRNA",
                 "processed_pseudogene","snoRNA","snRNA"))
         },
@@ -2795,10 +2809,10 @@ getSupportedRefDbs <- function() {
 }
 
 getSupportedOrganisms <- function() {
-    return(c("hg18","hg19","hg38","mm9","mm10","rn5","rn6","dm3","dm6",
+    return(c("hg18","hg19","hg38","mm9","mm10","mm39","rn5","rn6","dm3","dm6",
         "danrer7","danrer10","danrer11","pantro4","pantro5","susscr3",
         #"pantro6",
-        "susscr11","equcab2","tair10"))
+        "susscr11","equcab3","tair10"))
 }
 
 getSupportedUcscDbs <- function() {

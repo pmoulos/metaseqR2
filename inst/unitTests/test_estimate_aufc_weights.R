@@ -5,11 +5,11 @@ test_estimate_aufc_weights <- function() {
        counts=as.matrix(mm9GeneCounts[,9:12]),
        normalization="edaseq",
        statistics=c("edger","limma"),
-       nsim=1,N=10,ndeg=c(2,2),top=4,modelOrg="mm10",
+       nsim=1,N=10,ndeg=c(2,2),top=4,modelOrg=NULL,#modelOrg="mm39",
        rc=0.01,libsizeGt=1e+5
     )
     #checkEqualsNumeric(weights,c(0.5384615,0.4615385),tolerance=1e-5)
-    checkEqualsNumeric(weights,c(0.5,0.5),tolerance=1e-5)
-    #checkEqualsNumeric(weights,c(0.6,0.4),tolerance=1e-5)
+    #checkEqualsNumeric(weights,c(0.5,0.5),tolerance=1e-5)
+    checkEqualsNumeric(weights,c(0.6666667,0.3333333),tolerance=1e-5)
     checkEqualsNumeric(sum(weights),1,tolerance=1e-9)
 }

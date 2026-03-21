@@ -1,6 +1,6 @@
 <!-- badges: start -->
   ![Bioconductor build](http://www.bioconductor.org/shields/build/devel/bioc/metaseqR2.svg)
-  ![Bioconductor platforms](http://www.bioconductor.org/shields/availability/3.12/metaseqR2.svg)
+  ![Bioconductor platforms](http://www.bioconductor.org/shields/availability/devel/metaseqR2.svg)
   ![Bioconductor dependencies](http://www.bioconductor.org/shields/dependencies/devel/metaseqR2.svg)
   </br>
   ![GitHub](https://img.shields.io/github/license/pmoulos/metaseqR2)

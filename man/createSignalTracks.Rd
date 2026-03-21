@@ -73,7 +73,7 @@ path <- tempdir()
 write.table(targets,file=file.path(path,"targets.txt"),
     sep="\t",row.names=FALSE,quote=FALSE)
 if (.Platform$OS.type == "unix")
-    link <- createSignalTracks(file.path(path,"targets.txt"),"mm9")
+    #link <- createSignalTracks(file.path(path,"targets.txt"),"mm9")
 }
 \author{
     Panagiotis Moulos

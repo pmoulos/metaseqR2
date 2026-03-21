@@ -17,6 +17,9 @@ getUcscTableNameUtr <- function(org,refdb) {
                 mm10 = {
                     return("knownGene")
                 },
+                mm39 = {
+                    return("knownGene")
+                },
                 rn5 = {
                     return("mgcGenes")
                 },
@@ -68,9 +71,9 @@ getUcscTableNameUtr <- function(org,refdb) {
                         immediate.=TRUE)
                     return("refGene")
                 },
-                equcab2 = {
+                equcab3 = {
                     warning("No UCSC Genome annotation for Equus ",
-                        "caballus v2! Will use RefSeq instead...",
+                        "caballus v3! Will use RefSeq instead...",
                         immediate.=TRUE)
                     return("refGene")
                 }
@@ -467,6 +470,20 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 refFlat=getUcscTblTpl("refFlat",what)
             ))
         },
+        mm39 = {
+            return(list(
+                knownCanonical=
+                    getUcscTblTpl("knownCanonical",what),
+                knownGene=getUcscTblTpl("knownGene",what),
+                knownToRefSeq=
+                    getUcscTblTpl("knownToRefSeq",what),
+                knownToEnsembl=
+                    getUcscTblTpl("knownToEnsembl",what),
+                ensemblSource=
+                    getUcscTblTpl("ensemblSource",what),
+                refFlat=getUcscTblTpl("refFlat",what)
+            ))
+        },
         rn5 = {
             return(list(
                 mgcGenes=getUcscTblTpl("mgcGenes",what),
@@ -590,9 +607,9 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                     getUcscTblTpl("ensemblSource",what)
             ))
         },
-        equcab2 = {
+        equcab3 = {
             warning("No UCSC Genome annotation for Equus ",
-                "caballus v2! Will use RefSeq instead...",
+                "caballus v3! Will use RefSeq instead...",
                 immediate.=TRUE)
             return(list(
                 refFlat=getUcscTblTpl("refFlat",what),
@@ -652,6 +669,19 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
             ))
         },
         mm10 = {
+            return(list(
+                refFlat=getUcscTblTpl("refFlat",what),
+                knownToRefSeq=
+                    getUcscTblTpl("knownToRefSeq",what),
+                knownCanonical=
+                    getUcscTblTpl("knownCanonical",what),
+                knownToEnsembl=
+                    getUcscTblTpl("knownToEnsembl",what),
+                ensemblSource=
+                    getUcscTblTpl("ensemblSource",what)
+            ))
+        },
+        mm39 = {
             return(list(
                 refFlat=getUcscTblTpl("refFlat",what),
                 knownToRefSeq=
@@ -763,7 +793,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                     getUcscTblTpl("ensemblSource",what)
             ))
         },
-        equcab2 = {
+        equcab3 = {
             return(list(
                 refFlat=getUcscTblTpl("refFlat",what),
                 ensemblToGeneName=
@@ -859,6 +889,45 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
+            #return(paste("SELECT knownCanonical.chrom AS `chromosome`,",
+            #   "`chromStart` AS `start`,",
+            #   "`chromEnd` AS `end`,",
+            #   "`transcript` AS `gene_id`,",
+            #   "0 AS `gc_content`,",
+            #   "knownGene.strand AS `strand`,",
+            #   "`geneName` AS `gene_name`,",
+            #   "`source` AS `biotype`",
+            #   "FROM `knownCanonical` INNER JOIN `knownGene`", 
+            #   "ON knownCanonical.transcript=knownGene.name",
+            #   "INNER JOIN `knownToRefSeq`", 
+            #   "ON knownCanonical.transcript=knownToRefSeq.name",
+            #   "INNER JOIN `knownToEnsembl`",
+            #   "ON knownCanonical.transcript=knownToEnsembl.name",
+            #   "INNER JOIN `ensemblSource`",
+            #   "ON knownToEnsembl.value=ensemblSource.name",
+            #   "INNER JOIN `refFlat`",
+            #   "ON knownToRefSeq.value=refFlat.name",
+            #   "GROUP BY `gene_id`",
+            #   "ORDER BY `chromosome`,`start`"))
+            ## No Ensembl source...
+            return(paste("SELECT knownCanonical.chrom AS `chromosome`,",
+                "`chromStart` AS `start`,",
+                "`chromEnd` AS `end`,",
+                "`transcript` AS `gene_id`,",
+                "0 AS `gc_content`,",
+                "knownGene.strand AS `strand`,",
+                "`geneName` AS `gene_name`,",
+                "'NA' AS `biotype`",
+                "FROM `knownCanonical` INNER JOIN `knownGene`",
+                "ON knownCanonical.transcript=knownGene.name",
+                "INNER JOIN `knownToRefSeq`",
+                "ON knownCanonical.transcript=knownToRefSeq.name",
+                "INNER JOIN `refFlat`",
+                "ON knownToRefSeq.value=refFlat.name",
+                "GROUP BY gene_id",
+                "ORDER BY `chromosome`,`start`"))
+        },
+        mm39 = {
             #return(paste("SELECT knownCanonical.chrom AS `chromosome`,",
             #   "`chromStart` AS `start`,",
             #   "`chromEnd` AS `end`,",
@@ -1185,9 +1254,9 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "GROUP BY `gene_name`",
                 "ORDER BY `chromosome`,`start`) AS tmp"))
         },
-        equcab2 = {
+        equcab3 = {
             warning("No UCSC Genome annotation for Equus ",
-                "caballus v2! Will use RefSeq instead...",
+                "caballus v3! Will use RefSeq instead...",
                 immediate.=TRUE)
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
                 "`gc_content`,`strand`,`gene_name`,`biotype` FROM",
@@ -1286,6 +1355,40 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
+            #return(paste("SELECT refFlat.chrom AS `chromosome`,",
+            #   "refFlat.txStart AS `start`,",
+            #   "refFlat.txEnd AS `end`,",
+            #   "refFlat.name AS `gene_id`,",
+            #   "0 AS `gc_content`,",
+            #   "refFlat.strand AS `strand`,",
+            #   "`geneName` AS `gene_name`,",
+            #   "`source` AS `biotype`",
+            #   "FROM `refFlat` INNER JOIN `knownToRefSeq`",
+            #   "ON refFlat.name=knownToRefSeq.value",
+            #   "INNER JOIN `knownCanonical`",
+            #   "ON knownToRefSeq.name=knownCanonical.transcript",
+            #   "INNER JOIN `knownToEnsembl`",
+            #   "ON knownCanonical.transcript=knownToEnsembl.name",
+            #   "INNER JOIN `ensemblSource`",
+            #   "ON knownToEnsembl.value=ensemblSource.name",
+            #   "GROUP BY refFlat.name",
+            #   "ORDER BY `chromosome`,`start`"))
+            return(paste("SELECT  refFlat.chrom AS `chromosome`,",
+                "refFlat.txStart AS `start`,",
+                "refFlat.txEnd AS `end`,",
+                "refFlat.name AS `gene_id`,",
+                "0 AS `gc_content`,",
+                "refFlat.strand AS `strand`,",
+                "`geneName` AS `gene_name`,",
+                "'NA' AS `biotype`",
+                "FROM `refFlat` INNER JOIN `knownToRefSeq`",
+                "ON refFlat.name=knownToRefSeq.value",
+                "INNER JOIN `knownCanonical`",
+                "ON knownToRefSeq.name=knownCanonical.transcript",
+                "GROUP BY refFlat.name",
+                "ORDER BY `chromosome`,`start`"))
+        },
+        mm39 = {
             #return(paste("SELECT refFlat.chrom AS `chromosome`,",
             #   "refFlat.txStart AS `start`,",
             #   "refFlat.txEnd AS `end`,",
@@ -1528,7 +1631,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "GROUP BY `gene_name`",
                 "ORDER BY `chromosome`,`start`) AS tmp"))
         },
-        equcab2 = {
+        equcab3 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`gene_id`,",
                 "`gc_content`,`strand`,`gene_name`,`biotype` FROM",
                 "(SELECT MAX(`txEnd` - `txStart`) AS `width`,",
@@ -1634,6 +1737,45 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
+            #return(paste("SELECT knownGene.chrom AS `chromosome`,",
+            #   "knownGene.exonStarts AS `start`,",
+            #   "knownGene.exonEnds AS `end`,",
+            #   "knownGene.name AS `exon_id`,",
+            #   "knownGene.strand AS `strand`,",
+            #   "`transcript` AS `gene_id`,",
+            #   "`geneName` AS `gene_name`,",
+            #   "`source` AS `biotype`",
+            #   "FROM `knownGene` INNER JOIN `knownCanonical`",
+            #   "ON knownGene.name=knownCanonical.transcript",
+            #   "INNER JOIN `knownToRefSeq`",
+            #   "ON knownCanonical.transcript=knownToRefSeq.name",
+            #   "INNER JOIN `knownToEnsembl`",
+            #   "ON knownCanonical.transcript=knownToEnsembl.name",
+            #   "INNER JOIN `ensemblSource`",
+            #   "ON knownToEnsembl.value=ensemblSource.name",
+            #   "INNER JOIN `refFlat`",
+            #   "ON knownToRefSeq.value=refFlat.name",
+            #   "GROUP BY knownGene.name",
+            #   "ORDER BY `chromosome`,`start`"))
+            ## No Ensembl source...
+            return(paste("SELECT knownGene.chrom AS `chromosome`,",
+                "knownGene.exonStarts AS `start`,",
+                "knownGene.exonEnds AS `end`,",
+                "knownGene.name AS `exon_id`,",
+                "knownGene.strand AS `strand`,",
+                "`transcript` AS `gene_id`,",
+                "`geneName` AS `gene_name`,",
+                "'NA' AS `biotype`",
+                "FROM `knownGene` INNER JOIN `knownCanonical`", 
+                "ON knownGene.name=knownCanonical.transcript",
+                "INNER JOIN `knownToRefSeq`",
+                "ON knownCanonical.transcript=knownToRefSeq.name",
+                "INNER JOIN `refFlat`",
+                "ON knownToRefSeq.value=refFlat.name",
+                "GROUP BY knownGene.name",
+                "ORDER BY `chromosome`,`start`"))
+        },
+        mm39 = {
             #return(paste("SELECT knownGene.chrom AS `chromosome`,",
             #   "knownGene.exonStarts AS `start`,",
             #   "knownGene.exonEnds AS `end`,",
@@ -1951,9 +2093,9 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "GROUP BY `gene_name`",
                 "ORDER BY `chromosome`,`start`) AS tmp"))
         },
-        equcab2 = {
+        equcab3 = {
             warning("No UCSC Genome annotation for Equus ",
-                "caballus v11! Will use RefSeq instead...",
+                "caballus v2! Will use RefSeq instead...",
                 immediate.=TRUE)
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
                 "`strand`,`gene_id`,`gene_name`,`biotype` FROM",
@@ -2052,6 +2194,40 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
+            #return(paste("SELECT refFlat.chrom AS `chromosome`,",
+            #   "refFlat.exonStarts AS `start`,",
+            #   "refFlat.exonEnds  AS `end`,",
+            #   "refFlat.name AS `exon_id`,",
+            #   "refFlat.strand AS `strand`,",
+            #   "refFlat.name AS `gene_id`,",
+            #   "`geneName` AS `gene_name`,",
+            #   "`source` AS `biotype`",
+            #   "FROM `refFlat` INNER JOIN `knownToRefSeq`", 
+            #   "ON refFlat.name=knownToRefSeq.value",
+            #   "INNER JOIN `knownCanonical`",
+            #   "ON knownToRefSeq.name=knownCanonical.transcript",
+            #   "INNER JOIN `knownToEnsembl`",
+            #   "ON knownCanonical.transcript=knownToEnsembl.name",
+            #   "INNER JOIN `ensemblSource`",
+            #   "ON knownToEnsembl.value=ensemblSource.name",
+            #   "GROUP BY refFlat.name",
+            #   "ORDER BY `chromosome`,`start`"))
+            return(paste("SELECT refFlat.chrom AS `chromosome`,",
+                "refFlat.exonStarts AS `start`,",
+                "refFlat.exonEnds  AS `end`,",
+                "refFlat.name AS `exon_id`,",
+                "refFlat.strand AS `strand`,",
+                "refFlat.name AS `gene_id`,",
+                "`geneName` AS `gene_name`,",
+                "'NA' AS `biotype`",
+                "FROM `refFlat` INNER JOIN `knownToRefSeq`", 
+                "ON refFlat.name=knownToRefSeq.value",
+                "INNER JOIN `knownCanonical`",
+                "ON knownToRefSeq.name=knownCanonical.transcript",
+                "GROUP BY refFlat.name",
+                "ORDER BY `chromosome`,`start`"))
+        },
+        mm39 = {
             #return(paste("SELECT refFlat.chrom AS `chromosome`,",
             #   "refFlat.exonStarts AS `start`,",
             #   "refFlat.exonEnds  AS `end`,",
@@ -2294,7 +2470,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "GROUP BY `gene_name`",
                 "ORDER BY `chromosome`,`start`) AS tmp"))
         },
-        equcab2 = {
+        equcab3 = {
             return(paste("SELECT `chromosome`,`start`,`end`,`exon_id`,",
                 "`strand`,`gene_id`,`gene_name`,`biotype` FROM",
                 "(SELECT MAX(`txEnd` - `txStart`) AS `width`,",
@@ -2388,6 +2564,39 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
+            #return(paste("SELECT knownGene.chrom AS `chromosome`,",
+            #   "knownGene.txStart AS `start`,",
+            #   "knownGene.txEnd AS `end`,",
+            #   "knownGene.name AS `transcript_id`,",
+            #   "knownGene.strand AS `strand`,",
+            #   "`geneName` AS `gene_name`,",
+            #   "`source` AS `biotype`",
+            #   "FROM `knownGene` INNER JOIN `knownToRefSeq`", 
+            #   "ON knownGene.name=knownToRefSeq.name",
+            #   "INNER JOIN `knownToEnsembl`",
+            #   "ON knownGene.name=knownToEnsembl.name",
+            #   "INNER JOIN `ensemblSource`",
+            #   "ON knownToEnsembl.value=ensemblSource.name",
+            #   "INNER JOIN `refFlat` ON",
+            #   "knownToRefSeq.value=refFlat.name",
+            #   "GROUP BY `transcript_id`",
+            #   "ORDER BY `chromosome`,`start`"))
+            ## No ensemblSource...
+            return(paste("SELECT knownGene.chrom AS `chromosome`,",
+                "knownGene.txStart AS `start`,",
+                "knownGene.txEnd AS `end`,",
+                "knownGene.name AS `transcript_id`,",
+                "knownGene.strand AS `strand`,",
+                "`geneName` AS `gene_name`,",
+                "'NA' AS `biotype`",
+                "FROM `knownGene` INNER JOIN `knownToRefSeq`",
+                "ON knownGene.name=knownToRefSeq.name",
+                "INNER JOIN `refFlat`",
+                "ON knownToRefSeq.value=refFlat.name",
+                "GROUP BY knownGene.name",
+                "ORDER BY `chromosome`,`start`"))
+        },
+        mm39 = {
             #return(paste("SELECT knownGene.chrom AS `chromosome`,",
             #   "knownGene.txStart AS `start`,",
             #   "knownGene.txEnd AS `end`,",
@@ -2650,9 +2859,9 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "GROUP BY `transcript_id`",
                 "ORDER BY `chromosome`,`start`"))
         },
-        equcab2 = {
+        equcab3 = {
             warning("No UCSC Genome annotation for Equus ",
-                "caballus v2! Will use RefSeq instead...",
+                "caballus v3! Will use RefSeq instead...",
                 immediate.=TRUE)
             return(paste("SELECT refFlat.chrom AS `chromosome`,",
                 "refFlat.txStart AS `start`,",
@@ -2739,6 +2948,36 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "ORDER BY `chromosome`,`start`"))
         },
         mm10 = {
+            #return(paste("SELECT refFlat.chrom AS `chromosome`,",
+            #   "refFlat.txStart AS `start`,",
+            #   "refFlat.txEnd AS `end`,",
+            #   "refFlat.name AS `transcript_id`,",
+            #   "refFlat.strand AS `strand`,",
+            #   "`geneName` AS `gene_name`,",
+            #   "`source` AS `biotype`",
+            #   "FROM `refFlat` INNER JOIN `knownToRefSeq`",
+            #   "ON refFlat.name=knownToRefSeq.value",
+            #   "INNER JOIN `knownCanonical`",
+            #   "ON knownToRefSeq.name=knownCanonical.transcript",
+            #   "INNER JOIN `knownToEnsembl`",
+            #   "ON knownCanonical.transcript=knownToEnsembl.name",
+            #   "INNER JOIN `ensemblSource`",
+            #   "ON knownToEnsembl.value=ensemblSource.name",
+            #   "ORDER BY `chromosome`,`start`"))
+            return(paste("SELECT refFlat.chrom AS `chromosome`,",
+                "refFlat.txStart AS `start`,",
+                "refFlat.txEnd AS `end`,",
+                "refFlat.name AS `transcript_id`,",
+                "refFlat.strand AS `strand`,",
+                "`geneName` AS `gene_name`,",
+                "'NA' AS `biotype`",
+                "FROM `refFlat` INNER JOIN `knownToRefSeq`",
+                "ON refFlat.name=knownToRefSeq.value",
+                "INNER JOIN `knownCanonical`",
+                "ON knownToRefSeq.name=knownCanonical.transcript",
+                "ORDER BY `chromosome`, `start`"))
+        },
+        mm39 = {
             #return(paste("SELECT refFlat.chrom AS `chromosome`,",
             #   "refFlat.txStart AS `start`,",
             #   "refFlat.txEnd AS `end`,",
@@ -2933,7 +3172,7 @@ getUcscQuery <- function(org,type,refdb="ucsc") {
                 "GROUP BY `transcript_id`",
                 "ORDER BY `chromosome`,`start`"))
         },
-        equcab2 = {
+        equcab3 = {
             return(paste("SELECT refFlat.chrom AS `chromosome`,",
                 "refFlat.txStart AS `start`,",
                 "refFlat.txEnd AS `end`,",
